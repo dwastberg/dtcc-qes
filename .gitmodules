@@ -1,0 +1,3 @@
+[submodule "QES-Public"]
+	path = QES-Public
+	url = https://github.com/dwastberg/QES-Public.git
