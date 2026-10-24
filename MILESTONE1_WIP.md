@@ -10,7 +10,7 @@ Based on the interactive alignment:
 - **Submodule branch**: All QES fork modifications are developed on a local branch named `dtcc-embed` in `QES-Public` (remote: `dwastberg/QES-Public`), leaving `main` clean and tracking upstream.
 - **Commit strategy**: One atomic commit per completed step in the outer `dtcc-qes` repository. Existing `.idea/` workspace files remain untouched.
 - **DTCC `VolumeGrid` ordering**: `to_dtcc()` will match `VolumeGrid.coordinates()` current meshgrid `'xy'` indexing convention ($y$, then $x$, with $z$ fastest), isolated and documented so it can be updated if the DTCC Core maintainers establish an alternate standard.
-- **Current sprint focus**: Steps 1–6 are implemented and locally verified; Step 7 packaging, documentation and CI are being finalized.
+- **Current sprint focus**: Steps 1–7 are implemented and locally verified. Remote CI execution and submission of the prepared upstream license report remain external follow-ups.
 
 ---
 
@@ -472,12 +472,61 @@ Local checks after the audit:
 - Python checks pass with warnings treated as errors. Final distribution-suite
   counts, example and clean-environment evidence are recorded in Step 7.
 
-## 8. Stopping Point
+## 8. Step 7: Documentation and Reproducibility (Implemented, Locally Verified)
 
-Steps **1–6** are implemented and verified locally. Step 7 is being finalized:
-documentation, a self-contained example, locked developer requirements,
-macOS/Linux CPU/reference CI and distribution-content checks. Cross-platform
-execution remains external verification rather than an inferred local result.
+- Added `README.md` with native requirements, locked installation, API/geometry
+  conventions, domain defaults, flattening, result/diagnostic semantics, logging,
+  validation, packaging, reference regeneration, licensing and deferred scope.
+- `examples/single_building.py` constructs a city with one building, solves it
+  and returns a georeferenced VolumeGrid without input datasets or QES file I/O.
+  Its end-to-end test is part of the suite.
+- Added physical/safety/distribution notes in `docs/validation.md` and a
+  plan-to-evidence audit in `docs/milestone1-audit.md`. The legacy top-band
+  divergence limitation is stated explicitly, not hidden by convergence status.
+- Pinned the existing DTCC commit directly in `pyproject.toml` and `uv.lock`;
+  it is still `625a8feaff5d0da11d3f078082072e185ffa60a4`. Added nanobind and
+  scikit-build-core to the locked development tools so documented direct CMake
+  and no-isolation builds work after the standard development install.
+- CPU CI now includes macOS and Linux, with the latter verifying that GDAL and
+  NetCDF development headers are absent. Jobs audit/test the core, build a test
+  wheel from its sdist, install locked runtime dependencies and exercise all
+  tests and the example. Development wheels explicitly retain leak warnings.
+  Both platforms run native sanitizers; Linux enables LeakSanitizer and macOS
+  runs `leaks`. Separate macOS/Linux jobs regenerate pristine references, require
+  exact patched/pristine parity on that host and compare committed fixtures.
+- `tools/check_artifacts.py` checks GPL-3.0-only metadata, required license and
+  QES notice files, the extension/public Python files and corresponding QES
+  sources/build files, fixtures, developer tooling, documentation and example.
+  Source builds include those files and exclude IDE/build products.
+- Built/checked wheel and sdist, then rebuilt a distributable wheel from a fresh
+  extraction. A new virtual environment received all **139 locked runtime
+  packages** from cache, that rebuilt wheel and no development-environment site
+  packages. **All 177 Python tests pass with warnings treated as errors** there,
+  and the standalone example produces 24,000 cells with the expected velocity
+  shape. Installed QES/DTCC revisions were checked explicitly. Minimal extension
+  import without runtime dependencies remains supported and tested separately.
+- Final native checks: **seven CTests pass**, the complete symbol audit passes
+  without exceptions, and the macOS module links only libc++ and libSystem.
+  The seven sanitizer tests and zero-leak result are recorded under Step 6.
+- Added a concrete upstream license-metadata issue draft in
+  `docs/upstream-license-report.md`; NOTICE identifies its prepared/unsubmitted
+  status. No external issue or message was sent.
+
+## 9. Final Status and External Follow-ups
+
+Milestone implementation steps **1–7 are present**, with the full local
+end-to-end path, physical checks, safety checks, documentation and installation
+verified on macOS arm64 / Apple Clang 17 / Python 3.13. Review corrections and
+acceptance mapping are recorded in the final audit document.
+
+Remote acceptance is **not claimed**: the outer checkout has no Git remote and
+GitHub CLI has no authenticated host. The new QES fork commit and existing
+embedding history must be published before another checkout can fetch the
+submodule. After publishing, run the CPU/reference workflow to confirm Linux
+execution, cross-platform numerical tolerances and remote macOS/reference jobs.
+The prepared licensing report also awaits explicit upstream submission. These
+are the only external follow-ups; they are not represented as successful CI or
+upstream communication.
 
 The outer repository retains one implementation commit per completed step.
 QES changes are committed separately on `dtcc-embed`; its commits must be

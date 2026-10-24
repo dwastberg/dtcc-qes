@@ -1,13 +1,17 @@
-name: I/O-free native build
+name: CPU milestone validation
 
 on: [push, pull_request, workflow_dispatch]
+
+env:
+  CMAKE_BUILD_PARALLEL_LEVEL: "2"
+  CMAKE_GENERATOR: Ninja
 
 jobs:
   linux-without-io-libraries:
     runs-on: ubuntu-latest
     container: python:3.13-slim
     steps:
-      - name: Install compiler and Boost headers
+      - name: Install compiler and header-only Boost
         run: |
           apt-get update
           apt-get install -y --no-install-recommends git build-essential cmake ninja-build libboost-dev binutils
@@ -19,30 +23,115 @@ jobs:
           test ! -e /usr/include/gdal/gdal.h
           test ! -e /usr/include/netcdf.h
           test ! -e /usr/include/netcdf
-      - name: Install build tools
-        run: python -m pip install build scikit-build-core nanobind pytest uv
-      - name: Build native core and audit all objects
+      - name: Install locked development tools
+        run: |
+          python -m pip install uv
+          uv export --frozen --only-group dev --no-hashes --format requirements-txt --output-file /tmp/dev-requirements.txt
+          python -m pip install -r /tmp/dev-requirements.txt
+      - name: Build and audit the entire native core
         run: |
           cmake -S . -B build/native -DDTCC_QES_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DPython_EXECUTABLE=$(command -v python) -DCMAKE_DISABLE_FIND_PACKAGE_GDAL=ON -DCMAKE_DISABLE_FIND_PACKAGE_NetCDF=ON
-          cmake --build build/native --parallel 2
+          cmake --build build/native
           cmake --build build/native --target check_native_symbols
           ctest --test-dir build/native --output-on-failure
-      - name: Build wheel from the source distribution
-        run: python -m build
-      - name: Install wheel without runtime dependencies and check import
+      - name: Build development wheel from sdist and check licenses/sources
         run: |
+          python -m build --no-isolation -Ccmake.define.DTCC_QES_BUILD_TESTS=ON
+          python tools/check_artifacts.py dist
           python -m pip install --no-deps dist/*.whl
-          DTCC_QES_NATIVE_TEST="$PWD/build/native/check_safety" python -m pytest -q tests/test_build.py tests/test_native_safety.py
-      - name: Install locked runtime dependencies and check the public API
+          DTCC_QES_NATIVE_TEST="$PWD/build/native/check_safety" python -W error -m pytest -q tests/test_build.py tests/test_native_safety.py
+      - name: Install locked runtime and exercise the API and example
         run: |
-          uv export --frozen --no-dev --no-emit-project --no-hashes --format requirements-txt --output-file build/runtime-requirements.txt
-          python -m pip install -r build/runtime-requirements.txt
-          DTCC_QES_NATIVE_TEST="$PWD/build/native/check_safety" python -m pytest -q
-      - name: Check native cleanup with sanitizers and leak detection
+          uv export --frozen --no-dev --no-emit-project --no-hashes --format requirements-txt --output-file /tmp/runtime-requirements.txt
+          python -m pip install -r /tmp/runtime-requirements.txt
+          DTCC_QES_NATIVE_TEST="$PWD/build/native/check_safety" python -W error -m pytest -q
+          python examples/single_building.py
+      - name: Check native cleanup with ASan, UBSan and LeakSanitizer
         env:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1
         run: |
           cmake -S . -B build/sanitizers -DDTCC_QES_BUILD_TESTS=ON -DDTCC_QES_ENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug -DPython_EXECUTABLE=$(command -v python)
-          cmake --build build/sanitizers --target check_safety check_noio check_runner --parallel 2
+          cmake --build build/sanitizers --target check_safety check_noio check_runner check_physics
           ctest --test-dir build/sanitizers --output-on-failure
+
+  macos-cpu:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install native requirements and locked development tools
+        run: |
+          brew install boost cmake ninja
+          python -m pip install uv
+          uv export --frozen --only-group dev --no-hashes --format requirements-txt --output-file /tmp/dev-requirements.txt
+          python -m pip install -r /tmp/dev-requirements.txt
+      - name: Build and audit CPU core
+        run: |
+          cmake -S . -B build/native -DDTCC_QES_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DPython_EXECUTABLE=$(command -v python)
+          cmake --build build/native
+          cmake --build build/native --target check_native_symbols
+          ctest --test-dir build/native --output-on-failure
+      - name: Build wheel from sdist and check minimal import
+        run: |
+          python -m build --no-isolation -Ccmake.define.DTCC_QES_BUILD_TESTS=ON
+          python tools/check_artifacts.py dist
+          python -m venv build/minimal-install
+          build/minimal-install/bin/python -m pip install --no-deps dist/*.whl
+          build/minimal-install/bin/python -c 'from dtcc_qes import _qes; assert not _qes.io_enabled; assert _qes._core_grid_shape(4, 3, 2) == [4, 3, 2]'
+          python -m pip install --no-deps dist/*.whl
+      - name: Test installed wheel against locked runtime
+        run: |
+          uv export --frozen --no-dev --no-emit-project --no-hashes --format requirements-txt --output-file /tmp/runtime-requirements.txt
+          python -m pip install -r /tmp/runtime-requirements.txt
+          DTCC_QES_NATIVE_TEST="$PWD/build/native/check_safety" python -W error -m pytest -q
+          python examples/single_building.py
+      - name: Check assertions, sanitizers and macOS leaks
+        run: |
+          cmake -S . -B build/sanitizers -DDTCC_QES_BUILD_TESTS=ON -DDTCC_QES_ENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug -DPython_EXECUTABLE=$(command -v python)
+          cmake --build build/sanitizers --target check_safety check_noio check_runner check_physics
+          ASAN_OPTIONS=detect_leaks=0:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir build/sanitizers --output-on-failure
+          leaks --atExit -- build/native/check_runner
+
+  executable-references:
+    name: Standalone references (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install standalone I/O dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build libboost-dev libboost-program-options-dev libgdal-dev libnetcdf-dev libnetcdf-c++4-dev pkg-config
+      - name: Install standalone I/O dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install boost cmake ninja gdal netcdf netcdf-cxx
+      - name: Install locked reference-tool dependencies
+        run: |
+          python -m pip install uv
+          uv export --frozen --only-group reference --no-hashes --format requirements-txt --output-file /tmp/reference-requirements.txt
+          python -m pip install -r /tmp/reference-requirements.txt
+      - name: Generate pristine results and require exact patched parity
+        run: |
+          python tools/make_reference.py -j 2 --output build/pristine-reference
+          python tools/make_reference.py -j 2 --qes-source QES-Public --check --reference-dir build/pristine-reference
+      - name: Check committed references across toolchains
+        run: |
+          python tools/make_reference.py --exe build/qes-reference/qesWinds/qesWinds --check --rtol 1e-5 --atol 2e-5
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reference-provenance-${{ matrix.os }}
+          path: build/pristine-reference/*.json

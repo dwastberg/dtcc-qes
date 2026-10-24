@@ -614,7 +614,7 @@ wheels = [
 [[package]]
 name = "dtcc-core"
 version = "0.9.8.dev0"
-source = { git = "https://github.com/dtcc-platform/dtcc-core.git?rev=develop#625a8feaff5d0da11d3f078082072e185ffa60a4" }
+source = { git = "https://github.com/dtcc-platform/dtcc-core.git?rev=625a8feaff5d0da11d3f078082072e185ffa60a4#625a8feaff5d0da11d3f078082072e185ffa60a4" }
 dependencies = [
     { name = "affine" },
     { name = "aiohttp" },
@@ -670,7 +670,9 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "build" },
+    { name = "nanobind" },
     { name = "pytest" },
+    { name = "scikit-build-core" },
 ]
 reference = [
     { name = "netcdf4" },
@@ -678,14 +680,16 @@ reference = [
 
 [package.metadata]
 requires-dist = [
-    { name = "dtcc-core", git = "https://github.com/dtcc-platform/dtcc-core.git?rev=develop" },
+    { name = "dtcc-core", git = "https://github.com/dtcc-platform/dtcc-core.git?rev=625a8feaff5d0da11d3f078082072e185ffa60a4" },
     { name = "numpy", specifier = ">=2.5.4" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "build", specifier = ">=1.2" },
+    { name = "nanobind", specifier = ">=3.1.0" },
     { name = "pytest", specifier = ">=8" },
+    { name = "scikit-build-core", specifier = ">=0.12" },
 ]
 reference = [{ name = "netcdf4", specifier = ">=1.7.5.1.post1" }]
 
@@ -1627,6 +1631,15 @@ wheels = [
 ]
 
 [[package]]
+name = "nanobind"
+version = "3.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c7/1f/e28fae715401e8f57400e72aeaff4fde12046d31828164f34f61f0816da8/nanobind-3.1.0.tar.gz", hash = "sha256:6661e3dc1434d78781ccf7913442d90361dab395c3424efadb63bbb6ddea7ea3", size = 1145390, upload-time = "2026-09-18T15:59:42.726Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/36/c1/6fd56f7a02a478d54a1a3e6000eccd34b446b1c45cbf0d002fe5d2937126/nanobind-3.1.0-py3-none-any.whl", hash = "sha256:96984dbe8154ffb86e653b1b60aaeed6985c710c5e75ad0279eb87943c66292d", size = 316917, upload-time = "2026-09-18T15:59:37.796Z" },
+]
+
+[[package]]
 name = "netcdf4"
 version = "1.7.5.1.post1"
 source = { registry = "https://pypi.org/simple" }
@@ -1812,6 +1825,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/9e/0f/4bada23d2848aaa61f3577181dbd83895fa49fb9beb406835ed7eaca1b96/parse-1.22.4.tar.gz", hash = "sha256:706d458feed5a81b02768d3156e8070baf6cee7d150a3a3c0cd43101a875c3b5", size = 40279, upload-time = "2026-10-20T21:16:07.702Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8f/5f/fbe039e06108eefad9e6b1f7d915a9c73ca0451700c7d48ce05eaa3a2833/parse-1.22.4-py2.py3-none-any.whl", hash = "sha256:ae430a4477316eed4a9710f642b2db968ec89d5d82e6b0908b8169673b476847", size = 21919, upload-time = "2026-10-20T21:16:06.547Z" },
+]
+
+[[package]]
+name = "pathspec"
+version = "1.1.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/5a/82/42f767fc1c1143d6fd36efb827202a2d997a375e160a71eb2888a925aac1/pathspec-1.1.1.tar.gz", hash = "sha256:17db5ecd524104a120e173814c90367a96a98d07c45b2e10c2f3919fff91bf5a", size = 135180, upload-time = "2026-04-27T01:46:08.907Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f1/d9/7fb5aa316bc299258e68c73ba3bddbc499654a07f151cba08f6153988714/pathspec-1.1.1-py3-none-any.whl", hash = "sha256:a00ce642f577bf7f473932318056212bc4f8bfdf53128c78bbd5af0b9b20b189", size = 57328, upload-time = "2026-04-27T01:46:07.06Z" },
 ]
 
 [[package]]
@@ -2690,6 +2712,19 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/af/9e/418094adaee6b056ce199051b255448ed872829051e341b2294c80da0977/rpds_py-2026.9.1-cp315-cp315t-musllinux_1_2_x86_64.whl", hash = "sha256:1c2d1f6da5128eabf34e963d7163a818846075a52568250d006c4c953b40f903", size = 582764, upload-time = "2026-10-04T16:31:36.665Z" },
     { url = "https://files.pythonhosted.org/packages/3d/9b/1698ebf6b840ddfe8b472198abbed6ace35c6e398faeecd6c47dae742a4e/rpds_py-2026.9.1-cp315-cp315t-win32.whl", hash = "sha256:5c6ee90dee3e85e055ddfd502d611643d9b0fd94c818220bda84ec3dacd9b27b", size = 203795, upload-time = "2026-10-04T16:31:38.53Z" },
     { url = "https://files.pythonhosted.org/packages/8a/e2/91f70d804c61f8eac39a417e82aa1024f655ab9e8bdd7393b196242bc41b/rpds_py-2026.9.1-cp315-cp315t-win_amd64.whl", hash = "sha256:fe5ad0664ec772b02c45859041aa17655709cced7a31005817fbbbd988c25567", size = 223037, upload-time = "2026-10-04T16:31:40.468Z" },
+]
+
+[[package]]
+name = "scikit-build-core"
+version = "1.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+    { name = "pathspec" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b2/1a/8c00b19c0a1e7acf890676af2efa430339d38e59fa9437f2aab8517af3f4/scikit_build_core-1.1.1.tar.gz", hash = "sha256:e347a59193c878ac56a363e57506938652a6dd8c965790cb1cbc6bc7e8d5abad", size = 516192, upload-time = "2026-10-02T19:18:37.596Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/01/1b/83913d6d5c6a7f8ad5bf5d67b2d57ab09475f1bb9dd0c7a3f44067d59b90/scikit_build_core-1.1.1-py3-none-any.whl", hash = "sha256:6f6d6cf600e2e9639fd258ecd11cfc19bd189354b968916a519c6793e7e26237", size = 293450, upload-time = "2026-10-02T19:18:36.087Z" },
 ]
 
 [[package]]
