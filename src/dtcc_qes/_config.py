@@ -148,6 +148,8 @@ def prepare_config(city: CityGeometry, condition: WindCondition, grid: GridSpec,
     else:
         xy = np.concatenate(city.rings)
         padding = max(grid.horizontal_padding, 3 * spacing)
+        if padding > 5000 * spacing:
+            raise ValueError("Horizontal padding exceeds the native 10000-cell dimension limit")
         lower, upper = xy.min(axis=0) - padding, xy.max(axis=0) + padding
         origin = (float(lower[0]), float(lower[1]), base)
         extents = (float(upper[0] - lower[0]), float(upper[1] - lower[1]),
@@ -157,10 +159,7 @@ def prepare_config(city: CityGeometry, condition: WindCondition, grid: GridSpec,
         ratio = extent / spacing
         if not math.isfinite(ratio) or ratio > 10000:
             raise ValueError(f"Grid {axis} dimension exceeds the native 10000-cell limit")
-        # Snap roundoff around exact integer extents without dropping real cells.
-        nearest = round(ratio)
-        count = nearest if math.isclose(ratio, nearest, rel_tol=0, abs_tol=1e-10) else math.ceil(ratio)
-        counts.append(count)
+        counts.append(math.ceil(ratio))
     nx, ny, nz = counts
     if nx < 3 or ny < 3 or nz < 2:
         raise ValueError("Grid needs at least three cells in x/y and two in z")

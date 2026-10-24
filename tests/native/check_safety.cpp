@@ -176,6 +176,11 @@ static void nonconvergence()
   const auto result = solve(inputs, *data, 1);
   require(!result.converged && result.iterations == 1, "Iteration-limit status is wrong");
   require(result.max_lagrange_multiplier_change > result.tolerance, "Non-convergence metric is wrong");
+  // A permissive tolerance must not report the unmeasured initial sentinel.
+  std::unique_ptr<Solver> loose(SolverFactory::create(CPU_Type, data->domain, 2.0f));
+  loose->resetLambda();
+  const auto measured = loose->solve(data.get(), fixture::max_iterations);
+  require(measured.iterations > 0, "Convergence must be measured at least once");
 }
 
 static void check_messages()

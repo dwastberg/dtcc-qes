@@ -10,7 +10,7 @@ Based on the interactive alignment:
 - **Submodule branch**: All QES fork modifications are developed on a local branch named `dtcc-embed` in `QES-Public` (remote: `dwastberg/QES-Public`), leaving `main` clean and tracking upstream.
 - **Commit strategy**: One atomic commit per completed step in the outer `dtcc-qes` repository. Existing `.idea/` workspace files remain untouched.
 - **DTCC `VolumeGrid` ordering**: `to_dtcc()` will match `VolumeGrid.coordinates()` current meshgrid `'xy'` indexing convention ($y$, then $x$, with $z$ fastest), isolated and documented so it can be updated if the DTCC Core maintainers establish an alternate standard.
-- **Current sprint focus**: Step 5 (city adapter and public API) is complete. Steps 1–5 are complete; Step 6 is next.
+- **Current sprint focus**: Steps 1–6 are implemented and locally verified; Step 7 packaging, documentation and CI are being finalized.
 
 ---
 
@@ -413,13 +413,71 @@ leaks --atExit -- build/extension/check_runner
   suite with locked runtime dependencies. Remote CI has not been run here;
   cross-platform velocity tolerance confirmation remains outstanding.
 
-## 7. Stopping Point
+## 7. Step 6: Physical Validation and Review of Steps 1–5 (Completed Locally)
 
-Steps **1–5 are complete**. Step 6 is next: broader physical validation,
-especially mass conservation using native staggered velocities, cardinal winds,
-and confirmation of cross-platform numerical tolerances. The public city API
-and DTCC result conversion are implemented. Step 7's reproducibility and
-end-user documentation remain outstanding.
+The audit confirmed the reference generation, I/O-free target split, native
+ownership and exceptions, pimpl/array boundary and public city API against the
+plan. It also found and corrected these gaps:
+
+- The serial solver treated its initial error sentinel (`1.0`) as convergence
+  when tolerance was at least 1. The focused QES commit `398e9a4e` now evaluates
+  at least one iteration before accepting convergence. Native/public tests
+  exercise this edge case; the default reference operations and results are
+  unchanged. The recorded embedding revision is now
+  `398e9a4e776575f59f747a7a738048229a9ad166`.
+- Explicit upper bounds could snap slightly inward near an integer cell count.
+  Counts now always round upward. Unallocatable horizontal padding is rejected
+  before overflowing NumPy extent arithmetic.
+- Exact-reference selection now checks the actual compiler ID/major version,
+  Release build mode and architecture instead of assuming every macOS arm64
+  build uses the reference toolchain. Native build provenance is in metadata.
+- Reference tooling pins the full pristine commit, disables CUDA discovery,
+  checks spacing/coordinates/classifications exactly even with velocity
+  tolerances, and supports comparing pristine and patched outputs from a
+  separate directory on the same host.
+
+New physical checks cover analytic neutral logarithmic profiles for all four
+cardinal winds and two roughness lengths, calm wind, concave simple footprints,
+exact rectangular solid occupancy, zero solid velocities, finite results,
+repeated calls and preservation of source attributes/transforms/cached bounds.
+The existing array-ownership, unequal-axis ordering, native validation,
+subprocess silence, GIL release and concurrency checks remain passing.
+
+`check_physics` computes conservative flux from QES's staggered faces and
+wall/open-face coefficients, independently of multiplier-change diagnostics.
+For the building reference, interior initial RMS divergence `0.0968621 s^-1`
+falls to `2.42600e-7 s^-1`, with maximum `4.02331e-6 s^-1`. The assertions are
+maximum `< 1e-5 s^-1`, RMS `< 1e-6 s^-1`, and at least a thousand-fold RMS
+reduction. Flat flux is exactly zero. Perturbing one face verifies sensitivity.
+
+This validation also identified a **preserved upstream numerical limitation**:
+the last solved vertical band has an uncorrected upper staggered face in QES
+2.3.1. Both pristine and embedded outputs have about `0.0152191 s^-1` maximum
+divergence there. It is reported and regression-tested separately; neither
+that band nor prescribed outer boundaries is represented as passing the
+interior flux criterion. All physical cells are returned as the baseline does.
+Changing the boundary algorithm is outside this embedding milestone.
+
+Local checks after the audit:
+
+- All seven native CTests pass, including staggered flux and failure recovery.
+- All seven pass under ASan/UBSan with assertions enabled; macOS `leaks`
+  reports **0 leaks and 0 leaked bytes** for repeated runner lifecycle checks.
+- The full symbol audit passes for both archives and all four bridge objects,
+  with no allowlist entries. Poisoned I/O headers remain active in test builds.
+- Rebuilt pristine and patched standalone executables reproduce the committed
+  arrays and summaries **exactly**. A separate freshly generated reference
+  directory also confirms exact patched/pristine parity. The complete default
+  standalone build still succeeds.
+- Python checks pass with warnings treated as errors. Final distribution-suite
+  counts, example and clean-environment evidence are recorded in Step 7.
+
+## 8. Stopping Point
+
+Steps **1–6** are implemented and verified locally. Step 7 is being finalized:
+documentation, a self-contained example, locked developer requirements,
+macOS/Linux CPU/reference CI and distribution-content checks. Cross-platform
+execution remains external verification rather than an inferred local result.
 
 The outer repository retains one implementation commit per completed step.
 QES changes are committed separately on `dtcc-embed`; its commits must be

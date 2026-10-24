@@ -2,7 +2,6 @@
 
 import gc
 import logging
-import platform
 from pathlib import Path
 import subprocess
 import sys
@@ -14,17 +13,7 @@ from dtcc_qes import _qes
 
 from fixtures.cases import CASES, FLAT, ONE_BUILDING, reference_path
 from runner_cases import inputs, prepared
-
-
-def assert_reference_velocity(actual, expected):
-    # The references use Apple Clang 17 on arm64. Keep exact comparisons on
-    # that host family. Other compiler/libm combinations may round float32
-    # profiles and SOR updates differently: 1e-5 relative, 2e-5 m/s absolute.
-    # Coordinate and classification comparisons remain exact on every host.
-    if sys.platform == "darwin" and platform.machine() == "arm64":
-        np.testing.assert_array_equal(actual, expected)
-    else:
-        np.testing.assert_allclose(actual, expected, rtol=1e-5, atol=2e-5)
+from reference_checks import assert_reference_velocity
 
 
 @pytest.fixture(autouse=True)

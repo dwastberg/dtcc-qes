@@ -12,7 +12,7 @@ from dtcc_qes import wind
 
 from city_cases import city_case
 from fixtures.cases import CASES, FLAT, ONE_BUILDING, reference_path
-from test_runner import assert_reference_velocity
+from reference_checks import assert_reference_velocity
 
 pytestmark = pytest.mark.usefixtures("dtcc_logger")
 

@@ -16,6 +16,7 @@ def test_extension_links_core():
     from dtcc_qes import _qes
 
     assert _qes.io_enabled is False
+    assert _qes.compiler_id and _qes.compiler_version and _qes.build_type
     assert _qes.qes_version == "v2.3.1"
     assert len(_qes.qes_revision) == 40
     assert _qes.qes_revision == files("dtcc_qes").joinpath("_qes_revision.txt").read_text().strip()

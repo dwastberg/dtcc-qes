@@ -44,7 +44,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 QES_SUBMODULE = ROOT / "QES-Public"
 # QES 2.3.1, the unmodified upstream revision the references are taken from.
-QES_REFERENCE_REV = "dced7ec5"
+QES_REFERENCE_REV = "dced7ec571487be7538eca17bfc25bb3262fb6d0"
 
 sys.path.insert(0, str(ROOT / "tests" / "fixtures"))
 import cases as fixtures  # noqa: E402
@@ -52,7 +52,7 @@ import cases as fixtures  # noqa: E402
 # Arrays compared by --check (all of them except purely descriptive ones).
 COMPARED_ARRAYS = (
     "x", "y", "z", "u", "v", "w", "icell",
-    "x_face", "y_face", "z_face", "u_face", "v_face", "w_face", "icellflag_full",
+    "x_face", "y_face", "z_face", "u_face", "v_face", "w_face", "icellflag_full", "dz_array",
 )
 
 
@@ -126,6 +126,10 @@ def build_qes(source: Path, build: Path, jobs: int) -> Path:
         "cmake", "-S", str(source), "-B", str(build),
         "-DCMAKE_BUILD_TYPE=Release",
         "-DENABLE_OPENMP=OFF",
+        "-DCMAKE_CUDA_COMPILER=NOTFOUND",
+        "-DCMAKE_DISABLE_FIND_PACKAGE_CUDAToolkit=ON",
+        "-DQES_ENABLE_CUDA=OFF", "-DQES_BUILD_PLUME=OFF",
+        "-DQES_BUILD_FIRE=OFF", "-DQES_BUILD_EXAMPLES=OFF",
         *netcdf_cxx_hints(),
     ]
     run(configure, capture_output=True)
@@ -320,7 +324,7 @@ def compare(name: str, new: dict[str, np.ndarray], ref_path: Path, rtol: float, 
             a, b = new[key], ref[key]
             if a.shape != b.shape or a.dtype != b.dtype:
                 problems.append(f"{name}.{key}: shape/dtype {a.shape}/{a.dtype} != {b.shape}/{b.dtype}")
-            elif rtol == 0 and atol == 0:
+            elif key not in {"u", "v", "w", "u_face", "v_face", "w_face"} or (rtol == 0 and atol == 0):
                 if not np.array_equal(a, b):
                     diff = np.max(np.abs(a.astype(np.float64) - b.astype(np.float64)))
                     problems.append(f"{name}.{key}: differs (max abs diff {diff:.3g})")
@@ -337,6 +341,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--build-dir", type=Path, default=None, help="CMake build directory")
     ap.add_argument("--exe", type=Path, help="use an existing qesWinds executable (skips building)")
     ap.add_argument("--output", type=Path, default=fixtures.REFERENCE_DIR, help="where to write references")
+    ap.add_argument("--reference-dir", type=Path, default=fixtures.REFERENCE_DIR,
+                    help="reference directory for --check (default: committed fixtures)")
     ap.add_argument("--check", action="store_true", help="compare with stored references instead of writing")
     ap.add_argument("--rtol", type=float, default=0.0, help="--check relative tolerance (default exact)")
     ap.add_argument("--atol", type=float, default=0.0, help="--check absolute tolerance (default exact)")
@@ -377,8 +383,9 @@ def main(argv: list[str] | None = None) -> int:
                   f"max Lagrange multiplier change {summary['max_lagrange_multiplier_change']:.3g}",
                   file=sys.stderr)
             if args.check:
-                problems += compare(case.name, arrays, fixtures.reference_path(case), args.rtol, args.atol)
-                with open(fixtures.reference_path(case).with_suffix(".json")) as f:
+                reference = args.reference_dir / f"{case.name}.npz"
+                problems += compare(case.name, arrays, reference, args.rtol, args.atol)
+                with open(reference.with_suffix(".json")) as f:
                     stored = json.load(f)["solver_summary"]
                 if stored != summary and args.rtol == 0 and args.atol == 0:
                     problems.append(f"{case.name}: solver summary {summary} != stored {stored}")
