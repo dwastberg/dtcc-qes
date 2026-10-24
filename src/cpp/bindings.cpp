@@ -4,6 +4,9 @@
 
 NB_MODULE(_qes, m)
 {
+#ifdef DTCC_QES_DISTRIBUTABLE_BUILD
+  nanobind::set_leak_warnings(false);
+#endif
   m.doc() = "Private QES core build checks; wind runner not yet implemented";
   m.attr("qes_version") = dtcc_qes::qes_version();
   m.attr("qes_revision") = dtcc_qes::qes_revision();

@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+option(DTCC_QES_BUILD_TESTS "Build native embedding safety checks" OFF)
+option(DTCC_QES_ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
 
 find_package(Python 3.13 REQUIRED COMPONENTS Interpreter Development.Module)
 execute_process(COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
@@ -25,8 +27,16 @@ set(QES_BUILD_PLUME OFF)
 set(QES_BUILD_FIRE OFF)
 set(ENABLE_OPENMP OFF)
 add_subdirectory(QES-Public)
-target_compile_definitions(qesutil PRIVATE NDEBUG)
-target_compile_definitions(qeswindscore PRIVATE NDEBUG)
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT DTCC_QES_ENABLE_SANITIZERS)
+  target_compile_definitions(qesbuild INTERFACE NDEBUG)
+endif()
+if(DTCC_QES_ENABLE_SANITIZERS)
+  if(NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
+    message(FATAL_ERROR "Sanitizer checks require GCC or Clang")
+  endif()
+  target_compile_options(qesbuild INTERFACE -fsanitize=address,undefined -fno-omit-frame-pointer -UNDEBUG)
+  target_link_options(qesbuild INTERFACE -fsanitize=address,undefined)
+endif()
 
 set(DTCC_QES_QES_REVISION "unknown" CACHE STRING "QES source revision (recorded in sdists)")
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/dtcc_qes/_qes_revision.txt")
@@ -43,19 +53,19 @@ endif()
 # Bindings contain no QES headers; only the audited bridge instantiates them.
 add_library(qesbridge OBJECT src/cpp/build_info.cpp)
 target_link_libraries(qesbridge PRIVATE qeswindscore)
-target_compile_definitions(qesbridge PRIVATE NDEBUG DTCC_QES_QES_REVISION="${DTCC_QES_QES_REVISION}")
+target_compile_definitions(qesbridge PRIVATE DTCC_QES_QES_REVISION="${DTCC_QES_QES_REVISION}")
 nanobind_add_module(_qes src/cpp/bindings.cpp $<TARGET_OBJECTS:qesbridge>)
 target_link_libraries(_qes PRIVATE qeswindscore)
-target_compile_definitions(_qes PRIVATE NDEBUG)
+if(NOT DTCC_QES_BUILD_TESTS AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+  target_compile_definitions(_qes PRIVATE DTCC_QES_DISTRIBUTABLE_BUILD)
+endif()
 install(TARGETS _qes LIBRARY DESTINATION dtcc_qes)
 
 add_custom_target(check_native_symbols
   COMMAND "${Python_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/check_native_symbols.py"
-    --categories file_io io_libraries --
     $<TARGET_FILE:qesutil> $<TARGET_FILE:qeswindscore> $<TARGET_OBJECTS:qesbridge>
   DEPENDS qesutil qeswindscore qesbridge COMMAND_EXPAND_LISTS VERBATIM)
 
-option(DTCC_QES_BUILD_TESTS "Build native checks for the I/O split" OFF)
 if(DTCC_QES_BUILD_TESTS)
   enable_testing()
   # Make accidental includes fail even on developer machines that have the
@@ -78,4 +88,18 @@ if(DTCC_QES_BUILD_TESTS)
     target_link_libraries(check_noio PRIVATE qeswindscore)
   endif()
   add_test(NAME noio_rejects_files COMMAND check_noio)
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/cases.py"
+    "${CMAKE_CURRENT_SOURCE_DIR}/tools/make_native_fixture.py")
+  execute_process(COMMAND "${Python_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/make_native_fixture.py"
+    "${CMAKE_CURRENT_BINARY_DIR}/fixture.h" RESULT_VARIABLE DTCC_QES_FIXTURE_STATUS)
+  if(NOT DTCC_QES_FIXTURE_STATUS EQUAL 0)
+    message(FATAL_ERROR "Could not generate native fixture constants")
+  endif()
+  add_executable(check_safety tests/native/check_safety.cpp)
+  target_include_directories(check_safety PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+  target_link_libraries(check_safety PRIVATE qeswindscore)
+  foreach(mode success failures nonconvergence messages)
+    add_test(NAME native_${mode} COMMAND check_safety ${mode})
+  endforeach()
 endif()

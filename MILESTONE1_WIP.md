@@ -10,7 +10,7 @@ Based on the interactive alignment:
 - **Submodule branch**: All QES fork modifications are developed on a local branch named `dtcc-embed` in `QES-Public` (remote: `dwastberg/QES-Public`), leaving `main` clean and tracking upstream.
 - **Commit strategy**: One atomic commit per completed step in the outer `dtcc-qes` repository. Existing `.idea/` workspace files remain untouched.
 - **DTCC `VolumeGrid` ordering**: `to_dtcc()` will match `VolumeGrid.coordinates()` current meshgrid `'xy'` indexing convention ($y$, then $x$, with $z$ fastest), isolated and documented so it can be updated if the DTCC Core maintainers establish an alternate standard.
-- **Current sprint focus**: Execute Step 1 (Reference baseline) and Step 2 (Build & I/O-free QES core).
+- **Current sprint focus**: Complete Step 3 (Safe native embedding); Steps 1 and 2 are complete.
 
 ---
 
@@ -130,15 +130,107 @@ wheel builds install those tools automatically from `[build-system].requires`.
 
 QES fork commit: `47645fa0` (on `dtcc-embed`).
 
-## 4. Stopping Point
+## 4. Step 3: Make the Supported QES Path Safe to Embed (Completed)
 
-Steps **1 and 2 are complete**. Stop here as requested. Step 3 starts with the
-native message sink, removal of process termination, ownership cleanup and
-structured solver diagnostics. Native console output and legacy termination
-paths still exist in the core at this boundary. No public `wind.run()` API is
-available yet.
+### Implementation and ownership decisions
+
+- Added `qes::log` with `debug`, `info`, `warning` and `error` levels, a
+  replaceable handler and an RAII handler scope. The default handler discards
+  messages. Callbacks and message destruction cannot let diagnostic exceptions
+  escape. Formatting uses `vsnprintf` into memory and never writes to stdio.
+- Converted the CPU sources and their headers to this sink, including the I/O
+  sources used by standalone programs. The separate `qesutilio` console handler
+  is installed by each standalone entry point. Core progress bars and carriage
+  return updates were removed; time-step announcements remain ordinary messages.
+- Added `qes::InputError`, `qes::RuntimeError` and `qes::UnsupportedFeature`.
+  Replaced CPU-source `exit()` calls with exceptions. `QESout::error()` throws
+  without logging the error a second time. Standalone entry points catch errors,
+  report them through the console handler and return `EXIT_FAILURE`.
+- Added checks for missing/null sensors, empty or inconsistent time series,
+  non-finite values, invalid local sensor locations, invalid grid sizes/spacing,
+  unavailable solvers and invalid building definitions. The old sensor assertion
+  is now an input exception, checked before the first sensor is indexed.
+- Default-initialized parsing-dependent input and building state. The supported
+  default solver tolerance is now `1e-5`; invalid tolerances below float epsilon
+  are rejected. The fixture inputs and numerical operations are unchanged.
+- `WINDSGeneralData` uniquely owns its internally created wind profiler, wall,
+  canopy and shapefile-created buildings. Its public building list continues to
+  borrow caller-supplied buildings. Constructor failure releases the objects
+  already allocated.
+- `WINDSInputData` and its nested raw-pointer lists remain **borrowed views** for
+  in-memory inputs. The native test fixture owns every input with `unique_ptr`;
+  the future runner must use the same contract and destroy wind data before its
+  inputs. No implicit deletion or ownership transfer of caller geometry was added.
+  General ownership repair of the optional XML/WRF/terrain paths is outside the
+  supported in-memory path.
+- Added a virtual `Solver` destructor and structured `SolveDiagnostics` from
+  `solve()`: iterations, maximum Lagrange multiplier change, effective tolerance
+  and convergence. Non-convergence is returned explicitly; non-finite numerical
+  changes throw. The standalone drivers print the historical reference-tool
+  summary from this structure, outside the core.
+- Release builds now require the **full** symbol audit. Debug/sanitizer builds
+  retain internal assertions. Distributable builds disable nanobind leak warnings;
+  development builds with native tests keep them enabled.
+
+### Verification
+
+- Full symbol audit passes for both core archives and the bridge object, with
+  no allowlist entries: no termination, console, file I/O or I/O-library symbols.
+- **Five native CTests pass**: I/O rejection, repeated successful solves, failure
+  unwinding, non-convergence and diagnostic handlers. Success checks include
+  20 flat preparations/solves and three building runs, the flat logarithmic
+  profile, finite results and preservation of borrowed building ownership.
+- **27 Python tests pass**, including subprocess checks of stdout/stderr file
+  descriptors for successful runs, supported failures, non-convergence and
+  diagnostic buffering. Private extension checks cover both native bridge
+  validation and a QES `InputError`, followed by another successful call.
+- All five native tests pass under **AddressSanitizer and UndefinedBehaviorSanitizer**
+  with internal assertions enabled. macOS `leaks --atExit` reports **0 leaks and
+  0 leaked bytes** across repeated runs and failure unwinding.
+- The full default standalone build succeeds. Both flat and one-building cases
+  reproduce all committed arrays and solver summaries **exactly**. A missing
+  XML input reports its error once through the console handler and exits with
+  status 1 instead of aborting.
+- Built and tested the development wheel, then rebuilt the distributable wheel
+  from a fresh source-distribution extraction. Both import and propagate native
+  input exceptions silently; the packaged QES revision matches `f34034b7`.
+- The Linux job now runs the full audit, descriptor-level tests and a separate
+  ASan/UBSan build with LeakSanitizer enabled. Remote CI has not been run here.
+  CUDA and OpenMP remain deferred and untested; the active CUDA solver signatures
+  were kept compatible with the new diagnostics return type.
+
+Focused QES fork commits on `dtcc-embed`:
+
+1. `74817ae4`: silent leveled diagnostics and throwing errors.
+2. `d530b4a3`: internal ownership and validation of borrowed inputs.
+3. `f34034b7`: solver diagnostics and standalone exception handling.
+
+Additional verification commands:
+
+```sh
+cmake --build build/extension --target check_native_symbols
+ctest --test-dir build/extension --output-on-failure
+uv run --group dev python -m pytest -q tests/test_build.py tests/test_native_safety.py
+cmake -S . -B build/sanitizers -DPython_EXECUTABLE="$PWD/.venv/bin/python" -DDTCC_QES_BUILD_TESTS=ON -DDTCC_QES_ENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug
+cmake --build build/sanitizers --target check_safety check_noio --parallel 8
+ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir build/sanitizers --output-on-failure
+leaks --atExit -- build/extension/check_safety all
+```
+
+The macOS sanitizer command disables LeakSanitizer, which is unavailable there;
+`leaks` supplies the local leak check. Linux CI enables LeakSanitizer instead.
+The full symbol audit is intended for the Release build; sanitizer/debug builds
+intentionally retain assertion-failure references.
+
+## 5. Stopping Point
+
+Steps **1, 2 and 3 are complete**. Step 4 is next: the owning pimpl runner,
+numeric-array bindings, GIL release, serialized native calls, message buffering
+and forwarding to DTCC logging, and independent result arrays. The native core
+can now be exercised silently and safely on the supported cases, but there is
+still no public `wind.run()` API.
 
 The outer repository retains one implementation commit per completed step.
-QES changes are committed separately on `dtcc-embed`; its commit must be
+QES changes are committed separately on `dtcc-embed`; its commits must be
 available on the fork before remote CI can check out the submodule. Existing
 `.idea/` changes are left untouched.
