@@ -9,10 +9,11 @@ acceptance criteria.
 
 ## Numerical parity and physical checks
 
-- All centre coordinates and classifications are exact comparisons. Velocities
-  are exact on the recorded compiler family/major version, architecture and
-  Release mode; elsewhere `rtol=1e-5`, `atol=2e-5 m/s` permits float32/libm/SOR
-  rounding differences. Metadata identifies the actual native compiler.
+- All centre coordinates and classifications are exact comparisons. Serial
+  velocities are exact on the recorded compiler family/major version,
+  architecture and Release mode; elsewhere, including the OpenMP red-black
+  solver, `rtol=1e-5`, `atol=2e-5 m/s` permits float32/libm/SOR ordering and
+  rounding differences. Metadata identifies the actual native compiler and backend.
   Cross-platform thresholds require successful CI evidence, not only a local
   assertion policy. The reference jobs also compare pristine and patched
   executables **exactly on the same host** before comparing committed arrays.
@@ -49,6 +50,25 @@ condition would change the baseline and is outside this embedding milestone.
 ```sh
 build/native/check_physics --report
 ```
+
+## OpenMP validation
+
+Configure with `-DDTCC_QES_OPENMP=ON -DDTCC_QES_BUILD_TESTS=ON` to run the
+native safety, lifecycle and flux checks with OpenMP. On macOS, provide
+`-DOpenMP_ROOT="$(brew --prefix libomp)"` after installing `libomp`.
+The existing native tests use two threads. Additional `openmp_1_threads`,
+`openmp_2_threads` and `openmp_4_threads` tests verify real team creation,
+factory selection, exact repeatability of velocities and convergence across
+thread counts, and agreement with the serial solver at the tolerances above.
+They include a tall building spanning thread slabs and check all faces adjoining
+solid cells. Non-finite iteration failures are reported after leaving the
+parallel region, so they remain catchable native/Python exceptions.
+
+CI builds both serial and OpenMP variants on Linux and macOS, including wheels,
+the full Python suite, native symbol audits and ASan/UBSan checks. `AUTO` can be
+checked without an OpenMP installation by configuring with
+`-DDTCC_QES_OPENMP=AUTO -DCMAKE_DISABLE_FIND_PACKAGE_OpenMP=ON`; the same missing
+dependency must fail configuration when `DTCC_QES_OPENMP=ON`.
 
 ## Geometry and result ordering
 

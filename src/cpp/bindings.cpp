@@ -94,6 +94,8 @@ NB_MODULE(_qes, m)
   m.attr("qes_version") = dtcc_qes::qes_version();
   m.attr("qes_revision") = dtcc_qes::qes_revision();
   m.attr("io_enabled") = false;
+  m.attr("openmp_enabled") = dtcc_qes::openmp_enabled();
+  m.attr("cpu_backend") = dtcc_qes::cpu_backend();
   m.attr("compiler_id") = DTCC_QES_COMPILER_ID;
   m.attr("compiler_version") = DTCC_QES_COMPILER_VERSION;
   m.attr("build_type") = DTCC_QES_BUILD_TYPE;

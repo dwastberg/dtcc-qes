@@ -8,7 +8,7 @@ import sys
 import numpy as np
 import pytest
 from dtcc_core.model import Bounds
-from dtcc_qes import wind
+from dtcc_qes import _qes, wind
 
 from city_cases import city_case
 from fixtures.cases import CASES, FLAT, ONE_BUILDING, reference_path
@@ -33,6 +33,8 @@ def test_public_api_matches_references(case, translation):
     assert result.diagnostics.converged
     assert result.metadata["domain"]["effective_bounds"] == grid.bounds
     assert result.metadata["versions"]["qes"]["revision"]
+    assert result.metadata["versions"]["native_build"]["openmp_enabled"] is _qes.openmp_enabled
+    assert result.metadata["model"]["backend"] == _qes.cpu_backend
     assert result.metadata["versions"]["dtcc_core"]["version"]
     assert result.metadata["model"]["sensor"] == (case.wind.sensor_x, case.wind.sensor_y)
     assert result.velocity.flags.owndata and result.velocity.dtype == np.float32

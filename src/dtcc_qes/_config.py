@@ -52,7 +52,7 @@ class GridSpec:
     bounds: tuple[float, float, float, float, float, float] | Bounds | None = None
     horizontal_padding: float = 20.0
     vertical_clearance: float = 20.0
-    max_cells: int = 2000000
+    max_cells: int = 20000000
 
     def __post_init__(self):
         for name in ("resolution", "horizontal_padding", "vertical_clearance"):
@@ -83,7 +83,7 @@ class GridSpec:
 
 @dataclass(frozen=True)
 class SolverOptions:
-    """Serial CPU convergence control; the metric is multiplier change."""
+    """CPU convergence control; the metric is multiplier change."""
     tolerance: float = 1e-5
     max_iterations: int = 500
     raise_on_nonconvergence: bool = True

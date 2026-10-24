@@ -5,9 +5,16 @@ on: [push, pull_request, workflow_dispatch]
 env:
   CMAKE_BUILD_PARALLEL_LEVEL: "2"
   CMAKE_GENERATOR: Ninja
+  OMP_NUM_THREADS: "2"
+  OMP_DYNAMIC: "FALSE"
 
 jobs:
   linux-without-io-libraries:
+    name: Linux CPU (OpenMP ${{ matrix.openmp }})
+    strategy:
+      fail-fast: false
+      matrix:
+        openmp: ["OFF", "ON"]
     runs-on: ubuntu-latest
     container: python:3.13-slim
     steps:
@@ -30,15 +37,16 @@ jobs:
           python -m pip install -r /tmp/dev-requirements.txt
       - name: Build and audit the entire native core
         run: |
-          cmake -S . -B build/native -DDTCC_QES_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DPython_EXECUTABLE=$(command -v python) -DCMAKE_DISABLE_FIND_PACKAGE_GDAL=ON -DCMAKE_DISABLE_FIND_PACKAGE_NetCDF=ON
+          cmake -S . -B build/native -DDTCC_QES_OPENMP=${{ matrix.openmp }} -DDTCC_QES_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DPython_EXECUTABLE=$(command -v python) -DCMAKE_DISABLE_FIND_PACKAGE_GDAL=ON -DCMAKE_DISABLE_FIND_PACKAGE_NetCDF=ON
           cmake --build build/native
           cmake --build build/native --target check_native_symbols
           ctest --test-dir build/native --output-on-failure
       - name: Build development wheel from sdist and check licenses/sources
         run: |
-          python -m build --no-isolation -Ccmake.define.DTCC_QES_BUILD_TESTS=ON
+          python -m build --no-isolation -Ccmake.define.DTCC_QES_BUILD_TESTS=ON -Ccmake.define.DTCC_QES_OPENMP=${{ matrix.openmp }}
           python tools/check_artifacts.py dist
           python -m pip install --no-deps dist/*.whl
+          python -c 'from dtcc_qes import _qes; assert _qes.openmp_enabled == ("${{ matrix.openmp }}" == "ON")'
           DTCC_QES_NATIVE_TEST="$PWD/build/native/check_safety" python -W error -m pytest -q tests/test_build.py tests/test_native_safety.py
       - name: Install locked runtime and exercise the API and example
         run: |
@@ -51,11 +59,16 @@ jobs:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1
         run: |
-          cmake -S . -B build/sanitizers -DDTCC_QES_BUILD_TESTS=ON -DDTCC_QES_ENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug -DPython_EXECUTABLE=$(command -v python)
-          cmake --build build/sanitizers --target check_safety check_noio check_runner check_physics
+          cmake -S . -B build/sanitizers -DDTCC_QES_OPENMP=${{ matrix.openmp }} -DDTCC_QES_BUILD_TESTS=ON -DDTCC_QES_ENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug -DPython_EXECUTABLE=$(command -v python)
+          cmake --build build/sanitizers
           ctest --test-dir build/sanitizers --output-on-failure
 
   macos-cpu:
+    name: macOS CPU (OpenMP ${{ matrix.openmp }})
+    strategy:
+      fail-fast: false
+      matrix:
+        openmp: ["OFF", "ON"]
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -70,20 +83,26 @@ jobs:
           python -m pip install uv
           uv export --frozen --only-group dev --no-hashes --format requirements-txt --output-file /tmp/dev-requirements.txt
           python -m pip install -r /tmp/dev-requirements.txt
+      - name: Install OpenMP runtime
+        if: matrix.openmp == 'ON'
+        run: |
+          brew install libomp
+          echo "OpenMP_ROOT=$(brew --prefix libomp)" >> "$GITHUB_ENV"
       - name: Build and audit CPU core
         run: |
-          cmake -S . -B build/native -DDTCC_QES_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DPython_EXECUTABLE=$(command -v python)
+          cmake -S . -B build/native -DDTCC_QES_OPENMP=${{ matrix.openmp }} -DDTCC_QES_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DPython_EXECUTABLE=$(command -v python)
           cmake --build build/native
           cmake --build build/native --target check_native_symbols
           ctest --test-dir build/native --output-on-failure
       - name: Build wheel from sdist and check minimal import
         run: |
-          python -m build --no-isolation -Ccmake.define.DTCC_QES_BUILD_TESTS=ON
+          python -m build --no-isolation -Ccmake.define.DTCC_QES_BUILD_TESTS=ON -Ccmake.define.DTCC_QES_OPENMP=${{ matrix.openmp }}
           python tools/check_artifacts.py dist
           python -m venv build/minimal-install
           build/minimal-install/bin/python -m pip install --no-deps dist/*.whl
           build/minimal-install/bin/python -c 'from dtcc_qes import _qes; assert not _qes.io_enabled; assert _qes._core_grid_shape(4, 3, 2) == [4, 3, 2]'
           python -m pip install --no-deps dist/*.whl
+          python -c 'from dtcc_qes import _qes; assert _qes.openmp_enabled == ("${{ matrix.openmp }}" == "ON")'
       - name: Test installed wheel against locked runtime
         run: |
           uv export --frozen --no-dev --no-emit-project --no-hashes --format requirements-txt --output-file /tmp/runtime-requirements.txt
@@ -92,8 +111,8 @@ jobs:
           python examples/single_building.py
       - name: Check assertions, sanitizers and macOS leaks
         run: |
-          cmake -S . -B build/sanitizers -DDTCC_QES_BUILD_TESTS=ON -DDTCC_QES_ENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug -DPython_EXECUTABLE=$(command -v python)
-          cmake --build build/sanitizers --target check_safety check_noio check_runner check_physics
+          cmake -S . -B build/sanitizers -DDTCC_QES_OPENMP=${{ matrix.openmp }} -DDTCC_QES_BUILD_TESTS=ON -DDTCC_QES_ENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug -DPython_EXECUTABLE=$(command -v python)
+          cmake --build build/sanitizers
           ASAN_OPTIONS=detect_leaks=0:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir build/sanitizers --output-on-failure
           leaks --atExit -- build/native/check_runner
 

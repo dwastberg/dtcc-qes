@@ -3,7 +3,7 @@
 Audited against the workspace's `MILESTONE1.md`, including its fixed native
 safety constraints and acceptance criteria. Implementation steps 1–7 are
 present. Local acceptance is verified on macOS arm64 / Apple Clang 17 / Python
-3.13. Remote CI execution and upstream publication remain explicitly pending.
+3.13. GitHub CI execution and upstream issue submission remain pending.
 
 ## Traceability
 
@@ -26,6 +26,15 @@ same-host reference directory exactly. A wheel rebuilt from a fresh sdist was
 installed into a new environment with all 139 locked runtime packages; all
 177 tests and the example pass there. The module and DTCC installation point
 to the intended QES/DTCC revisions.
+
+Initial beta verification (`0.1.0b1`): installed serial and OpenMP wheels each
+pass **177 Python tests** with warnings treated as errors and run the example.
+The serial build passes **seven native CTests**; OpenMP passes **ten**, including
+one-, two- and four-thread repeatability. All ten OpenMP tests also pass under
+ASan/UBSan. Both native symbol audits pass. The beta sdist builds an OpenMP
+wheel; license/source checks pass for the sdist and both wheels. Package metadata,
+the native extension and the recorded source revision agree on the beta version
+and QES commit.
 
 ## Findings corrected during review
 
@@ -57,23 +66,26 @@ to the intended QES/DTCC revisions.
   `0.0152191 s^-1` maximum divergence. This is guarded separately and retained
   for numerical parity. See [validation details](validation.md). Convergence
   does not mean every returned cell has zero divergence.
-- Terrain/cut cells/vegetation/turbulence, multiple conditions, OpenMP/CUDA,
+- Terrain/cut cells/vegetation/turbulence, multiple conditions, CUDA,
   public wheel publishing and the anisotropic Domain correction remain deferred.
 
 ## External acceptance still pending
 
-The workspace has no outer Git remote or authenticated GitHub session. CI
-configuration has been parsed/reviewed and its local equivalents executed,
+The workspace has no outer Git remote configured. CI configuration has been
+parsed/reviewed and its local equivalents executed,
 but GitHub jobs have **not** run. A successful Linux build without I/O headers,
 Linux numerical-tolerance confirmation and remote macOS/reference job results
-cannot be claimed yet. Publish the existing `dtcc-embed` fork commits before
-publishing the outer checkout, then run `.github/workflows/native-build.yml`.
-No push, external issue or message was sent from this session.
+cannot be claimed yet. The QES fork's six embedding commits have been pushed to
+`dwastberg/QES-Public` on `dtcc-embed`, and GitHub advertises
+`71f8dcb29e8308f4d64bcccafc3d87ee7f0b29bd` as the branch tip. The parent
+submodule and `src/dtcc_qes/_qes_revision.txt` pin that commit. Configure the
+outer GitHub remote and push the beta commit to run
+`.github/workflows/native-build.yml`.
 
 The licensing metadata inconsistency has a concrete
 [prepared upstream issue](upstream-license-report.md); submission remains
 pending. It does not change this package's GPL-3.0-only metadata/notices.
 
-The original plan remains unchanged and untracked as supplied. Existing IDE
-files were preserved. Work history keeps one outer commit per milestone step,
-with the QES numerical fix committed separately on `dtcc-embed`.
+The original plan is retained in `MILESTONE1.md`. IDE files remain local and
+ignored. Work history keeps one outer commit per milestone step, followed by
+the beta preparation commit; QES fixes are committed separately on `dtcc-embed`.

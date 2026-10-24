@@ -44,11 +44,13 @@ def check_sdist(path):
         for name in (
             "LICENSE", "NOTICE", "README.md", "pyproject.toml", "uv.lock", "CMakeLists.txt",
             "QES-Public/LICENSE", "QES-Public/CMakeLists.txt", "QES-Public/src/winds/Solver_CPU.cpp",
+            "QES-Public/src/winds/Solver_CPU_RB.cpp", "QES-Public/src/winds/Solver_CPU_RB.h",
             "QES-Public/src/winds/CMakeLists.txt", "QES-Public/src/util/CMakeLists.txt",
             "QES-Public/src/qes/Domain.cpp", "QES-Public/cmake/Modules/FindNetCDF.cmake",
             "src/cpp/bindings.cpp", "src/cpp/wind_runner.cpp", "src/cpp/qes_inputs.cpp",
             "src/dtcc_qes/wind.py", "src/dtcc_qes/_qes_revision.txt", "tests/fixtures/reference/flat.npz",
             "tests/fixtures/reference/one_building.npz", "tests/native/check_physics.cpp",
+            "tests/native/check_openmp.cpp", "demo/simple_wind_demo.py", "demo/medium_city.py",
             "tools/check_native_symbols.py", "tools/make_reference.py", "tools/check_artifacts.py",
             "examples/single_building.py", "docs/validation.md", "docs/upstream-license-report.md",
             "docs/milestone1-audit.md",

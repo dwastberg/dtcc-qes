@@ -519,16 +519,30 @@ end-to-end path, physical checks, safety checks, documentation and installation
 verified on macOS arm64 / Apple Clang 17 / Python 3.13. Review corrections and
 acceptance mapping are recorded in the final audit document.
 
-Remote acceptance is **not claimed**: the outer checkout has no Git remote and
-GitHub CLI has no authenticated host. The new QES fork commit and existing
-embedding history must be published before another checkout can fetch the
-submodule. After publishing, run the CPU/reference workflow to confirm Linux
+Remote CI acceptance is **not claimed**: the outer checkout has no Git remote.
+The QES fork's full embedding history is now published on `dtcc-embed` at
+`71f8dcb29e8308f4d64bcccafc3d87ee7f0b29bd`, verified against GitHub. The parent
+submodule and packaged revision record pin that commit. After publishing the
+outer repository, run the CPU/reference workflow to confirm Linux
 execution, cross-platform numerical tolerances and remote macOS/reference jobs.
 The prepared licensing report also awaits explicit upstream submission. These
 are the only external follow-ups; they are not represented as successful CI or
 upstream communication.
 
 The outer repository retains one implementation commit per completed step.
-QES changes are committed separately on `dtcc-embed`; its commits must be
-available on the fork before remote CI can check out the submodule. Existing
-`.idea/` changes are left untouched.
+QES changes are committed separately on `dtcc-embed` and are available on the
+fork for remote CI. IDE files are preserved locally and excluded from the beta.
+
+## 10. Initial beta preparation
+
+Version `0.1.0b1` includes optional OpenMP CPU solving, backend metadata,
+deterministic parallel convergence and solid-face updates, and two city demos.
+The submodule declares `dtcc-embed` as its branch while pinning the exact
+published commit above. The beta lockfile passes `uv lock --check --offline`.
+
+Installed serial and OpenMP beta wheels each pass all **177 Python tests**
+with warnings treated as errors and run the single-building example. Serial
+and OpenMP native suites pass **7/7** and **10/10** tests respectively; OpenMP
+also passes **10/10** under ASan/UBSan. Both native symbol audits pass. A wheel
+build from the beta sdist succeeds, and artifact checks verify the licenses,
+QES sources, OpenMP checks and demos. Remote GitHub CI remains pending.

@@ -1,16 +1,20 @@
 # dtcc-qes
 
-Run QES-Winds' serial CPU solver on a DTCC city and receive georeferenced
+Run QES-Winds' CPU solver on a DTCC city and receive georeferenced
 NumPy arrays in memory. Milestone 1 supports one steady neutral logarithmic
 wind profile, uniform cells, flat ground and simple LOD0 building extrusions.
 Python supplies geometry and wind inputs; the native core performs no file I/O.
 
+Version `0.1.0b1` is the initial beta. The Python API may change before a stable
+release; supported inputs and solver limitations are documented below.
+
 ## Build and install
 
 Requirements are Python 3.13+, a C++17 compiler, CMake 3.18+, Git and Boost
-1.73+ headers. The library requires no GDAL, NetCDF, compiled Boost, OpenMP
-or CUDA libraries. DTCC's Python dependencies include their usual GIS wheels;
-those are separate from the native QES build requirements.
+1.73+ headers. OpenMP is detected automatically, with a serial CPU fallback
+when unavailable. The library requires no GDAL, NetCDF, compiled Boost or CUDA
+libraries. DTCC's Python dependencies include their usual GIS wheels; those
+are separate from the native QES build requirements.
 
 On macOS, install native tools with `brew install cmake ninja boost`.
 On Debian/Ubuntu use
@@ -23,12 +27,49 @@ uv sync --frozen --group dev
 uv run --frozen python examples/single_building.py
 ```
 
-The submodule records the embedding fork revision. `pyproject.toml` and
+The submodule pins an exact commit on the embedding fork's `dtcc-embed` branch.
+`pyproject.toml` and
 `uv.lock` pin DTCC Core to `625a8feaff5d0da11d3f078082072e185ffa60a4`.
 Keep the lockfile when reproducing this milestone; do not update it to track
 `develop`. First installation downloads the locked packages and builds the
 native extensions. The fork's recorded commit must be available on its remote
 before another machine can fetch the submodule.
+
+### OpenMP
+
+Set the CMake option `DTCC_QES_OPENMP` to select the CPU build:
+
+| Value | Behavior |
+| --- | --- |
+| `OFF` | Serial CPU solver; no OpenMP runtime dependency |
+| `ON` | OpenMP red-black CPU solver; configuration fails if OpenMP is unavailable |
+| `AUTO` (default) | Use OpenMP when CMake finds it; otherwise build the serial solver |
+
+On macOS, install `libomp` and tell CMake where to find it:
+
+```sh
+brew install libomp
+export OpenMP_ROOT="$(brew --prefix libomp)"
+```
+
+GCC on Debian/Ubuntu supports OpenMP with the compiler installed above. Rebuild
+the Python package with OpenMP enabled:
+
+```sh
+uv sync --frozen --group dev --reinstall-package dtcc-qes -Ccmake.define.DTCC_QES_OPENMP=ON
+OMP_NUM_THREADS=4 uv run --frozen --no-sync python examples/single_building.py
+```
+
+For a direct CMake build, pass `-DDTCC_QES_OPENMP=ON`. Standard OpenMP settings
+such as `OMP_NUM_THREADS` control the thread team. The GIL is released during
+native work; the process-wide QES mutex still serializes separate solves.
+OpenMP accelerates the numerical solve within that mutex.
+
+`result.metadata["model"]["backend"]` identifies the solver, and
+`result.metadata["versions"]["native_build"]["openmp_enabled"]` records build
+support. Red-black iteration ordering can change iteration counts and float32
+velocities slightly. Serial builds retain the original reference behavior.
+An OpenMP-built wheel requires its OpenMP runtime on the destination system.
 
 ## Run a city
 
@@ -48,6 +89,25 @@ volume_grid = result.to_dtcc()
 
 The executable [example](examples/single_building.py) constructs its own `City`
 and has no input files or external datasets.
+
+For a wind speed map and streamlines around three rectangular buildings, run
+the self-contained [demo](demo/simple_wind_demo.py):
+
+```sh
+uv run --frozen python demo/simple_wind_demo.py
+# Save the figure without opening a window:
+uv run --frozen python demo/simple_wind_demo.py --save build/wind-demo.png --no-show
+```
+
+The [medium city demo](demo/medium_city.py) places 20 buildings of varied heights
+in six blocks with a central avenue and cross streets. It shows a street-level
+wind speed map and streamlines:
+
+```sh
+uv run --frozen python demo/medium_city.py
+# Save the figure without opening a window:
+uv run --frozen python demo/medium_city.py --save build/medium-city.png --no-show
+```
 
 Wind speed is m/s at the reference height above ground. Direction is
 meteorological: degrees clockwise from north indicating where the wind comes
@@ -85,7 +145,7 @@ Options are frozen dataclasses.
 | Group | Defaults |
 | --- | --- |
 | `WindCondition` | Required speed/direction; reference height 10 m; roughness 0.1 m |
-| `GridSpec` | Resolution 2 m; horizontal padding 20 m; vertical clearance 20 m; `max_cells=2_000_000` |
+| `GridSpec` | Resolution 2 m; horizontal padding 20 m; vertical clearance 20 m; `max_cells=20_000_000` |
 | `SolverOptions` | Tolerance `1e-5`; 500 iterations; `raise_on_nonconvergence=True` |
 | `FlatTerrain` | Explicit global ground elevation 0 m |
 
@@ -99,10 +159,10 @@ bounds. Bounds' zmin must equal the chosen ground plane. Native limits are
 physical cell centre above each roof. Cell counts are checked before allocation.
 
 Default rooftop, cavity, street canyon, wake, sidewall and wall roughness
-settings are QES's defaults and are recorded in metadata. The backend is serial
-CPU, stair-step geometry, zero halos and `logLawFlag=0`. Native calls serialize
-through a process-wide mutex; this milestone makes no parallel throughput
-claim. Roughness is preparation-time state in the private reusable runner.
+settings are QES's defaults and are recorded in metadata. Both CPU backends use
+stair-step geometry, zero halos and `logLawFlag=0`. Native calls serialize through
+a process-wide mutex; OpenMP parallelizes each solve internally. Roughness is
+preparation-time state in the private reusable runner.
 
 ## Results, diagnostics and logging
 
@@ -199,6 +259,6 @@ both distributions carry the licenses/notices. The upstream metadata discrepancy
 has a [prepared report](docs/upstream-license-report.md).
 
 Terrain sampling, cut cells, roof detail, vegetation, turbulence, multiple
-conditions, OpenMP/CUDA and public binary wheel distribution remain deferred.
+conditions, CUDA and public binary wheel distribution remain deferred.
 `Domain::getDomainSize()`'s anisotropic-spacing correction belongs to the
 terrain milestone; this implementation uses scalar spacing throughout.

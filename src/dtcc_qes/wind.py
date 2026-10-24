@@ -74,12 +74,13 @@ def run(city, condition: WindCondition, *, grid=GridSpec(), solver=SolverOptions
         domain=prepared.domain, condition=asdict(condition), solver=asdict(solver), terrain=prepared.terrain,
         effective_condition={name: float(np.float32(value)) for name, value in asdict(condition).items()},
         height_policy=height_policy, ignored_city_objects=geometry.ignored_objects,
-        model=dict(backend="serial CPU", log_law_flag=0, mesh_type_flag=0, halo_x=0, halo_y=0,
+        model=dict(backend=_qes.cpu_backend, log_law_flag=0, mesh_type_flag=0, halo_x=0, halo_y=0,
                    boundary_layer="neutral logarithmic", sensor=(prepared.model.sensor_x, prepared.model.sensor_y),
                    timestamp="2020-01-01T00:00:00", **{name: getattr(prepared.model, name) for name in model_names}),
         versions=dict(dtcc_qes=__version__, qes=dict(version=_qes.qes_version, revision=_qes.qes_revision),
                       dtcc_core=_dtcc_version(), native_build=dict(compiler_id=_qes.compiler_id,
-                          compiler_version=_qes.compiler_version, build_type=_qes.build_type)),
+                          compiler_version=_qes.compiler_version, build_type=_qes.build_type,
+                          openmp_enabled=_qes.openmp_enabled)),
         buildings=[dict(native_id=i, source_id=source_id, height=height, height_source=source,
                         original_base_range=base_range, redundant_vertices_removed=removed)
                    for i, (source_id, height, source, base_range, removed) in enumerate(zip(

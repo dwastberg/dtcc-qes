@@ -4,12 +4,13 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "dtcc-qes"
-version = "0.1.0"
-description = "DTCC integration with the QES-Winds serial CPU solver"
+version = "0.1.0b1"
+description = "DTCC integration with the QES-Winds CPU solver"
 readme = "README.md"
 requires-python = ">=3.13"
 license = "GPL-3.0-only"
 license-files = ["LICENSE", "QES-Public/LICENSE", "NOTICE"]
+classifiers = ["Development Status :: 4 - Beta"]
 dependencies = [
     "dtcc-core",
     "numpy>=2.5.4",
@@ -19,7 +20,7 @@ dependencies = [
 cmake.version = ">=3.18"
 wheel.packages = ["src/dtcc_qes"]
 build-dir = "build/{wheel_tag}"
-sdist.include = ["QES-Public/src/**", "QES-Public/cmake/**", "QES-Public/CMakeLists.txt", "QES-Public/LICENSE", "QES-Public/README.md", "src/**", "tests/**", "tools/**", "examples/**", "docs/**", "CMakeLists.txt", "README.md", "LICENSE", "NOTICE"]
+sdist.include = ["QES-Public/src/**", "QES-Public/cmake/**", "QES-Public/CMakeLists.txt", "QES-Public/LICENSE", "QES-Public/README.md", "src/**", "tests/**", "tools/**", "examples/**", "demo/**", "docs/**", "CMakeLists.txt", "README.md", "LICENSE", "NOTICE"]
 sdist.exclude = [".idea/**", "dtcc-qes/**", "build/**"]
 
 [tool.uv.sources]
