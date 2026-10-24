@@ -1,0 +1,24 @@
+{
+  "case": "flat",
+  "solver_summary": {
+    "iterations": 1,
+    "max_lagrange_multiplier_change": 0.0,
+    "tolerance": 1e-05,
+    "max_iterations": 500,
+    "converged": true
+  },
+  "qes": {
+    "revision": "dced7ec571487be7538eca17bfc25bb3262fb6d0",
+    "modified": false
+  },
+  "toolchain": {
+    "compiler": "/usr/bin/c++",
+    "compiler_version": "Apple clang version 17.0.0 (clang-1700.4.4.1)",
+    "build_type": "Release",
+    "cxx_flags": "-O3 -DNDEBUG",
+    "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64"
+  },
+  "solver": "serial CPU (qesWinds -s 1)",
+  "generator": "tools/make_reference.py"
+}
