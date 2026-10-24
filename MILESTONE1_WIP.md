@@ -10,7 +10,7 @@ Based on the interactive alignment:
 - **Submodule branch**: All QES fork modifications are developed on a local branch named `dtcc-embed` in `QES-Public` (remote: `dwastberg/QES-Public`), leaving `main` clean and tracking upstream.
 - **Commit strategy**: One atomic commit per completed step in the outer `dtcc-qes` repository. Existing `.idea/` workspace files remain untouched.
 - **DTCC `VolumeGrid` ordering**: `to_dtcc()` will match `VolumeGrid.coordinates()` current meshgrid `'xy'` indexing convention ($y$, then $x$, with $z$ fastest), isolated and documented so it can be updated if the DTCC Core maintainers establish an alternate standard.
-- **Current sprint focus**: Complete Step 3 (Safe native embedding); Steps 1 and 2 are complete.
+- **Current sprint focus**: Step 4 (runner and bindings) is complete. Steps 1–4 are complete; Step 5 is next.
 
 ---
 
@@ -222,13 +222,106 @@ The macOS sanitizer command disables LeakSanitizer, which is unavailable there;
 The full symbol audit is intended for the Release build; sanitizer/debug builds
 intentionally retain assertion-failure references.
 
-## 5. Stopping Point
+## 5. Step 4: Build the Runner and Bindings (Completed)
 
-Steps **1, 2 and 3 are complete**. Step 4 is next: the owning pimpl runner,
-numeric-array bindings, GIL release, serialized native calls, message buffering
-and forwarding to DTCC logging, and independent result arrays. The native core
-can now be exercised silently and safely on the supported cases, but there is
-still no public `wind.run()` API.
+### Implementation and private contract
+
+- Added plain `GridConfig`, `ModelSettings`, `WindCondition`, `SolverOptions`
+  and numeric building arrays in `src/cpp/wind_config.h`. QES types remain
+  hidden behind `WindRunner`'s pimpl and never enter the bindings.
+- `qes_inputs.cpp` is the single construction and float64-to-float32 conversion
+  point for QES simulation, meteorology, sensor, time-series and building
+  objects. The sensor defaults to the fixture's `(11, 31)` location and uses
+  the fixed `2020-01-01T00:00:00` timestamp. All input owners outlive wind data;
+  the solver is destroyed before wind data. The QES fork did not need changes.
+- `_qes.WindRunner.prepare(grid, model, vertices, offsets, heights,
+  base_heights, ids)` creates fresh owned geometry. Failed preparation preserves
+  the previous prepared state. The array contract is CPU NumPy, C contiguous:
+  float64 `(N, 2)` vertices, int64 `(B + 1,)` offsets, float64 `(B,)` heights
+  and base heights, and int64 `(B,)` IDs. Rings must be closed and clockwise;
+  empty geometry uses `(0, 2)` vertices and offsets `[0]`. Read-only arrays
+  are supported. The bindings snapshot arrays and config objects with the GIL.
+- Native validation checks lengths, offset bounds/ordering, finite values,
+  float32 conversion, IDs, ring closure/winding and collapsed edges, grid/index
+  limits, sensor position, roof clearance and footprint domain clearance.
+  The private grid defaults to a 2,000,000 physical-cell allocation limit and
+  accepts 3–10,000 cells in x/y and 2–10,000 in z. Footprints require two cells
+  of horizontal clearance, zero base height and a physical cell centre above
+  the roof. Full polygon validity and overlap checks belong to Step 5.
+- `solve(condition, options)` resets cell flags, applies the wind profile and
+  parameterizations, resets solver state, solves, then extracts physical cells.
+  It supports subsequent speed, direction, reference-height and solver-option
+  changes. Roughness stays fixed at preparation because QES snapshots it there.
+  Serial CPU, neutral log law, scalar spacing, flat stair-step geometry,
+  zero halos and `logLawFlag=0` remain the supported configuration.
+- One process-wide mutex covers preparation, solving and destruction. The GIL
+  is released before waiting on that mutex; the mutex is released before the
+  GIL is reacquired. `log_sink.cpp` installs/restores a scoped memory buffer
+  during native calls and never calls Python. `_logging.py` forwards QES
+  info/debug as DEBUG and warnings as WARNING through
+  `dtcc_core.common.get_python_logger("dtcc-qes")`, then emits one INFO solve
+  summary. Errors reach Python as exceptions without duplicate error records.
+- Results are copied into independently owned NumPy arrays: float32 velocity
+  `(nz, ny, nx, 3)`, int32 cell flags `(nz, ny, nx)` and float32 centre axes.
+  Face averaging follows the visualization writer; the ground ghost and extra
+  staggered top layer are omitted consistently. A diagnostics dictionary
+  reports iterations, effective tolerance, maximum Lagrange multiplier change
+  and convergence; non-convergence remains explicit for the later public API.
+  Native input exceptions map to `ValueError`, runtime exceptions to
+  `RuntimeError`, and incompatible array buffers to `TypeError`.
+
+### Verification
+
+Verified locally on macOS arm64, Apple Clang 17, Python 3.13:
+
+- Both hand-built fixture configurations reproduce every public coordinate,
+  velocity component and classification array **exactly** through the bindings.
+  Results own their NumPy storage and survive runner destruction, later solves
+  and mutations of the original input arrays/configuration.
+- **78 Python tests pass**, including strict buffer requirements, malformed
+  offsets and lengths, native validation/failure recovery, repeated solves,
+  changed solver tolerance, non-convergence, DTCC log records and descriptor
+  silence. A subprocess checks that native solve releases the GIL, then runs
+  12 concurrent calls across shared and separate runners without deadlock.
+- **Six native CTests pass**. The new runner test covers 12 construction/solve/
+  failure/repreparation cycles, concurrent shared/separate runners, independent
+  output vectors, diagnostic levels and restoration of the previous log sink.
+- All six native tests pass under **ASan and UBSan**, with assertions enabled.
+  macOS `leaks --atExit -- build/extension/check_runner` reports **0 leaks and
+  0 leaked bytes**.
+- The full native symbol audit passes for both archives and all four bridge
+  objects, with no allowlist. Poisoned GDAL/NetCDF headers remain enabled in
+  the development build.
+- Built a development wheel and sdist, rebuilt a distributable wheel from a
+  **fresh extraction**, and reran all 78 Python tests against that wheel. The
+  fresh source build also passes the complete symbol audit. A separate minimal
+  environment imports it and exercises native build checks silently without
+  runtime dependencies.
+- Linux CI now also installs runtime dependencies exported from the unchanged
+  `uv.lock`, tests the array bindings and includes the runner in sanitizer/leak
+  checks. Coordinates/classifications remain exact everywhere. Velocity tests
+  use exact comparison on macOS arm64 and `rtol=1e-5`, `atol=2e-5 m/s` elsewhere
+  to allow float32/compiler/libm rounding differences. Those cross-platform
+  thresholds still need confirmation by remote CI; it has not been run here.
+
+Additional commands:
+
+```sh
+cmake --build build/extension --parallel 8
+cmake --build build/extension --target check_native_symbols
+ctest --test-dir build/extension --output-on-failure
+.venv/bin/python -m pytest -q
+cmake --build build/sanitizers --target check_runner check_safety check_noio --parallel 8
+ASAN_OPTIONS=detect_leaks=0:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir build/sanitizers --output-on-failure
+leaks --atExit -- build/extension/check_runner
+```
+
+## 6. Stopping Point
+
+Steps **1, 2, 3 and 4 are complete**. Step 5 is next: the city adapter, public
+option groups, domain derivation, geometry/CRS/transform validation and
+`wind.run()`. The private native runner is usable and tested; the public API
+and DTCC result conversion have not been implemented.
 
 The outer repository retains one implementation commit per completed step.
 QES changes are committed separately on `dtcc-embed`; its commits must be
