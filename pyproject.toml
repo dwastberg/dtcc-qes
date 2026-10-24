@@ -1,17 +1,34 @@
+[build-system]
+requires = ["scikit-build-core>=0.12", "nanobind>=3.1.0"]
+build-backend = "scikit_build_core.build"
+
 [project]
 name = "dtcc-qes"
 version = "0.1.0"
+description = "DTCC integration with the QES-Winds serial CPU solver"
 requires-python = ">=3.13"
+license = "GPL-3.0-only"
+license-files = ["LICENSE", "QES-Public/LICENSE", "NOTICE"]
 dependencies = [
     "dtcc-core",
-    "nanobind>=3.1.0",
     "numpy>=2.5.4",
 ]
+
+[tool.scikit-build]
+cmake.version = ">=3.18"
+wheel.packages = ["src/dtcc_qes"]
+build-dir = "build/{wheel_tag}"
+sdist.include = ["QES-Public/src/**", "QES-Public/cmake/**", "QES-Public/CMakeLists.txt", "QES-Public/LICENSE", "QES-Public/README.md", "src/**", "tests/**", "tools/**", "CMakeLists.txt", "LICENSE", "NOTICE"]
+sdist.exclude = [".idea/**", "dtcc-qes/**", "build/**"]
 
 [tool.uv.sources]
 dtcc-core = { git = "https://github.com/dtcc-platform/dtcc-core.git", rev = "develop" }
 
 [dependency-groups]
+dev = [
+    "build>=1.2",
+    "pytest>=8",
+]
 reference = [
     "netcdf4>=1.7.5.1.post1",
 ]

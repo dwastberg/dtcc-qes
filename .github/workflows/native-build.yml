@@ -1,0 +1,35 @@
+name: I/O-free native build
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  linux-without-io-libraries:
+    runs-on: ubuntu-latest
+    container: python:3.13-slim
+    steps:
+      - name: Install compiler and Boost headers
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends git build-essential cmake ninja-build libboost-dev binutils
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Verify GDAL and NetCDF development packages are absent
+        run: |
+          test ! -e /usr/include/gdal/gdal.h
+          test ! -e /usr/include/netcdf.h
+          test ! -e /usr/include/netcdf
+      - name: Install build tools
+        run: python -m pip install build scikit-build-core nanobind pytest
+      - name: Build native core and audit all objects
+        run: |
+          cmake -S . -B build/native -DDTCC_QES_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DPython_EXECUTABLE=$(command -v python) -DCMAKE_DISABLE_FIND_PACKAGE_GDAL=ON -DCMAKE_DISABLE_FIND_PACKAGE_NetCDF=ON
+          cmake --build build/native --parallel 2
+          cmake --build build/native --target check_native_symbols
+          ctest --test-dir build/native --output-on-failure
+      - name: Build wheel from the source distribution
+        run: python -m build
+      - name: Install wheel without runtime dependencies and check import
+        run: |
+          python -m pip install --no-deps dist/*.whl
+          python -m pytest -q tests/test_build.py
