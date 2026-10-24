@@ -1,7 +1,7 @@
 """DTCC integration with QES-Winds.
 
-The private native runner is available as ``_qes``. The public city adapter and
-``wind.run`` API follow in the next milestone step.
+Use ``from dtcc_qes import wind`` for the in-memory city wind solver. The private
+extension remains importable without loading the public API's dependencies.
 """
 
 __version__ = "0.1.0"

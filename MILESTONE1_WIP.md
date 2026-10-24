@@ -10,7 +10,7 @@ Based on the interactive alignment:
 - **Submodule branch**: All QES fork modifications are developed on a local branch named `dtcc-embed` in `QES-Public` (remote: `dwastberg/QES-Public`), leaving `main` clean and tracking upstream.
 - **Commit strategy**: One atomic commit per completed step in the outer `dtcc-qes` repository. Existing `.idea/` workspace files remain untouched.
 - **DTCC `VolumeGrid` ordering**: `to_dtcc()` will match `VolumeGrid.coordinates()` current meshgrid `'xy'` indexing convention ($y$, then $x$, with $z$ fastest), isolated and documented so it can be updated if the DTCC Core maintainers establish an alternate standard.
-- **Current sprint focus**: Step 4 (runner and bindings) is complete. Steps 1–4 are complete; Step 5 is next.
+- **Current sprint focus**: Step 5 (city adapter and public API) is complete. Steps 1–5 are complete; Step 6 is next.
 
 ---
 
@@ -316,12 +316,110 @@ ASAN_OPTIONS=detect_leaks=0:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ctest 
 leaks --atExit -- build/extension/check_runner
 ```
 
-## 6. Stopping Point
+## 6. Step 5: City Adapter and Public API (Completed)
 
-Steps **1, 2, 3 and 4 are complete**. Step 5 is next: the city adapter, public
-option groups, domain derivation, geometry/CRS/transform validation and
-`wind.run()`. The private native runner is usable and tested; the public API
-and DTCC result conversion have not been implemented.
+### Public contract and decisions
+
+- Added `from dtcc_qes import wind` and
+  `wind.run(city, condition, *, grid=GridSpec(), solver=SolverOptions(),
+  terrain=None, height_policy="measured")`. The wind condition is required.
+  Importing the private extension still does not load runtime dependencies.
+- Public option groups are frozen dataclasses. `WindCondition` uses m/s,
+  meteorological degrees in `[0, 360)`, reference height `10 m` and roughness
+  `0.1 m`. `GridSpec` defaults to `2 m` resolution, `20 m` horizontal padding,
+  `20 m` vertical clearance and 2,000,000 physical cells. `SolverOptions`
+  defaults to tolerance `1e-5`, 500 iterations and raising on non-convergence.
+- Bounds accept a DTCC `Bounds` or a copied six-tuple
+  `(xmin, ymin, zmin, xmax, ymax, zmax)` in the global input frame. Lower
+  coordinates define the simulation origin. Upper coordinates expand to whole
+  cells at the effective float32 resolution. Without bounds, padding is at
+  least three cells and the top includes the tallest roof plus clearance and
+  the reference height. Empty cities require explicit bounds. Cell counts,
+  native dimension/index limits and geometry clearance are checked before
+  constructing the native runner.
+- `_city.py` reads canonical LOD0 `Surface` objects directly. DTCC's footprint
+  helper can select or merge multipart geometry, so it is deliberately avoided.
+  Heights come from `measured_height`; `height_policy="allow_estimated"` permits
+  `estimated_height` only when the measurement is absent. Invalid measurements
+  never fall back to estimates. Errors identify the source building.
+- Footprints are checked with Shapely, exact consecutive duplicate vertices are
+  removed, rings are closed and winding is made clockwise. Holes, multipart
+  geometry, ambiguous LOD0 representations, building parts, nested buildings,
+  and overlapping **or touching** footprints are rejected. Attached buildings
+  would need an explicit merging policy and remain unsupported. Source IDs
+  must be unique nonempty strings; metadata maps them to sequential native IDs.
+- A common float64 origin is subtracted before native narrowing. Geometry is
+  checked again at float32 precision for collapsed edges, invalid rings and
+  newly intersecting/touching footprints. Original geometry, attributes,
+  transforms and cached bounds are not changed.
+- Coordinate systems must be a shared projected/engineering CRS in metres or
+  an unlabelled synthetic metre frame. A city CRS is inherited by undeclared
+  descendants; mixed declarations and geographic/non-metre systems are rejected.
+  DTCC documents transforms as absolute local-to-global maps: identity inherits
+  an enclosing translation, equal repeated translations apply once, and
+  conflicting declarations are rejected. Rotation, shear, scale and projective
+  transforms are unsupported. Distinct buildings may declare different local
+  origins in the same global CRS.
+- Without city terrain, consistent LOD0 base elevations define the ground
+  plane (absolute tolerance `1e-6 m`). City terrain or inconsistent/nonplanar
+  bases require explicit flattening. `terrain="flat"` uses explicit bounds'
+  zmin, or the lowest footprint elevation without bounds;
+  `FlatTerrain(elevation=...)` chooses an explicit global elevation. Bounds'
+  zmin must agree with that plane. Terrain omission, original base ranges,
+  flattening and ignored non-building city objects are recorded in metadata.
+- `WindResult` exposes owned float32 velocity `(nz, ny, nx, 3)`, centre axes,
+  integer cell flags, origin, CRS, effective resolution, metadata and frozen
+  `SolveDiagnostics`. `solid_mask` marks QES classes 0 (building) and 2 (terrain),
+  excluding air parameterizations. `ConvergenceError` carries diagnostics;
+  opting out returns a non-converged result and emits one warning.
+  Native state is released before returning results or raising public errors,
+  so a retained convergence traceback does not retain the prepared domain.
+- `to_dtcc()` returns a uniform `VolumeGrid` with independent cell-associated
+  `velocity`, `speed` and `cell_flags` fields. It transposes arrays to y, x,
+  z-fastest order to match current `VolumeGrid.coordinates()` meshgrid `xy`
+  indexing. Local bounds and a translation/CRS Transform preserve the frame.
+  Speed uses float64 arithmetic to avoid overflow while taking a float32 vector
+  magnitude. Metadata records requested/effective conditions and domain, model
+  defaults, solver options, simplifications and source IDs, QES revision and
+  installed DTCC version/VCS revision (when installation metadata provides one).
+
+### Verification
+
+- **157 Python tests pass with warnings treated as errors**, including the
+  existing binding checks and 79 new public API/adapter/result checks.
+- Both public fixture runs reproduce all reference centre coordinates,
+  classifications and velocity components **exactly** on the reference host.
+  The same comparisons pass after translating the city and bounds by
+  `(1e9, -2e9, 100)`. Automatic domain derivation also preserves results and
+  local coordinates under that translation.
+- Tests cover measured/estimated height policy, invalid geometry, multipart
+  surfaces, holes, parts, duplicate cleanup, winding, overlaps/touching, loss
+  of float32 precision, projected/geographic/non-metre and conflicting CRS,
+  translation inheritance, rejected transforms, base elevation consistency,
+  explicit flattening, effective bounds and allocation limits. Two disjoint
+  buildings preserve their source-ID mapping. A calm building case also
+  returns finite zero velocity.
+- Result checks verify independent arrays/fields, preserved transforms and
+  CRS, units, cell associations and solid-mask semantics. Distinguishable
+  values on unequal axes verify the DTCC cell order against grid coordinates.
+- A subprocess exercises repeated public success, height-validation failures,
+  non-convergence, recovery and shutdown, with empty stdout/stderr when DTCC
+  logging is disabled. Non-convergence logging is tested separately.
+- All **six native CTests** and the complete native symbol audit still pass.
+  No C++ or QES fork changes were needed; the native implementation retains
+  the sanitizer/leak coverage recorded in Step 4.
+- Built the wheel and sdist, then rebuilt and tested the distributable wheel
+  from a fresh sdist extraction. The Linux job now runs the complete Python
+  suite with locked runtime dependencies. Remote CI has not been run here;
+  cross-platform velocity tolerance confirmation remains outstanding.
+
+## 7. Stopping Point
+
+Steps **1–5 are complete**. Step 6 is next: broader physical validation,
+especially mass conservation using native staggered velocities, cardinal winds,
+and confirmation of cross-platform numerical tolerances. The public city API
+and DTCC result conversion are implemented. Step 7's reproducibility and
+end-user documentation remain outstanding.
 
 The outer repository retains one implementation commit per completed step.
 QES changes are committed separately on `dtcc-embed`; its commits must be
