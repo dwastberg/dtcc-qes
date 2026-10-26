@@ -76,19 +76,87 @@ An OpenMP-built wheel requires its OpenMP runtime on the destination system.
 ```python
 from dtcc_qes import wind
 
-condition = wind.WindCondition(
+result = wind.run(
+    city,
     speed=5.0,
     direction=270.0,
     reference_height=10.0,
     roughness_length=0.1,
+    resolution=2.0,
 )
-result = wind.run(city, condition, grid=wind.GridSpec(resolution=2.0))
 velocity = result.velocity
 volume_grid = result.to_dtcc()
 ```
 
 The executable [example](examples/single_building.py) constructs its own `City`
 and has no input files or external datasets.
+
+### Optional wind dataset
+
+Import `dtcc_qes.datasets` to register `qes_wind` with DTCC Core. Core does not
+depend on or import QES, and importing `dtcc_qes` alone does not register it.
+The dataset implementation stays in this GPL-3.0-only package.
+
+```python
+from dtcc_core import datasets
+import dtcc_qes.datasets
+
+field = datasets.qes_wind(
+    bounds=[319720, 6397660, 319820, 6397760],  # EPSG:3006
+    wind_speed=5.0,
+    wind_direction=270.0,
+    resolution=2.0,  # solver cell spacing in metres
+)
+# field is a dtcc_core.model.VolumeGrid with cell-associated fields:
+# velocity, speed, cell_flags
+```
+
+The dataset fetches a LOD1 city through `datasets.city` (`source="LM"` by
+default, or `"OSM"`), fills footprint courtyards, and calls Core's
+`builder.clean_footprints` at `min_building_detail=0.5` metres. Core determines
+merged blocks and their heights. Each block becomes a constant-height QES
+obstacle; source IDs, cleaning changes, and filled courtyard areas are recorded.
+The source city is unchanged. Unsupported geometry remaining after cleaning
+raises an error.
+
+Bounds select the city area. The solver expands that area and the building
+extent by at least three cells of padding. Four-coordinate bounds derive flat
+ground from the terrain raster (or footprint bases if no raster exists) and
+the domain top from building heights and clearance. Six-coordinate bounds
+`[xmin, ymin, zmin, xmax, ymax, zmax]` specify flat ground and the domain top;
+insufficient roof clearance raises an error. `Bounds` objects are also accepted.
+
+Use `product="slice"` to return a native `dtcc_core.model.FieldSlice` with the
+same three fields associated with samples. `slice_axis="z"`,
+`slice_position=0.5`, and `slice_resolution=128` select a plane and square sample
+grid within the solver's cell-centre extent. Sampling uses the nearest cell,
+with ties choosing the lower index; metadata records the actual plane coordinate.
+Slice points use global coordinates. The field uses local coordinates with its
+origin and CRS in its transform. Solid cells retain their values and are
+identified by `cell_flags` 0 or 2.
+
+Set `slice_height` to request a horizontal slice in metres above the flat
+ground plane. It selects `slice_axis="z"` and takes precedence over
+`slice_position`:
+
+```python
+slice = datasets.qes_wind(bounds=bounds, product="slice", slice_height=2.0)
+```
+
+The height snaps to the nearest solver cell centre. Heights from ground level
+through the domain top are accepted; heights above the domain raise an error.
+`slice.metadata_payload["slice_height"]` records the sampled height above ground,
+and `slice_coordinate` records its global elevation.
+
+`result.dataset_context` contains request parameters, upstream lineage,
+preparation details, effective solver bounds, versions, and diagnostics.
+Rendering and serialized dataset formats are not part of this API yet.
+Use `datasets.qes_wind.info()` for options or run the network-backed
+[dataset example](examples/city_dataset.py):
+
+```sh
+uv run --frozen python examples/city_dataset.py 319720 6397660 319820 6397760 --product slice
+```
 
 For a wind speed map and streamlines around three rectangular buildings, run
 the self-contained [demo](demo/simple_wind_demo.py):
@@ -130,7 +198,8 @@ profile is `U(z) = U_ref log((z + z0) / z0) / log((z_ref + z0) / z0)`.
   enclosing frame, equal translations apply once, and conflicting declarations
   raise. Rotation, scaling and shear require an explicit conversion beforehand.
 - Consistent footprint elevations define one ground plane. A city containing
-  terrain requires explicit `terrain="flat"` or `FlatTerrain(elevation=...)`.
+  terrain requires explicit `terrain="flat"` or a numeric ground elevation,
+  such as `terrain=0.0`.
   Explicit flattening also permits nonplanar/inconsistent building bases.
   `"flat"` chooses bounds' zmin, or the lowest footprint base without bounds.
   Other city objects, such as trees, are omitted and recorded in metadata.
@@ -140,17 +209,17 @@ profile is `U(z) = U_ref log((z + z0) / z0) / log((z_ref + z0) / z0)`.
 
 ## Options and domain
 
-Options are frozen dataclasses.
+Options are arguments to `wind.run`; defaults are declared in its signature.
 
 | Group | Defaults |
 | --- | --- |
-| `WindCondition` | Required speed/direction; reference height 10 m; roughness 0.1 m |
-| `GridSpec` | Resolution 2 m; horizontal padding 20 m; vertical clearance 20 m; `max_cells=20_000_000` |
-| `SolverOptions` | Tolerance `1e-5`; 500 iterations; `raise_on_nonconvergence=True` |
-| `FlatTerrain` | Explicit global ground elevation 0 m |
+| Wind | Required `speed`/`direction`; `reference_height=10.0`; `roughness_length=0.1` |
+| Grid | `resolution=2.0`; `bounds=None`; `horizontal_padding=20.0`; `vertical_clearance=20.0`; `max_cells=20_000_000` |
+| Solver | `tolerance=1e-5`; `max_iterations=500`; `raise_on_nonconvergence=False` |
+| Terrain | `terrain=None` infers flat ground; `"flat"` explicitly flattens; a number sets the global ground elevation |
 
 Automatic domains include all footprints, at least three cells of horizontal
-padding, roof clearance and the reference height. Explicit `GridSpec(bounds=...)`
+padding, roof clearance and the reference height. Explicit `bounds=...`
 accepts DTCC `Bounds` or `(xmin, ymin, zmin, xmax, ymax, zmax)` in the global
 input frame. Lower bounds define the local origin; upper bounds expand to
 whole cells at the effective float32 spacing. Empty cities need explicit
@@ -182,9 +251,10 @@ a translation/CRS Transform preserve georeferencing. See
 
 Diagnostics report iterations, effective tolerance, convergence and the
 **maximum Lagrange multiplier change**, which is not a mass-conservation
-residual. Non-convergence raises `wind.ConvergenceError` by default; its
-`diagnostics` remain available. `SolverOptions(raise_on_nonconvergence=False)`
-returns the result and logs one warning. The legacy top-boundary flux limitation
+residual. Non-convergence returns the result and logs one warning by default;
+its `diagnostics.converged` is `False`. Explicit
+`wind.run(..., raise_on_nonconvergence=True)` raises `wind.ConvergenceError`
+with `diagnostics` available. The legacy top-boundary flux limitation
 is documented in the validation notes; convergence does not certify zero
 divergence in every returned cell.
 

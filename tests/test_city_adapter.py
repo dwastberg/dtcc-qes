@@ -4,8 +4,7 @@ import numpy as np
 import pytest
 from dtcc_core.model import BuildingPart, City, CityObject, GeometryType, MultiSurface, Terrain
 from dtcc_qes import wind
-from dtcc_qes._city import extract_city
-from dtcc_qes._config import prepare_config
+from dtcc_qes._city import extract_city, prepare_domain
 
 from city_cases import city_case
 from fixtures.cases import ONE_BUILDING
@@ -16,7 +15,10 @@ pytestmark = pytest.mark.usefixtures("dtcc_logger")
 def test_city_maps_to_exact_native_fixture():
     city, condition, grid, _ = city_case(ONE_BUILDING)
     geometry = extract_city(city, "measured")
-    prepared = prepare_config(geometry, condition, grid, None)
+    prepared = prepare_domain(geometry, reference_height=condition["reference_height"],
+                              roughness_length=condition["roughness_length"], **grid,
+                              horizontal_padding=20, vertical_clearance=20,
+                              max_cells=20_000_000, terrain=None)
     source = ONE_BUILDING.buildings[0]
     np.testing.assert_array_equal(prepared.arrays["vertices"], (*source.vertices, source.vertices[0]))
     np.testing.assert_array_equal(prepared.arrays["offsets"], (0, 5))
@@ -31,12 +33,12 @@ def test_estimates_require_explicit_policy_and_do_not_replace_bad_measurements()
     building.measured_height = None
     building.estimated_height = 8
     with pytest.raises(ValueError, match="Building '0'.*measured_height"):
-        wind.run(city, condition, grid=grid)
-    result = wind.run(city, condition, grid=grid, height_policy="allow_estimated")
+        wind.run(city, **condition, **grid)
+    result = wind.run(city, **condition, **grid, height_policy="allow_estimated")
     assert result.metadata["buildings"][0]["height_source"] == "estimated_height"
     building.measured_height = -1
     with pytest.raises(ValueError, match="Building '0'.*measured_height"):
-        wind.run(city, condition, grid=grid, height_policy="allow_estimated")
+        wind.run(city, **condition, **grid, height_policy="allow_estimated")
 
 
 @pytest.mark.parametrize("height", [None, 0, -1, np.nan, np.inf, "8", True])
@@ -44,7 +46,7 @@ def test_missing_or_invalid_height_identifies_building(height):
     city, condition, grid, _ = city_case(ONE_BUILDING)
     city.buildings[0].measured_height = height
     with pytest.raises(ValueError, match="Building '0'"):
-        wind.run(city, condition, grid=grid)
+        wind.run(city, **condition, **grid)
 
 
 @pytest.mark.parametrize("mutation", ["missing", "multipart", "holes", "bowtie", "line", "nonfinite", "parts", "ambiguous"])
@@ -69,7 +71,7 @@ def test_invalid_footprints_identify_building(mutation):
     else:
         building.add_geometry(copy.deepcopy(surface), id="second-footprint", lod="0")
     with pytest.raises(ValueError, match="Building '0'"):
-        wind.run(city, condition, grid=grid)
+        wind.run(city, **condition, **grid)
 
 
 def test_ring_cleanup_and_winding_do_not_mutate_source():
@@ -77,7 +79,7 @@ def test_ring_cleanup_and_winding_do_not_mutate_source():
     surface = city.buildings[0].lod0
     surface.vertices = surface.vertices[[0, 0, 3, 2, 1, 0]].copy()
     original = surface.vertices.copy()
-    result = wind.run(city, condition, grid=grid)
+    result = wind.run(city, **condition, **grid)
     np.testing.assert_array_equal(surface.vertices, original)
     assert result.metadata["buildings"][0]["redundant_vertices_removed"] == 1
     geometry = extract_city(city, "measured")
@@ -93,7 +95,7 @@ def test_overlapping_and_touching_buildings_rejected(shift):
     second.lod0.vertices[:, 0] += shift
     city.add_building(second)
     with pytest.raises(ValueError, match="'0'.*'other'.*overlapping or touching"):
-        wind.run(city, condition, grid=grid)
+        wind.run(city, **condition, **grid)
 
 
 def test_two_disjoint_buildings_keep_source_mapping():
@@ -102,7 +104,7 @@ def test_two_disjoint_buildings_keep_source_mapping():
     second.id = "source-b"
     second.lod0.vertices[:, 0] += 20
     city.add_building(second)
-    result = wind.run(city, condition, grid=grid)
+    result = wind.run(city, **condition, **grid)
     assert [(b["native_id"], b["source_id"]) for b in result.metadata["buildings"]] == [(0, "0"), (1, "source-b")]
 
 
@@ -111,17 +113,17 @@ def test_geographic_nonmetre_and_invalid_crs_rejected(srs):
     city, condition, grid, _ = city_case(ONE_BUILDING)
     city.transform.srs = srs
     with pytest.raises(ValueError, match="CRS"):
-        wind.run(city, condition, grid=grid)
+        wind.run(city, **condition, **grid)
 
 
 def test_shared_crs_inheritance_and_conflict():
     city, condition, grid, _ = city_case(ONE_BUILDING)
     city.transform.srs = "EPSG:3006"
-    result = wind.run(city, condition, grid=grid)
+    result = wind.run(city, **condition, **grid)
     assert result.crs == "EPSG:3006"
     city.buildings[0].lod0.transform.srs = "EPSG:3857"
     with pytest.raises(ValueError, match="Building '0'.*CRS"):
-        wind.run(city, condition, grid=grid)
+        wind.run(city, **condition, **grid)
 
 
 @pytest.mark.parametrize("target", ["city", "building", "surface", "all"])
@@ -133,8 +135,8 @@ def test_absolute_translations_applied_once(target):
     for name, transform in transforms.items():
         if target in (name, "all"):
             transform.set_translation(*shift)
-    grid = wind.GridSpec(bounds=(*shift, shift[0] + 80, shift[1] + 60, shift[2] + 40))
-    result = wind.run(city, condition, grid=grid, solver=solver)
+    grid = dict(bounds=(*shift, shift[0] + 80, shift[1] + 60, shift[2] + 40))
+    result = wind.run(city, **condition, **grid, **solver)
     assert result.origin == shift
     assert result.metadata["buildings"][0]["original_base_range"] == (100, 100)
 
@@ -157,15 +159,15 @@ def test_unsupported_transforms_rejected(mutation):
         city.transform.set_translation(10, 0, 0)
         affine[0, 3] = 20
     with pytest.raises(ValueError, match="Building '0'"):
-        wind.run(city, condition, grid=grid)
+        wind.run(city, **condition, **grid)
 
 
 def test_terrain_requires_explicit_flattening_and_records_it():
     city, condition, grid, _ = city_case(ONE_BUILDING)
     city.add_terrain(Terrain())
     with pytest.raises(ValueError, match="explicitly accept flattening"):
-        wind.run(city, condition, grid=grid)
-    result = wind.run(city, condition, grid=grid, terrain="flat")
+        wind.run(city, **condition, **grid)
+    result = wind.run(city, **condition, **grid, terrain="flat")
     assert result.metadata["terrain"]["city_terrain_ignored"]
     assert result.metadata["terrain"]["flattening_requested"]
 
@@ -174,8 +176,8 @@ def test_nonplanar_bases_require_explicit_flattening():
     city, condition, grid, _ = city_case(ONE_BUILDING)
     city.buildings[0].lod0.vertices[1, 2] = 2
     with pytest.raises(ValueError, match="Building '0'.*base elevation"):
-        wind.run(city, condition, grid=grid)
-    result = wind.run(city, condition, grid=grid, terrain=wind.FlatTerrain(elevation=0))
+        wind.run(city, **condition, **grid)
+    result = wind.run(city, **condition, **grid, terrain=0)
     assert result.metadata["terrain"]["base_elevations_flattened"]
     assert result.metadata["buildings"][0]["original_base_range"] == (0, 2)
 
@@ -183,14 +185,14 @@ def test_nonplanar_bases_require_explicit_flattening():
 def test_flat_plane_and_explicit_bounds_must_agree():
     city, condition, grid, _ = city_case(ONE_BUILDING)
     with pytest.raises(ValueError, match="zmin"):
-        wind.run(city, condition, grid=grid, terrain=wind.FlatTerrain(elevation=10))
+        wind.run(city, **condition, **grid, terrain=10)
 
 
 def test_bounds_guards_identify_affected_building():
     city, condition, _, _ = city_case(ONE_BUILDING)
     for bounds in [(28, 0, 0, 80, 60, 40), (0, 0, 0, 80, 60, 8)]:
         with pytest.raises(ValueError, match="Building '0'.*clearance"):
-            wind.run(city, condition, grid=wind.GridSpec(bounds=bounds))
+            wind.run(city, **condition, bounds=bounds)
 
 
 def test_float32_conversion_cannot_join_previously_separate_footprints():
@@ -200,14 +202,14 @@ def test_float32_conversion_cannot_join_previously_separate_footprints():
     second.lod0.vertices[:, 0] += 10 + 1e-7
     city.add_building(second)
     with pytest.raises(ValueError, match="'0'.*'narrow-gap'.*after float32 conversion"):
-        wind.run(city, condition, grid=grid)
+        wind.run(city, **condition, **grid)
 
 
 def test_float32_collapsed_edge_identifies_source():
     city, condition, grid, _ = city_case(ONE_BUILDING)
     city.buildings[0].lod0.vertices[1] = city.buildings[0].lod0.vertices[0] + (0, 1e-7, 0)
     with pytest.raises(ValueError, match="Building '0'.*float32 precision"):
-        wind.run(city, condition, grid=grid)
+        wind.run(city, **condition, **grid)
 
 
 def test_different_building_bases_require_flattening():
@@ -217,8 +219,8 @@ def test_different_building_bases_require_flattening():
     second.lod0.vertices += (20, 0, 5)
     city.add_building(second)
     with pytest.raises(ValueError, match="Building 'raised'.*base elevation"):
-        wind.run(city, condition, grid=grid)
-    result = wind.run(city, condition, grid=grid, terrain="flat")
+        wind.run(city, **condition, **grid)
+    result = wind.run(city, **condition, **grid, terrain="flat")
     assert result.metadata["terrain"]["base_elevations_flattened"]
     assert result.metadata["buildings"][1]["original_base_range"] == (5, 5)
 
@@ -230,4 +232,4 @@ def test_nested_buildings_are_not_silently_omitted():
     city = City()
     city.add_child(container)
     with pytest.raises(ValueError, match="Building '0'.*nested"):
-        wind.run(city, condition, grid=grid)
+        wind.run(city, **condition, **grid)

@@ -24,7 +24,7 @@ sdist.include = ["QES-Public/src/**", "QES-Public/cmake/**", "QES-Public/CMakeLi
 sdist.exclude = [".idea/**", "dtcc-qes/**", "build/**"]
 
 [tool.uv.sources]
-dtcc-core = { git = "https://github.com/dtcc-platform/dtcc-core.git", rev = "625a8feaff5d0da11d3f078082072e185ffa60a4" }
+dtcc-core = { git = "https://github.com/dtcc-platform/dtcc-core.git", branch = "develop" }
 
 [dependency-groups]
 dev = [

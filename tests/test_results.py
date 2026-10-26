@@ -13,7 +13,7 @@ pytestmark = pytest.mark.usefixtures("dtcc_logger")
 def test_volume_grid_preserves_frame_units_and_independent_fields():
     city, condition, grid, _ = city_case(ONE_BUILDING, (1e9, -2e9, 100))
     city.transform.srs = "EPSG:3006"
-    result = wind.run(city, condition, grid=grid)
+    result = wind.run(city, **condition, **grid)
     converted = result.to_dtcc()
     assert (converted.width, converted.height, converted.depth) == (40, 30, 20)
     assert (converted.xstep, converted.ystep, converted.zstep) == (2, 2, 2)
@@ -57,7 +57,7 @@ def test_cell_order_uses_y_x_z_fastest_on_unequal_axes():
 
 def test_solid_mask_excludes_air_parameterizations():
     city, condition, grid, _ = city_case(ONE_BUILDING)
-    result = wind.run(city, condition, grid=grid)
+    result = wind.run(city, **condition, **grid)
     flags = np.array([[[0, 1, 2, 3, 4, 5, 7, 8]]], dtype=np.int32)
     result = replace(result, cell_flags=flags)
     np.testing.assert_array_equal(result.solid_mask, [[[True, False, True, False, False, False, False, False]]])

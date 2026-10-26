@@ -5,3 +5,5 @@ extension remains importable without loading the public API's dependencies.
 """
 
 __version__ = "0.1.0b1"
+
+import dtcc_qes.datasets

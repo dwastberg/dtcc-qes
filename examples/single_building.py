@@ -15,8 +15,8 @@ def main():
         [40.0, 35.0, 0.0], [40.0, 25.0, 0.0],
     ])), GeometryType.LOD0)
     city.add_building(building)
-    result = wind.run(city, wind.WindCondition(speed=5.0, direction=270.0),
-                      grid=wind.GridSpec(resolution=2.0, bounds=(0, 0, 0, 80, 60, 40)))
+    result = wind.run(city, speed=5.0, direction=270.0,
+                      resolution=2.0, bounds=(0, 0, 0, 80, 60, 40))
     volume_grid = result.to_dtcc()
     get_python_logger("dtcc-qes").info(
         "Example produced %d georeferenced cells; velocity shape=%s; origin=%s",

@@ -125,10 +125,10 @@ def main(argv=None):
     start = perf_counter()
     result = wind.run(
         make_city(),
-        wind.WindCondition(speed=5.0, direction=270.0),
+        speed=5.0, direction=270.0,
         # This 0.5 m domain has 30,720,000 cells, above the default cell limit.
-        grid=wind.GridSpec(resolution=0.5, bounds=DOMAIN, max_cells=40_000_000),
-        solver=wind.SolverOptions(tolerance=1e-4, max_iterations=20000),
+        resolution=0.5, bounds=DOMAIN, max_cells=40_000_000,
+        tolerance=1e-4, max_iterations=20000,
     )
     logger = get_python_logger("dtcc-qes")
     logger.info("Medium city wind simulation took %.2f seconds", perf_counter() - start)

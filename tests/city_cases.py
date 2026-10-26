@@ -3,8 +3,6 @@
 import numpy as np
 from dtcc_core.model import Building, City, GeometryType, Surface
 
-from dtcc_qes import wind
-
 
 def city_case(case, translation=(0.0, 0.0, 0.0)):
     city = City()
@@ -15,10 +13,10 @@ def city_case(case, translation=(0.0, 0.0, 0.0)):
         vertices += np.asarray(translation)
         building.add_geometry(Surface(vertices=vertices), GeometryType.LOD0)
         city.add_building(building)
-    condition = wind.WindCondition(case.wind.speed, case.wind.direction,
-                                   case.wind.reference_height, case.wind.roughness_length)
+    condition = dict(speed=case.wind.speed, direction=case.wind.direction,
+                     reference_height=case.wind.reference_height, roughness_length=case.wind.roughness_length)
     extent = case.extent
     bounds = (*translation, *(translation[i] + extent[i] for i in range(3)))
-    grid = wind.GridSpec(resolution=case.grid.cell_size, bounds=bounds)
-    solver = wind.SolverOptions(case.solver.tolerance, case.solver.max_iterations)
+    grid = dict(resolution=case.grid.cell_size, bounds=bounds)
+    solver = dict(tolerance=case.solver.tolerance, max_iterations=case.solver.max_iterations)
     return city, condition, grid, solver

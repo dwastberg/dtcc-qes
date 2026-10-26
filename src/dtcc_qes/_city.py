@@ -6,12 +6,14 @@ from numbers import Real
 
 import numpy as np
 from pyproj import CRS
-from shapely.geometry import Polygon
+from shapely.geometry import Point, Polygon
 from shapely.geometry.polygon import orient
 from shapely.strtree import STRtree
 from shapely.validation import explain_validity
 
 from dtcc_core.model import Building, BuildingPart, City, Surface, Terrain
+
+from . import _qes
 
 
 def number(value, name, *, positive=False):
@@ -178,3 +180,103 @@ def extract_city(city, height_policy):
     return CityGeometry(tuple(rings), tuple(heights), tuple(ranges), tuple(ids), tuple(sources),
                         system.to_string() if system else None,
                         any(isinstance(child, Terrain) for child in children), tuple(removed), ignored)
+
+
+@dataclass(frozen=True)
+class PreparedDomain:
+    grid: object
+    model: object
+    arrays: dict
+    origin: tuple[float, float, float]
+    resolution: float
+    domain: dict
+    terrain: dict
+
+
+def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, resolution,
+                   bounds, horizontal_padding, vertical_clearance, max_cells, terrain):
+    if city.has_terrain and terrain is None:
+        raise ValueError("City has terrain; pass terrain='flat' or a ground elevation to explicitly accept flattening")
+    if not city.rings and bounds is None:
+        raise ValueError("An empty city requires explicit grid bounds")
+    base = min((lo for lo, _ in city.base_ranges), default=bounds[2] if bounds else 0.0)
+    if terrain is None:
+        for source_id, (lo, hi) in zip(city.source_ids, city.base_ranges):
+            if hi - lo > 1e-6 or abs(lo - base) > 1e-6:
+                raise ValueError(f"Building {source_id!r}: incompatible base elevation; explicitly request terrain='flat' to flatten")
+    elif terrain != "flat":
+        base = terrain
+    elif bounds:
+        base = bounds[2]
+    if bounds and abs(bounds[2] - base) > 1e-6:
+        raise ValueError("Grid zmin must equal the flat ground elevation")
+    spacing = float(np.float32(resolution))
+    if bounds:
+        origin = (bounds[0], bounds[1], base)
+        extents = tuple(bounds[i + 3] - origin[i] for i in range(3))
+        padding = None
+    else:
+        xy = np.concatenate(city.rings)
+        padding = max(horizontal_padding, 3 * spacing)
+        if padding > 5000 * spacing:
+            raise ValueError("Horizontal padding exceeds the native 10000-cell dimension limit")
+        lower, upper = xy.min(axis=0) - padding, xy.max(axis=0) + padding
+        origin = (float(lower[0]), float(lower[1]), base)
+        extents = (float(upper[0] - lower[0]), float(upper[1] - lower[1]),
+                   max(max(city.heights) + max(vertical_clearance, spacing), reference_height, 2 * spacing))
+    counts = []
+    for axis, extent in zip("xyz", extents):
+        ratio = extent / spacing
+        if not math.isfinite(ratio) or ratio > 10000:
+            raise ValueError(f"Grid {axis} dimension exceeds the native 10000-cell limit")
+        counts.append(math.ceil(ratio))
+    nx, ny, nz = counts
+    if nx < 3 or ny < 3 or nz < 2:
+        raise ValueError("Grid needs at least three cells in x/y and two in z")
+    if nx * ny * nz > max_cells or (nx + 1) * (ny + 1) * (nz + 2) > np.iinfo(np.int32).max:
+        raise ValueError("Grid exceeds max_cells or the native index limit; increase resolution or reduce bounds")
+    effective = tuple(count * spacing for count in counts)
+    # Match QES's accumulated float32 vertical coordinates for the roof check.
+    faces = np.r_[np.float32(0), np.cumsum(np.full(nz, spacing, dtype=np.float32), dtype=np.float32)]
+    top_centre = float(np.float32(0.5) * (faces[-2] + faces[-1]))
+    local_rings, narrowed_polygons, offsets = [], [], [0]
+    for source_id, ring, height in zip(city.source_ids, city.rings, city.heights):
+        local = ring - np.asarray(origin[:2], dtype=np.float64)
+        if (not np.isfinite(local).all() or np.any(local < 2 * spacing)
+                or np.any(local >= np.asarray(effective[:2]) - 2 * spacing)):
+            raise ValueError(f"Building {source_id!r}: footprint needs two cells of clearance inside the effective bounds")
+        narrowed = local.astype(np.float32).astype(np.float64)
+        if (np.any(narrowed < 2 * spacing)
+                or np.any(narrowed >= np.asarray(effective[:2]) - 2 * spacing)):
+            raise ValueError(f"Building {source_id!r}: footprint needs two cells of clearance inside the effective bounds")
+        if np.float32(height) >= top_centre:
+            raise ValueError(f"Building {source_id!r}: roof needs clearance below the top physical cell centre")
+        polygon = Polygon(narrowed)
+        if (np.any(np.all(narrowed[1:] == narrowed[:-1], axis=1))
+                or not polygon.is_valid or polygon.area <= 0 or polygon.exterior.is_ccw):
+            raise ValueError(f"Building {source_id!r}: footprint loses valid edges or area at float32 precision")
+        local_rings.append(local)
+        narrowed_polygons.append(polygon)
+        offsets.append(offsets[-1] + len(local))
+    reject_intersections(narrowed_polygons, city.source_ids, context=" after float32 conversion")
+    native_grid = _qes.GridConfig()
+    native_grid.nx, native_grid.ny, native_grid.nz = counts
+    native_grid.cell_size, native_grid.max_cells = spacing, max_cells
+    model = _qes.ModelSettings()
+    model.roughness_length = roughness_length
+    model.sensor_x = (min(5, nx - 1) + 0.5) * spacing
+    model.sensor_y = (min(15, ny - 1) + 0.5) * spacing
+    if any(Polygon(ring).covers(Point(model.sensor_x, model.sensor_y)) for ring in local_rings):
+        model.sensor_x = model.sensor_y = 0.5 * spacing
+    arrays = dict(vertices=np.ascontiguousarray(np.concatenate(local_rings) if local_rings else np.empty((0, 2)), dtype=np.float64),
+                  offsets=np.asarray(offsets, dtype=np.int64), heights=np.asarray(city.heights, dtype=np.float64),
+                  base_heights=np.zeros(len(city.rings), dtype=np.float64), ids=np.arange(len(city.rings), dtype=np.int64))
+    return PreparedDomain(native_grid, model, arrays, origin, spacing,
+                          dict(requested_bounds=bounds, local_bounds=(0.0, 0.0, 0.0, *effective),
+                               effective_bounds=(*origin, *(origin[i] + effective[i] for i in range(3))),
+                               shape=(nz, ny, nx), requested_resolution=resolution, resolution=spacing,
+                               effective_horizontal_padding=padding, max_cells=max_cells),
+                          dict(model="flat", elevation=base, flattening_requested=terrain is not None,
+                               city_terrain_ignored=city.has_terrain, base_elevation_tolerance=1e-6,
+                               base_elevations_flattened=any(abs(lo - base) > 1e-6 or abs(hi - base) > 1e-6
+                                                            for lo, hi in city.base_ranges)))

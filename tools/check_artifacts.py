@@ -33,7 +33,7 @@ def check_wheel(path):
         require(b"QES-Winds" in archive.read(prefix + "NOTICE"), "Missing QES attribution")
         require(any(name.startswith("dtcc_qes/_qes.") and name.endswith((".so", ".pyd")) for name in names),
                 "Wheel omits native extension")
-        for name in ("wind.py", "result.py", "_city.py", "_config.py", "_qes_revision.txt"):
+        for name in ("wind.py", "result.py", "_city.py", "_qes_revision.txt"):
             require("dtcc_qes/" + name in names, f"Wheel omits {name}")
         require(len(archive.read("dtcc_qes/_qes_revision.txt").strip()) == 40, "Missing source revision")
 
