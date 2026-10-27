@@ -1,0 +1,22 @@
+{
+  "observed_utc": "2026-10-27T15:47:55.470143+00:00",
+  "sources": [
+    "ps -axo pid,ppid,etime,time,%cpu,rss,state,command (filtered to study processes)",
+    "pmset -g log (sleep/wake events only)"
+  ],
+  "finding": "Host sleep/wake cycles interrupted final serial checkpoint execution; all four native study processes were running at approximately 100% of one core after wake. Timings remain diagnostic measurements under an interrupted shared schedule, not benchmarks.",
+  "last_confirmed_wake": "2026-10-27 16:38:30 +0100",
+  "process_observation": {
+    "supplemental_elapsed": "02:39:23",
+    "supplemental_cpu": "76:33",
+    "primary_elapsed": [
+      "01:41:42",
+      "01:39:43"
+    ],
+    "primary_cpu": [
+      "19:12",
+      "19:04"
+    ],
+    "native_processes": 4
+  }
+}

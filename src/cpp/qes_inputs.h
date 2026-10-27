@@ -4,6 +4,7 @@
 #include "wind_config.h"
 #include "winds/WINDSInputData.h"
 #include "winds/PolyBuilding.h"
+#include "qes/Domain.h"
 #include <memory>
 
 namespace dtcc_qes {
@@ -23,4 +24,7 @@ struct QESInputs {
 };
 // All conversion from the float64 boundary to QES float lives in this file.
 float qes_tolerance(const SolverOptions &);
+double solver_tolerance(const SolverOptions &);
+std::vector<float> vertical_faces(const GridConfig &);
+qes::Domain make_domain(const QESInputs &);
 }

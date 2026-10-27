@@ -20,7 +20,7 @@ dependencies = [
 cmake.version = ">=3.18"
 wheel.packages = ["src/dtcc_qes"]
 build-dir = "build/{wheel_tag}"
-sdist.include = ["QES-Public/src/**", "QES-Public/cmake/**", "QES-Public/CMakeLists.txt", "QES-Public/LICENSE", "QES-Public/README.md", "src/**", "tests/**", "tools/**", "examples/**", "demo/**", "docs/**", "CMakeLists.txt", "README.md", "LICENSE", "NOTICE"]
+sdist.include = ["QES-Public/src/**", "QES-Public/cmake/**", "QES-Public/CMakeLists.txt", "QES-Public/LICENSE", "QES-Public/README.md", "src/**", "tests/**", "tools/**", "examples/**", "demo/**", "docs/**", "CMakeLists.txt", "README.md", "DYNAMIC_VERTICAL_GRID.md", "LICENSE", "NOTICE"]
 sdist.exclude = [".idea/**", "dtcc-qes/**", "build/**"]
 
 [tool.uv.sources]

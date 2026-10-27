@@ -17,6 +17,7 @@ def _log_solve(result):
     nz, ny, nx, _ = result["velocity"].shape
     diagnostics = result["diagnostics"]
     get_python_logger("dtcc-qes").info(
-        "Wind grid %d x %d x %d, %d buildings: %d iterations, converged=%s",
+        "Wind grid %d x %d x %d, %d buildings: %d iterations, converged=%s, max_divergence=%s s^-1",
         nx, ny, nz, result["building_count"], diagnostics["iterations"], diagnostics["converged"],
+        diagnostics["max_divergence"],
     )

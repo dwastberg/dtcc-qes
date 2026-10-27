@@ -37,6 +37,18 @@ def test_building_occupancy_and_zero_solid_velocity():
     assert np.count_nonzero(expected) == 100
     np.testing.assert_array_equal(result.velocity[expected], 0)
     assert np.isfinite(result.velocity).all()
+    assert result.diagnostics.max_divergence < 1e-5
+    assert result.diagnostics.rms_divergence < 1e-6
+    assert result.diagnostics.top_band_max_divergence > 1e-3
+    assert result.diagnostics.divergence_cell_count > 1000
+    assert result.metadata["divergence_diagnostic"]["highest_physical_layer"] == "unassessed"
+
+
+def test_diagnostic_construction_remains_backwards_compatible():
+    diagnostics = wind.SolveDiagnostics(1, 0, 1e-5, True)
+    assert diagnostics.max_divergence is None
+    assert diagnostics.rms_divergence is None
+    assert diagnostics.divergence_cell_count is None
 
 
 def test_calm_wind_and_concave_simple_footprint():
