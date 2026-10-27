@@ -1,6 +1,6 @@
 # QES Turbulence Binding: Investigation and Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Execution:** Follow the task order and acceptance gates below, using checkbox (`- [ ]`) tracking. Superpowers execution skills may be used when installed; they are unavailable in the current environment, so this checkout follows the documented implementation and verification steps directly.
 
 **Goal:** `wind.run(city, speed, direction, turbulence=True)` returns the solved
 wind and the QES-Turb turbulence fields from one prepare/solve. Turbulence then
@@ -15,15 +15,52 @@ a `Turbulence` spec, a domain-top policy for turbulence's reference heights, a
 **Tech Stack:** C++17, QES-Public fork (branch `dtcc-embed`), nanobind, NumPy,
 dtcc-core, pytest, CTest.
 
-**Status (reviewed 2026-10-27):** the architecture is suitable, but the original
-plan is not ready to implement unchanged. Native safety and numerical defects
-must be resolved before the turbulence-derived statistics are exposed. The
-review below records measured failures, not completed fixes.
+**Status (implementation started 2026-10-27):** work is isolated in the checkout
+below. Task 1 native safety changes are implemented, verified and committed.
+The numerical repairs in Tasks 1A and 1B remain required before exposing the
+turbulence-derived statistics. Review measurements describe the original core
+at the recorded revision, not necessarily the repaired implementation.
 
 **Spec:** the Findings, Decisions and review revisions sections below. The
 initial decisions were agreed on 2026-10-27; the subsequent review revisions
-were requested by the user on the same date. All implementation work remains
-unchecked.
+and isolated implementation were requested by the user on the same date.
+Task checkboxes and the execution record below track implementation progress.
+
+## Isolated execution record
+
+- Worktree: `/private/tmp/dtcc-qes-turbulence`; branch `feat/qes-turbulence`.
+- Baseline commit: `de80e11`, a copy of the original checkout's current tracked
+  changes and untracked project files on top of `e30d9c2`. This keeps the
+  existing grid, precision, comfort and dataset dependencies available and
+  provides a separate baseline for reviewing turbulence changes.
+- QES is a nested worktree on `dtcc-embed-turbulence`, branched from
+  `e0fb62e9fe5fffc8b4aef8f250f75f929ad27c13`. Its files and index are separate
+  from the original checkout's `dtcc-embed` worktree. Do not switch the original
+  QES checkout or update its submodule pointer while working here.
+- The original checkout's files and index are not used as implementation
+  destinations. The repositories share Git object storage and branch refs,
+  as normal for worktrees. No pushes are performed.
+- Native builds use this worktree's `build/native` and `build/asan`, with
+  OpenMP off. The existing Python 3.13 interpreter is used read-only for CMake
+  and build dependencies; its installed package is not rebuilt or replaced.
+  Python API work must create a worktree-local environment before installation.
+- Task 1: complete at QES commit `514d91cdc1bfc220a17af102df2b267cdc0c2c9e`.
+  All 8 focused native checks and all 19 full native CTest checks pass in both
+  Release and Debug with ASan/UBSan; the Release no-I/O symbol audit passes.
+  The no-I/O header traps were active in both builds. The integration commit
+  updates the submodule pointer and `_qes_revision.txt` together.
+- Validation limits: OpenMP was off; this milestone ran native tests, not the
+  Python suite. A direct import smoke check loaded the isolated Release
+  extension and verified its recorded QES revision. macOS ASan/UBSan checks
+  were supplemented by observable derived
+  destruction and repeated successful/throwing construction. A portable
+  leak-detector run remains appropriate on a platform supporting it.
+- Supplementary Debug symbol auditing reports `___assert_rtn` termination
+  references. The same failure was reproduced on the unmodified review
+  baseline's Debug ASan archives, so this is an existing assertion-symbol
+  limitation of that audit configuration. Both CTest suites pass; the required
+  Release symbol audit passes. Keep the Release audit strict.
+- Next: Task 1A (stress rotation/validity), then Task 1B (serial wall distance).
 
 ---
 
@@ -263,8 +300,10 @@ validity-check temporaries. Measure peak RSS; do not treat this as a peak bound.
   solved velocity; it is not covered by a bitwise-equality promise.
 - `src/cpp/bindings.cpp` includes no QES headers. QES types appear only in
   bridge sources compiled into `qesbridge`.
-- `QES_ENABLE_IO=OFF`: no NetCDF or GDAL includes. The `check_native_symbols`
-  target and the `noio-headers` trap must pass.
+- `QES_ENABLE_IO=OFF`: no NetCDF or GDAL includes. The Release
+  `check_native_symbols` target and the `noio-headers` trap must pass.
+  Record the existing Debug assertion-symbol audit limitation above separately
+  from sanitizer test results; it does not relax the Release audit.
 - Native work runs under `native_mutex()` with the GIL released through
   `native_call`. QES log output goes through `BufferedLogSink`.
 - Input errors are `std::invalid_argument` (which includes `qes::InputError`),
@@ -273,7 +312,8 @@ validity-check temporaries. Measure peak RSS; do not treat this as a peak bound.
   cells only, matching `WindResult.velocity`.
 - Stress component order everywhere: `txx, txy, txz, tyy, tyz, tzz` in m²/s².
   `co_eps` is QES `CoEps` = C0·ε with C0 = 5.7, in m²/s³.
-- QES changes are commits on `QES-Public` branch `dtcc-embed`. Update the
+- QES changes in this isolated checkout are commits on `QES-Public` branch
+  `dtcc-embed-turbulence`, based on `dtcc-embed`. Update the
   submodule pointer and `src/dtcc_qes/_qes_revision.txt` together. No pushes.
   Work happens on a feature branch, never on `main`.
 - Turbulence is screening output. Docs and metadata must say it comes from an
@@ -359,7 +399,7 @@ Task identifiers are retained for traceability. Execute:
   ownership is converted. Include exception paths and all constructors in
   the ownership audit.
 
-- [ ] **Step 1: Write the failing native tests.** `check_turbulence <mode>`
+- [x] **Step 1: Write the failing native tests.** `check_turbulence <mode>`
   builds `QESInputs` and `WINDSGeneralData` for a 40×30 flat 2 m grid, sets a
   local `TURBParams` on `inputs.input.turbParams`, and asserts that
   constructing `TURBGeneralData` throws `std::invalid_argument`:
@@ -373,15 +413,22 @@ Task identifiers are retained for traceability. Execute:
   repeated construction/destruction and a constructor-failure path. Do not
   assume ASan/UBSan alone proves the absence of leaks on every platform; use
   leak detection where supported and verify destruction explicitly.
-- [ ] **Step 2: Run** `cmake --build build/native --target check_turbulence && ctest --test-dir build/native -R native_turbulence --output-on-failure`.
-  Expected: FAIL (no exception thrown, or a crash).
-- [ ] **Step 3: Implement** the fork changes listed above on `dtcc-embed`.
-- [ ] **Step 4: Run** the full `ctest` in Release, then again in a sanitizer
+- [x] **Step 2: Run** `cmake --build build/native --target check_turbulence && ctest --test-dir build/native -R native_turbulence --output-on-failure`.
+  The initial test build failed on the missing accessors, virtual destructors
+  and owned-helper interface. After implementation, all eight modes pass:
+  low_top, ref_in_top_cell, ref_above_top, reference_boundary, methods,
+  ownership, references and lifecycle.
+- [x] **Step 3: Implement** the fork changes listed above on the isolated
+  `dtcc-embed-turbulence` branch.
+- [x] **Step 4: Run** the full `ctest` in Release, then again in a sanitizer
   build (`-DDTCC_QES_ENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug`).
-  Expected: all PASS, no ASan/UBSan reports.
-- [ ] **Step 5: Commit** in `QES-Public` ("Own turbulence helpers, expose
+  Result: 19/19 passed in Release (4.39 s) and Debug ASan/UBSan (200.89 s),
+  with no sanitizer reports. The Release `check_native_symbols` target passed.
+- [x] **Step 5: Commit** in `QES-Public` ("Own turbulence helpers, expose
   reference values and guard reference heights"). Then commit the submodule
   pointer, revision file, test and CMake change in dtcc-qes.
+  QES commit: `514d91cd` ("Own turbulence helpers and guard reference sampling");
+  parent changes are recorded in the Task 1 integration commit on this branch.
 
 ### Task 1A: Correct stress rotation and specify tensor validity
 
@@ -976,7 +1023,7 @@ where not computed; the validity field is 0 there:
 ## Verification (end to end)
 
 1. `cmake -S . -B build/native -DPython_EXECUTABLE="$PWD/.venv/bin/python" -DDTCC_QES_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release && cmake --build build/native --parallel 8 && cmake --build build/native --target check_native_symbols && ctest --test-dir build/native --output-on-failure`
-2. Repeat step 1 with `-DDTCC_QES_ENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug` in `build/asan`.
+2. Configure/build and run CTest with `-DDTCC_QES_ENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug` in `build/asan`. Report the known Debug assertion-symbol audit failure separately; the Release audit in step 1 remains mandatory.
 3. `uv sync --frozen --reinstall-package dtcc-qes && DTCC_QES_NATIVE_TEST="$PWD/build/native/check_safety" uv run --frozen python -W error -m pytest -q`
 4. `uv run --frozen --group reference python tools/make_reference.py --check` and `… --turbulence --baseline audited --check`; verify pristine upstream provenance and documented numerical differences separately.
 5. `uv run --frozen python -m build --wheel --sdist --no-isolation -Ccmake.define.DTCC_QES_BUILD_TESTS=OFF && uv run --frozen python tools/check_artifacts.py dist`
