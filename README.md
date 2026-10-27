@@ -1,8 +1,9 @@
 # dtcc-qes
 
 Run QES-Winds' CPU solver on a DTCC city and receive georeferenced
-NumPy arrays in memory. Milestone 1 supports one steady neutral logarithmic
-wind profile, uniform cells, flat ground and simple LOD0 building extrusions.
+NumPy arrays in memory. The solver supports one steady neutral logarithmic
+wind profile, uniform horizontal spacing, uniform or explicit vertical layers,
+flat ground and simple LOD0 building extrusions.
 Python supplies geometry and wind inputs; the native core performs no file I/O.
 
 Version `0.1.0b1` is the initial beta. The Python API may change before a stable
@@ -87,6 +88,130 @@ result = wind.run(
 velocity = result.velocity
 volume_grid = result.to_dtcc()
 ```
+
+Use `vertical_grid=wind.VerticalGrid.from_faces(z_faces)` to supply vertical
+cell-face heights in metres above the flat ground. `resolution` continues to
+set both x and y spacing. For example, a scene whose required top is at most
+40 m can use:
+
+```python
+import numpy as np
+
+z_faces = np.r_[np.arange(0, 10, 0.5), np.arange(10, 20), np.arange(20, 42, 2)]
+vertical_grid = wind.VerticalGrid.from_faces(z_faces)
+preview = wind.preview_grid(city, resolution=2.0, vertical_grid=vertical_grid)
+print(preview.shape, preview.cell_count, preview.z, preview.dz)
+result = wind.run(
+    city, speed=5.0, direction=270.0, resolution=2.0,
+    vertical_grid=vertical_grid,
+)
+print(result.z_faces, result.z, result.dz)
+pedestrian = result.sample(height=1.5, method="linear")
+speed = pedestrian.speed     # (y, x), m/s; invalid points are NaN
+valid = pedestrian.valid     # (y, x), boolean mask
+```
+
+Supply at least two layers, start at zero, and increase faces strictly. With
+explicit bounds, the requested final face must match the bounds' height above
+ground; with automatic bounds it must cover the required clearance and reference
+height. Actual faces use QES's float32 layer accumulation and are recorded in
+the result and metadata. Invalid or collapsed layers fail before wind-array
+allocation. The specification copies its input and is immutable.
+
+`result.vertical_uniform` identifies equal solver-layer thicknesses. Uniform
+anisotropic grids can be converted to `VolumeGrid` with their true z extent;
+nonuniform grids retain native arrays and reject direct `to_dtcc()` conversion.
+
+`result.sample()` returns a `wind.WindSample` at native x/y centres. Heights
+are metres above flat ground. It defaults to `method="nearest"`, recording the
+selected centre in `sampled_height`; ties select the lower centre. Use
+`method="linear"` to interpolate velocity components at the requested height
+before calculating speed. Every contributing cell must contain finite fluid
+velocity; building/terrain flags 0/2 are invalid. Exact centres use only that
+cell. Linear sampling outside the centre range returns NaNs and
+`sampled_height=None`; heights outside the physical domain raise `ValueError`.
+Nearest sampling clips to endpoint centres within the physical domain.
+
+Samples own their arrays and carry `origin` and `crs`. For global coordinates,
+widen the local axes before adding large translations:
+`global_x = pedestrian.x.astype(np.float64) + pedestrian.origin[0]`.
+Global elevation is `pedestrian.sampled_height + pedestrian.origin[2]` when a
+sampled height is available.
+
+`wind.preview_grid()` returns a `wind.GridPreview` using the same geometry,
+terrain, bounds, clearance and cell-limit preparation as `run`, without
+allocating native flow arrays. It returns effective x/y/z axes and z faces,
+shape/cell count, layer growth and aspect ratios, and domain/roof diagnostics.
+`dz` measures effective face separations; `solver_dz` holds layer thicknesses
+before float32 accumulation roundoff. Preview does not estimate solver accuracy
+or peak memory. The executable [vertical-grid example](examples/vertical_grid.py)
+compares explicit uniform and stretched layers at the same pedestrian height.
+See the [B1 validation report](docs/stageb1-validation.md) for contracts and checks.
+
+The automatic generator is available as an **unvalidated prototype**, opt-in
+through `VerticalGrid.auto(...)`:
+
+```python
+specification = wind.VerticalGrid.auto(pedestrian_height=1.5, growth_rate=1.15)
+preview = wind.preview_grid(city, resolution=2.0, vertical_grid=specification)
+print(preview.domain["vertical_grid"]["effective_settings"])
+result = wind.run(city, speed=5.0, direction=270.0, resolution=2.0,
+                  vertical_grid=specification)
+pedestrian = result.sample(1.5, method="linear")
+```
+
+The prototype uses equal fine layers around pedestrian height, building-height
+caps and bounded growth, then fits the selected top with a constant-thickness
+tail. `resolution` sets x/y spacing. Optional settings include
+`min_layer_thickness`, `max_aspect_ratio`, `first_layer_thickness` (a preferred
+target), `fine_region_height` and `upper_layer_cap`. Incompatible settings or
+cell limits raise before native flow allocation; the generator does not silently
+coarsen near-ground layers to meet a budget. Automatic settings have no resolved
+`faces`/`layers` until preview or run supplies geometry and bounds.
+
+Metadata records requested/effective settings, generator version,
+`policy_status="prototype_unvalidated"`, endpoint rounding and pedestrian
+bracketing/profile bias. The planned top fits the requested local height;
+effective float32 faces can differ slightly, and their actual extent is retained.
+`solver_layer_thicknesses` records the native layer widths, which can differ
+from accumulated face separations. These checks establish construction and
+coordinate correctness. C2 still needs boundary, resolution, accuracy and cost
+studies before any automatic comfort-analysis preset is selected. See the
+[C1 report](docs/stagec1-validation.md) and executable
+[automatic-grid example](examples/automatic_vertical_grid.py).
+
+The [early C2 controls](docs/stagec2-controls.md) compare both 1.5 and 1.75 m
+planes with taller domains and finer horizontal spacing. They identify local
+horizontal sensitivity that must be assessed before selecting an automatic
+preset; adequate vertical cell placement alone does not establish accuracy.
+
+The [C2b assessment](docs/stagec2b-horizontal-sensitivity.md) traces near-wall
+sensitivity through initialization and sampling, finds substantial lateral-domain
+effects, and excludes finer horizontal solves that fail residual control.
+Accepted finer references and lateral/horizontal verification are prerequisites
+to preset selection; diagnostic parameterization-disabled runs are not presets.
+
+The [precision and grid-verification report](docs/precision-and-horizontal-verification.md)
+documents the opt-in `solver_precision="float64"` remedy, validated from zero
+on serial and OpenMP CPU builds. It restores accepted references for the failed
+finer tower solves while retaining float32 geometry and output arrays. Lateral
+and horizontal comparisons retain a fixed physical region and critical points;
+the automatic policy remains an unvalidated prototype.
+
+The [joint extent/resolution report](docs/joint-grid-verification.md) records
+the combined larger-domain/finer-grid controls and additional near-wall checks.
+The study uses configurable allocation ceilings, soft cell targets and saved
+independent zero-start checkpoints for resumable verification.
+All 16 new CPU cases pass the solve gate; near-wall horizontal changes keep
+automatic preset selection gated despite passing aggregate comparison budgets.
+
+Dataset options for vertical layers remain later work.
+See the [Stage A validation report](docs/stagea-validation.md).
+The [sensitivity/cost study](docs/vertical-grid-gate.md) compares explicit grids
+at 1.5 m. A fine-grid tower solve fails the common residual target. The
+[focused diagnosis](docs/vertical-grid-diagnosis.md) supported the now opt-in
+precision remedy. Sampling and explicit-grid preview are available; automatic presets
+still require further validation.
 
 The executable [example](examples/single_building.py) constructs its own `City`
 and has no input files or external datasets.
@@ -183,6 +308,34 @@ from. North (`0°`) flows toward negative y, east (`90°`) toward negative x,
 south (`180°`) toward positive y, and west (`270°`) toward positive x. The
 profile is `U(z) = U_ref log((z + z0) / z0) / log((z_ref + z0) / z0)`.
 
+## Pedestrian wind comfort
+
+`dtcc_qes.comfort` classifies comfort and safety maps from an hourly wind
+climate and one pedestrian-level speed field per simulated direction. It
+depends only on numpy, so fields can come from QES, other CFD or wind-tunnel
+probes. NEN 8100 and the City of London Lawson criteria (2019) are built in;
+other tables can be defined as `comfort.Criterion`.
+
+```python
+from dtcc_qes import comfort
+
+# speeds, directions: hourly (T,) at the simulations' reference height/roughness
+# fields: (D, N, M) mean speed at pedestrian height, NaN in buildings
+result = comfort.assess(speeds, directions, fields, field_directions, reference_speed,
+                        comfort.CITY_OF_LONDON, times=times, height=1.5)
+result.comfort         # int8 indices into comfort.CITY_OF_LONDON.comfort.labels, -1 invalid
+result.exceedance[15]  # fraction of hours above 15 m/s
+```
+
+Each hour uses the field of the nearest simulated direction, scaled by
+`speed / reference_speed`. QES speed-ups do not depend on inflow speed, so one
+solve per direction is enough; see [the example](examples/wind_comfort.py).
+QES gives mean speeds only, so Lawson results are mean-only and flagged as
+non-conservative unless `gem_fields` are supplied. Treat QES comfort maps as
+screening: planning guidelines such as City of London's require RANS or LES
+CFD. Method, conventions and sources are in
+[docs/wind-comfort.md](docs/wind-comfort.md).
+
 ## Geometry, coordinates and flat ground
 
 - Buildings must be direct city children with one canonical LOD0 `Surface`.
@@ -215,7 +368,7 @@ Options are arguments to `wind.run`; defaults are declared in its signature.
 | --- | --- |
 | Wind | Required `speed`/`direction`; `reference_height=10.0`; `roughness_length=0.1` |
 | Grid | `resolution=2.0`; `bounds=None`; `horizontal_padding=20.0`; `vertical_clearance=20.0`; `max_cells=20_000_000` |
-| Solver | `tolerance=1e-5`; `max_iterations=500`; `raise_on_nonconvergence=False` |
+| Solver | `tolerance=1e-5`; `max_iterations=500`; `raise_on_nonconvergence=False`; `solver_precision="float32"` |
 | Terrain | `terrain=None` infers flat ground; `"flat"` explicitly flattens; a number sets the global ground elevation |
 
 Automatic domains include all footprints, at least three cells of horizontal
@@ -251,12 +404,43 @@ a translation/CRS Transform preserve georeferencing. See
 
 Diagnostics report iterations, effective tolerance, convergence and the
 **maximum Lagrange multiplier change**, which is not a mass-conservation
-residual. Non-convergence returns the result and logs one warning by default;
+residual. `diagnostics.max_divergence` and `rms_divergence` report conservative
+six-face divergence in s^-1; RMS is weighted by physical cell volume.
+`divergence_cell_count` identifies the assessed interior. The prescribed top
+band is reported separately as `top_band_max_divergence` and
+`top_band_cell_count`; the highest physical layer and prescribed lateral
+boundary cells are unassessed. A region with no fluid cells has `None` metrics.
+Non-convergence returns the result and logs one warning by default;
 its `diagnostics.converged` is `False`. Explicit
 `wind.run(..., raise_on_nonconvergence=True)` raises `wind.ConvergenceError`
 with `diagnostics` available. The legacy top-boundary flux limitation
 is documented in the validation notes; convergence does not certify zero
 divergence in every returned cell.
+
+Set `solver_precision="float64"` to use double multiplier storage, right-hand
+side construction, SOR updates and face corrections. Geometry, stencil
+coefficients and returned velocity arrays remain float32. The default float32
+solver and its stopping rule are preserved. Both modes stop on multiplier
+change; inspect divergence and iteration stability separately. For example:
+
+```python
+result = wind.run(city, speed=5, direction=270, vertical_grid=specification,
+                  solver_precision="float64", tolerance=1e-10, max_iterations=8000)
+print(result.diagnostics.precision, result.diagnostics.max_divergence)
+```
+
+The lower tolerance limit is machine epsilon for the selected solver precision.
+`diagnostics.precision` and `metadata["solver"]["precision"]` record the mode.
+The double solver uses two float64 cell buffers (16 bytes per native cell,
+including ghost cells), replacing three float32 buffers (12 bytes per native
+cell); other native arrays are unchanged. This mode reduces arithmetic error;
+it does not remove model, grid, sampling or boundary sensitivity.
+
+The embedded solver includes a correction to upstream QES's vertical divergence
+scaling. This changes results where building parameterizations create vertical
+flow, including street canyons. The original flat and one-building reference
+arrays remain unchanged. See the [Stage 0 validation report](docs/stage0-validation.md)
+for the reproduction, measured residuals and remaining boundary limitations.
 
 Metadata records requested/effective conditions and domain, geometry policies,
 source building IDs, simplifications, model/solver options, QES revision,
