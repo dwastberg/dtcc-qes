@@ -122,6 +122,109 @@ not immutable reference values for subsequent model changes.
 Tasks 2 and 5 must consume this policy when returning masks and derived fields.
 The helper itself does not expose a Python turbulence API.
 
+## Serial wall-distance repair (Task 1B)
+
+2026-10-27, QES revision `57ffb0d94dd2dcad0ea5841d6d35620c0bfb7198`,
+following Task 1A. The serial algorithm changes below affect
+method 1 only. Method 0 remains the provisional default. Future standalone
+method-1 reference fixtures must use this audited implementation; equality
+with pristine QES method 1 is not an acceptance criterion.
+
+Before repair, repository-owned regressions reproduced both review findings
+on the Task 1A revision (whose serial method was still unchanged):
+
+| Fixture | Before Task 1B | After Task 1B |
+| --- | --- | --- |
+| 40×30×80, dx = dy = 2 m, dz = 0.5 m, 8 m box at x = 30–40 m, y = 25–35 m | ASan heap-buffer-overflow at `LocalMixingSerial.cpp:385`, reading immediately after the 30-element y-centre array | 83,656 computed fluid cells; finite positive lengths; zero height-bound violations; maximum length/height = 1 |
+| Same box and spacing, 60×60×80 | 40 computed lengths exceed height; maximum length/height = 4 | 265,356 computed fluid cells; finite positive lengths; zero height-bound violations; maximum length/height = 1 |
+
+The audit also found unsafe positive-x bounds, shifted negative-x/y targets,
+asymmetric transverse ranges, writes into solid cells, unused underside faces,
+stale wall lists on reuse and a potentially zero interpolation denominator.
+Correcting only the first failing y access would leave those defects.
+
+The repair replaces the separate point-source directional sweeps with one
+calculation over exposed **rectangular voxel faces**. Flags 0 and 2 identify
+solids. All six face orientations use the same distance calculation; source
+neighbours must exist in the actual arrays. Target ranges are half open and
+restricted to turbulence's computed interior: indices `1..cx-2`, `1..cy-2`,
+`1..cz-2`, where `(cx,cy,cz)` are the cell-centre coordinate-vector lengths.
+Domain edges are not newly treated as solid walls. Distances update only fluid
+cells and preserve the minimum found so far. All temporary state is local to
+the call, so repeated setup cannot retain removed faces.
+
+Each cell starts with `h = max(z - terrain[column], 0)`. Below the transition,
+the result is the smaller of this seed and the Euclidean distance to the
+exposed voxel faces. Candidate ranges use physical coordinates and the height
+seed as an upper bound: a farther face cannot improve the result. The flat
+ground is already represented by the seed and its individual faces need no
+propagation. Coordinate inputs remain QES float32, with double-precision face
+midpoints, distances and updates in QES's existing double mixing-length array.
+This removes the former repeated float32 rounding of distance minima.
+
+Let `g` be the minimum terrain elevation and `H` the highest physical solid
+voxel's upper face minus `g`. Ground ghost cells do not define H. For H > 0:
+
+```text
+alpha(z) = clamp((z - (g + 3 H)) / (0.6 H), 0, 1)
+distance = min(h, distance_to_exposed_voxel_faces)
+mixing_length_distance = (1 - alpha) distance + alpha h
+```
+
+The implementation uses the actual difference between transition endpoints
+as the denominator, guards degenerate intervals, and bypasses the calculation
+for H = 0. Above `g + 3.6H` it returns the seed without wall propagation.
+The final `TURBGeneralData::Lm` still multiplies this distance by QES's von
+Kármán constant. On the reviewed 8 m box the transition is 24–28.8 m.
+
+This is a deliberate, explicit model transition. The old code used a maximum
+solid **centre**, then an index-based interval of roughly one fifth of the
+starting index; its comments said 2H–2.4H despite a 3H search in the code.
+That interval changed with layer spacing, could collapse, and seeded absolute
+z instead of terrain-relative height above it. The repaired interval uses
+physical height, including on nonuniform grids, and blends each local distance
+back to its terrain-height seed. Changes to face geometry, propagation extent,
+undersides, transition and arithmetic can all change method-1 turbulence
+outputs. These are explicit reference-parity exceptions for Task 3.
+
+Seven new native modes qualify this contract:
+
+- `wall_thin` constructs and runs method-1 `TURBGeneralData` on the original
+  overflowing grid, verifies that it consumes the repaired lengths and returns
+  finite native fields, and checks that the input wind is preserved.
+- `wall_upper_bound` isolates the original wider-grid overwrite counterexample.
+- `wall_geometry` checks all 14,292 computed fluid cells in each of nine tall
+  18 m box layouts on a 20 m domain, including minimum supported boundary
+  clearance, swapped x/y axes and all horizontal reflections.
+- `wall_nonuniform` checks 83,706 computed fluid cells on 80 physical layers
+  repeating 0.125, 0.375, 0.75 and 1.25 m; it includes 8,512 transition cells
+  and 34,048 far-field cells.
+- `wall_transition` checks 30,476 computed fluid cells, including 1,568 in
+  the transition and 19,600 above it, plus explicit 25 m and 29 m samples.
+- `wall_underside` checks 7,808 computed fluid cells around a synthetic
+  suspended voxel box. This isolates the sixth face direction and does not
+  add elevated-polygon support to the public input contract.
+- `wall_empty` compares empty two-layer and nonuniform domains with method 0,
+  checks floating invalid/divide-by-zero flags, and checks building removal
+  using the same mixing object.
+
+The geometry oracle uses distance to one analytic axis-aligned solid box plus
+the ground plane, independently of the exposed-face traversal. It derives the
+box extent from QES's voxelization and verifies that every building voxel fits
+that rectangular solid before applying the oracle. Every computed fluid cell
+in those fixtures is compared at rtol 1e-5, atol 1e-7; near-field, transition
+and far-field formulas are explicit. Repeated calls are identical, and solid
+cells retain their prior values.
+
+Qualification is for flat terrain and stair-step solids. It does not establish
+distance to original polygon surfaces, cut-cell accuracy, general terrain
+accuracy or physical gust accuracy. The transition band and far field are
+intentionally not exact nearest-wall distances. Setup scans the grid and
+propagates exposed faces to candidate cells; its cost can grow substantially
+with geometry and domain size. Task 9 must measure that cost. No Python,
+bridge or dataset turbulence entry point is added here; Task 2 can now expose
+method 1 with height still the provisional default.
+
 ## Verification
 
 Host/compiler: AppleClang 17.0.0, macOS arm64, OpenMP off. Native builds use
@@ -137,8 +240,8 @@ ctest --test-dir build/asan -R native_turbulence --output-on-failure
 python tools/check_stress_validity.py --cases 5000 --seed 20261027
 ```
 
-- Full Release suite: 24/24 passed; no-I/O symbol audit passed.
-- Debug ASan/UBSan turbulence suite: 13/13 passed, with no sanitizer reports.
+- Task 1A full Release suite: 24/24 passed; no-I/O symbol audit passed.
+- Task 1A Debug ASan/UBSan turbulence suite: 13/13 passed, with no sanitizer reports.
   The unrelated full Debug suite was not repeated for Task 1A; its 19/19 Task 1
   result and existing Debug assertion-symbol audit limitation remain recorded
   in the plan.
@@ -147,7 +250,12 @@ python tools/check_stress_validity.py --cases 5000 --seed 20261027
   mismatches. Maximum minimum-eigenvalue error divided by spectral radius was
   `1.0544456312324755e-15` against NumPy's float64 eigensolver. The repository
   tool compiles the current header and emits its SHA-256 with the result.
+- Task 1B full Release suite: 31/31 passed; no-I/O symbol audit passed.
+- Task 1B complete Debug ASan/UBSan turbulence suite: 20/20 passed, with no
+  sanitizer reports. OpenMP remains off; no Python API suite or large-domain
+  benchmark was run at this native-core milestone. The unchanged Debug
+  assertion-symbol audit limitation above remains separate from these checks.
 
-The serial wall-distance repair (Task 1B), standalone audited reference
-generation (Task 3), Python bindings/results, benchmark gate and physical gust
+Standalone audited reference generation (Task 3), Python bindings/results,
+benchmark gate and physical gust
 validation are still outstanding.

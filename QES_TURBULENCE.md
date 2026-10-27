@@ -16,9 +16,9 @@ a `Turbulence` spec, a domain-top policy for turbulence's reference heights, a
 dtcc-core, pytest, CTest.
 
 **Status (implementation started 2026-10-27):** work is isolated in the checkout
-below. Tasks 1 and 1A are implemented, verified and committed. The serial
-wall-distance repair in Task 1B and the later extraction/result work remain
-required before exposing the turbulence-derived statistics. Review measurements describe the original core
+below. Tasks 1, 1A and 1B are implemented, verified and committed. The later
+extraction/result work remains required before exposing turbulence-derived
+statistics. Review measurements describe the original core
 at the recorded revision, not necessarily the repaired implementation.
 
 **Spec:** the Findings, Decisions and review revisions sections below. The
@@ -68,7 +68,19 @@ Task checkboxes and the execution record below track implementation progress.
   found zero validity mismatches. See
   [turbulence-reference-differences.md](docs/turbulence-reference-differences.md)
   for the precise policies, numerical exceptions and validation scope.
-- Next: Task 1B (serial wall-distance safety and distance qualification).
+- Task 1B: complete at QES commit `57ffb0d94dd2dcad0ea5841d6d35620c0bfb7198`.
+  The original thin-layer ASan overflow and 40 height-bound violations were
+  reproduced before repair.
+  One bounded exposed-face calculation now covers all six orientations,
+  preserves minima and uses a physical 3H–3.6H transition. All 31 full Release
+  native checks and all 20 Debug ASan/UBSan turbulence checks pass; the Release
+  no-I/O symbol audit passes. Box/plane oracles cover nonuniform layers,
+  swapped/reflected footprints, near-boundary tall boxes, roofs and undersides.
+  The numerical reference report records the deliberate method-1 changes and
+  approximation limits. Height remains the provisional default; method 1 is
+  qualified for the future Task 2 entry point, with larger-domain cost and
+  physical validation still pending.
+- Next: Task 2 (bridge settings, runner lifecycle, extraction and bindings).
 
 ---
 
@@ -95,10 +107,11 @@ called after every wind solve. It is a pure post-processor: it reads the solved
 - Builds stair-step wall lists for buildings (flag 0) and terrain (flag 2).
 - Mixing length, `Lm = 0.4 × distance`, by `methodLocalMixing`:
   - 0: height above ground.
-  - 1: serial wall-distance propagation, with a transition back to height-based
-    lengths above the object-influence region (about 3 × the tallest object).
-    This is not a hard cap on Lm or a verified exact nearest-wall distance.
-    The current implementation has indexing and distance-update defects.
+  - 1: serial distances to exposed stair-step grid faces, limited by the
+    terrain-height seed. Task 1B replaces the defective directional sweeps.
+    It blends back to the seed between 3H and 3.6H above the minimum terrain,
+    where H is the highest solid voxel face above that terrain. This is an
+    explicit model transition, not exact nearest-wall distance everywhere.
   - 2: not implemented.
   - 3: OptiX ray tracing (GPU); QES's own urban examples use this.
   - 4: read from NetCDF.
@@ -180,7 +193,7 @@ float32 arithmetic still require the stated comparison tolerances.
    `localMixing`, so every prepare leaks. The planned ownership fix must also
    add virtual destructors to `LocalMixing` and `TURBWall`: deleting their
    derived helpers through base-class `unique_ptr`s is otherwise undefined
-   behaviour. This repair is still to be implemented.
+   behaviour. This repair was completed in Task 1.
 5. **Private reference values.** zRef, uRef, u\*, z0 and d are private. The fork
    adds accessors.
 6. **Log-law building walls.** `buildingWallFlag = 1` divides by
@@ -198,12 +211,14 @@ float32 arithmetic still require the stated comparison tolerances.
 11. **Method 1 reads outside coordinate arrays.** `LocalMixingSerial::getMinDistWall`
     can propagate to `ny - 1`/`nx - 1` although the cell-centre coordinate
     vectors end at `ny - 2`/`nx - 2`. ASan detects a heap-buffer-overflow on the
-    valid thin-layer case below. Audit all propagation loops, not just the
-    first failing access (Task 1B).
+    valid thin-layer case below. Task 1B replaces all directional sweeps with
+    one calculation bounded by the actual coordinate arrays, verified under
+    ASan/UBSan for every face orientation.
 12. **Method 1 can exceed height-based lengths.** Wall updates overwrite
     previously shorter distances. The measured thin-layer case contains
-    lengths four times the method-0 value. The planned upper-bound test is a
-    requirement for the repaired method, not a property of the current code.
+    lengths four times the method-0 value on the review baseline. Task 1B
+    preserves minima; both reviewed thin-layer cases now satisfy the height
+    upper bound on every computed fluid cell.
 13. **Stress rotation is direction-dependent in flat shear.** Axis-aligned
     checks pass, while a 45° horizontal rotation reduces streamwise σ by 20 %.
     This was verified on the review baseline and is repaired in Task 1A, with
@@ -278,9 +293,9 @@ calculation; it is released after that calculation.
      mid-rise cases can need substantially more layers; no general claim of
      only a few percent for `VerticalGrid.auto` is established by this review.
 3. **Mixing length:** implement both `"height"` (QES method 0) and
-   `"wall_distance"` (QES method 1). Method 1 is unavailable until its safety
-   and distance checks in Task 1B pass. `"height"` is the provisional default
-   until the user has reviewed the Task 9 benchmark; neither method is yet
+   `"wall_distance"` (QES method 1). Method 1 passed its Task 1B native safety
+   and distance checks and can be exposed by Task 2. `"height"` is the provisional
+   default until the user has reviewed the Task 9 benchmark; neither method is yet
    validated for pedestrian gusts.
 4. **Scope:** the binding and run API, a comfort GEM helper, `to_dtcc` fields
    and a dataset flag.
@@ -535,18 +550,30 @@ revision and submodule pointer together.
   provisional default; this audit does not select a scientifically validated
   default for gusts.
 
-- [ ] **Step 1: Promote both reviewed thin-layer cases into tests.** The
+- [x] **Step 1: Promote both reviewed thin-layer cases into tests.** The
   40×30×80 case reproduces the ASan failure; the 60×60×80 setup case isolates
   the length invariant without the original boundary access. Include genuinely
   nonuniform z layers and permutations/reflections of wall orientations.
-- [ ] **Step 2: Run** under ASan/UBSan before repair to capture the failure.
-- [ ] **Step 3: Repair** propagation bounds and distance updates. Document
+- [x] **Step 2: Run** under ASan/UBSan before repair to capture the failure.
+- [x] **Step 3: Repair** propagation bounds and distance updates. Document
   numerical differences from pristine QES for Task 3.
-- [ ] **Step 4: Run** the complete native turbulence suite in Release and under
+- [x] **Step 4: Run** the complete native turbulence suite in Release and under
   ASan/UBSan. Require no invalid accesses, finite positive computed lengths,
   the height upper bound, and agreement with the selected geometry oracles.
-- [ ] **Step 5: Commit** the repair and regressions; enable method 1 only after
+- [x] **Step 5: Commit** the repair and regressions; enable method 1 only after
   these checks pass. Its larger-domain cost is assessed in Task 9.
+
+**Task 1B outcome:** seven new native modes reproduce both failures and qualify
+the repair. On the 40×30×80 and 60×60×80 reviewed grids, all 83,656 and 265,356
+computed fluid lengths respectively are finite, positive and no greater than
+the height seed (maximum ratio 1). The box/plane tests check every computed
+fluid cell in their fixtures against a separate analytic solid-distance oracle,
+including transition and far-field levels. Empty two-layer and nonuniform
+domains match method 0, with no invalid or divide-by-zero floating arithmetic.
+Repeated setup and building removal do not retain stale walls. See
+[turbulence-reference-differences.md](docs/turbulence-reference-differences.md)
+for the exact face and transition policies. The public turbulence API remains
+unimplemented until Task 2; this qualification does not choose a gust default.
 
 ### Task 2: Bridge: settings, runner lifecycle, extraction and bindings
 

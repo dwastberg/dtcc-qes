@@ -135,7 +135,8 @@ if(DTCC_QES_BUILD_TESTS)
   target_include_directories(check_turbulence PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp")
   target_link_libraries(check_turbulence PRIVATE qeswindscore)
   foreach(mode low_top ref_in_top_cell ref_above_top reference_boundary methods ownership references lifecycle
-               rotation rotation_fallback calm validity building_validity)
+               rotation rotation_fallback calm validity building_validity wall_thin wall_upper_bound
+               wall_geometry wall_nonuniform wall_transition wall_underside wall_empty)
     add_test(NAME native_turbulence_${mode} COMMAND check_turbulence ${mode})
     set_tests_properties(native_turbulence_${mode} PROPERTIES
       ENVIRONMENT "OMP_NUM_THREADS=2;OMP_DYNAMIC=FALSE" TIMEOUT 60)
