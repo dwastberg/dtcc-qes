@@ -16,9 +16,9 @@ a `Turbulence` spec, a domain-top policy for turbulence's reference heights, a
 dtcc-core, pytest, CTest.
 
 **Status (implementation started 2026-10-27):** work is isolated in the checkout
-below. Task 1 native safety changes are implemented, verified and committed.
-The numerical repairs in Tasks 1A and 1B remain required before exposing the
-turbulence-derived statistics. Review measurements describe the original core
+below. Tasks 1 and 1A are implemented, verified and committed. The serial
+wall-distance repair in Task 1B and the later extraction/result work remain
+required before exposing the turbulence-derived statistics. Review measurements describe the original core
 at the recorded revision, not necessarily the repaired implementation.
 
 **Spec:** the Findings, Decisions and review revisions sections below. The
@@ -60,7 +60,15 @@ Task checkboxes and the execution record below track implementation progress.
   baseline's Debug ASan archives, so this is an existing assertion-symbol
   limitation of that audit configuration. Both CTest suites pass; the required
   Release symbol audit passes. Keep the Release audit strict.
-- Next: Task 1A (stress rotation/validity), then Task 1B (serial wall distance).
+- Task 1A: complete at QES commit `2df34fc85c6e859d7c8f3bd4aad3975daa7d81d9`.
+  Corrected tensor transforms, a counted nearest-fluid-centre direction fallback,
+  and a QES-free raw-stress validity/projection helper are covered by 24/24 full
+  Release native tests and 13/13 Debug ASan/UBSan turbulence tests. The Release
+  no-I/O symbol audit passes. A reproducible NumPy comparison on 5,000 tensors
+  found zero validity mismatches. See
+  [turbulence-reference-differences.md](docs/turbulence-reference-differences.md)
+  for the precise policies, numerical exceptions and validation scope.
+- Next: Task 1B (serial wall-distance safety and distance qualification).
 
 ---
 
@@ -108,8 +116,9 @@ called after every wind solve. It is a pure post-processor: it reads the solved
    `CoEps = 5.7 (0.55 √k)³ / Lm`, i.e. C0·ε with C0 = 5.7.
 4. `τij = ⅔ k δij − 2 νT Sij`, intended to be rotated into each column's wind direction at
    15 m above ground. The normal components become `|1.5 σ² 0.55² τii|` with
-   `σ/u* = (2.5, 2.0, 1.3)`; the tensor is then rotated back. The current
-   rotation convention fails the oblique-wind check below.
+   `σ/u* = (2.5, 2.0, 1.3)`; the tensor is then rotated back. The review
+   baseline failed the oblique-wind check below; Task 1A corrected the
+   transforms and added the documented direction fallback.
 5. Every component is clipped to `|τij| ≤ 20 u*²`. Background mixing is added
    if set. Finally `div τ` is computed for QES-Plume.
 
@@ -197,7 +206,8 @@ float32 arithmetic still require the stated comparison tolerances.
     requirement for the repaired method, not a property of the current code.
 13. **Stress rotation is direction-dependent in flat shear.** Axis-aligned
     checks pass, while a 45° horizontal rotation reduces streamwise σ by 20 %.
-    Resolve the matrix convention and test the complete tensor (Task 1A).
+    This was verified on the review baseline and is repaired in Task 1A, with
+    full-tensor, oblique-angle and direction-reversal regressions.
 14. **Computed stress need not be a valid covariance.** Diagonal absolute
     values and component-wise clipping do not guarantee positive
     semidefiniteness. A computed fluid cell can have `ê·τ·ê < 0`, making the
@@ -242,6 +252,8 @@ need their own justification and must survive into the comfort result.
 the added stress-validity mask. The base estimate is roughly 3.7–3.8 GB extra
 at 20 M cells, before additional Python masks, derived float64 arrays and
 validity-check temporaries. Measure peak RSS; do not treat this as a peak bound.
+The Task 1A direction cache adds about 16 B per horizontal cell during stress
+calculation; it is released after that calculation.
 
 ## Decisions and review revisions
 
@@ -433,8 +445,11 @@ Task identifiers are retained for traceability. Execute:
 ### Task 1A: Correct stress rotation and specify tensor validity
 
 **Files:** Modify `QES-Public/src/winds/TURBGeneralData.{h,cpp}`,
-`tests/native/check_turbulence.cpp`; add reference-difference documentation in
-Task 3. Record the fork revision and submodule pointer together.
+`tests/native/check_turbulence.cpp`, `CMakeLists.txt` and
+`tools/check_artifacts.py`. Create `src/cpp/stress_validity.h`,
+`tools/check_stress_validity.py` and `docs/turbulence-reference-differences.md`
+to establish the shared numerical contract and begin Task 3's provenance
+report. Record the fork revision and submodule pointer together.
 
 **Requirements:**
 - Derive the Cartesian-to-wind and wind-to-Cartesian transforms explicitly.
@@ -446,11 +461,14 @@ Task 3. Record the fork revision and submodule pointer together.
   headings. Component-wise clipping is a separate, basis-dependent operation;
   do not mistake clipped-tensor differences for the rotation test.
 - Audit the 15 m direction sample when it lies inside a building or has zero
-  horizontal speed. Document a deterministic fallback and its diagnostic count
-  before exposing derived statistics; do not label `atan2(0, 0)` a measured
-  wind direction. Expose `getRotationFallbackColumns()` and reset its count
-  each run; count distinct affected columns, not every vertical cell. Any
-  fallback change is an explicit Task 3 parity exception.
+  horizontal speed. A usable preferred sample keeps QES's original
+  `lower_bound(z_face, 15 + terrain)` index and staggered u/v pair. Otherwise
+  select the closest physical fluid z centre with finite, nonzero horizontal
+  velocity; prefer the higher centre on an equal-distance tie. Use Cartesian
+  +x only when the entire column has no usable direction. Do not label that
+  fallback a measured wind direction. Expose `getRotationFallbackColumns()`
+  and reset its count each run; count distinct affected computed columns, not
+  every vertical cell. This is an explicit Task 3 parity exception.
 - Adopt the initial raw-plus-mask policy: finite zero tensors are valid;
   materially indefinite tensors are invalid even if one projection is positive.
   Use float64 arithmetic on the stored float32 tensor and a scale-relative
@@ -462,24 +480,37 @@ Task 3. Record the fork revision and submodule pointer together.
   tolerance. Otherwise derived values are NaN with invalidity recorded.
   No implicit `makeRealizable` call or raw-tensor eigenvalue clipping is added.
 
-- [ ] **Step 1: Reproduce the rotation failure.** Manufacture
+- [x] **Step 1: Reproduce the rotation failure.** Manufacture
   `U(z) = (10 + 0.1 z) (cos(theta), sin(theta), 0)` on the 2 m flat grid.
   At z = 9 m, expected σ = 0.9 m/s for theta = 0°, 30°, 45°, 90° and their
   reversals. Confirm the current 45° result is about 0.72 m/s. Compare the full
   analytic tensor at interior cells (rtol 1e-5, atol 1e-7).
-- [ ] **Step 2: Add validity cases.** Include a zero tensor, a positive tensor,
+  Recorded failing regression: 0.720000 m/s at 45° against 0.900000 expected.
+- [x] **Step 2: Add validity cases.** Include a zero tensor, a positive tensor,
   roundoff-scale negative eigenvalues, a materially indefinite tensor with
   positive projection, and a tensor with negative projection. Include the
   reviewed one-building case and test positive speed rescaling. Invalid
   counts from the pre-fix probe are evidence, not immutable golden counts
   after the rotation fix.
-- [ ] **Step 3: Correct the rotation and cover the direction fallback.** Leave
+  Implemented in the native `validity`/`building_validity` modes, with
+  zero/nonfinite velocity, positive-projection indefinite tensors, tolerance
+  clamping and extreme finite direction-normalization cases. The independent
+  tool agrees with NumPy on 5,000 tensors at scales 1e-30 to 1e30.
+- [x] **Step 3: Correct the rotation and cover the direction fallback.** Leave
   the separately specified validity policy visible at the bridge/Python
   boundaries in Tasks 2 and 5. Record expected upstream differences.
-- [ ] **Step 4: Run** native analytic cases in Release and under ASan/UBSan.
+  The QES-free helper defines `stress_validity` and `streamwise_variance` for
+  Task 2 to consume; Task 5 must mirror the same stored-float32/float64
+  tolerance contract. No implicit raw-tensor correction was introduced.
+- [x] **Step 4: Run** native analytic cases in Release and under ASan/UBSan.
   Require correct oblique-angle results and finite native computed fields.
-- [ ] **Step 5: Commit** the numerical repair and its independent regression
+  Result: 24/24 full Release tests, 13/13 sanitizer turbulence tests, and the
+  Release no-I/O symbol audit pass. The direction tests include blocked,
+  zero/nonfinite, nonuniform, tie, terrain-relative and exact-top cases.
+- [x] **Step 5: Commit** the numerical repair and its independent regression
   tests, with updated QES revision provenance.
+  QES commit `2df34fc8`; parent changes include the shared helper, reference
+  comparison tool, tests, provenance report and synchronized submodule revision.
 
 ### Task 1B: Repair and qualify serial wall-distance mixing
 
@@ -527,6 +558,8 @@ revision and submodule pointer together.
 **Interfaces:**
 - Consumes: Task 1 ownership/accessors/guards, Task 1A rotation and validity
   contract, and the Task 1B qualification before method 1 can be selected.
+  Reuse `src/cpp/stress_validity.h` for native validity/projection rather than
+  introducing a second native policy. Propagate the direction-fallback count.
 - Produces (`wind_config.h`, QES-free):
   ```cpp
   struct TurbulenceSettings { bool enabled = false; int mixing_length_method = 0; }; // 0 height, 1 wall distance
