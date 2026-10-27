@@ -90,7 +90,37 @@ def test_logs_use_dtcc_logger_after_native_work(caplog):
     assert len(summaries) == 1
     assert "40 x 30 x 20, 1 buildings" in summaries[0].message
     assert "converged=True" in summaries[0].message
+    assert "max_divergence=" in summaries[0].message
     assert not any(r.levelno >= logging.ERROR for r in records)
+
+
+def test_conservative_divergence_diagnostics_are_separate_from_convergence():
+    runner, condition, solver = prepared(ONE_BUILDING)
+    solver.max_iterations = 1
+    early = runner.solve(condition, solver)["diagnostics"]
+    solver.max_iterations = 500
+    final = runner.solve(condition, solver)["diagnostics"]
+    assert final["max_divergence"] < 1e-5
+    assert final["rms_divergence"] < 1e-6
+    assert early["max_divergence"] > final["max_divergence"] * 100
+    assert final["divergence_cell_count"] > 1000
+    assert final["top_band_cell_count"] > 0
+    assert final["top_band_max_divergence"] > 1e-3
+
+
+def test_empty_assessed_regions_return_unavailable_metrics():
+    grid, model, condition, solver, arrays = inputs(FLAT)
+    grid.nx = grid.ny = 3
+    grid.nz = 2
+    model.sensor_x = model.sensor_y = 1
+    runner = _qes.WindRunner()
+    runner.prepare(grid, model, **arrays)
+    diagnostics = runner.solve(condition, solver)["diagnostics"]
+    assert diagnostics["divergence_cell_count"] == 0
+    assert diagnostics["max_divergence"] is None
+    assert diagnostics["rms_divergence"] is None
+    assert diagnostics["top_band_cell_count"] == 1
+    assert diagnostics["top_band_max_divergence"] == 0
 
 
 def test_warning_forwarding_and_native_failure_is_not_logged_twice(caplog):

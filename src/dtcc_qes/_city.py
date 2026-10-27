@@ -14,6 +14,7 @@ from shapely.validation import explain_validity
 from dtcc_core.model import Building, BuildingPart, City, Surface, Terrain
 
 from . import _qes
+from .vertical_grid import effective_faces
 
 
 def number(value, name, *, positive=False):
@@ -191,10 +192,17 @@ class PreparedDomain:
     resolution: float
     domain: dict
     terrain: dict
+    dz_layers: np.ndarray | None = None
+
+
+def default_domain_top(heights, reference_height, vertical_clearance, spacing):
+    """Local minimum domain top, shared by the city and dataset adapters."""
+    return max(max(heights, default=0.0) + max(vertical_clearance, spacing),
+               reference_height, 2 * spacing)
 
 
 def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, resolution,
-                   bounds, horizontal_padding, vertical_clearance, max_cells, terrain):
+                   bounds, horizontal_padding, vertical_clearance, max_cells, terrain, vertical_grid=None):
     if city.has_terrain and terrain is None:
         raise ValueError("City has terrain; pass terrain='flat' or a ground elevation to explicitly accept flattening")
     if not city.rings and bounds is None:
@@ -223,9 +231,30 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
         lower, upper = xy.min(axis=0) - padding, xy.max(axis=0) + padding
         origin = (float(lower[0]), float(lower[1]), base)
         extents = (float(upper[0] - lower[0]), float(upper[1] - lower[1]),
-                   max(max(city.heights) + max(vertical_clearance, spacing), reference_height, 2 * spacing))
+                   default_domain_top(city.heights, reference_height, vertical_clearance, spacing))
+    automatic_metadata = None
+    if vertical_grid is not None and vertical_grid.mode == "auto":
+        from ._auto_grid import generate_auto_layers
+        layers, automatic_metadata = generate_auto_layers(vertical_grid._automatic,
+            resolution=spacing, top=extents[2], heights=city.heights)
+    else:
+        layers = None if vertical_grid is None else vertical_grid.layers
+    if layers is not None and automatic_metadata is None:
+        requested_top = vertical_grid.faces[-1]
+        if bounds:
+            # Compare the requested physical endpoints before float32 narrowing.
+            # Permit only float64 subtraction error in translated global bounds.
+            tolerance = 4 * max(abs(np.spacing(origin[2])), abs(np.spacing(bounds[5])),
+                                abs(np.spacing(requested_top)))
+            if abs(requested_top - extents[2]) > tolerance:
+                raise ValueError("Explicit z_faces top must match bounds height above flat ground")
+        elif requested_top < extents[2]:
+            raise ValueError("Explicit z_faces top must cover the required clearance and reference height")
     counts = []
     for axis, extent in zip("xyz", extents):
+        if axis == "z" and layers is not None:
+            counts.append(len(layers))
+            continue
         ratio = extent / spacing
         if not math.isfinite(ratio) or ratio > 10000:
             raise ValueError(f"Grid {axis} dimension exceeds the native 10000-cell limit")
@@ -237,7 +266,43 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
         raise ValueError("Grid exceeds max_cells or the native index limit; increase resolution or reduce bounds")
     effective = tuple(count * spacing for count in counts)
     # Match QES's accumulated float32 vertical coordinates for the roof check.
-    faces = np.r_[np.float32(0), np.cumsum(np.full(nz, spacing, dtype=np.float32), dtype=np.float32)]
+    if layers is None:
+        faces = np.r_[np.float32(0), np.cumsum(np.full(nz, spacing, dtype=np.float32), dtype=np.float32)]
+        vertical_metadata = dict(mode="uniform", uniform=True)
+    else:
+        faces = effective_faces(layers)
+        effective = (*effective[:2], float(faces[-1]))
+        vertical_metadata = vertical_grid.to_metadata()
+        if automatic_metadata is not None:
+            vertical_metadata.update(automatic_metadata)
+    vertical_metadata.update(effective_faces=faces.tolist(),
+        min_thickness=float(np.diff(faces).min()), max_thickness=float(np.diff(faces).max()))
+    solver_layers = np.full(nz, spacing, dtype=np.float32) if layers is None else layers.astype(np.float32)
+    vertical_metadata.update(max_growth_ratio=float(np.max(solver_layers[1:] / solver_layers[:-1])),
+        max_thin_cell_aspect_ratio=float(spacing / solver_layers.min()),
+        max_tall_cell_aspect_ratio=float(solver_layers.max() / spacing))
+    centres_z = np.float32(0.5) * (faces[:-1] + faces[1:])
+    if automatic_metadata is not None:
+        height = vertical_grid._automatic.pedestrian_height
+        upper = int(np.searchsorted(centres_z.astype(np.float64), height))
+        lower = upper if float(centres_z[upper]) == height else upper-1
+        a, b = float(centres_z[lower]), float(centres_z[upper])
+        weight = 0.0 if lower == upper else (height-a)/(b-a)
+        z0, ref = float(np.float32(roughness_length)), float(np.float32(reference_height))
+        denominator = math.log1p(ref/z0)
+        exact = math.log1p(height/z0)/denominator
+        interpolated = (math.log1p(a/z0)*(1-weight)+math.log1p(b/z0)*weight)/denominator
+        vertical_metadata["pedestrian_sampling"] = dict(height=height,
+            centre_indices=[lower, upper], bracketing_centres=[a,b], upper_weight=weight,
+            third_centre=float(centres_z[2]), flat_profile_exact_K=exact,
+            flat_profile_interpolated_K=interpolated, flat_profile_bias_K=interpolated-exact,
+            reference_height=ref, roughness_length=z0)
+    vertical_metadata["roof_representation"] = [
+        dict(source_id=source_id, requested_height=height,
+             represented_height=float(faces[np.searchsorted(centres_z, np.float32(height), side="right")]),
+             error=float(faces[np.searchsorted(centres_z, np.float32(height), side="right")]) - height)
+        for source_id, height in zip(city.source_ids, city.heights)
+    ]
     top_centre = float(np.float32(0.5) * (faces[-2] + faces[-1]))
     local_rings, narrowed_polygons, offsets = [], [], [0]
     for source_id, ring, height in zip(city.source_ids, city.rings, city.heights):
@@ -275,8 +340,9 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
                           dict(requested_bounds=bounds, local_bounds=(0.0, 0.0, 0.0, *effective),
                                effective_bounds=(*origin, *(origin[i] + effective[i] for i in range(3))),
                                shape=(nz, ny, nx), requested_resolution=resolution, resolution=spacing,
+                               vertical_grid=vertical_metadata,
                                effective_horizontal_padding=padding, max_cells=max_cells),
                           dict(model="flat", elevation=base, flattening_requested=terrain is not None,
                                city_terrain_ignored=city.has_terrain, base_elevation_tolerance=1e-6,
                                base_elevations_flattened=any(abs(lo - base) > 1e-6 or abs(hi - base) > 1e-6
-                                                            for lo, hi in city.base_ranges)))
+                                                            for lo, hi in city.base_ranges)), layers)
