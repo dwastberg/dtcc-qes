@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <vector>
+#include <string>
 
 namespace dtcc_qes {
 // Private numerical contract. Coordinates are metres in a local, flat frame.
@@ -11,6 +12,7 @@ struct GridConfig {
   int nx = 40, ny = 30, nz = 20;
   double cell_size = 2.0;
   std::int64_t max_cells = 2000000;
+  std::vector<double> dz_layers; // Physical thicknesses; empty preserves uniform cells.
 };
 
 struct ModelSettings {
@@ -28,6 +30,7 @@ struct WindCondition {
 struct SolverOptions {
   double tolerance = 1e-5;
   int max_iterations = 500;
+  std::string precision = "float32";
 };
 
 struct BuildingArrays {
@@ -37,13 +40,20 @@ struct BuildingArrays {
   std::vector<double> heights, base_heights;
 };
 
+struct DivergenceStats {
+  double interior_max = 0, interior_rms = 0, top_band_max = 0;
+  std::size_t cells = 0, top_band_cells = 0;
+};
+
 struct WindData {
   int nx = 0, ny = 0, nz = 0;
-  std::vector<float> x, y, z, velocity;
+  std::vector<float> x, y, z, z_faces, velocity;
   std::vector<std::int32_t> cell_flags;
   int iterations = 0;
-  float max_lagrange_multiplier_change = 0, tolerance = 0;
+  double max_lagrange_multiplier_change = 0, tolerance = 0;
+  std::string precision = "float32";
   bool converged = false;
+  DivergenceStats divergence;
   std::size_t building_count = 0;
 };
 }

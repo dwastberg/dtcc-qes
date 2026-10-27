@@ -1,4 +1,7 @@
 #include "qes_inputs.h"
+#include "divergence.h"
+#include "winds/Solver_CPU.h"
+#include <limits>
 #include "winds/WINDSGeneralData.h"
 #include "winds/SolverFactory.h"
 #include "fixture.h"
@@ -12,51 +15,6 @@ using namespace dtcc_qes;
 static void require(bool condition, const char *message)
 {
   if (!condition) throw std::runtime_error(message);
-}
-
-struct FluxStats {
-  double max = 0, rms = 0, top_band_max = 0;
-  std::size_t count = 0;
-};
-
-// Conservative six-face flux, not a derivative of cell-centred averages.
-// Wall::solverCoefficients scales the open-face fractions by spacing squared;
-// recover those fractions and divide net volumetric flux by cell volume.
-static FluxStats flux(const WINDSGeneralData &data, bool initial)
-{
-  const auto &d = data.domain;
-  const auto &u = initial ? data.u0 : data.u;
-  const auto &v = initial ? data.v0 : data.v;
-  const auto &w = initial ? data.w0 : data.w;
-  FluxStats stats;
-  double sum_squared = 0;
-  // Outer x/y cells have prescribed boundary conditions. The last solved z
-  // band has an uncorrected upper w face in QES 2.3.1: report it separately.
-  for (int k = 1; k < fixture::nz; ++k)
-    for (int j = 1; j < fixture::ny - 1; ++j)
-      for (int i = 1; i < fixture::nx - 1; ++i) {
-        const auto c = d.cell(i, j, k), f = d.face(i, j, k);
-        if (data.icellflag[c] == 0 || data.icellflag[c] == 2) continue;
-        const double dx = d.dx(), dy = d.dy(), dz = d.dz_array[k];
-        const double east = data.e[c] * dx * dx, west = data.f[c] * dx * dx;
-        const double north = data.g[c] * dy * dy, south = data.h[c] * dy * dy;
-        const double above = data.m[c] * dz * 0.5 * (dz + d.dz_array[k + 1]);
-        const double below = data.n[c] * dz * 0.5 * (dz + d.dz_array[k - 1]);
-        const double net = (east * u[d.faceAdd(f, 1, 0, 0)] - west * u[f]) * dy * dz
-                         + (north * v[d.faceAdd(f, 0, 1, 0)] - south * v[f]) * dx * dz
-                         + (above * w[d.faceAdd(f, 0, 0, 1)] - below * w[f]) * dx * dy;
-        const double divergence = net / (dx * dy * dz);
-        require(std::isfinite(divergence), "Non-finite staggered flux");
-        if (k == fixture::nz - 1) {
-          stats.top_band_max = std::max(stats.top_band_max, std::abs(divergence));
-        } else {
-          stats.max = std::max(stats.max, std::abs(divergence));
-          sum_squared += divergence * divergence;
-          ++stats.count;
-        }
-      }
-  stats.rms = std::sqrt(sum_squared / stats.count);
-  return stats;
 }
 
 static void check(bool with_building, bool report)
@@ -80,32 +38,213 @@ static void check(bool with_building, bool report)
   data.resetICellFlag();
   data.applyWindProfile(&inputs.input, 0, CPU_Type);
   data.applyParametrizations(&inputs.input);
-  const auto before = flux(data, true);
+  const auto before = divergence_stats(data, true);
   std::unique_ptr<Solver> solver(SolverFactory::create(CPU_Type, data.domain, fixture::tolerance));
   solver->resetLambda();
   const auto diagnostics = solver->solve(&data, fixture::max_iterations);
-  const auto after = flux(data, false);
+  const auto after = divergence_stats(data);
   require(diagnostics.converged, "Physics fixture did not converge");
-  require(after.count > 1000, "Flux check did not cover the solved interior");
-  require(after.max < 1e-5 && after.rms < 1e-6, "Interior staggered flux exceeds the validated bound (s^-1)");
+  require(after.cells > 1000, "Flux check did not cover the solved interior");
+  require(after.interior_max < 1e-5 && after.interior_rms < 1e-6, "Interior staggered flux exceeds the validated bound (s^-1)");
   if (with_building) {
-    require(before.rms > 1e-3 && after.rms < before.rms * 1e-3, "Solver did not reduce divergent initial flux");
+    require(before.interior_rms > 1e-3 && after.interior_rms < before.interior_rms * 1e-3, "Solver did not reduce divergent initial flux");
     require(after.top_band_max > 1e-3 && after.top_band_max < 1.6e-2,
             "Legacy prescribed-top flux band changed; review against the standalone baseline");
   } else {
-    require(after.max == 0 && after.top_band_max == 0, "Flat profile has nonzero flux");
+    require(after.interior_max == 0 && after.top_band_max == 0, "Flat profile has nonzero flux");
   }
   // The numerical flux assertion must detect a broken staggered component.
   data.u[data.domain.face(10, 10, 2)] += 0.1f;
-  require(flux(data, false).max > 1e-2, "Flux check missed a perturbed face");
+  require(divergence_stats(data).interior_max > 1e-2, "Flux check missed a perturbed face");
   if (report)
-    std::cout << (with_building ? "building" : "flat") << ": initial_rms=" << before.rms
-              << " interior_max=" << after.max << " interior_rms=" << after.rms
+    std::cout << (with_building ? "building" : "flat") << ": initial_rms=" << before.interior_rms
+              << " interior_max=" << after.interior_max << " interior_rms=" << after.interior_rms
               << " top_band_max=" << after.top_band_max << " s^-1\n";
+}
+
+static void injection(bool serial, bool vertical, float spacing, bool report)
+{
+  GridConfig grid;
+  grid.nx = grid.ny = 24; grid.nz = 16; grid.cell_size = spacing;
+  ModelSettings model;
+  model.sensor_x = model.sensor_y = 2.5 * spacing;
+  QESInputs inputs(grid, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  inputs.set_condition({0, 270, 10});
+  WINDSGeneralData data(&inputs.input, qes::Domain(inputs.simulation.domain, inputs.simulation.grid), CPU_Type);
+  data.applyWindProfile(&inputs.input, 0, CPU_Type);
+  data.applyParametrizations(&inputs.input);
+  (vertical ? data.w0 : data.u0)[data.domain.face(12, 12, 6)] = 0.1f;
+  const auto before = divergence_stats(data, true);
+  std::unique_ptr<Solver> solver;
+  if (serial) solver = std::make_unique<Solver_CPU>(data.domain, 2e-7f);
+  else solver.reset(SolverFactory::create(CPU_Type, data.domain, 2e-7f));
+  const auto diagnostics = solver->solve(&data, 20000);
+  const auto after = divergence_stats(data);
+  require(before.interior_max > 0.02, "Injection did not create divergence");
+  require(after.interior_max < 1e-6, "Solver failed to remove injected divergence");
+  if (report)
+    std::cout << "injection " << (serial ? "serial" : "factory") << " "
+              << (vertical ? "w" : "u") << " dz=" << spacing
+              << " before=" << before.interior_max << " after=" << after.interior_max
+              << " top=" << after.top_band_max << " iterations=" << diagnostics.iterations << "\n";
+}
+
+// Independent finite-volume oracle: it uses physical face velocities and known
+// unobstructed areas, never the coefficient recovery used by divergence_stats.
+static void diagnostic_checks()
+{
+  GridConfig grid;
+  grid.nx = 7; grid.ny = 6; grid.nz = 5;
+  grid.dz_layers = {0.5, 0.75, 1.0, 1.5, 2.0};
+  ModelSettings model;
+  model.sensor_x = model.sensor_y = 1;
+  QESInputs inputs(grid, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  const auto domain = make_domain(inputs);
+  WINDSGeneralData data(&inputs.input, domain, CPU_Type);
+  data.applyWindProfile(&inputs.input, 0, CPU_Type);
+  data.applyParametrizations(&inputs.input);
+  const auto &d = data.domain;
+  for (int k = 0; k < d.nz(); ++k)
+    for (int j = 0; j < d.ny(); ++j)
+      for (int i = 0; i < d.nx(); ++i) {
+        data.u0[d.face(i, j, k)] = 0.125f * i;
+        data.v0[d.face(i, j, k)] = 0.25f * j;
+        data.w0[d.face(i, j, k)] = d.z_face[k] * d.z_face[k];
+      }
+  double maximum = 0, weighted_square = 0, volume_sum = 0, top = 0;
+  for (int k = 1; k < grid.nz; ++k) {
+    const double expected = 0.125 / d.dx() + 0.25 / d.dy() + 2 * d.z[k];
+    if (k == grid.nz - 1) { top = expected; continue; }
+    maximum = std::max(maximum, expected);
+    const double volume = d.dx() * d.dy() * d.dz_array[k];
+    weighted_square += volume * expected * expected;
+    volume_sum += volume;
+  }
+  const auto stats = divergence_stats(data, true);
+  require(std::abs(stats.interior_max - maximum) < 2e-6, "Divergence maximum differs from independent oracle");
+  require(std::abs(stats.interior_rms - std::sqrt(weighted_square / volume_sum)) < 2e-6,
+          "Divergence RMS does not use actual cell volumes");
+  require(std::abs(stats.top_band_max - top) < 2e-6, "Top band differs from independent oracle");
+  require(stats.cells == 60 && stats.top_band_cells == 20, "Incorrect diagnostic region counts");
+
+  // Neither top-layer values nor its unscaled coefficients may be accessed.
+  data.u0[d.face(2, 2, grid.nz)] = std::numeric_limits<float>::quiet_NaN();
+  require(divergence_stats(data, true).interior_max == stats.interior_max, "Unassessed top layer contaminated diagnostic");
+  data.u0[d.face(2, 2, 2)] = std::numeric_limits<float>::quiet_NaN();
+  bool rejected = false;
+  try { divergence_stats(data, true); } catch (const std::runtime_error &) { rejected = true; }
+  require(rejected, "Diagnostic accepted a nonfinite assessed face");
+
+  GridConfig small;
+  small.nx = small.ny = 3; small.nz = 2;
+  QESInputs small_inputs(small, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  WINDSGeneralData small_data(&small_inputs.input,
+    qes::Domain(small_inputs.simulation.domain, small_inputs.simulation.grid), CPU_Type);
+  small_data.applyWindProfile(&small_inputs.input, 0, CPU_Type);
+  small_data.applyParametrizations(&small_inputs.input);
+  const auto empty = divergence_stats(small_data, true);
+  require(empty.cells == 0 && empty.top_band_cells == 1, "Small grid diagnostic bands are incorrect");
+  std::fill(small_data.icellflag.begin(), small_data.icellflag.end(), 2);
+  const auto solid = divergence_stats(small_data, true);
+  require(solid.cells == 0 && solid.top_band_cells == 0, "Solid cells entered diagnostic");
+}
+
+static void box(BuildingArrays &geometry, int id, double x0, double x1)
+{
+  for (auto vertex : {std::pair{x0, 20.0}, std::pair{x0, 60.0},
+                     std::pair{x1, 60.0}, std::pair{x1, 20.0}, std::pair{x0, 20.0}})
+    geometry.vertices.insert(geometry.vertices.end(), {vertex.first, vertex.second});
+  geometry.offsets.push_back(geometry.vertices.size() / 2);
+  geometry.ids.push_back(id); geometry.heights.push_back(15); geometry.base_heights.push_back(0);
+}
+
+static std::vector<float> canyon(bool serial, bool report)
+{
+  GridConfig grid;
+  grid.nx = 60; grid.ny = 40; grid.nz = 25;
+  ModelSettings model;
+  model.sensor_x = model.sensor_y = 5;
+  BuildingArrays geometry{{}, {0}, {}, {}, {}};
+  box(geometry, 0, 30, 40); box(geometry, 1, 52, 62);
+  QESInputs inputs(grid, model, geometry);
+  inputs.set_condition({5, 270, 10});
+  WINDSGeneralData data(&inputs.input, qes::Domain(inputs.simulation.domain, inputs.simulation.grid), CPU_Type);
+  data.applyWindProfile(&inputs.input, 0, CPU_Type);
+  data.applyParametrizations(&inputs.input);
+  const auto before = divergence_stats(data, true);
+  require(before.interior_max > 0.1, "Canyon did not exercise divergent parameterizations");
+  std::unique_ptr<Solver> solver;
+  if (serial) solver = std::make_unique<Solver_CPU>(data.domain, std::numeric_limits<float>::epsilon());
+  else solver.reset(SolverFactory::create(CPU_Type, data.domain, std::numeric_limits<float>::epsilon()));
+  std::vector<float> previous, plane;
+  for (const int budget : {1000, 2000, 4000}) {
+    // Always restart from the same initial field and reset lambda. Verify that
+    // the requested work is performed, even if the production stopping rule
+    // would normally return early. No public stopping-rule change is made.
+    solver->resetLambda();
+    const auto diagnostics = solver->solve(&data, budget);
+    require(diagnostics.iterations == budget, "Canyon study stopped before the requested checkpoint");
+    const auto stats = divergence_stats(data);
+    require(stats.interior_max * 15 / 5 < 1e-3 && stats.interior_rms * 15 / 5 < 1e-4,
+            "Canyon exceeds common conservative divergence bounds");
+    plane.clear();
+    const auto &d = data.domain;
+    double street_speed = 0;
+    std::size_t street_count = 0;
+    for (int j = 1; j < grid.ny - 1; ++j)
+      for (int i = 1; i < grid.nx - 1; ++i) {
+        if (data.icellflag[d.cell(i, j, 1)] == 0) continue;
+        const auto f = d.face(i, j, 1);
+        const float u = 0.5f * (data.u[f] + data.u[d.faceAdd(f, 1, 0, 0)]);
+        const float v = 0.5f * (data.v[f] + data.v[d.faceAdd(f, 0, 1, 0)]);
+        const float w = 0.5f * (data.w[f] + data.w[d.faceAdd(f, 0, 0, 1)]);
+        plane.insert(plane.end(), {u, v, w});
+        if (d.x[i] > 40 && d.x[i] < 52 && d.y[j] > 20 && d.y[j] < 60) {
+          street_speed += std::hypot(u, v); ++street_count;
+        }
+      }
+    double maximum_change = 0, p95_change = 0;
+    if (!previous.empty()) {
+      std::vector<double> changes;
+      for (std::size_t p = 0; p < plane.size(); p += 3)
+        changes.push_back(std::sqrt(std::pow(plane[p] - previous[p], 2)
+                         + std::pow(plane[p + 1] - previous[p + 1], 2)
+                         + std::pow(plane[p + 2] - previous[p + 2], 2)) / 5);
+      std::sort(changes.begin(), changes.end());
+      maximum_change = changes.back(); p95_change = changes[std::size_t(0.95 * (changes.size() - 1))];
+      require(maximum_change <= 1e-3 && p95_change <= 5e-4, "Canyon pedestrian velocity has not stabilized");
+    }
+    previous = plane;
+    if (report)
+      std::cout << "canyon " << (serial ? "serial" : "factory") << " budget=" << budget
+                << " max=" << stats.interior_max << " rms=" << stats.interior_rms
+                << " top=" << stats.top_band_max << " iterations=" << diagnostics.iterations
+                << " lambda_change=" << diagnostics.max_lagrange_multiplier_change
+                << " converged=" << diagnostics.converged << " street_horizontal_speed_at_1m="
+                << street_speed / street_count << " max_velocity_change=" << maximum_change
+                << " p95_velocity_change=" << p95_change << "\n";
+  }
+  return plane;
 }
 
 int main(int argc, char **)
 {
   check(false, argc > 1);
   check(true, argc > 1);
+  diagnostic_checks();
+  for (float spacing : {1.0f, 2.0f, 4.0f})
+    for (bool vertical : {false, true}) {
+      injection(true, vertical, spacing, argc > 1);
+#ifdef _OPENMP
+      injection(false, vertical, spacing, argc > 1);
+#endif
+    }
+  const auto serial = canyon(true, argc > 1);
+#ifdef _OPENMP
+  const auto parallel = canyon(false, argc > 1);
+  require(serial.size() == parallel.size(), "Canyon backend sample counts differ");
+  for (std::size_t i = 0; i < serial.size(); ++i)
+    require(std::abs(serial[i] - parallel[i]) <= 2e-4 + 1e-5 * std::abs(serial[i]),
+            "Canyon backends disagree at matched residual and velocity stability");
+#endif
 }

@@ -1,6 +1,7 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/array.h>
+#include <nanobind/stl/string.h>
 #include "build_info.h"
 #include "wind_runner.h"
 #include <cstring>
@@ -71,6 +72,7 @@ nb::dict python_result(const WindData &data)
   result["x"] = owned_array(data.x, nb::make_tuple(data.nx), "float32");
   result["y"] = owned_array(data.y, nb::make_tuple(data.ny), "float32");
   result["z"] = owned_array(data.z, nb::make_tuple(data.nz), "float32");
+  result["z_faces"] = owned_array(data.z_faces, nb::make_tuple(data.nz + 1), "float32");
   result["velocity"] = owned_array(data.velocity, nb::make_tuple(data.nz, data.ny, data.nx, 3), "float32");
   result["cell_flags"] = owned_array(data.cell_flags, nb::make_tuple(data.nz, data.ny, data.nx), "int32");
   nb::dict diagnostics;
@@ -78,6 +80,13 @@ nb::dict python_result(const WindData &data)
   diagnostics["max_lagrange_multiplier_change"] = data.max_lagrange_multiplier_change;
   diagnostics["tolerance"] = data.tolerance;
   diagnostics["converged"] = data.converged;
+  diagnostics["precision"] = data.precision;
+  const auto &div = data.divergence;
+  diagnostics["max_divergence"] = div.cells ? nb::cast(div.interior_max) : nb::none();
+  diagnostics["rms_divergence"] = div.cells ? nb::cast(div.interior_rms) : nb::none();
+  diagnostics["top_band_max_divergence"] = div.top_band_cells ? nb::cast(div.top_band_max) : nb::none();
+  diagnostics["divergence_cell_count"] = div.cells;
+  diagnostics["top_band_cell_count"] = div.top_band_cells;
   result["diagnostics"] = diagnostics;
   result["building_count"] = data.building_count;
   nb::module_::import_("dtcc_qes._logging").attr("_log_solve")(result);
@@ -122,14 +131,17 @@ NB_MODULE(_qes, m)
     .def_rw("direction", &WindCondition::direction).def_rw("reference_height", &WindCondition::reference_height);
   nb::class_<SolverOptions>(m, "SolverOptions")
     .def(nb::init<>()).def_rw("tolerance", &SolverOptions::tolerance)
-    .def_rw("max_iterations", &SolverOptions::max_iterations);
+    .def_rw("max_iterations", &SolverOptions::max_iterations)
+    .def_rw("precision", &SolverOptions::precision);
   nb::class_<WindRunner>(m, "WindRunner")
     .def(nb::init<>())
     .def("prepare", [](WindRunner &runner, const GridConfig &grid, const ModelSettings &model,
-                       Vertices vertices, Integers offsets, Floats heights, Floats base_heights, Integers ids) {
+                       Vertices vertices, Integers offsets, Floats heights, Floats base_heights, Integers ids,
+                       Floats dz_layers) {
       // Snapshot Python inputs while holding the GIL. Native work never borrows
       // mutable NumPy buffers or configuration objects from another Python thread.
-      const GridConfig grid_value = grid;
+      GridConfig grid_value = grid;
+      if (dz_layers.is_valid()) grid_value.dz_layers = copy_input(dz_layers);
       const ModelSettings model_value = model;
       const BuildingArrays buildings{copy_input(vertices), copy_input(offsets), copy_input(ids),
                                      copy_input(heights), copy_input(base_heights)};
@@ -138,7 +150,8 @@ NB_MODULE(_qes, m)
         return 0;
       });
     }, "grid"_a, "model"_a, nb::arg("vertices").noconvert(), nb::arg("offsets").noconvert(),
-       nb::arg("heights").noconvert(), nb::arg("base_heights").noconvert(), nb::arg("ids").noconvert())
+       nb::arg("heights").noconvert(), nb::arg("base_heights").noconvert(), nb::arg("ids").noconvert(),
+       nb::kw_only(), nb::arg("dz_layers").noconvert().none() = nb::none())
     .def("solve", [](WindRunner &runner, const WindCondition &condition, const SolverOptions &options) {
       const WindCondition wind = condition;
       const SolverOptions solver = options;

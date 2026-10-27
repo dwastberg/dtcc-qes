@@ -1,4 +1,5 @@
 #include "qes_inputs.h"
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <stdexcept>
@@ -27,6 +28,34 @@ void flag(int value, int maximum, const char *name)
   if (value < 0 || value > maximum)
     throw std::invalid_argument(std::string("Unsupported ") + name);
 }
+
+std::vector<float> narrow_layers(const GridConfig &grid)
+{
+  if (grid.dz_layers.size() != static_cast<std::size_t>(grid.nz))
+    throw std::invalid_argument("Vertical layer count must match nz");
+  std::vector<float> layers;
+  for (double h : grid.dz_layers) layers.push_back(positive(h, "Vertical layer thickness"));
+  return layers;
+}
+}
+
+std::vector<float> vertical_faces(const GridConfig &grid)
+{
+  // Construct only coordinate vectors, never the much larger wind arrays. This
+  // reuses the core's accumulation and validation for preparation and roof checks.
+  const float spacing = positive(grid.cell_size, "Cell size");
+  const auto domain = grid.dz_layers.empty()
+    ? qes::Domain(grid.nx, grid.ny, grid.nz, spacing, spacing, spacing)
+    : qes::Domain(grid.nx, grid.ny, spacing, spacing, narrow_layers(grid));
+  return {domain.z_face.begin() + 1, domain.z_face.end()};
+}
+
+qes::Domain make_domain(const QESInputs &inputs)
+{
+  const auto &s = inputs.simulation;
+  if (s.verticalStretching == 1)
+    return qes::Domain(s.domain[0], s.domain[1], s.grid[0], s.grid[1], s.dz_value);
+  return qes::Domain(s.domain, s.grid);
 }
 
 float qes_tolerance(const SolverOptions &options)
@@ -37,6 +66,18 @@ float qes_tolerance(const SolverOptions &options)
   if (options.max_iterations < 1)
     throw std::invalid_argument("Maximum iterations must be positive");
   return tolerance;
+}
+
+double solver_tolerance(const SolverOptions &options)
+{
+  if (options.precision == "float32") return qes_tolerance(options);
+  if (options.precision != "float64")
+    throw std::invalid_argument("Solver precision must be 'float32' or 'float64'");
+  if (!std::isfinite(options.tolerance) || options.tolerance < std::numeric_limits<double>::epsilon())
+    throw std::invalid_argument("Solver tolerance must be finite and at least float64 epsilon");
+  if (options.max_iterations < 1)
+    throw std::invalid_argument("Maximum iterations must be positive");
+  return options.tolerance;
 }
 
 QESInputs::QESInputs(const GridConfig &grid, const ModelSettings &model, const BuildingArrays &arrays)
@@ -54,8 +95,14 @@ QESInputs::QESInputs(const GridConfig &grid, const ModelSettings &model, const B
     throw std::invalid_argument("Cell size cannot form finite float32 solver coefficients");
   simulation.domain = {grid.nx, grid.ny, grid.nz};
   simulation.grid = {spacing, spacing, spacing};
+  const auto faces_z = vertical_faces(grid);
+  if (!grid.dz_layers.empty()) {
+    simulation.verticalStretching = 1;
+    simulation.dz_value = narrow_layers(grid);
+    simulation.grid[2] = *std::min_element(simulation.dz_value.begin(), simulation.dz_value.end());
+  }
   // All other simulation members use the explicit, I/O-free defaults: flat,
-  // no halos, uniform spacing, stair-step mesh and logLawFlag=0.
+  // no halos, uniform horizontal spacing, stair-step mesh and logLawFlag=0.
   simulation.totalTimeIncrements = 1;
   series.time = std::string("2020-01-01T00:00:00");
   series.site_z0 = positive(model.roughness_length, "Roughness length");
@@ -102,12 +149,7 @@ QESInputs::QESInputs(const GridConfig &grid, const ModelSettings &model, const B
   std::unordered_set<std::int64_t> ids;
   // Use QES's actual float32 accumulation for the roof guard, rather than a
   // double-precision estimate of the top cell centre.
-  float top_face = 0, previous_face = 0;
-  for (int k = 0; k < grid.nz; ++k) {
-    previous_face = top_face;
-    top_face += spacing;
-  }
-  const float top_centre = 0.5f * (previous_face + top_face);
+  const float top_centre = 0.5f * (faces_z[grid.nz - 1] + faces_z[grid.nz]);
   for (std::size_t b = 0; b < count; ++b) {
     const auto begin = arrays.offsets[b], end = arrays.offsets[b + 1];
     if (begin < 0 || end < begin || static_cast<std::uint64_t>(end) > vertex_count || end - begin < 4)

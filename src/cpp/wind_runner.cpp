@@ -1,5 +1,7 @@
 #include "wind_runner.h"
 #include "qes_inputs.h"
+#include "divergence.h"
+#include "precision_solver.h"
 #include "winds/WINDSGeneralData.h"
 #include "winds/SolverFactory.h"
 #include <stdexcept>
@@ -11,12 +13,13 @@ struct WindRunner::Impl {
   // Reverse member destruction is essential: solver, data, then input owners.
   std::unique_ptr<WINDSGeneralData> data;
   std::unique_ptr<Solver> solver;
-  float tolerance = 0;
+  std::unique_ptr<PrecisionSolver> precision_solver;
+  double tolerance = 0;
 
   Impl(const GridConfig &g, const ModelSettings &m, const BuildingArrays &b)
     : grid(g), inputs(g, m, b),
       data(std::make_unique<WINDSGeneralData>(&inputs.input,
-        qes::Domain(inputs.simulation.domain, inputs.simulation.grid), CPU_Type)) {}
+        make_domain(inputs), CPU_Type)) {}
 };
 
 WindRunner::WindRunner() = default;
@@ -41,26 +44,39 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
   const BufferedLogSink sink(messages);
   if (!impl_) throw std::runtime_error("Prepare the runner before solving");
   auto &state = *impl_;
-  const float tolerance = qes_tolerance(options);
+  const double tolerance = solver_tolerance(options);
   state.inputs.set_condition(condition);
   auto &data = *state.data;
   data.resetICellFlag();
   data.applyWindProfile(&state.inputs.input, 0, CPU_Type);
   data.applyParametrizations(&state.inputs.input);
-  if (!state.solver || state.tolerance != tolerance) {
-    state.solver.reset(SolverFactory::create(CPU_Type, data.domain, tolerance));
+  PrecisionDiagnostics diagnostics;
+  if (options.precision == "float64") {
+    state.solver.reset();
+    if (!state.precision_solver || state.tolerance != tolerance)
+      state.precision_solver = std::make_unique<PrecisionSolver>(data.domain, tolerance);
     state.tolerance = tolerance;
+    diagnostics = state.precision_solver->solve(&data, options.max_iterations);
+  } else {
+    state.precision_solver.reset();
+    if (!state.solver || state.tolerance != tolerance)
+      state.solver.reset(SolverFactory::create(CPU_Type, data.domain, float(tolerance)));
+    state.tolerance = tolerance;
+    state.solver->resetLambda();
+    const auto legacy = state.solver->solve(&data, options.max_iterations);
+    diagnostics = {legacy.iterations, legacy.max_lagrange_multiplier_change,
+                   legacy.tolerance, legacy.converged};
   }
-  state.solver->resetLambda();
-  const auto diagnostics = state.solver->solve(&data, options.max_iterations);
 
   WindData result;
+  result.divergence = divergence_stats(data);
   result.nx = state.grid.nx;
   result.ny = state.grid.ny;
   result.nz = state.grid.nz;
   result.x = data.domain.x;
   result.y = data.domain.y;
   result.z.assign(data.domain.z.begin() + 1, data.domain.z.end());
+  result.z_faces.assign(data.domain.z_face.begin() + 1, data.domain.z_face.end());
   result.building_count = state.inputs.polygons.size();
   const auto count = std::size_t(result.nx) * result.ny * result.nz;
   result.velocity.resize(count * 3);
@@ -81,6 +97,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
   result.max_lagrange_multiplier_change = diagnostics.max_lagrange_multiplier_change;
   result.tolerance = diagnostics.tolerance;
   result.converged = diagnostics.converged;
+  result.precision = options.precision;
   return result;
 }
 }

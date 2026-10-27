@@ -66,8 +66,8 @@ if(Git_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/QES-Public/.git")
 endif()
 
 # Bindings contain no QES headers; only the audited bridge instantiates them.
-add_library(qesbridge OBJECT src/cpp/build_info.cpp src/cpp/qes_inputs.cpp
-  src/cpp/log_sink.cpp src/cpp/wind_runner.cpp)
+add_library(qesbridge OBJECT src/cpp/build_info.cpp src/cpp/qes_inputs.cpp src/cpp/divergence.cpp
+  src/cpp/log_sink.cpp src/cpp/wind_runner.cpp src/cpp/precision_solver.cpp)
 target_link_libraries(qesbridge PRIVATE qeswindscore)
 target_compile_definitions(qesbridge PRIVATE DTCC_QES_QES_REVISION="${DTCC_QES_QES_REVISION}")
 nanobind_add_module(_qes src/cpp/bindings.cpp $<TARGET_OBJECTS:qesbridge>)
@@ -131,9 +131,24 @@ if(DTCC_QES_BUILD_TESTS)
   target_include_directories(check_physics PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp" "${CMAKE_CURRENT_BINARY_DIR}")
   target_link_libraries(check_physics PRIVATE qeswindscore)
   add_test(NAME staggered_flux COMMAND check_physics)
+  add_executable(check_vertical_grid tests/native/check_vertical_grid.cpp $<TARGET_OBJECTS:qesbridge>)
+  target_include_directories(check_vertical_grid PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp")
+  target_link_libraries(check_vertical_grid PRIVATE qeswindscore)
+  add_test(NAME explicit_vertical_grid COMMAND check_vertical_grid)
+  add_executable(check_precision tests/native/check_precision.cpp $<TARGET_OBJECTS:qesbridge>)
+  target_include_directories(check_precision PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp")
+  target_link_libraries(check_precision PRIVATE qeswindscore)
+  add_test(NAME precision_solver COMMAND check_precision)
+  # Opt-in numerical study; deliberately excluded from routine CTest workloads.
+  add_executable(vertical_grid_study tools/vertical_grid_study.cpp
+    tools/vertical_grid_diagnostics.cpp $<TARGET_OBJECTS:qesbridge>)
+  target_include_directories(vertical_grid_study PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp")
+  target_link_libraries(vertical_grid_study PRIVATE qeswindscore)
+  add_test(NAME study_sampler COMMAND vertical_grid_study --self-test)
+  add_test(NAME study_solver_diagnostics COMMAND vertical_grid_study --diagnostics-self-test)
   if(ENABLE_OPENMP)
     set_tests_properties(native_success native_failures native_nonconvergence
-      native_messages runner_lifecycle staggered_flux PROPERTIES
+      native_messages runner_lifecycle staggered_flux explicit_vertical_grid precision_solver PROPERTIES
       ENVIRONMENT "OMP_NUM_THREADS=2;OMP_DYNAMIC=FALSE")
     add_executable(check_openmp tests/native/check_openmp.cpp $<TARGET_OBJECTS:qesbridge>)
     target_include_directories(check_openmp PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp" "${CMAKE_CURRENT_BINARY_DIR}")
