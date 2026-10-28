@@ -1,4 +1,4 @@
-"""Optional, bounds-based QES datasets registered by importing this module."""
+"""Bounds-based QES datasets registered when dtcc_qes is imported."""
 
 from dataclasses import asdict
 from datetime import datetime, timezone

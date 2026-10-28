@@ -218,13 +218,13 @@ and has no input files or external datasets.
 
 ### Optional wind dataset
 
-Import `dtcc_qes.datasets` to register `qes_wind` with DTCC Core. Core does not
-depend on or import QES, and importing `dtcc_qes` alone does not register it.
+Import `dtcc_qes` to register `qes_wind` with DTCC Core. Importing
+`dtcc_qes.datasets` also works. Core does not depend on or import QES.
 The dataset implementation stays in this GPL-3.0-only package.
 
 ```python
 from dtcc_core import datasets
-import dtcc_qes.datasets
+import dtcc_qes
 
 field = datasets.qes_wind(
     bounds=[319720, 6397660, 319820, 6397760],  # EPSG:3006

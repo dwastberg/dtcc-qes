@@ -1,4 +1,5 @@
 import importlib.util
+import json
 from pathlib import Path
 import subprocess
 from xml.etree import ElementTree
@@ -149,3 +150,21 @@ def test_turbulence_comparison_remains_exact_with_wind_tolerances(tmp_path):
     arrays["stress"][0] = 1e-6
     problems = reference_tool.compare("flat", arrays, path, 1, 1, turbulence=True)
     assert len(problems) == 1 and "stress" in problems[0]
+
+
+@pytest.mark.parametrize("field", ["case", "schema_version", "case_definition", "stress_components",
+                                   "upstream_exclusions", "archive_sha256"])
+def test_turbulence_check_rejects_misleading_metadata(field):
+    archive = ROOT / "tests/fixtures/reference/turbulence/audited/one_building.npz"
+    metadata = json.loads(archive.with_suffix(".json").read_text())
+    provenance = metadata.copy()
+    spec = reference_tool.TURBULENCE_CASES["one_building"]
+    assert reference_tool.compare_turbulence_metadata(metadata, provenance, spec, archive) == []
+    if field == "case_definition":
+        metadata[field]["case"]["buildings"][0]["height"] += 1
+    elif field == "stress_components":
+        metadata[field] = list(reversed(metadata[field]))
+    else:
+        metadata[field] = None
+    problems = reference_tool.compare_turbulence_metadata(metadata, provenance, spec, archive)
+    assert len(problems) == 1 and field in problems[0]

@@ -106,12 +106,15 @@ as physically validated or using it to select automatic layer growth.
   diagnostic sources. A wheel rebuilt from the sdist passes an isolated import,
   a flat-wind solve, diagnostic/count assertions and the recorded revision check.
 
-The full Python suite currently has one unrelated failure:
+At the Stage 0 checkpoint, the full Python suite had one unrelated failure:
 `test_datasets.py::test_explicit_import_registration` expects importing
 `dtcc_qes` not to register `qes_wind`, whereas the existing tracked
 `src/dtcc_qes/__init__.py` already imports `dtcc_qes.datasets`. All other
-233 tests pass. That package/test contract mismatch predates Stage 0 and
-requires a separate decision about dataset registration.
+233 tests passed. That package/test contract mismatch predates Stage 0.
+The 2026-10-28 turbulence worktree review resolved it by preserving the
+user-committed automatic registration and updating the stale test and README.
+`test_package_import_registers_dataset_once` now verifies registration on
+package import and idempotence across subsequent imports and package reload.
 
 ## Reproduce
 

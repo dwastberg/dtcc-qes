@@ -16,8 +16,9 @@ a `Turbulence` spec, a domain-top policy for turbulence's reference heights, a
 dtcc-core, pytest, CTest.
 
 **Status (implementation started 2026-10-27):** work is isolated in the checkout
-below. Tasks 1, 1A, 1B, 2 and 3 are implemented and verified, with the existing
-dataset-registration test exception recorded below. The public API/result
+below. Tasks 1, 1A, 1B, 2 and 3 are implemented and verified. The follow-up
+review repaired the domain preflight and resolved the stale dataset-registration
+test/documentation mismatch while preserving runtime behavior. The public API/result
 work remains required before exposing turbulence-derived
 statistics through `wind.run`. Review measurements describe the original core
 at the recorded revision, not necessarily the repaired implementation.
@@ -114,7 +115,24 @@ Task checkboxes and the execution record below track implementation progress.
   has 647 passes, 24 skips and the unchanged registration mismatch recorded
   for Task 2. A source distribution passed the artifact audit with every
   reference archive and its paired provenance file included.
-- Next: Task 4 (domain-top policy for turbulence).
+- Review before Task 4 (2026-10-28): rechecked the complete isolated change set
+  against the acceptance gates. Moved the bridge margin check ahead of
+  turbulence construction so below-15 m and unsampleable-reference errors also
+  report a sufficient top. It uses the same float32 height accumulation and
+  actual sorted building order as QES. Constant-tail suggestions now reject
+  collapsed cell centres as well as nonadvancing faces. Regression cases
+  reproduced both gaps before repair. Strengthened fixture checks to verify
+  complete case definitions, schema, stress-component order and upstream
+  exclusions, and fixed relative `--build-dir` handling in the generator.
+  The existing automatic dataset registration remains unchanged; its stale
+  test and README now describe and verify registration on package import.
+  Full Python: 663 passed, 24 skipped, no failures. Release native: 39/39;
+  ASan/UBSan turbulence: 28/28; Release no-I/O symbol audit passes. All five
+  pristine and eight audited standalone checks pass against the existing
+  archives; the rebuilt source distribution passes its artifact audit. No
+  reference values or QES fork sources changed. See the numerical
+  report's review section for details and remaining validation limits.
+- Next: Task 4 (domain-top policy for turbulence); not started by this review.
 
 ---
 
@@ -126,8 +144,8 @@ The model lives in `QES-Public/src/winds/TURBGeneralData.{h,cpp}`. Wall models
 are in `TURBWallBuilding` and `TURBWallTerrain`; mixing-length classes are
 `LocalMixingDefault` and `LocalMixingSerial`. All of these are already compiled
 into `qeswindscore` in the no-I/O build (`QES-Public/src/winds/CMakeLists.txt`).
-The NetCDF paths are stubbed in `TURBGeneralData_noio.cpp`. The bridge does not
-use any of them yet.
+The NetCDF paths are stubbed in `TURBGeneralData_noio.cpp`. The bridge uses the
+in-memory turbulence model without those I/O paths.
 
 **Lifecycle** (`QES-Public/qesWinds/qesWindsMain.cpp`): the object is
 constructed once, after `WINDSGeneralData` and before the time loop. `run()` is
@@ -639,18 +657,22 @@ unimplemented until Task 2; this qualification does not choose a gust default.
 - Produces (`turbulence.h`):
   - `void configure_turbulence(TURBParams &, const TurbulenceSettings &)`:
     rejects unsupported or not-yet-qualified methods with `std::invalid_argument`.
-  - `void check_turbulence_margin(const TURBGeneralData &, const GridConfig &)`:
-    the lower_bound index of `getReferenceHeight()` on QES's ghost-inclusive `z_face` must be
+  - `void check_turbulence_margin(const WINDSInputData &, const WINDSGeneralData &, const GridConfig &)`:
+    calculate zRef with QES's float32 mean in its sorted building order (or
+    100 times the native roughness for an empty city). Its lower_bound index
+    on QES's ghost-inclusive `z_face` must be
     `≤ grid.nz - 2`. Otherwise throw, with a message naming zRef and the
-    failed layer margin and a sufficient top under the Task 4 extension policy.
+    failed layer margin and a sufficient top under the Task 4 extension policy,
+    or the binding limit. Check both face and cell-centre float32 progress.
   - `TurbulenceData turbulence_fields(const TURBGeneralData &, const GridConfig &)`.
 - Produces (runner): `WindRunner::prepare(const GridConfig &, const ModelSettings &, const BuildingArrays &, const TurbulenceSettings &, Messages &)`.
   The existing 4-argument overload delegates with `TurbulenceSettings{}`.
   - `Impl` member order is grid, inputs, data, turbulence
     (`std::unique_ptr<TURBGeneralData>`), solver. Reverse destruction must free
     turbulence before data.
-  - When enabled, construct turbulence right after `data`, then run
-    `check_turbulence_margin`.
+  - When enabled, run `check_turbulence_margin` after constructing `data` and
+    before constructing turbulence. This lets the bridge explain even the
+    shallow domains that the core's safety guards reject.
   - In `solve`, call `run()` after the wind solve and fill `result.turbulence`.
 - Produces (Python): `_qes.TurbulenceSettings` with `enabled` and
   `mixing_length_method`, and
@@ -836,7 +858,7 @@ Provenance and stored upstream-difference checks remain active on every host.
     caps/growth constraints of the current generator. Recompute float32 faces
     and recheck the margin after extension; do not stop after one retry.
   - Bound extension by the existing 10,000-layer, max_cells and native-index
-    limits, checking float32 coordinate progress and existing vertical-grid
+    limits, checking float32 face and cell-centre progress and existing vertical-grid
     constraints before allocating the solver. Raise with the binding limit if
     a valid top cannot be reached. Never loop without a bound.
   - If a valid base prefix cannot be retained and regeneration is necessary,

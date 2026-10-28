@@ -169,6 +169,42 @@ def test_turbulence_margin_failure_preserves_preparation():
     assert runner.solve(condition, solver)["turbulence"]["reference_height"] == 24
 
 
+@pytest.mark.parametrize("case,nz,roughness,sufficient_nz", [
+    (FLAT, 6, 0.05, 8),      # Below the 15 m rotation reference.
+    (FLAT, 20, 0.5, 28),     # zRef=50 m lies above the domain.
+    (ONE_BUILDING, 10, 0.1, 15),  # Building zRef=24 m lies above the domain.
+    (ONE_BUILDING, 12, 0.1, 15),  # zRef is exactly the top face.
+])
+@pytest.mark.parametrize("method", [0, 1])
+def test_turbulence_preflight_reports_sufficient_top(case, nz, roughness, sufficient_nz, method, caplog):
+    grid, model, _, _, arrays = inputs(case)
+    grid.nz, model.roughness_length = nz, roughness
+    runner = _qes.WindRunner()
+    settings = turbulence_settings(method)
+    with caplog.at_level(logging.DEBUG, logger="dtcc-qes"):
+        with pytest.raises(ValueError, match=rf"zRef .*margin.*sufficient top of {2*sufficient_nz} m"):
+            runner.prepare(grid, model, **arrays, turbulence=settings)
+    assert not any("Initialization of turbulence model" in record.message for record in caplog.records)
+    assert grid.nz == nz
+    grid.nz = sufficient_nz
+    runner.prepare(grid, model, **arrays, turbulence=settings)
+
+
+def test_turbulence_margin_does_not_suggest_collapsed_cell_centres():
+    grid, model, _, _, arrays = inputs(FLAT)
+    grid.nz = 2
+    layers = np.array([16777211, 1], dtype=np.float64)
+    runner = _qes.WindRunner()
+    runner.prepare(grid, model, **arrays, dz_layers=layers)
+    with pytest.raises(ValueError, match="float32 cell-centre progress limit"):
+        runner.prepare(grid, model, **arrays, dz_layers=layers, turbulence=turbulence_settings())
+    # The proposed first tail layer would pass the face check but fail the
+    # native domain's independent centre-coordinate validation.
+    grid.nz = 3
+    with pytest.raises(ValueError, match="coordinates must remain finite and strictly increasing"):
+        runner.prepare(grid, model, **arrays, dz_layers=np.append(layers, 1))
+
+
 def test_results_survive_runner_and_do_not_alias_later_solves():
     runner, condition, solver = prepared(ONE_BUILDING)
     first = runner.solve(condition, solver)

@@ -297,9 +297,9 @@ float32 accumulation, preserves the input prefix and checks layer, cell,
 native-index and coordinate-progress limits. It never grows an explicit grid.
 The 8 m uniform box needs 30 m (nz=15), while a tested nonuniform 32 m prefix
 needs 42 m after appending two 5 m layers. This is the native margin and error
-policy that Task 4's automatic-grid logic must match. Earlier native core
-safety guards can reject an unsampleable reference or top below 15 m before
-the stricter bridge margin check is reached.
+policy that Task 4's automatic-grid logic must match. The follow-up review
+below moves this check ahead of turbulence construction so the bridge also
+explains unsampleable references and tops below 15 m.
 
 Validation on AppleClang 17/macOS arm64 with OpenMP off:
 
@@ -474,3 +474,54 @@ by actual XML/NetCDF runs and exact nonuniform-coordinate/field comparisons.
 
 Public Python API/results, the benchmark gate and physical gust validation
 remain outstanding.
+
+## Review before Task 4 (2026-10-28)
+
+The review covered all completed-task changes against the isolated baseline,
+including helper ownership, bounds, rotation and covariance validity, serial
+face distances, runner reuse/extraction, and standalone reference provenance.
+The QES fork remains at `dce15d7e3b0a2d2cb0a29898f3882d103f66de71` and the
+existing reference archives are unchanged.
+
+Two bridge guard gaps were reproduced and repaired:
+
+- A top below 15 m or a zRef at/above the top failed inside the turbulence
+  constructor before the bridge could give a usable extension suggestion.
+  The bridge now checks the native wind geometry first, reproducing QES's
+  float32 accumulation in its actual sorted building order. An 8 m building
+  with a 20 or 24 m top now reports the sufficient 30 m top; an empty city
+  with roughness 0.5 and a 40 m top reports 56 m. Both mixing methods are
+  tested, including successful preparation at the suggested top and rejection
+  before turbulence initialization. Explicit grids still never grow.
+- Float32 faces can keep increasing while neighbouring centres coincide.
+  The valid two-layer prefix `[16777211, 1]` demonstrates this: appending
+  another 1 m layer fails the native centre-coordinate check. The suggestion
+  loop now reports a cell-centre progress limit instead of offering an
+  unusable extension. These extreme coordinates are a validation regression,
+  not a representative urban grid.
+
+Reference checking now validates the full stored case definition in pytest
+and checks schema, component order and upstream exclusions in `--check`.
+Regression tests reject changed heights and reordered stress components.
+Relative `--build-dir` arguments are resolved before executing QES in its
+temporary working directory.
+
+The previously reported registration failure was a stale expectation, not a
+turbulence regression. This cleanup preserves the existing automatic import
+behavior, aligns the README and docstrings, and checks that repeated imports
+and package reload register `qes_wind` only once.
+
+Validation after repair: 663 Python tests passed, 24 skipped, no failures;
+all eight audited bridge comparisons ran and passed. All 39 Release native
+tests and the no-I/O symbol audit pass. All 28 turbulence tests pass under
+Debug ASan/UBSan, including the independent rotation, covariance and wall
+geometry checks. Verified existing standalone executables pass all five
+upstream and eight audited `--check` cases with the stronger metadata checks.
+The relative-build-directory route passes a fresh flat-case build/check. A
+source distribution was rebuilt and passed the artifact audit.
+
+No further blocker was found for Task 4. This remains an implementation
+checkpoint: public results/sampling, domain growth, performance qualification
+and the Task 9 numerical gate are still pending. Physical pedestrian-gust
+validation has not been established. This review used the serial backend;
+it does not extend the earlier validation to OpenMP or other toolchains.

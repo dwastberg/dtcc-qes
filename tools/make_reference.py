@@ -482,6 +482,17 @@ def compare(name: str, new: dict[str, np.ndarray], ref_path: Path, rtol: float, 
     return problems
 
 
+def compare_turbulence_metadata(metadata: dict, provenance: dict, spec, archive: Path) -> list[str]:
+    """Check the interpretation of stored arrays as well as their build identity."""
+    expected = {key: provenance[key] for key in ("baseline", "qes", "build_options", "toolchain", "schema_version")}
+    expected.update(case=spec.case.name, case_definition=case_definition(spec),
+                    stress_components=list(STRESS_COMPONENTS), archive_sha256=file_sha256(archive),
+                    upstream_exclusions={name: item.upstream_exclusion for name, item in TURBULENCE_CASES.items()
+                                         if item.upstream_exclusion})
+    return [f"{spec.case.name}: {key} metadata differs from the verified current case/build"
+            for key, value in expected.items() if metadata.get(key) != value]
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--qes-source", type=Path, help="QES tree to build instead of the pristine reference revision")
@@ -539,6 +550,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             source = export_pristine_qes(revision, ROOT / "build" / "qes-reference-src")
             build = args.build_dir or ROOT / "build" / "qes-reference"
+        build = build.resolve()
         if args.turbulence:
             verified_source(source, revision)
         print(f"building qesWinds from {source} in {build}", file=sys.stderr)
@@ -571,13 +583,7 @@ def main(argv: list[str] | None = None) -> int:
                     metadata = json.load(f)
                 stored = metadata["solver_summary"]
                 if args.turbulence:
-                    for key in ("baseline", "qes", "build_options", "toolchain"):
-                        if metadata.get(key) != provenance[key]:
-                            problems.append(f"{case.name}: {key} provenance differs from the verified current build")
-                    if metadata.get("case_definition") != case_definition(spec):
-                        problems.append(f"{case.name}: case definition differs")
-                    if metadata.get("archive_sha256") != file_sha256(reference):
-                        problems.append(f"{case.name}: stored fixture archive hash differs")
+                    problems += compare_turbulence_metadata(metadata, provenance, spec, reference)
                 if stored != summary and args.rtol == 0 and args.atol == 0:
                     problems.append(f"{case.name}: solver summary {summary} != stored {stored}")
                 continue

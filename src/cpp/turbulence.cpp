@@ -2,6 +2,8 @@
 #include "stress_validity.h"
 #include "winds/TURBGeneralData.h"
 #include "winds/TURBParams.h"
+#include "winds/WINDSInputData.h"
+#include "winds/WINDSGeneralData.h"
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
@@ -26,10 +28,22 @@ void configure_turbulence(TURBParams &params, const TurbulenceSettings &settings
   params.backgroundMixing = 0;
 }
 
-void check_turbulence_margin(const TURBGeneralData &turb, const GridConfig &grid)
+void check_turbulence_margin(const WINDSInputData &input, const WINDSGeneralData &wind,
+                             const GridConfig &grid)
 {
-  const auto &faces = turb.domain.z_face;
-  const float reference = turb.getReferenceHeight();
+  const auto &faces = wind.domain.z_face;
+  // Match TURBGeneralData's float32 mean in QES's sorted building order.
+  // Check before constructing turbulence: its own reference-plane guards
+  // otherwise throw before we can explain how to obtain a sufficient grid.
+  float reference;
+  if (wind.allBuildingsV.empty()) {
+    reference = 100.0 * input.metParams->sensors[0]->TS[0]->site_z0;
+  } else {
+    float mean = 0;
+    for (int id : wind.building_id) mean += wind.allBuildingsV[id]->H;
+    mean /= float(wind.allBuildingsV.size());
+    reference = 3.0 * mean;
+  }
   const auto index = std::lower_bound(faces.begin(), faces.end(), reference) - faces.begin();
   if (grid.nz >= 3 && index <= grid.nz - 2 && faces.back() >= 15) return;
 
@@ -59,6 +73,11 @@ void check_turbulence_margin(const TURBGeneralData &turb, const GridConfig &grid
     const float top = extended.back() + thickness;
     if (!std::isfinite(top) || top <= extended.back()) {
       limit = "float32 coordinate progress limit"; break;
+    }
+    const float previous_centre = 0.5f * (extended[extended.size()-2] + extended.back());
+    const float centre = 0.5f * (extended.back() + top);
+    if (!std::isfinite(centre) || centre <= previous_centre) {
+      limit = "float32 cell-centre progress limit"; break;
     }
     extended.push_back(top);
     ++layers;

@@ -889,6 +889,15 @@ void bridge_margin()
   WindRunner runner;
   Messages messages;
   GridConfig grid;
+  grid.nz = 10;
+  rejects([&] { runner.prepare(grid, {}, bridge_building(), {true,1}, messages); }, "sufficient top of 30 m");
+  grid.nz = 6;
+  ModelSettings rough;
+  rough.roughness_length = 0.05;
+  rejects([&] { runner.prepare(grid, rough, bridge_building(false), {true,1}, messages); }, "sufficient top of 16 m");
+  grid.nz = 20;
+  rough.roughness_length = 0.5;
+  rejects([&] { runner.prepare(grid, rough, bridge_building(false), {true,0}, messages); }, "sufficient top of 56 m");
   grid.nz = 13;
   rejects([&] { runner.prepare(grid, {}, bridge_building(), {true,0}, messages); }, "domain top");
   grid.nz = 15;
@@ -908,6 +917,12 @@ void bridge_margin()
   grid.dz_layers.insert(grid.dz_layers.end(), {5,5});
   grid.nz = 15;
   runner.prepare(grid, {}, bridge_building(), {true,0}, messages);
+  // Faces can advance while two neighbouring float32 centres collapse.
+  grid.nz = 2;
+  grid.dz_layers = {16777211,1};
+  runner.prepare(grid, {}, bridge_building(false), messages);
+  rejects([&] { runner.prepare(grid, {}, bridge_building(false), {true,0}, messages); },
+          "float32 cell-centre progress limit");
 }
 
 void bridge_methods()

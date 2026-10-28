@@ -4,6 +4,7 @@ import json
 import hashlib
 import os
 import platform
+from dataclasses import asdict
 from pathlib import Path
 
 import numpy as np
@@ -73,9 +74,11 @@ def test_reference_provenance_and_uncomputed_values(baseline, spec):
     assert metadata["archive_sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
     assert len(metadata["executable_sha256"]) == 64
     assert metadata["solver_summary"]["converged"]
-    assert metadata["case_definition"]["mixing_length_method"] == spec.method
-    assert metadata["case_definition"]["dz_layers"] == list(spec.dz_layers)
-    assert metadata["case_definition"]["case"]["wind"]["direction"] == spec.case.wind.direction
+    assert metadata["case"] == spec.case.name
+    assert metadata["case_definition"] == json.loads(json.dumps({
+        "case": asdict(spec.case), "mixing_length_method": spec.method, "dz_layers": spec.dz_layers}))
+    assert metadata["upstream_exclusions"] == {
+        name: item.upstream_exclusion for name, item in CASES.items() if item.upstream_exclusion}
     assert metadata["build_options"] == {
         "ENABLE_OPENMP": "OFF", "QES_ENABLE_IO": "ON", "QES_ENABLE_CUDA": "OFF",
         "QES_ENABLE_OPTIX": "OFF", "QES_BUILD_EXECUTABLES": "ON",

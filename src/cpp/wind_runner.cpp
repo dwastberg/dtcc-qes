@@ -26,8 +26,8 @@ struct WindRunner::Impl {
         make_domain(inputs), CPU_Type))
   {
     if (t.enabled) {
+      check_turbulence_margin(inputs.input, *data, grid);
       turbulence = std::make_unique<TURBGeneralData>(&inputs.input, data.get());
-      check_turbulence_margin(*turbulence, grid);
     }
   }
 };

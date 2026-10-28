@@ -54,15 +54,16 @@ def realization(obj):
     return obj.provenance.processing_steps[-1]
 
 
-def test_explicit_import_registration():
+def test_package_import_registers_dataset_once():
     subprocess.run([sys.executable, "-c", """
 from dtcc_core import datasets
 assert 'qes_wind' not in datasets.list()
 import dtcc_qes
-assert 'qes_wind' not in datasets.list()
-import dtcc_qes.datasets
 first = datasets.qes_wind
 import dtcc_qes.datasets
+assert datasets.get_dataset('qes_wind') is first
+import importlib
+importlib.reload(dtcc_qes)
 assert datasets.get_dataset('qes_wind') is first
 assert list(datasets.list()).count('qes_wind') == 1
 """], check=True, capture_output=True, text=True)
