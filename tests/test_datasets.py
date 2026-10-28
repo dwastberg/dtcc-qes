@@ -54,13 +54,11 @@ def realization(obj):
     return obj.provenance.processing_steps[-1]
 
 
-def test_explicit_import_registration():
+def test_package_import_registration():
     subprocess.run([sys.executable, "-c", """
 from dtcc_core import datasets
 assert 'qes_wind' not in datasets.list()
 import dtcc_qes
-assert 'qes_wind' not in datasets.list()
-import dtcc_qes.datasets
 first = datasets.qes_wind
 import dtcc_qes.datasets
 assert datasets.get_dataset('qes_wind') is first
@@ -132,7 +130,7 @@ def test_slice_sampling_on_unequal_axes(axis, position):
     codes = (100*z + 10*y + x).astype(np.float32)
     velocity = np.stack([codes, codes+1000, codes+2000], axis=-1)
     result = wind.WindResult(velocity, np.arange(3)+0.5, np.arange(4)+0.5, np.arange(2)+0.5,
-                             codes.astype(np.int32), (300000, 6400000, 50), "EPSG:3006", 1.0,
+                             codes.astype(np.int32)+3, (300000, 6400000, 50), "EPSG:3006", 1.0,
                              wind.SolveDiagnostics(1, 0, 1e-5, True),
                              {"domain": {"effective_bounds": (300000,6400000,50,300003,6400004,52)}})
     args = QESWindArgs(**request(product="slice", slice_axis=axis, slice_position=position, slice_resolution=5))
@@ -146,7 +144,8 @@ def test_slice_sampling_on_unequal_axes(axis, position):
     indices = [np.abs(local[:, i, None] - a).argmin(axis=1) for i, a in enumerate((result.x,result.y,result.z))]
     expected = velocity[indices[2],indices[1],indices[0]]
     np.testing.assert_array_equal(obj.field("velocity").values, expected)
-    np.testing.assert_array_equal(obj.field("cell_flags").values, expected[:,0])
+    np.testing.assert_array_equal(obj.field("cell_flags").values, expected[:,0]+3)
+    assert obj.field("valid").values.all()
     np.testing.assert_allclose(obj.field("speed").values, np.linalg.norm(expected.astype(float), axis=1))
     assert all(f.association == "sample" for f in obj.fields)
     assert not np.shares_memory(obj.field("velocity").values, result.velocity)
@@ -237,7 +236,8 @@ def test_resource_and_roof_limits(fetched, monkeypatch):
 
 def test_nonconvergence_is_not_hidden(fetched, caplog):
     result = datasets.qes_wind(**request(max_iterations=1))
-    assert result.dataset_context.health == {"converged": False}
+    assert not result.dataset_context.health["converged"]
+    assert result.dataset_context.health["max_divergence"] == realization(result)["diagnostics"]["max_divergence"]
     assert result.dataset_context.warnings
     assert "did not converge" in caplog.text
 
