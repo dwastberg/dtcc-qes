@@ -89,12 +89,14 @@ def export_pristine_qes(rev: str, dest: Path) -> Path:
     if dest.exists():
         shutil.rmtree(dest)
     dest.mkdir(parents=True)
-    archive = subprocess.Popen(
+    with subprocess.Popen(
         ["git", "-C", str(QES_SUBMODULE), "archive", full_rev], stdout=subprocess.PIPE
-    )
-    run(["tar", "-x", "-C", str(dest)], stdin=archive.stdout)
-    if archive.wait() != 0:
-        raise RuntimeError(f"git archive of QES revision {rev} failed")
+    ) as archive:
+        # Close the pipe and reap git even if tar fails or cannot be started.
+        # Closing the read end also unblocks a writer after extraction fails.
+        run(["tar", "-x", "-C", str(dest)], stdin=archive.stdout)
+        if archive.wait() != 0:
+            raise RuntimeError(f"git archive of QES revision {rev} failed")
     stamp.write_text(full_rev + "\n")
     return dest
 

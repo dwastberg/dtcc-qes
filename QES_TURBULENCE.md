@@ -199,6 +199,22 @@ Task checkboxes and the execution record below track implementation progress.
   18 scaling pairs with matching source fingerprints. Exact wind/stress hashes,
   diagnostics and retained sample values match the Task 9 baseline. Its native
   solve/statistic timings do not measure DTCC conversion cost.
+- Review after Task 6 (2026-10-28): reviewed the complete feature against the
+  isolated baseline, including native ownership, rotation/wall distances,
+  reference margins, grid growth, mutable-array validity, sampling, export and
+  benchmark provenance. No blocking numerical defect was found. Running with
+  warnings as errors exposed an unclosed `git archive` pipe in the reference
+  generator. It now closes the pipe and reaps the child on success and extraction
+  failure, with regression tests for both paths. Corrected the stale comfort
+  documentation claim that QES has no turbulence; GEM integration remains pending.
+  Full Python with native safety/study executables enabled: **818 passed, no
+  skips**, under `-W error`. Release and ASan/UBSan native: **39/39 each**;
+  the Release no-I/O symbol audit passes. All five pristine and eight audited
+  standalone reference checks pass;
+  the 5,000-tensor independent spectral check has no validity mismatches.
+  Runtime Python/native sources, reference values and benchmark fingerprints
+  are unchanged by this review. Task 6 is committed as `a512f36`; the review
+  cleanup is recorded separately. Physical gust validation remains outstanding.
 - Next: Task 7 (comfort GEM helper), followed by Task 8 dataset integration.
   The numerical gate does not validate gusts against observations or certify comfort.
 

@@ -104,6 +104,38 @@ def test_export_file_mode_is_verified(source_repo, tmp_path):
         reference_tool.verified_source(source, revision)
 
 
+@pytest.mark.parametrize("extraction_fails", [False, True])
+def test_export_closes_archive_pipe_and_reaps_process(source_repo, tmp_path, monkeypatch, extraction_fails):
+    _, revision = source_repo
+    popen, run = subprocess.Popen, reference_tool.run
+    archives = []
+
+    def track_archive(command, **kwargs):
+        process = popen(command, **kwargs)
+        if "archive" in command:
+            archives.append(process)
+        return process
+
+    def extract(command, **kwargs):
+        if extraction_fails and command[0] == "tar":
+            raise subprocess.CalledProcessError(1, command)
+        return run(command, **kwargs)
+
+    monkeypatch.setattr(subprocess, "Popen", track_archive)
+    monkeypatch.setattr(reference_tool, "run", extract)
+    destination = tmp_path / "export"
+    if extraction_fails:
+        with pytest.raises(subprocess.CalledProcessError):
+            reference_tool.export_pristine_qes(revision, destination)
+        assert not (destination / ".qes-revision").exists()
+    else:
+        reference_tool.export_pristine_qes(revision, destination)
+        reference_tool.verified_source(destination, revision)
+    assert len(archives) == 1
+    assert archives[0].stdout.closed
+    assert archives[0].poll() is not None
+
+
 def test_revision_stamp_cannot_override_git_head(source_repo):
     source, revision = source_repo
     (source / ".qes-revision").write_text(revision + "\n")

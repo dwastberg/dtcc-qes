@@ -104,10 +104,13 @@ August) reported separately.
 **Safety** uses all hours of the year. A cell is unsafe if 15 m/s is exceeded
 for more than 0.022 % of hours.
 
-GEM is gust speed divided by 1.85. QES computes no turbulence, so City of
-London results from QES are mean-only. The result says so in its warnings,
-because gusts can govern near corners and in passages. Pass `gem_fields` when
-a model provides GEM speeds.
+GEM is gust speed divided by 1.85. City of London assessments are mean-only
+unless `gem_fields` are supplied; the result records this in its warnings,
+because gusts can govern near corners and in passages. `wind.run` now supports
+optional QES-Turb stresses and streamwise standard deviations. These are
+algebraic screening estimates, not validated gust speeds. The comfort helper
+and gust-assumption provenance described in [Task 7](../QES_TURBULENCE.md#task-7-comfort-gem-helper) are
+still pending; turbulence output does not automatically supply GEM fields.
 
 The original Lawson LDDC table (4 / 6 / 8 / 10 m/s comfort at 5 %) is not
 built in, because its safety thresholds could not be verified from a primary
