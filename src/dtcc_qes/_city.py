@@ -15,6 +15,8 @@ from dtcc_core.model import Building, BuildingPart, City, Surface, Terrain
 
 from . import _qes
 from .vertical_grid import effective_faces
+from ._turbulence_domain import (check_turbulence_faces, extend_turbulence_faces,
+                                turbulence_reference_height, turbulence_top)
 
 
 def number(value, name, *, positive=False):
@@ -195,14 +197,19 @@ class PreparedDomain:
     dz_layers: np.ndarray | None = None
 
 
-def default_domain_top(heights, reference_height, vertical_clearance, spacing):
+def default_domain_top(heights, reference_height, vertical_clearance, spacing, *, turbulence_reference=None):
     """Local minimum domain top, shared by the city and dataset adapters."""
-    return max(max(heights, default=0.0) + max(vertical_clearance, spacing),
-               reference_height, 2 * spacing)
+    top = max(max(heights, default=0.0) + max(vertical_clearance, spacing),
+              reference_height, 2 * spacing)
+    return top if turbulence_reference is None else max(top, turbulence_top(turbulence_reference, spacing))
 
 
 def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, resolution,
-                   bounds, horizontal_padding, vertical_clearance, max_cells, terrain, vertical_grid=None):
+                   bounds, horizontal_padding, vertical_clearance, max_cells, terrain, vertical_grid=None,
+                   turbulence=False):
+    if not isinstance(turbulence, bool):
+        raise ValueError("turbulence must be a bool")
+    z_ref = turbulence_reference_height(city.heights, roughness_length) if turbulence else None
     if city.has_terrain and terrain is None:
         raise ValueError("City has terrain; pass terrain='flat' or a ground elevation to explicitly accept flattening")
     if not city.rings and bounds is None:
@@ -233,10 +240,35 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
         extents = (float(upper[0] - lower[0]), float(upper[1] - lower[1]),
                    default_domain_top(city.heights, reference_height, vertical_clearance, spacing))
     automatic_metadata = None
+    regeneration = None
     if vertical_grid is not None and vertical_grid.mode == "auto":
-        from ._auto_grid import generate_auto_layers
-        layers, automatic_metadata = generate_auto_layers(vertical_grid._automatic,
-            resolution=spacing, top=extents[2], heights=city.heights)
+        from ._auto_grid import AutomaticGridFitError, generate_auto_layers
+        settings = vertical_grid._automatic
+        try:
+            layers, automatic_metadata = generate_auto_layers(settings,
+                resolution=spacing, top=extents[2], heights=city.heights)
+        except AutomaticGridFitError as error:
+            # A valid wind-only prefix is always retained. Only endpoint-fit
+            # failures can be recovered by selecting a higher initial top.
+            if not turbulence or bounds:
+                raise
+            target = max(default_domain_top(city.heights, reference_height, vertical_clearance,
+                spacing, turbulence_reference=z_ref), error.minimum_top)
+            for attempt in range(1,10001):
+                try:
+                    layers, automatic_metadata = generate_auto_layers(settings,
+                        resolution=spacing, top=target, heights=city.heights)
+                    break
+                except AutomaticGridFitError as retry:
+                    # The generator supplies the next feasible endpoint for
+                    # its fine band/count. Each retry must make progress.
+                    if retry.minimum_top <= target:
+                        raise ValueError("Turbulence regeneration cannot make endpoint progress") from retry
+                    target = retry.minimum_top
+            else:
+                raise ValueError("Turbulence regeneration exceeds the 10000-attempt limit")
+            regeneration = dict(reason=str(error), requested_top=extents[2],
+                                generated_top=target, generated_layers=len(layers), attempts=attempt)
     else:
         layers = None if vertical_grid is None else vertical_grid.layers
     if layers is not None and automatic_metadata is None:
@@ -275,6 +307,43 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
         vertical_metadata = vertical_grid.to_metadata()
         if automatic_metadata is not None:
             vertical_metadata.update(automatic_metadata)
+    turbulence_metadata = None
+    if turbulence:
+        default_top = extents[2] if regeneration is not None else float(faces[-1])
+        original_count = nz
+        thickness = spacing if layers is None else layers[-1]
+        explicit = bounds is not None or (vertical_grid is not None and vertical_grid.mode == "explicit")
+        if explicit:
+            check_turbulence_faces(faces, z_ref, last_thickness=thickness, nx=nx, ny=ny, max_cells=max_cells)
+        else:
+            faces = extend_turbulence_faces(faces, z_ref, thickness, nx=nx, ny=ny, max_cells=max_cells)
+            nz = len(faces)-1
+            if layers is not None and nz != original_count:
+                layers = np.r_[layers, np.full(nz-original_count, layers[-1], dtype=np.float64)]
+                # Constant thickness inherits the final layer's valid minimum,
+                # aspect, growth and cap constraints: all upper caps are
+                # nondecreasing. Revalidate native arithmetic on the final grid.
+                faces = effective_faces(layers)
+                planned = np.r_[0., np.cumsum(layers)]
+                unit_roundoff = float(np.finfo(np.float32).eps)/2
+                gamma = (nz+1)*unit_roundoff/(1-(nz+1)*unit_roundoff)
+                vertical_metadata.update(planned_faces=planned.tolist(),
+                    solver_layer_thicknesses=layers.astype(np.float32).astype(float).tolist(),
+                    base_endpoint_fit=vertical_metadata["endpoint_fit"],
+                    endpoint_fit=dict(method="prefix-preserving constant tail", tail_start_index=original_count,
+                        requested_top=float(planned[-1]), planned_top=float(planned[-1]),
+                        effective_top=float(faces[-1]), coordinate_error=float(faces[-1])-float(planned[-1]),
+                        accumulation_tolerance=gamma*float(planned[-1])))
+        counts = [nx,ny,nz]
+        effective = (*effective[:2], float(faces[-1]))
+        turbulence_metadata = dict(reference_height=z_ref, required_top=float(faces[-1]),
+            default_top=default_top, effective_top=float(faces[-1]),
+            raised=bool(nz > original_count or regeneration is not None), added_layers=nz-original_count,
+            lower_layers_preserved=regeneration is None,
+            extension_policy="check_only" if explicit else "constant_last_thickness")
+        if regeneration is not None:
+            turbulence_metadata.update(extension_policy="regenerated_then_constant_last_thickness",
+                                       regeneration=regeneration)
     vertical_metadata.update(effective_faces=faces.tolist(),
         min_thickness=float(np.diff(faces).min()), max_thickness=float(np.diff(faces).max()))
     solver_layers = np.full(nz, spacing, dtype=np.float32) if layers is None else layers.astype(np.float32)
@@ -341,6 +410,7 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
                                effective_bounds=(*origin, *(origin[i] + effective[i] for i in range(3))),
                                shape=(nz, ny, nx), requested_resolution=resolution, resolution=spacing,
                                vertical_grid=vertical_metadata,
+                               **({"turbulence": turbulence_metadata} if turbulence else {}),
                                effective_horizontal_padding=padding, max_cells=max_cells),
                           dict(model="flat", elevation=base, flattening_requested=terrain is not None,
                                city_terrain_ignored=city.has_terrain, base_elevation_tolerance=1e-6,

@@ -8,6 +8,14 @@ from .vertical_grid import effective_faces
 _FLOAT_TOL = 8 * float(np.finfo(np.float32).eps)
 
 
+class AutomaticGridFitError(ValueError):
+    """Valid fine-band settings cannot fit this particular domain endpoint."""
+
+    def __init__(self, message, *, minimum_top):
+        super().__init__(message)
+        self.minimum_top = minimum_top
+
+
 def _integer_bound(value, *, upward):
     """Remove only float64 quotient roundoff near an integer."""
     nearest = round(value)
@@ -90,7 +98,8 @@ def generate_auto_layers(settings, *, resolution, top, heights):
         raise ValueError("Automatic fine band exceeds 10000 layers; revise first_layer_thickness or fine_region_height")
     tolerance64 = 32*math.ulp(max(top, fine_top))
     if fine_top > top+tolerance64:
-        raise ValueError("Automatic fine band does not fit the domain; increase the domain top or reduce fine_region_height")
+        raise AutomaticGridFitError("Automatic fine band does not fit the domain; increase the domain top or reduce fine_region_height",
+                                    minimum_top=fine_top)
     # Validate the minimum coefficient scale before generating a large vector.
     effective_faces([fine_h, fine_h])
     fine = np.full(count, fine_h, dtype=np.float64)
@@ -113,8 +122,9 @@ def generate_auto_layers(settings, *, resolution, top, heights):
         previous = h
         slots += 1
     if slots*fine_h > remaining+tolerance64:
-        raise ValueError("Cannot fit the domain top with nondecreasing layers while preserving the fine band; "
-                         "increase the top or adjust fine_region_height/first_layer_thickness")
+        raise AutomaticGridFitError("Cannot fit the domain top with nondecreasing layers while preserving the fine band; "
+                         "increase the top or adjust fine_region_height/first_layer_thickness",
+                         minimum_top=fine_top+slots*fine_h)
 
     layers = list(fine)
     z, actual_z, previous = fine_top, fine_actual_top, fine_h

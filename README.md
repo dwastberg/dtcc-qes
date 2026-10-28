@@ -148,6 +148,12 @@ or peak memory. The executable [vertical-grid example](examples/vertical_grid.py
 compares explicit uniform and stretched layers at the same pedestrian height.
 See the [B1 validation report](docs/stageb1-validation.md) for contracts and checks.
 
+`wind.preview_grid(city, turbulence=True)` includes the QES turbulence reference
+height and its required layer margin. Automatic domains preserve a valid
+wind-only grid and append layers at its final thickness. Explicit bounds or
+faces raise if their margin is insufficient. `preview.domain["turbulence"]`
+records the effective top, added layers and any necessary regeneration.
+
 The automatic generator is available as an **unvalidated prototype**, opt-in
 through `VerticalGrid.auto(...)`:
 

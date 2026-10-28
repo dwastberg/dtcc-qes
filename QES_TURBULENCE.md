@@ -16,7 +16,7 @@ a `Turbulence` spec, a domain-top policy for turbulence's reference heights, a
 dtcc-core, pytest, CTest.
 
 **Status (implementation started 2026-10-27):** work is isolated in the checkout
-below. Tasks 1, 1A, 1B, 2 and 3 are implemented and verified. The follow-up
+below. Tasks 1, 1A, 1B, 2, 3 and 4 are implemented and verified. The follow-up
 review repaired the domain preflight and resolved the stale dataset-registration
 test/documentation mismatch while preserving runtime behavior. The public API/result
 work remains required before exposing turbulence-derived
@@ -132,7 +132,25 @@ Task checkboxes and the execution record below track implementation progress.
   archives; the rebuilt source distribution passes its artifact audit. No
   reference values or QES fork sources changed. See the numerical
   report's review section for details and remaining validation limits.
-- Next: Task 4 (domain-top policy for turbulence); not started by this review.
+- Task 4 (2026-10-28): Python reference heights and effective-face margins now
+  match the native bridge. `preview_grid(turbulence=True)` grows automatic
+  uniform/automatic-layer domains by a bounded constant tail, retaining every
+  valid wind-only operand and face. Explicit bounds/faces are checked without
+  growth. Domain metadata describes the retained prefix, effective top, added
+  layers and extension policy. Only an endpoint-fit failure permits a higher
+  initial automatic-grid generation; this is recorded as regeneration with
+  `lower_layers_preserved=False`. A new 104/110/119-layer mean-wind sensitivity
+  control verifies the retained fine band and compares regenerated/preserved
+  taller grids at 1.5/1.75 m. Its largest p95 absolute delta K is 0.00021873,
+  and largest peak relative difference is 0.00015641, both below the recorded
+  0.05 limits. This control does not replace Task 9 or physical validation.
+  All 52 domain tests pass, including native equivalence, decimal operands,
+  prefix preservation and allocation-free limit failures. Full Python:
+  715 passed, 24 skipped, no failures. QES sources and reference archives are
+  unchanged. Wheel/source artifacts pass their audits, including control/source
+  fingerprints; a wheel smoke check passes preview, revision and calm solve.
+  See the numerical report for metadata definitions and controls.
+- Next: Task 5 (public turbulence specification, results and derived statistics).
 
 ---
 
@@ -829,6 +847,9 @@ Provenance and stored upstream-difference checks remain active on every host.
 **Files:**
 - Modify: `src/dtcc_qes/_city.py`, `src/dtcc_qes/wind.py` (`preview_grid` and `_prepare_city` gain `turbulence`)
 - Test: `tests/test_turbulence_domain.py`
+- Supporting: `src/dtcc_qes/_turbulence_domain.py`, a typed endpoint-fit error
+  in `_auto_grid.py`, `tools/check_turbulence_domain.py`, the recorded control,
+  README and artifact checks.
 
 **Interfaces:**
 - `turbulence_reference_height(heights, roughness_length) -> float`: `3 × mean`,
@@ -870,8 +891,13 @@ Provenance and stored upstream-difference checks remain active on every host.
     default_top, effective_top, raised, added_layers, lower_layers_preserved,
     extension_policy)`. Required-top messages and metadata must describe the
     policy actually used, not the rejected one-retry estimate.
+    `default_top` is the effective wind-only prefix top (or the requested
+    wind-only top if no valid prefix exists). `required_top` is the shortest
+    accepted extension of the retained prefix, and therefore equals the
+    effective top; a prefix is never shortened. `added_layers` counts constant
+    tail layers; regeneration separately records its initial layer count.
 
-- [ ] **Step 1: Write the failing tests:**
+- [x] **Step 1: Write the failing tests:**
   - `test_uniform_midrise_city_raises_automatic_top`: four 15 m blocks at 2 m.
     `preview_grid(turbulence=True)` gives `faces[-4] >= 45` and `raised=True`;
     `turbulence=False` gives the same top as today.
@@ -890,10 +916,20 @@ Provenance and stored upstream-difference checks remain active on every host.
     float32 heights on uniform and nonuniform grids, including small nz.
   - `test_no_buildings_uses_roughness`: roughness 0.5 with zmax 40 m raises.
   - `test_turbulence_false_domain_unchanged`.
-- [ ] **Step 2: Run** `uv run --frozen python -m pytest tests/test_turbulence_domain.py -q`. Expected: FAIL.
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Run** the full pytest suite. Expected: PASS.
-- [ ] **Step 5: Commit.**
+- [x] **Step 2: Run** `uv run --frozen python -m pytest tests/test_turbulence_domain.py -q`. Expected: FAIL.
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Run** the full pytest suite. Expected: PASS.
+- [x] **Step 5: Commit.**
+
+**Task 4 outcome:** the initial 40 cases failed before implementation. The
+final 52 also cover safe explicit grids, native runner acceptance with both
+mixing methods, sorted mixed-height references, decimal thicknesses and the
+new regeneration control and repeated endpoint-fit recovery. At 2 m spacing, four 15 m blocks grow from an
+effective 36 m uniform top to 52 m; four 20 m blocks grow from 40 m to 66 m.
+Automatic-layer counterparts retain their entire valid lower grid and append
+8 and 12 layers respectively. Limits are checked before solver allocation.
+The full Python suite passes with the original 24 opt-in skips. Public
+`run(turbulence=...)` and turbulence result objects remain Task 5 work.
 
 ### Task 5: Python API: `run(turbulence=...)`, results and derived statistics
 

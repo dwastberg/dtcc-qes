@@ -132,7 +132,7 @@ def preview_grid(city, *, reference_height: float = 10.0, roughness_length: floa
                  resolution: float = 2.0, bounds=None, horizontal_padding: float = 20.0,
                  vertical_clearance: float = 20.0, max_cells: int = 20_000_000,
                  terrain=None, height_policy="measured",
-                 vertical_grid: VerticalGrid | None = None) -> GridPreview:
+                 vertical_grid: VerticalGrid | None = None, turbulence: bool = False) -> GridPreview:
     """Inspect a uniform, explicit or automatic grid without QES wind arrays.
 
     Geometry, terrain, bounds, clearance and cell limits use the same preparation
@@ -140,11 +140,16 @@ def preview_grid(city, *, reference_height: float = 10.0, roughness_length: floa
     reference height also constrains automatic domain bounds. No wind speed,
     direction or solver settings are needed. Axes are local metres; add origin
     for global coordinates. This does not predict occupancy or solver accuracy.
+
+    ``turbulence=True`` includes the QES reference-height layer margin. Automatic
+    domains append a constant tail while retaining a valid wind-only grid;
+    explicit bounds/faces are checked. Growth and any required regeneration
+    are recorded in ``domain['turbulence']``.
     """
     condition = _validate_condition(0, 0, reference_height, roughness_length)
     grid = _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, max_cells,
                           vertical_grid=vertical_grid)
-    geometry, prepared = _prepare_city(city, condition, grid, terrain, height_policy)
+    geometry, prepared = _prepare_city(city, condition, grid, terrain, height_policy, turbulence=turbulence)
     nz, ny, nx = prepared.domain["shape"]
     spacing = np.float32(prepared.resolution)
     faces = np.asarray(prepared.domain["vertical_grid"]["effective_faces"], dtype=np.float32)
@@ -156,13 +161,16 @@ def preview_grid(city, *, reference_height: float = 10.0, roughness_length: floa
                        prepared.origin, geometry.crs, prepared.resolution, prepared.domain, prepared.terrain)
 
 
-def _prepare_city(city, condition, grid, terrain, height_policy):
+def _prepare_city(city, condition, grid, terrain, height_policy, *, turbulence=False):
     """Shared geometry and domain preparation for solving and grid preview."""
+    if not isinstance(turbulence, bool):
+        raise ValueError("turbulence must be a bool")
     if terrain is not None and not (isinstance(terrain, str) and terrain == "flat"):
         terrain = number(terrain, "terrain elevation")
     geometry = extract_city(city, height_policy)
     prepared = prepare_domain(geometry, reference_height=condition["reference_height"],
-                              roughness_length=condition["roughness_length"], **grid, terrain=terrain)
+                              roughness_length=condition["roughness_length"], **grid, terrain=terrain,
+                              turbulence=turbulence)
     return geometry, prepared
 
 

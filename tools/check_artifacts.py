@@ -2,6 +2,8 @@
 
 import argparse
 from email.parser import BytesParser
+import hashlib
+import json
 from pathlib import Path
 import tarfile
 import zipfile
@@ -33,7 +35,8 @@ def check_wheel(path):
         require(b"QES-Winds" in archive.read(prefix + "NOTICE"), "Missing QES attribution")
         require(any(name.startswith("dtcc_qes/_qes.") and name.endswith((".so", ".pyd")) for name in names),
                 "Wheel omits native extension")
-        for name in ("wind.py", "result.py", "_city.py", "vertical_grid.py", "_auto_grid.py", "comfort.py", "_qes_revision.txt"):
+        for name in ("wind.py", "result.py", "_city.py", "vertical_grid.py", "_auto_grid.py",
+                     "_turbulence_domain.py", "comfort.py", "_qes_revision.txt"):
             require("dtcc_qes/" + name in names, f"Wheel omits {name}")
         require(len(archive.read("dtcc_qes/_qes_revision.txt").strip()) == 40, "Missing source revision")
 
@@ -54,6 +57,8 @@ def check_sdist(path):
             "tools/check_stress_validity.py",
             "docs/turbulence-reference-differences.md",
             "tests/test_turbulence_reference.py", "tests/fixtures/turbulence_cases.py",
+            "src/dtcc_qes/_turbulence_domain.py", "tests/test_turbulence_domain.py",
+            "tools/check_turbulence_domain.py", "docs/data/turbulence-domain/control.json",
             "src/cpp/precision_solver.cpp", "src/cpp/precision_solver.h", "tests/native/check_precision.cpp",
             "tests/test_precision.py", "tests/test_precision_verification.py", "tools/run_precision_verification.py",
             "tools/audit_precision_verification.py", "tools/plot_precision_verification.py",
@@ -125,6 +130,11 @@ def check_sdist(path):
                 for suffix in ("npz", "json"):
                     name = f"tests/fixtures/reference/turbulence/{baseline}/{case}.{suffix}"
                     require(name in members, f"Source distribution omits {name}")
+        control = json.loads(archive.extractfile(members["docs/data/turbulence-domain/control.json"]).read())
+        require(control["passed"], "Turbulence domain control did not pass")
+        for name, expected in control["source_sha256"].items():
+            actual = hashlib.sha256(archive.extractfile(members[name]).read()).hexdigest()
+            require(actual == expected, f"Turbulence domain control is stale for {name}")
         require(not any(name.startswith((".idea/", "build/")) for name in members), "Private build/IDE files in sdist")
         check_metadata(archive.extractfile(members["PKG-INFO"]).read())
 

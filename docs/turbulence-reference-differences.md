@@ -525,3 +525,123 @@ checkpoint: public results/sampling, domain growth, performance qualification
 and the Task 9 numerical gate are still pending. Physical pedestrian-gust
 validation has not been established. This review used the serial backend;
 it does not extend the earlier validation to OpenMP or other toolchains.
+
+## Turbulence domain policy (Task 4, 2026-10-28)
+
+`wind.preview_grid(..., turbulence=True)` and the shared city preparation now
+include the native turbulence margin. Public `wind.run(turbulence=...)` and
+returned turbulence objects remain Task 5 work. The default preview/run paths
+retain their prior grids, metadata and wind-only native preparation.
+
+The reference height uses positive float32 building heights, sorted ascending
+and accumulated sequentially in float32 before the mean and final 3× scaling.
+An empty city uses `float32(100 × float32(roughness_length))`. Mixed-height and
+empty native-runner checks verify the same reference values. Effective physical
+faces have no ground ghost: acceptance requires at least three layers,
+`faces[-4] >= zRef`, and a top of at least 15 m. Exact-face and adjacent-float32
+checks agree with the native bridge on uniform, nonuniform and small grids.
+
+A valid wind-only grid is generated first. Automatic bounds then retain every
+existing layer operand and face and append the final thickness until the
+actual native faces pass. The loop checks each extension against 10,000 layers,
+`max_cells`, native staggered index range, and float32 face/centre progress.
+The final nonuniform grid is revalidated with `effective_faces`. Repeating the
+last valid automatic thickness preserves minimum/aspect/growth constraints;
+its building-region and upper caps are nondecreasing with height. Tests verify
+these constraints and unchanged fine-band, roof and pedestrian-sampling data.
+Decimal tails use the original solver operand, rather than subtracting rounded
+faces. Explicit bounds or faces are checked and never extended.
+
+Some examples for four equal-height blocks, with the default clearance:
+
+| Building height | Horizontal/uniform spacing | Grid | Wind-only effective top | Turbulence effective top | Added layers |
+| --- | --- | --- | --- | --- | --- |
+| 15 m | 2 m | Uniform | 36 m | 52 m | 8 |
+| 20 m | 2 m | Uniform | 40 m | 66 m | 13 |
+| 15 m | 1 m | Uniform | 35 m | 48 m | 13 |
+| 15 m | 0.5 m | Uniform | 35 m | 46.5 m | 23 |
+| 15 m | 2 m | Automatic | 35 m | 51.051788 m | 8 |
+| 20 m | 2 m | Automatic | 39.999996 m | 66.997849 m | 12 |
+
+The C2 tower array (mean height 11.85 m) retains its default uniform grid.
+Explicit 26 m bounds for an 8 m building report a sufficient 30 m top. A
+nonuniform 32 m prefix ending in 3/4/5 m layers reports 42 m; its required
+extension is not inferred from minimum spacing. An empty city with roughness
+0.5 and a 40 m top reports 56 m. These are construction requirements, not
+claims about domain-height independence of the solved field.
+
+### Metadata and regeneration
+
+The `domain['turbulence']` record contains:
+
+- `reference_height`: the native float32 morphometric height.
+- `default_top`: the effective wind-only prefix top. If that grid cannot be
+  generated, this is its original requested top.
+- `required_top`: the shortest accepted constant-tail extension of that
+  retained prefix. A valid prefix is never shortened. For check-only explicit
+  grids it is the supplied effective top.
+- `effective_top`: the final actual float32 extent, also used for local/global
+  domain bounds. It equals `required_top` under this policy.
+- `raised`, `added_layers`, `lower_layers_preserved` and `extension_policy`:
+  whether a tail/regeneration was needed, the number of appended tail layers,
+  and the construction policy (`check_only`, `constant_last_thickness`, or
+  `regenerated_then_constant_last_thickness`).
+
+A recoverable endpoint-fit error can leave no valid wind-only prefix: for
+example, a requested 40 m fine band cannot fit a 35 m wind-only domain. Only
+that typed fit error permits generation at a higher initial target, chosen
+from the turbulence uniform target and the generator's minimum feasible
+endpoint. Further fit failures advance to the next feasible endpoint, with
+strict progress and a 10,000-attempt bound in addition to the generator's
+10,000-layer bound. This covers a 50.9 m fine band whose first 51 m target
+leaves an unusable 0.1 m sliver. Invalid settings,
+limits and explicit bounds still raise. The regenerated grid receives the
+same bounded, repeated effective-face margin check; one larger initial target
+is never treated as sufficient by itself.
+
+Regeneration is recorded with `lower_layers_preserved=False` and a separate
+`regeneration` record containing the failed-fit reason, original requested
+top, generated top, attempt count and initial generated layer count. `added_layers` counts
+any constant tail after this generation; it does not invent a layer-count
+comparison with an invalid grid. Extended automatic metadata records the
+original `base_endpoint_fit` and the final operands/planned/effective extent.
+
+### New lower-grid sensitivity control
+
+[check_turbulence_domain.py](../tools/check_turbulence_domain.py) and its
+[recorded measurements](data/turbulence-domain/control.json) exercise that
+regeneration case on four 15 m blocks with 2 m horizontal spacing. The base
+regenerated grid retains 93 identical fine-band operands through 40 m. The
+control compares a taller regenerated grid with a taller grid preserving every
+base operand, including a direct comparison of the two taller grids at the
+same planned top. Their actual effective extents can differ by float32
+accumulation roundoff; the record reports that difference.
+
+All three mean-wind solves converge using float64 solver arithmetic,
+tolerance 1e-8, and a 20,000-iteration ceiling. Linear component sampling at
+1.5/1.75 m uses 1,152 common fluid points and `K = |sampled velocity| / 5`.
+The recorded targets are p95 absolute delta K <= 0.05 and relative peak change
+<= 0.05. The largest observed p95 delta K is 0.000218730, and the largest
+relative peak change is 0.000156408. Comparing the two taller grids directly
+gives p95 delta K <= 0.000002888; their effective tops differ by 0.000030518 m.
+Source hashes identify the generator, preparation, extension policy
+and control tool. The current-source audit is part of the domain tests.
+This focused control does not establish a general automatic preset or replace
+Task 9's numerical and performance gates or physical pedestrian-gust validation.
+
+```sh
+uv sync --frozen --group reference --reinstall-package dtcc-qes
+uv run --frozen --group reference python -m pytest tests/test_turbulence_domain.py -q
+uv run --frozen --group reference python tools/check_turbulence_domain.py --output docs/data/turbulence-domain/control.json
+uv run --frozen --group reference python -m pytest -q
+```
+
+Validation: the initial 40 domain cases failed before implementation. All 52
+final domain cases pass; the full suite has 715 passes and the original 24
+opt-in skips. The QES fork revision, embedded numerical code and all reference
+archives remain unchanged. Task 4 adds Python grid policy and native acceptance
+checks; it does not repeat the unchanged native sanitizer suite.
+Wheel and source-distribution audits pass, including source hashes for the
+recorded control. The wheel was built from the source distribution and passes
+source-content, native-revision, turbulence-preview and calm-solve smoke checks.
+The local no-isolation build used the system Unix Makefiles generator.
