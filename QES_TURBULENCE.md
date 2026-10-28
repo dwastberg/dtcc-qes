@@ -16,13 +16,14 @@ a `Turbulence` spec, a domain-top policy for turbulence's reference heights, a
 dtcc-core, pytest, CTest.
 
 **Status (implementation started 2026-10-27):** work is isolated in the checkout
-below. Tasks 1, 1A, 1B, 2, 3, 4, 5 and 9 are implemented and verified. The follow-up
+below. Tasks 1, 1A, 1B, 2, 3, 4, 5, 9 and 6 are implemented and verified. The follow-up
 review repaired the domain preflight and resolved the stale dataset-registration
 test/documentation mismatch while preserving runtime behavior. The public API
 now returns turbulence fields and sampled streamwise statistics. Task 9's
-numerical/performance gate passes; DTCC export (Task 6) is next. This does not
-establish physical pedestrian-gust validity. Review measurements describe the original core
-at the recorded revision, not necessarily the repaired implementation.
+numerical/performance gate passes; DTCC export (Task 6) is implemented. Task 7
+adds the comfort GEM helper next. Physical pedestrian-gust validation remains
+outstanding. Review measurements describe the original core at the recorded
+revision, not necessarily the repaired implementation.
 
 **Spec:** the Findings, Decisions and review revisions sections below. The
 initial decisions were agreed on 2026-10-27; the subsequent review revisions
@@ -182,8 +183,24 @@ Task checkboxes and the execution record below track implementation progress.
   separate comparisons. Final Python: 782 passed, 24 existing opt-in skips.
   Keep height as the provisional default. See
   `docs/turbulence-benchmark.md` and its source-fingerprinted JSON/raw evidence.
-- Next: Task 6 (DTCC export fields). Tasks 7–8 remain to be implemented;
-  the numerical gate does not validate gusts against observations or certify comfort.
+- Task 6 (2026-10-28): uniform `to_dtcc()` exports raw stress/TKE, streamwise
+  standard deviation, intensity and uint8 covariance validity in y/x/z-fastest
+  cell order. Invalid computed stress is retained; uncomputed floats and invalid
+  or undefined-direction statistics are NaN. Export reclassifies current tensors
+  independently of editable native validity snapshots, capping and mean direction.
+  Field descriptions preserve component order, units, model/numerics/QES revision
+  and the unvalidated-gust screening policy. Tests cover all cells on unequal
+  axes, a full 3D covariance oracle, coverage edits, zero/nonfinite directions,
+  unchanged wind-only output, nonuniform rejection and DTCC serialization for
+  both methods. The initial export run failed three tests while both compatibility
+  checks passed; all 67 turbulence tests now pass. Full Python: 792 passed,
+  24 existing opt-in skips. Native sources and QES revision are unchanged.
+  The refreshed benchmark passes all 72 configurations/216 repetitions and
+  18 scaling pairs with matching source fingerprints. Exact wind/stress hashes,
+  diagnostics and retained sample values match the Task 9 baseline. Its native
+  solve/statistic timings do not measure DTCC conversion cost.
+- Next: Task 7 (comfort GEM helper), followed by Task 8 dataset integration.
+  The numerical gate does not validate gusts against observations or certify comfort.
 
 ---
 
@@ -1182,16 +1199,29 @@ where not computed; the validity field is 0 there:
   Derived σ/TI also stay NaN for invalid stress or undefined mean direction;
   raw stress is not masked merely because it is indefinite. Include the
   screening and validity policy in the exported field descriptions/provenance.
+  Export rechecks current tensors rather than trusting an editable native
+  validity snapshot. Covariance validity remains independent of capping and
+  mean direction. Arrays own their storage; descriptions include the model,
+  numerics version and QES revision when supplied in result metadata.
 
-- [ ] **Step 1: Write the failing tests:**
+- [x] **Step 1: Write the failing tests:**
   - `test_to_dtcc_adds_turbulence_fields`: names, units, and the value at one
     known cell after reordering.
   - `test_to_dtcc_preserves_raw_invalid_stress_and_masks_statistics`.
   - `test_to_dtcc_without_turbulence_unchanged`.
-- [ ] **Step 2: Run.** Expected: FAIL.
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Run** the full pytest suite. Expected: PASS.
-- [ ] **Step 5: Commit.**
+- [x] **Step 2: Run.** Expected: FAIL.
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Run** the full pytest suite. Expected: PASS.
+- [x] **Step 5: Commit.**
+
+**Task 6 outcome:** the five turbulence fields export with correct cell order,
+units and dimensions. Raw invalid tensors survive export and DTCC serialization;
+derived statistics remain masked. Validity is classified from the current
+tensor, with uncomputed cells false and valid calm covariances still true.
+Original arrays and validity/count snapshots are unchanged. Wind-only export
+retains its three fields and nonuniform grids still raise rather than resample.
+The original provisional-default metadata warning now reflects completed
+numerical acceptance while preserving the physical-validation limitation.
 
 ### Task 7: Comfort GEM helper
 

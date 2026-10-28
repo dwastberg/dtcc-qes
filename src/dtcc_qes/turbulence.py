@@ -75,7 +75,7 @@ def _turbulence_metadata(spec, native, domain_top, velocity, has_buildings):
             turbulence_intensity="speed invariant",mixing_length="geometry only",
             qualification="fixed grid and zero background mixing; finite precision and solver tolerance affect comparisons"),
         limitations=["Algebraic mixing-length screening model; not validated for pedestrian gusts",
-            "Height is a provisional default pending the numerical and performance benchmark",
+            "Height remains a provisional default; numerical acceptance does not validate pedestrian gusts",
             "Raw stress can be indefinite; derived statistics are masked without changing raw tensors",
             "Morphometric friction velocity differs from the inflow log profile and sets the cap",
             "Grid choice and automatic domain growth can change the solved wind"])

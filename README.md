@@ -193,14 +193,14 @@ valid tensor. Validity masks and metadata counts describe their original solve
 or sample. This algebraic screening model has not been validated for pedestrian
 gusts. The [numerical/performance gate](docs/turbulence-benchmark.md) passes
 across 72 configurations, with measured coverage, scaling, grid sensitivity
-and costs. DTCC turbulence export, comfort and dataset integration are the
-next implementation tasks. Height remains the provisional default.
+and costs. DTCC turbulence export is supported; comfort and dataset integration
+are the next implementation tasks. Height remains the provisional default.
 
 Turbulence adds roughly 110 bytes per native cell and 39 bytes of returned
 fields/masks per physical cell. Temporary copies, float64 statistics and extra
 domain layers increase peak memory. On the benchmark's 1.28-million-cell
-serial case, median peak process RSS is about 400 MiB for wind-only, 636–637 MiB
-after native turbulence extraction and 768–778 MiB after Python statistics.
+serial case, median peak process RSS is about 398 MiB for wind-only, 636–637 MiB
+after native turbulence extraction and 742–756 MiB after Python statistics.
 These figures include Python/imports and are not a universal memory budget.
 
 The automatic generator is available as an **unvalidated prototype**, opt-in
@@ -456,6 +456,18 @@ scalars are `(N,)`. Cell order is **y, then x, with z fastest**, matching the
 current DTCC `VolumeGrid.coordinates()` meshgrid `xy` order. Local bounds and
 a translation/CRS Transform preserve georeferencing. See
 [validation notes](docs/validation.md) for the isolated ordering convention.
+
+With turbulence enabled, the same conversion adds `stress` (`N, 6`,
+xx/xy/xz/yy/yz/zz, m²/s²), `tke` (m²/s²), `streamwise_std` (m/s),
+`turbulence_intensity` (unit 1) and uint8 `stress_valid` (0/1). These fields
+use the same cell order and own their arrays. Uncomputed floats are NaN;
+raw invalid computed stress and its TKE remain available while σ/TI are
+masked. Validity is rechecked against current tensors at export time;
+it is independent of capping and mean direction. Zero or nonfinite mean
+direction also masks σ/TI without invalidating a valid covariance.
+Descriptions record the model, numerics version, QES revision, validity policy
+and unvalidated-gust screening limitation. Nonuniform layers still require
+sampling or native arrays rather than direct `VolumeGrid` export.
 
 Diagnostics report iterations, effective tolerance, convergence and the
 **maximum Lagrange multiplier change**, which is not a mass-conservation

@@ -339,6 +339,11 @@ class WindResult:
         This matches VolumeGrid.coordinates()'s current meshgrid ``xy`` order.
         Grid bounds are local; its Transform carries origin and CRS. Cell
         ordering is isolated here so a future DTCC convention can replace it.
+        Optional turbulence exports raw stress/TKE, streamwise statistics and
+        a freshly classified uint8 covariance-validity mask. Uncomputed floats
+        are NaN. Invalid raw tensors are retained; their derived statistics and
+        statistics with undefined mean direction are NaN. Field descriptions
+        carry the model provenance and unvalidated-gust screening limitation.
         """
         if not self.vertical_uniform:
             raise ValueError("Nonuniform vertical layers cannot be represented by a uniform VolumeGrid; "
@@ -358,4 +363,39 @@ class WindResult:
                              association="cell", description="Wind speed magnitude"))
         grid.add_field(Field(name="cell_flags", unit="1", values=flags, association="cell",
                              description="QES cell classification; 0 building, 2 terrain"))
+        if self.turbulence is not None:
+            fields = self.turbulence
+            computed = fields.computed
+            # Snapshot current tensors, independently of the editable native
+            # validity snapshot. Covariance validity does not require a mean
+            # direction and is independent of capping.
+            valid = _stress_validity(fields.stress)[0] & computed
+            std = self.streamwise_std
+            intensity = _turbulence_intensity(std,self.velocity)
+            metadata = self.metadata.get("turbulence",{})
+            revision = self.metadata.get("versions",{}).get("qes",{}).get("revision","unspecified")
+            provenance = ("QES-Turb algebraic mixing-length screening model; "
+                f"numerics_version={metadata.get('numerics_version','unspecified')}; "
+                f"mixing_length={metadata.get('mixing_length','unspecified')}; QES revision={revision}; "
+                "not validated for pedestrian gusts")
+            exports = (
+                ("stress","m^2/s^2",6,np.where(computed[...,None],fields.stress,np.nan),
+                 "Raw stress (xx, xy, xz, yy, yz, zz); invalid computed tensors retained; uncomputed NaN"),
+                ("tke","m^2/s^2",1,np.where(computed,fields.tke,np.nan),
+                 "QES TKE before stress anisotropy scaling, not half the stress trace; uncomputed NaN"),
+                ("streamwise_std","m/s",1,std,
+                 "Standard deviation projected along the current 3D mean direction; uncomputed, invalid stress "
+                 "and undefined direction NaN; roundoff-sized negative variance clamped to zero"),
+                ("turbulence_intensity","1",1,intensity,
+                 "Streamwise standard deviation / mean speed; uncomputed, invalid stress and undefined direction NaN"),
+                ("stress_valid","1",1,valid.astype(np.uint8),
+                 "Current covariance validity, encoded 0/1; finite lambda_min >= "
+                 "-32 * eps(float32) * max(abs(eigenvalues)); finite zero valid; uncomputed 0; "
+                 "independent of capping and mean direction"),
+            )
+            for name,unit,dim,values,description in exports:
+                ordered = (values.transpose(1,2,0,3).reshape(-1,dim).copy() if dim > 1 else
+                           values.transpose(1,2,0).reshape(-1).copy())
+                grid.add_field(Field(name=name,unit=unit,dim=dim,values=ordered,association="cell",
+                                     description=f"{description}; cell order y, x, z fastest. {provenance}"))
         return grid

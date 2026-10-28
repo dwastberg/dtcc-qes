@@ -33,6 +33,150 @@ def synthetic():
     return replace(result,turbulence=fields)
 
 
+def uniform_synthetic():
+    source = synthetic()
+    nz = len(source.z)
+    return replace(source, z=np.arange(nz,dtype=np.float32)+.5,
+                   z_faces=np.arange(nz+1,dtype=np.float32))
+
+
+def test_to_dtcc_adds_turbulence_fields():
+    source = uniform_synthetic()
+    fields = source.turbulence
+    weights = 1+np.arange(fields.computed.size,dtype=np.float32).reshape(fields.computed.shape)/100
+    fields.stress[:] *= weights[...,None]
+    fields.tke[:] = weights
+    k,j,i = 2,1,3
+    covariance = np.array([[9,1,.5],[1,4,-.25],[.5,-.25,1]],dtype=np.float32)
+    fields.stress[k,j,i] = covariance[(0,0,0,1,1,2),(0,1,2,1,2,2)]
+    fields.tke[k,j,i] = 12.5  # QES TKE is independent of the stress trace.
+    source.velocity[k,j,i] = [2,3,6]
+    grid = source.to_dtcc()
+    exported = {field.name:field for field in grid.fields}
+    expected = dict(stress=("m^2/s^2",6),tke=("m^2/s^2",1),streamwise_std=("m/s",1),
+                    turbulence_intensity=("1",1),stress_valid=("1",1))
+    assert set(exported) == {"velocity","speed","cell_flags",*expected}
+    for name,(unit,dim) in expected.items():
+        field = exported[name]
+        assert (field.unit,field.dim,field.association) == (unit,dim,"cell")
+        assert field.values.shape == ((fields.computed.size,6) if dim == 6 else (fields.computed.size,))
+        assert "screening" in field.description.lower()
+        assert "not validated for pedestrian gusts" in field.description
+    assert "xx, xy, xz, yy, yz, zz" in exported["stress"].description
+    assert "raw" in exported["stress"].description.lower()
+    assert "32" in exported["stress_valid"].description
+    nz,ny,nx = fields.computed.shape
+    index = (j*nx+i)*nz+k
+    np.testing.assert_array_equal(exported["stress"].values[index],fields.stress[k,j,i])
+    assert exported["tke"].values[index] == 12.5
+    direction = np.array([2,3,6])/7
+    sigma = np.sqrt(direction@covariance@direction)
+    assert exported["streamwise_std"].values[index] == pytest.approx(sigma,rel=1e-14)
+    assert exported["turbulence_intensity"].values[index] == pytest.approx(sigma/7,rel=1e-14)
+    assert exported["stress_valid"].values.dtype == np.uint8
+    assert exported["stress_valid"].values[index] == 1
+    # Compare all cells with explicit axis traversal, independently of transpose.
+    np.testing.assert_array_equal(exported["stress"].values,
+        [fields.stress[z,y,x] for y in range(ny) for x in range(nx) for z in range(nz)])
+    np.testing.assert_array_equal(exported["tke"].values,
+        [fields.tke[z,y,x] for y in range(ny) for x in range(nx) for z in range(nz)])
+    for name in expected:
+        raw = getattr(fields,name,None)
+        if raw is not None:
+            assert not np.shares_memory(exported[name].values,raw)
+
+
+@pytest.mark.parametrize("velocity", [[1,0,0],[1,-1,0]])
+def test_to_dtcc_preserves_raw_invalid_stress_and_masks_statistics(velocity):
+    source = uniform_synthetic()
+    fields = source.turbulence
+    invalid, uncovered, calm = (2,1,3),(1,0,2),(3,2,1)
+    fields.stress[invalid] = [1,2,0,1,0,1]
+    fields.capped[invalid] = True
+    source.velocity[invalid] = velocity
+    fields.computed[uncovered] = False  # Finite edited raw data must be hidden here.
+    source.velocity[calm] = 0
+    assert fields.stress_valid.all()  # Deliberately stale validity snapshot.
+    raw = fields.stress.copy()
+    energy = fields.tke.copy()
+    exported = {field.name:field for field in source.to_dtcc().fields}
+    nz,_,nx = fields.computed.shape
+    def index(cell):
+        z,y,x = cell
+        return (y*nx+x)*nz+z
+    bad,missing,zero = map(index,(invalid,uncovered,calm))
+    np.testing.assert_array_equal(exported["stress"].values[bad],raw[invalid])
+    assert exported["tke"].values[bad] == energy[invalid]
+    assert exported["stress_valid"].values[bad] == 0
+    for name in ("streamwise_std","turbulence_intensity"):
+        assert np.isnan(exported[name].values[[bad,missing,zero]]).all()
+    for name in ("stress","tke"):
+        assert np.isnan(exported[name].values[missing]).all()
+    assert exported["stress_valid"].values[missing] == 0
+    assert exported["stress_valid"].values[zero] == 1  # Covariance validity is independent of direction.
+    np.testing.assert_array_equal(fields.stress,raw)
+    np.testing.assert_array_equal(fields.tke,energy)
+    assert fields.stress_valid.all()  # Export never rewrites original snapshots.
+
+
+def test_to_dtcc_without_turbulence_unchanged():
+    source = replace(uniform_synthetic(),turbulence=None)
+    fields = {field.name:field for field in source.to_dtcc().fields}
+    assert set(fields) == {"velocity","speed","cell_flags"}
+    nz,ny,nx = source.cell_flags.shape
+    velocity = np.array([source.velocity[z,y,x] for y in range(ny) for x in range(nx) for z in range(nz)])
+    np.testing.assert_array_equal(fields["velocity"].values,velocity)
+    np.testing.assert_array_equal(fields["speed"].values,np.linalg.norm(velocity.astype(float),axis=-1))
+    assert all(field.association == "cell" for field in fields.values())
+
+
+def test_to_dtcc_turbulence_rejects_nonuniform_layers():
+    with pytest.raises(ValueError,match="Nonuniform vertical layers"):
+        synthetic().to_dtcc()
+
+
+@pytest.mark.parametrize("velocity", [[0,0,0],[np.nan,1,0],[np.inf,1,0]])
+def test_to_dtcc_covariance_validity_is_independent_of_mean_direction(velocity):
+    source = uniform_synthetic()
+    source.velocity[:] = velocity
+    source.turbulence.stress_valid[:] = False
+    fields = {field.name:field for field in source.to_dtcc().fields}
+    assert (fields["stress_valid"].values == 1).all()
+    assert np.isnan(fields["streamwise_std"].values).all()
+    assert np.isnan(fields["turbulence_intensity"].values).all()
+    assert not source.turbulence.stress_valid.any()
+
+
+@pytest.mark.parametrize("method", ["height","wall_distance"])
+def test_to_dtcc_native_turbulence_roundtrip_and_provenance(method):
+    source = solve(direction=225,turbulence=wind.Turbulence(method))
+    grid = source.to_dtcc()
+    original = {field.name:field for field in grid.fields}
+    restored = type(grid)()
+    restored.from_proto(grid.to_proto())
+    exported = {field.name:field for field in restored.fields}
+    assert set(exported) == set(original)
+    for name,field in original.items():
+        np.testing.assert_array_equal(exported[name].values,field.values)
+        assert (exported[name].unit,exported[name].dim,exported[name].association,
+                exported[name].description) == (field.unit,field.dim,field.association,field.description)
+    for name in ("stress","tke","streamwise_std","turbulence_intensity","stress_valid"):
+        description = exported[name].description
+        assert f"mixing_length={method}" in description
+        assert source.metadata["turbulence"]["numerics_version"] in description
+        assert _qes.qes_revision in description
+    computed = source.turbulence.computed
+    invalid = computed & ~source.turbulence.stress_valid
+    assert invalid.any()
+    nz,ny,nx = computed.shape
+    for z,y,x in np.argwhere(invalid):
+        index = (y*nx+x)*nz+z
+        np.testing.assert_array_equal(exported["stress"].values[index],source.turbulence.stress[z,y,x])
+        assert exported["stress_valid"].values[index] == 0
+        assert np.isnan(exported["streamwise_std"].values[index])
+        assert np.isnan(exported["turbulence_intensity"].values[index])
+
+
 @pytest.mark.parametrize("method", ["height","wall_distance"])
 @pytest.mark.parametrize("precision", ["float32","float64"])
 def test_run_returns_wind_and_turbulence_in_one_call(method,precision,monkeypatch):

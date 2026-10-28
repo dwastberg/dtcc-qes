@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "started_utc": "2026-10-28T15:04:56.686619+00:00",
-  "finished_utc": "2026-10-28T15:14:17.755950+00:00",
+  "started_utc": "2026-10-28T19:43:25.655758+00:00",
+  "finished_utc": "2026-10-28T19:51:16.480974+00:00",
   "scope": "implementation correctness and measured sensitivity; no observational gust or comfort validation",
   "environment": {
     "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
@@ -26,8 +26,8 @@
     "src/dtcc_qes/_turbulence_domain.py": "8a6c7655eaa421bf05eb6e0873e07ef37c33866929ee193ab84d39ac7c13843c",
     "src/dtcc_qes/comfort.py": "4e6ea042be3a4be474684742d82aa343374f7c12b65031e3ede1c48e141a7782",
     "src/dtcc_qes/datasets.py": "67e03df0d7b2e501508b0cd32ca17f4325a303e8f2724d29bbb98fed36a32ba9",
-    "src/dtcc_qes/result.py": "f7a06f45fe7034433bf38322574e655c399c907456892cd536017cb2900c7468",
-    "src/dtcc_qes/turbulence.py": "da5a3bab20b3d51ba2c6762ef51b761d3b533afcbe732c00294d3f93a2d555b0",
+    "src/dtcc_qes/result.py": "9ad8081e250d0870bb9d6efdee6aab36c34f7e6ecba2729f492d377657014650",
+    "src/dtcc_qes/turbulence.py": "f4a2ff22c18fd7d2e586f4e5555148bb36822cb8eefdc09cba332599a8c106d1",
     "src/dtcc_qes/vertical_grid.py": "18a7e344d8168e33cf269580eb2b6abf5a380204d0268ff495436ddce6d3853f",
     "src/dtcc_qes/wind.py": "aead78a3505afd9736e8c5bbf011b412974aaad2340e8e1118361a32dad3a628",
     "tools/run_turbulence_benchmark.py": "d2d04eb823042031d428bfa6a47a25fa1ee525c1941dbe55c48238cbd6b6d550",
@@ -68,25 +68,25 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.001503625011537224,
-            "minimum": 0.0013551670126616955,
-            "maximum": 0.0018798329983837903
+            "median": 0.0009310419554822147,
+            "minimum": 0.0008870419696904719,
+            "maximum": 0.0010172500042244792
           },
           "prepare": {
-            "median": 0.0014130419585853815,
-            "minimum": 0.0013657090021297336,
-            "maximum": 0.0014247910003177822
+            "median": 0.0010211250046268106,
+            "minimum": 0.0009564159554429352,
+            "maximum": 0.0010380829917266965
           },
           "solve": {
-            "median": 0.04865866701584309,
-            "minimum": 0.04859199997736141,
-            "maximum": 0.04927220899844542
+            "median": 0.04205929097952321,
+            "minimum": 0.04190662503242493,
+            "maximum": 0.042200916970614344
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214401024,
-          "after_prepare": 219201536,
-          "after_solve": 220446720
+          "imports_and_planning": 210780160,
+          "after_prepare": 214319104,
+          "after_solve": 216842240
         },
         "diagnostics": [
           {
@@ -143,48 +143,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0012166670057922602,
-            "minimum": 0.0011997499968856573,
-            "maximum": 0.0016629589954391122
+            "median": 0.0010299589484930038,
+            "minimum": 0.0009421249851584435,
+            "maximum": 0.0011601669830270112
           },
           "prepare": {
-            "median": 0.002229750039987266,
-            "minimum": 0.0021579170133918524,
-            "maximum": 0.0025546670076437294
+            "median": 0.0020832089940086007,
+            "minimum": 0.0020038329530507326,
+            "maximum": 0.0025579999783076346
           },
           "solve": {
-            "median": 0.06346795801073313,
-            "minimum": 0.0633468339801766,
-            "maximum": 0.06377374997828156
+            "median": 0.0556745000067167,
+            "minimum": 0.0554059169953689,
+            "maximum": 0.05770895798923448
           },
           "python_validity": {
-            "median": 0.020413624995853752,
-            "minimum": 0.020395875035319477,
-            "maximum": 0.020450415962841362
+            "median": 0.01771183399250731,
+            "minimum": 0.017351957969367504,
+            "maximum": 0.0180699159973301
           },
           "streamwise_std": {
-            "median": 0.023385667009279132,
-            "minimum": 0.023322957975324243,
-            "maximum": 0.023556791013106704
+            "median": 0.019982875033747405,
+            "minimum": 0.01984133297810331,
+            "maximum": 0.020355917047709227
           },
           "turbulence_intensity_including_std": {
-            "median": 0.023285916016902775,
-            "minimum": 0.022749166004359722,
-            "maximum": 0.023391042021103203
+            "median": 0.02048816700698808,
+            "minimum": 0.020458875049371272,
+            "maximum": 0.020570624968968332
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.017420458025299013,
-            "minimum": 0.016194083960726857,
-            "maximum": 0.017569542047567666
+            "median": 0.0141309589962475,
+            "minimum": 0.013956167036667466,
+            "maximum": 0.014250417007133365
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213696512,
-          "after_prepare": 224313344,
-          "after_solve": 229834752,
-          "after_python_validity": 240254976,
-          "after_derived": 260702208,
-          "after_benchmark_oracle": 262356992
+          "imports_and_planning": 210141184,
+          "after_prepare": 219987968,
+          "after_solve": 226525184,
+          "after_python_validity": 239222784,
+          "after_derived": 249282560,
+          "after_benchmark_oracle": 257114112
         },
         "diagnostics": [
           {
@@ -719,48 +719,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0014769579865969718,
-            "minimum": 0.001440709049347788,
-            "maximum": 0.0015936249983496964
+            "median": 0.0009657079936005175,
+            "minimum": 0.0009215000318363309,
+            "maximum": 0.0018563329940661788
           },
           "prepare": {
-            "median": 0.006665291031822562,
-            "minimum": 0.006397208024282008,
-            "maximum": 0.006701875012367964
+            "median": 0.005714458005968481,
+            "minimum": 0.005438583029899746,
+            "maximum": 0.006611999997403473
           },
           "solve": {
-            "median": 0.06365508399903774,
-            "minimum": 0.06350970797939226,
-            "maximum": 0.06379779195412993
+            "median": 0.056634875014424324,
+            "minimum": 0.0553438329952769,
+            "maximum": 0.05843000003369525
           },
           "python_validity": {
-            "median": 0.020066500001121312,
-            "minimum": 0.019951374968513846,
-            "maximum": 0.02029841602779925
+            "median": 0.017749625025317073,
+            "minimum": 0.0174650420085527,
+            "maximum": 0.01787179196253419
           },
           "streamwise_std": {
-            "median": 0.022712000005412847,
-            "minimum": 0.022365583979990333,
-            "maximum": 0.022980166948400438
+            "median": 0.02022700000088662,
+            "minimum": 0.01971891603898257,
+            "maximum": 0.020235790987499058
           },
           "turbulence_intensity_including_std": {
-            "median": 0.023195707995910197,
-            "minimum": 0.022378166031558067,
-            "maximum": 0.02356587501708418
+            "median": 0.020322084019426256,
+            "minimum": 0.020299041992984712,
+            "maximum": 0.02059000002918765
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.016593625012319535,
-            "minimum": 0.015434624976478517,
-            "maximum": 0.01743004098534584
+            "median": 0.014326958043966442,
+            "minimum": 0.01333899999735877,
+            "maximum": 0.01469604199519381
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213794816,
-          "after_prepare": 223756288,
-          "after_solve": 230260736,
-          "after_python_validity": 239304704,
-          "after_derived": 244711424,
-          "after_benchmark_oracle": 249151488
+          "imports_and_planning": 211140608,
+          "after_prepare": 221511680,
+          "after_solve": 227950592,
+          "after_python_validity": 230227968,
+          "after_derived": 233701376,
+          "after_benchmark_oracle": 236879872
         },
         "diagnostics": [
           {
@@ -1100,48 +1100,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0013983329990878701,
-            "minimum": 0.0012382090208120644,
-            "maximum": 0.001515874988399446
+            "median": 0.0010191249893978238,
+            "minimum": 0.000883875007275492,
+            "maximum": 0.001071374979801476
           },
           "prepare": {
-            "median": 0.0026437080232426524,
-            "minimum": 0.0022697499953210354,
-            "maximum": 0.0026795000303536654
+            "median": 0.0019464580109342933,
+            "minimum": 0.0019065000233240426,
+            "maximum": 0.002033917000517249
           },
           "solve": {
-            "median": 0.06298795802285895,
-            "minimum": 0.06290316599188372,
-            "maximum": 0.06383170804474503
+            "median": 0.05510462500387803,
+            "minimum": 0.05508800002280623,
+            "maximum": 0.05531854199944064
           },
           "python_validity": {
-            "median": 0.020090582955162972,
-            "minimum": 0.02000974997645244,
-            "maximum": 0.020338208007160574
+            "median": 0.017674291972070932,
+            "minimum": 0.01752004201989621,
+            "maximum": 0.01779770798748359
           },
           "streamwise_std": {
-            "median": 0.02219058299669996,
-            "minimum": 0.021983499987982213,
-            "maximum": 0.022933833010029048
+            "median": 0.019932417024392635,
+            "minimum": 0.01969704101793468,
+            "maximum": 0.01998379098949954
           },
           "turbulence_intensity_including_std": {
-            "median": 0.022892083041369915,
-            "minimum": 0.022811541974078864,
-            "maximum": 0.02352891699410975
+            "median": 0.02016279101371765,
+            "minimum": 0.019993749971035868,
+            "maximum": 0.020344582968391478
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015956750023178756,
-            "minimum": 0.015602750005200505,
-            "maximum": 0.016245000006165355
+            "median": 0.014010832994244993,
+            "minimum": 0.013965958962216973,
+            "maximum": 0.014033832994755358
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213172224,
-          "after_prepare": 223854592,
-          "after_solve": 229949440,
-          "after_python_validity": 238485504,
-          "after_derived": 248430592,
-          "after_benchmark_oracle": 255098880
+          "imports_and_planning": 211025920,
+          "after_prepare": 221446144,
+          "after_solve": 227606528,
+          "after_python_validity": 228999168,
+          "after_derived": 240418816,
+          "after_benchmark_oracle": 240451584
         },
         "diagnostics": [
           {
@@ -1677,48 +1677,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0014305830118246377,
-            "minimum": 0.0011205000337213278,
-            "maximum": 0.0017509169992990792
+            "median": 0.001110167009755969,
+            "minimum": 0.0009383339784108102,
+            "maximum": 0.001422500004991889
           },
           "prepare": {
-            "median": 0.00650762504665181,
-            "minimum": 0.006382833002135158,
-            "maximum": 0.006659957987722009
+            "median": 0.005605540995020419,
+            "minimum": 0.005420458037406206,
+            "maximum": 0.005933709035161883
           },
           "solve": {
-            "median": 0.06343575002392754,
-            "minimum": 0.06337054196046665,
-            "maximum": 0.06459033396095037
+            "median": 0.057010707969311625,
+            "minimum": 0.05556975002400577,
+            "maximum": 0.05704704101663083
           },
           "python_validity": {
-            "median": 0.019914708042051643,
-            "minimum": 0.019231957965530455,
-            "maximum": 0.020138541993219405
+            "median": 0.017904583015479147,
+            "minimum": 0.017518042004667222,
+            "maximum": 0.018206625012680888
           },
           "streamwise_std": {
-            "median": 0.023117875040043145,
-            "minimum": 0.02265754103427753,
-            "maximum": 0.023321042011957616
+            "median": 0.019711999979335815,
+            "minimum": 0.01945745904231444,
+            "maximum": 0.019946750020608306
           },
           "turbulence_intensity_including_std": {
-            "median": 0.023803416988812387,
-            "minimum": 0.02313483302714303,
-            "maximum": 0.028198625019285828
+            "median": 0.020057624962646514,
+            "minimum": 0.02003312500892207,
+            "maximum": 0.02091366599779576
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.01676733302883804,
-            "minimum": 0.01586729200789705,
-            "maximum": 0.01824358297744766
+            "median": 0.014097584004048258,
+            "minimum": 0.013948583044111729,
+            "maximum": 0.014652167039457709
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213696512,
-          "after_prepare": 223625216,
-          "after_solve": 228966400,
-          "after_python_validity": 239796224,
-          "after_derived": 247103488,
-          "after_benchmark_oracle": 257474560
+          "imports_and_planning": 210157568,
+          "after_prepare": 220610560,
+          "after_solve": 227229696,
+          "after_python_validity": 237600768,
+          "after_derived": 237977600,
+          "after_benchmark_oracle": 242089984
         },
         "diagnostics": [
           {
@@ -2057,25 +2057,25 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.001814209041185677,
-            "minimum": 0.001201624982059002,
-            "maximum": 0.0018940410227514803
+            "median": 0.001092375023290515,
+            "minimum": 0.0009978339658118784,
+            "maximum": 0.0012171249836683273
           },
           "prepare": {
-            "median": 0.0013719170237891376,
-            "minimum": 0.0011107090394943953,
-            "maximum": 0.0014372079749591649
+            "median": 0.0009648749837651849,
+            "minimum": 0.0009033750393427908,
+            "maximum": 0.0012232910376042128
           },
           "solve": {
-            "median": 0.055503792013041675,
-            "minimum": 0.055026625050231814,
-            "maximum": 0.05550595803651959
+            "median": 0.04946437501348555,
+            "minimum": 0.04833324998617172,
+            "maximum": 0.05363999999826774
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214532096,
-          "after_prepare": 218628096,
-          "after_solve": 220463104
+          "imports_and_planning": 212811776,
+          "after_prepare": 217563136,
+          "after_solve": 219103232
         },
         "diagnostics": [
           {
@@ -2132,48 +2132,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0014697919832542539,
-            "minimum": 0.0011745000374503434,
-            "maximum": 0.0019647919689305127
+            "median": 0.001055167056620121,
+            "minimum": 0.0010481249773874879,
+            "maximum": 0.0020098750246688724
           },
           "prepare": {
-            "median": 0.002281624998431653,
-            "minimum": 0.002276957966387272,
-            "maximum": 0.002574582991655916
+            "median": 0.0019597079954110086,
+            "minimum": 0.0019204579875804484,
+            "maximum": 0.0025126670370809734
           },
           "solve": {
-            "median": 0.07065404200693592,
-            "minimum": 0.07064470899058506,
-            "maximum": 0.07083391695050523
+            "median": 0.06212587497429922,
+            "minimum": 0.06166133296210319,
+            "maximum": 0.0626276659895666
           },
           "python_validity": {
-            "median": 0.019703291996847838,
-            "minimum": 0.019314708013553172,
-            "maximum": 0.019978208001703024
+            "median": 0.017488625016994774,
+            "minimum": 0.017359791963826865,
+            "maximum": 0.018011750013101846
           },
           "streamwise_std": {
-            "median": 0.022344208031427115,
-            "minimum": 0.021526083000935614,
-            "maximum": 0.02331379195675254
+            "median": 0.019434833026025444,
+            "minimum": 0.01917495805537328,
+            "maximum": 0.02018791699083522
           },
           "turbulence_intensity_including_std": {
-            "median": 0.022339291987009346,
-            "minimum": 0.022185917012393475,
-            "maximum": 0.022932208026759326
+            "median": 0.019646332948468626,
+            "minimum": 0.019296832964755595,
+            "maximum": 0.019899540988262743
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015115540998522192,
-            "minimum": 0.01508158299839124,
-            "maximum": 0.015262458007782698
+            "median": 0.013257166952826083,
+            "minimum": 0.013155292021110654,
+            "maximum": 0.013300375023391098
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 215023616,
-          "after_prepare": 225837056,
-          "after_solve": 229785600,
-          "after_python_validity": 236126208,
-          "after_derived": 248856576,
-          "after_benchmark_oracle": 258752512
+          "imports_and_planning": 210059264,
+          "after_prepare": 219840512,
+          "after_solve": 226230272,
+          "after_python_validity": 227180544,
+          "after_derived": 233324544,
+          "after_benchmark_oracle": 236470272
         },
         "diagnostics": [
           {
@@ -3212,48 +3212,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.001590374973602593,
-            "minimum": 0.0015320000238716602,
-            "maximum": 0.0016667500021867454
+            "median": 0.0012182500213384628,
+            "minimum": 0.001027249963954091,
+            "maximum": 0.0015988750383257866
           },
           "prepare": {
-            "median": 0.014283416967373341,
-            "minimum": 0.014014540996868163,
-            "maximum": 0.014403790992219001
+            "median": 0.012795999995432794,
+            "minimum": 0.012235625006724149,
+            "maximum": 0.013066249957773834
           },
           "solve": {
-            "median": 0.07035629102028906,
-            "minimum": 0.06995537504553795,
-            "maximum": 0.07173675001831725
+            "median": 0.06332366599235684,
+            "minimum": 0.06157770805293694,
+            "maximum": 0.06415883294539526
           },
           "python_validity": {
-            "median": 0.019917832978535444,
-            "minimum": 0.019495624990668148,
-            "maximum": 0.02007929200772196
+            "median": 0.017662000027485192,
+            "minimum": 0.017200250003952533,
+            "maximum": 0.017709458013996482
           },
           "streamwise_std": {
-            "median": 0.0222070409799926,
-            "minimum": 0.022120082983747125,
-            "maximum": 0.0225363330100663
+            "median": 0.019595166959334165,
+            "minimum": 0.01936304196715355,
+            "maximum": 0.02047629200387746
           },
           "turbulence_intensity_including_std": {
-            "median": 0.022332374996040016,
-            "minimum": 0.02222625003196299,
-            "maximum": 0.022579999989829957
+            "median": 0.01972270803526044,
+            "minimum": 0.019626583030913025,
+            "maximum": 0.02026920800562948
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015859375009313226,
-            "minimum": 0.015598167025018483,
-            "maximum": 0.01638633297989145
+            "median": 0.01311729202279821,
+            "minimum": 0.012937499966938049,
+            "maximum": 0.013428625010419637
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214712320,
-          "after_prepare": 225312768,
-          "after_solve": 229605376,
-          "after_python_validity": 242122752,
-          "after_derived": 267567104,
-          "after_benchmark_oracle": 270090240
+          "imports_and_planning": 208994304,
+          "after_prepare": 219758592,
+          "after_solve": 225558528,
+          "after_python_validity": 233799680,
+          "after_derived": 237273088,
+          "after_benchmark_oracle": 237748224
         },
         "diagnostics": [
           {
@@ -3745,48 +3745,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.001873083005193621,
-            "minimum": 0.00167329196119681,
-            "maximum": 0.001998624997213483
+            "median": 0.0011065000435337424,
+            "minimum": 0.0010497919865883887,
+            "maximum": 0.0011750839767046273
           },
           "prepare": {
-            "median": 0.0026609590277075768,
-            "minimum": 0.0025226250290870667,
-            "maximum": 0.0027332500321790576
+            "median": 0.001984250033274293,
+            "minimum": 0.0019829169614240527,
+            "maximum": 0.001989667012821883
           },
           "solve": {
-            "median": 0.07012983300955966,
-            "minimum": 0.06948162504704669,
-            "maximum": 0.07122412498574704
+            "median": 0.0624180409940891,
+            "minimum": 0.0620801659533754,
+            "maximum": 0.06378545897314325
           },
           "python_validity": {
-            "median": 0.01974545803386718,
-            "minimum": 0.01966791698941961,
-            "maximum": 0.019818458007648587
+            "median": 0.017604916007257998,
+            "minimum": 0.017250958015210927,
+            "maximum": 0.01784745801705867
           },
           "streamwise_std": {
-            "median": 0.022164624999277294,
-            "minimum": 0.021993457979988307,
-            "maximum": 0.022640708019025624
+            "median": 0.01956229202914983,
+            "minimum": 0.019547541975043714,
+            "maximum": 0.01966241601621732
           },
           "turbulence_intensity_including_std": {
-            "median": 0.022477250022348017,
-            "minimum": 0.022243166982661933,
-            "maximum": 0.023121291014831513
+            "median": 0.020250917004887015,
+            "minimum": 0.019885542045813054,
+            "maximum": 0.02080341597320512
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015181750000920147,
-            "minimum": 0.014384083973709494,
-            "maximum": 0.015408125007525086
+            "median": 0.01351116702426225,
+            "minimum": 0.013297208002768457,
+            "maximum": 0.014155457960441709
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214220800,
-          "after_prepare": 224247808,
-          "after_solve": 230162432,
-          "after_python_validity": 242761728,
-          "after_derived": 255311872,
-          "after_benchmark_oracle": 256376832
+          "imports_and_planning": 210698240,
+          "after_prepare": 220200960,
+          "after_solve": 226426880,
+          "after_python_validity": 234192896,
+          "after_derived": 242794496,
+          "after_benchmark_oracle": 247922688
         },
         "diagnostics": [
           {
@@ -4826,48 +4826,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0015269169816747308,
-            "minimum": 0.0015007079928182065,
-            "maximum": 0.001627375022508204
+            "median": 0.001164332963526249,
+            "minimum": 0.0011015419731847942,
+            "maximum": 0.0014479579986073077
           },
           "prepare": {
-            "median": 0.014257333998102695,
-            "minimum": 0.01393975003156811,
-            "maximum": 0.014370082993991673
+            "median": 0.012798417010344565,
+            "minimum": 0.012429040973074734,
+            "maximum": 0.013260125007946044
           },
           "solve": {
-            "median": 0.07000670803245157,
-            "minimum": 0.06990679196314886,
-            "maximum": 0.07068808301119134
+            "median": 0.06270629202481359,
+            "minimum": 0.06153916596667841,
+            "maximum": 0.0637735840282403
           },
           "python_validity": {
-            "median": 0.019536875013727695,
-            "minimum": 0.01949199999216944,
-            "maximum": 0.019790458027273417
+            "median": 0.01756000000750646,
+            "minimum": 0.017313208954874426,
+            "maximum": 0.017615791992284358
           },
           "streamwise_std": {
-            "median": 0.021978207980282605,
-            "minimum": 0.02195912500610575,
-            "maximum": 0.02204725000774488
+            "median": 0.01951783400727436,
+            "minimum": 0.01917129202047363,
+            "maximum": 0.02031237503979355
           },
           "turbulence_intensity_including_std": {
-            "median": 0.02244733297266066,
-            "minimum": 0.022423958987928927,
-            "maximum": 0.022807708999607712
+            "median": 0.02053891704417765,
+            "minimum": 0.01979920797748491,
+            "maximum": 0.02097516698995605
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015206167008727789,
-            "minimum": 0.014078375010285527,
-            "maximum": 0.015221166948322207
+            "median": 0.013321082980837673,
+            "minimum": 0.012978999991901219,
+            "maximum": 0.013561667001340538
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 212893696,
-          "after_prepare": 222052352,
-          "after_solve": 227557376,
-          "after_python_validity": 239468544,
-          "after_derived": 261881856,
-          "after_benchmark_oracle": 264224768
+          "imports_and_planning": 210960384,
+          "after_prepare": 219955200,
+          "after_solve": 225902592,
+          "after_python_validity": 236699648,
+          "after_derived": 253067264,
+          "after_benchmark_oracle": 255098880
         },
         "diagnostics": [
           {
@@ -5358,25 +5358,25 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.002033791970461607,
-            "minimum": 0.0018779580132104456,
-            "maximum": 0.002065999957267195
+            "median": 0.001181375002488494,
+            "minimum": 0.0011715830187313259,
+            "maximum": 0.001391375029925257
           },
           "prepare": {
-            "median": 0.0014603339950554073,
-            "minimum": 0.0014151670038700104,
-            "maximum": 0.0014770840061828494
+            "median": 0.000993958965409547,
+            "minimum": 0.0009879589779302478,
+            "maximum": 0.0010318339918740094
           },
           "solve": {
-            "median": 0.05325562501093373,
-            "minimum": 0.05194954201579094,
-            "maximum": 0.054219999990891665
+            "median": 0.0464254169492051,
+            "minimum": 0.046147707966156304,
+            "maximum": 0.04680291598197073
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213237760,
-          "after_prepare": 217989120,
-          "after_solve": 220397568
+          "imports_and_planning": 210321408,
+          "after_prepare": 215105536,
+          "after_solve": 216645632
         },
         "diagnostics": [
           {
@@ -5433,48 +5433,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0017965830047614872,
-            "minimum": 0.0016504580271430314,
-            "maximum": 0.001810500049032271
+            "median": 0.0012937500141561031,
+            "minimum": 0.001226291002240032,
+            "maximum": 0.0013585410197265446
           },
           "prepare": {
-            "median": 0.0025700830155983567,
-            "minimum": 0.002495374996215105,
-            "maximum": 0.0038649170310236514
+            "median": 0.002048583992291242,
+            "minimum": 0.0018765830318443477,
+            "maximum": 0.0021439589909277856
           },
           "solve": {
-            "median": 0.06700004200683907,
-            "minimum": 0.06620662502245978,
-            "maximum": 0.0695234999875538
+            "median": 0.06163212499814108,
+            "minimum": 0.05870204098755494,
+            "maximum": 0.06352470797719434
           },
           "python_validity": {
-            "median": 0.019281291984952986,
-            "minimum": 0.018984292051754892,
-            "maximum": 0.01953812502324581
+            "median": 0.018801625003106892,
+            "minimum": 0.017551708966493607,
+            "maximum": 0.019054499978665262
           },
           "streamwise_std": {
-            "median": 0.02166458300780505,
-            "minimum": 0.021596375037916005,
-            "maximum": 0.021769375016447157
+            "median": 0.020366833021398634,
+            "minimum": 0.020299791009165347,
+            "maximum": 0.021966000029351562
           },
           "turbulence_intensity_including_std": {
-            "median": 0.022218250029254705,
-            "minimum": 0.022207875037565827,
-            "maximum": 0.02290541701950133
+            "median": 0.020477208017837256,
+            "minimum": 0.020299958996474743,
+            "maximum": 0.020658415975049138
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015119208954274654,
-            "minimum": 0.015064000035636127,
-            "maximum": 0.015618417004588991
+            "median": 0.013902833044994622,
+            "minimum": 0.01380120898829773,
+            "maximum": 0.014936292020138353
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213139456,
-          "after_prepare": 223133696,
-          "after_solve": 229064704,
-          "after_python_validity": 240287744,
-          "after_derived": 248692736,
-          "after_benchmark_oracle": 252968960
+          "imports_and_planning": 211206144,
+          "after_prepare": 221544448,
+          "after_solve": 228016128,
+          "after_python_validity": 229490688,
+          "after_derived": 244580352,
+          "after_benchmark_oracle": 250888192
         },
         "diagnostics": [
           {
@@ -5963,48 +5963,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0020110830082558095,
-            "minimum": 0.0016446660156361759,
-            "maximum": 0.0020472079631872475
+            "median": 0.0012585840304382145,
+            "minimum": 0.0012352089979685843,
+            "maximum": 0.0013766670017503202
           },
           "prepare": {
-            "median": 0.005820459045935422,
-            "minimum": 0.0057199999573640525,
-            "maximum": 0.005820667021907866
+            "median": 0.0050036669708788395,
+            "minimum": 0.004985167004633695,
+            "maximum": 0.005521749961189926
           },
           "solve": {
-            "median": 0.06805325002642348,
-            "minimum": 0.06709629204124212,
-            "maximum": 0.07072000001790002
+            "median": 0.05946616601431742,
+            "minimum": 0.05919208296108991,
+            "maximum": 0.06095079198712483
           },
           "python_validity": {
-            "median": 0.0194737910060212,
-            "minimum": 0.01908604201162234,
-            "maximum": 0.019632124982308596
+            "median": 0.01752658298937604,
+            "minimum": 0.01741904200753197,
+            "maximum": 0.01769179099937901
           },
           "streamwise_std": {
-            "median": 0.02212062501348555,
-            "minimum": 0.021863917005248368,
-            "maximum": 0.024154999991878867
+            "median": 0.019250750017818063,
+            "minimum": 0.01901966700097546,
+            "maximum": 0.01937804202316329
           },
           "turbulence_intensity_including_std": {
-            "median": 0.02247670799260959,
-            "minimum": 0.022167292016092688,
-            "maximum": 0.02268983400426805
+            "median": 0.020025292003992945,
+            "minimum": 0.019866458023898304,
+            "maximum": 0.020396458043251187
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015655332943424582,
-            "minimum": 0.01540766702964902,
-            "maximum": 0.016421834006905556
+            "median": 0.013500625034794211,
+            "minimum": 0.013302417006343603,
+            "maximum": 0.013599917001556605
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 212058112,
-          "after_prepare": 221888512,
-          "after_solve": 228081664,
-          "after_python_validity": 238960640,
-          "after_derived": 254246912,
-          "after_benchmark_oracle": 256425984
+          "imports_and_planning": 210698240,
+          "after_prepare": 220659712,
+          "after_solve": 226639872,
+          "after_python_validity": 237125632,
+          "after_derived": 239108096,
+          "after_benchmark_oracle": 239468544
         },
         "diagnostics": [
           {
@@ -6254,48 +6254,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0018640829948708415,
-            "minimum": 0.00143483403371647,
-            "maximum": 0.002169041952583939
+            "median": 0.0013379169977270067,
+            "minimum": 0.001202041981741786,
+            "maximum": 0.0014053330523893237
           },
           "prepare": {
-            "median": 0.0027190829860046506,
-            "minimum": 0.002705375023651868,
-            "maximum": 0.0027513749664649367
+            "median": 0.001971291028894484,
+            "minimum": 0.001958874985575676,
+            "maximum": 0.0020238750148564577
           },
           "solve": {
-            "median": 0.06716054200660437,
-            "minimum": 0.06687012495240197,
-            "maximum": 0.06751766701927409
+            "median": 0.06247658398933709,
+            "minimum": 0.06035970902303234,
+            "maximum": 0.0624937079846859
           },
           "python_validity": {
-            "median": 0.01972908398602158,
-            "minimum": 0.01969483302673325,
-            "maximum": 0.01996737497393042
+            "median": 0.017801084031816572,
+            "minimum": 0.017203083029016852,
+            "maximum": 0.018364082963671535
           },
           "streamwise_std": {
-            "median": 0.021835708001162857,
-            "minimum": 0.021431583969388157,
-            "maximum": 0.022364750038832426
+            "median": 0.02001220895908773,
+            "minimum": 0.01983316702535376,
+            "maximum": 0.02048300002934411
           },
           "turbulence_intensity_including_std": {
-            "median": 0.022151791024953127,
-            "minimum": 0.021814792009536177,
-            "maximum": 0.02228366700001061
+            "median": 0.02028466697083786,
+            "minimum": 0.020109500037506223,
+            "maximum": 0.020513041003141552
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015592124953400344,
-            "minimum": 0.015103916986845434,
-            "maximum": 0.01586016599321738
+            "median": 0.013624083017930388,
+            "minimum": 0.013299332989845425,
+            "maximum": 0.013904375024139881
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214138880,
-          "after_prepare": 224198656,
-          "after_solve": 230588416,
-          "after_python_validity": 241418240,
-          "after_derived": 249905152,
-          "after_benchmark_oracle": 257376256
+          "imports_and_planning": 212828160,
+          "after_prepare": 223281152,
+          "after_solve": 229163008,
+          "after_python_validity": 231194624,
+          "after_derived": 254377984,
+          "after_benchmark_oracle": 259850240
         },
         "diagnostics": [
           {
@@ -6785,48 +6785,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0018200839986093342,
-            "minimum": 0.0018130840035155416,
-            "maximum": 0.002140665950719267
+            "median": 0.0014524580328725278,
+            "minimum": 0.001203834020998329,
+            "maximum": 0.0018326250137761235
           },
           "prepare": {
-            "median": 0.005912042048294097,
-            "minimum": 0.005851667025126517,
-            "maximum": 0.0059289170312695205
+            "median": 0.004962375038303435,
+            "minimum": 0.004862250003498048,
+            "maximum": 0.005110833037178963
           },
           "solve": {
-            "median": 0.0666158749954775,
-            "minimum": 0.06642479199217632,
-            "maximum": 0.06690995901590213
+            "median": 0.059528542042244226,
+            "minimum": 0.05935599998338148,
+            "maximum": 0.06211349996738136
           },
           "python_validity": {
-            "median": 0.019471374980639666,
-            "minimum": 0.0193230839795433,
-            "maximum": 0.019874207966495305
+            "median": 0.017610540962778032,
+            "minimum": 0.01738116698106751,
+            "maximum": 0.018066042044665664
           },
           "streamwise_std": {
-            "median": 0.021714707952924073,
-            "minimum": 0.021714458998758346,
-            "maximum": 0.022131749952677637
+            "median": 0.019674750044941902,
+            "minimum": 0.01956820796476677,
+            "maximum": 0.0212447089725174
           },
           "turbulence_intensity_including_std": {
-            "median": 0.022598500014282763,
-            "minimum": 0.022299458971247077,
-            "maximum": 0.02288304199464619
+            "median": 0.020043208030983806,
+            "minimum": 0.019729292020201683,
+            "maximum": 0.02073037496302277
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015436000016052276,
-            "minimum": 0.015238541993312538,
-            "maximum": 0.016001374984625727
+            "median": 0.013697999995201826,
+            "minimum": 0.013456791988573968,
+            "maximum": 0.014047999982722104
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 212287488,
-          "after_prepare": 222740480,
-          "after_solve": 228458496,
-          "after_python_validity": 238780416,
-          "after_derived": 248545280,
-          "after_benchmark_oracle": 253444096
+          "imports_and_planning": 212451328,
+          "after_prepare": 222232576,
+          "after_solve": 227966976,
+          "after_python_validity": 229670912,
+          "after_derived": 247808000,
+          "after_benchmark_oracle": 251314176
         },
         "diagnostics": [
           {
@@ -7075,25 +7075,25 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.001730250020045787,
-            "minimum": 0.0016656669904477894,
-            "maximum": 0.0018763329717330635
+            "median": 0.0012944169575348496,
+            "minimum": 0.0011730000260286033,
+            "maximum": 0.0013814159901812673
           },
           "prepare": {
-            "median": 0.001347541983705014,
-            "minimum": 0.0013260000268928707,
-            "maximum": 0.0015161249903030694
+            "median": 0.0009795409860089421,
+            "minimum": 0.0009484579786658287,
+            "maximum": 0.0009872919763438404
           },
           "solve": {
-            "median": 0.05954899999778718,
-            "minimum": 0.05953666701680049,
-            "maximum": 0.059914875018876046
+            "median": 0.053408042003866285,
+            "minimum": 0.05199241597438231,
+            "maximum": 0.054654084029607475
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 212893696,
-          "after_prepare": 216907776,
-          "after_solve": 219496448
+          "imports_and_planning": 211779584,
+          "after_prepare": 216547328,
+          "after_solve": 217661440
         },
         "diagnostics": [
           {
@@ -7150,48 +7150,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0017450840095989406,
-            "minimum": 0.0017158330301754177,
-            "maximum": 0.0021068750065751374
+            "median": 0.0013130830484442413,
+            "minimum": 0.0012265840196050704,
+            "maximum": 0.0013402079930528998
           },
           "prepare": {
-            "median": 0.0027362919645383954,
-            "minimum": 0.002598542021587491,
-            "maximum": 0.0027793330373242497
+            "median": 0.0020119589753448963,
+            "minimum": 0.0019524999661371112,
+            "maximum": 0.002029250026680529
           },
           "solve": {
-            "median": 0.07654941699001938,
-            "minimum": 0.07537958299508318,
-            "maximum": 0.07655558397527784
+            "median": 0.06847883301088586,
+            "minimum": 0.06640483299270272,
+            "maximum": 0.07089208299294114
           },
           "python_validity": {
-            "median": 0.020948916964698583,
-            "minimum": 0.02064000000245869,
-            "maximum": 0.02135204098885879
+            "median": 0.018518832977861166,
+            "minimum": 0.018115791026502848,
+            "maximum": 0.01859549997607246
           },
           "streamwise_std": {
-            "median": 0.023139750002883375,
-            "minimum": 0.02302995801437646,
-            "maximum": 0.024046999984420836
+            "median": 0.020702707988675684,
+            "minimum": 0.020051583007443696,
+            "maximum": 0.020797875011339784
           },
           "turbulence_intensity_including_std": {
-            "median": 0.023709375003818423,
-            "minimum": 0.023415208037476987,
-            "maximum": 0.02495375002035871
+            "median": 0.0208471660153009,
+            "minimum": 0.020546749990899116,
+            "maximum": 0.021234915999229997
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.016197374963667244,
-            "minimum": 0.016023292031604797,
-            "maximum": 0.016874584020115435
+            "median": 0.013853708049282432,
+            "minimum": 0.013691582949832082,
+            "maximum": 0.014256542024668306
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213090304,
-          "after_prepare": 223789056,
-          "after_solve": 230113280,
-          "after_python_validity": 240861184,
-          "after_derived": 259096576,
-          "after_benchmark_oracle": 268713984
+          "imports_and_planning": 212369408,
+          "after_prepare": 223264768,
+          "after_solve": 227786752,
+          "after_python_validity": 240844800,
+          "after_derived": 248807424,
+          "after_benchmark_oracle": 249315328
         },
         "diagnostics": [
           {
@@ -8635,48 +8635,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.002157124981749803,
-            "minimum": 0.0018345419666729867,
-            "maximum": 0.0023112499620765448
+            "median": 0.001250915986020118,
+            "minimum": 0.0011879170197062194,
+            "maximum": 0.0014701670152135193
           },
           "prepare": {
-            "median": 0.02610987500520423,
-            "minimum": 0.025776959024369717,
-            "maximum": 0.02621712500695139
+            "median": 0.02304795797681436,
+            "minimum": 0.02289045898942277,
+            "maximum": 0.023288541997317225
           },
           "solve": {
-            "median": 0.0756617909646593,
-            "minimum": 0.07540187501581386,
-            "maximum": 0.07633000001078472
+            "median": 0.06649204203858972,
+            "minimum": 0.065650042030029,
+            "maximum": 0.06675941700814292
           },
           "python_validity": {
-            "median": 0.020401166984811425,
-            "minimum": 0.020106124982703477,
-            "maximum": 0.02121820900356397
+            "median": 0.018338957976084203,
+            "minimum": 0.01795104204211384,
+            "maximum": 0.018416999955661595
           },
           "streamwise_std": {
-            "median": 0.023565542011056095,
-            "minimum": 0.02196345798438415,
-            "maximum": 0.023953791009262204
+            "median": 0.02024887496372685,
+            "minimum": 0.02008804102661088,
+            "maximum": 0.020734540943522006
           },
           "turbulence_intensity_including_std": {
-            "median": 0.023816666973289102,
-            "minimum": 0.022921833966393024,
-            "maximum": 0.02403362496988848
+            "median": 0.02068154199514538,
+            "minimum": 0.02020495804026723,
+            "maximum": 0.020855833019595593
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.016138500010129064,
-            "minimum": 0.01529212499735877,
-            "maximum": 0.01633600000059232
+            "median": 0.013621166988741606,
+            "minimum": 0.013613165996503085,
+            "maximum": 0.013847374997567385
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 212860928,
-          "after_prepare": 223313920,
-          "after_solve": 229081088,
-          "after_python_validity": 241532928,
-          "after_derived": 260227072,
-          "after_benchmark_oracle": 262127616
+          "imports_and_planning": 210288640,
+          "after_prepare": 221462528,
+          "after_solve": 227262464,
+          "after_python_validity": 237993984,
+          "after_derived": 245841920,
+          "after_benchmark_oracle": 246448128
         },
         "diagnostics": [
           {
@@ -9306,48 +9306,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0021574589773081243,
-            "minimum": 0.0020883340039290488,
-            "maximum": 0.0021776670473627746
+            "median": 0.001327207952272147,
+            "minimum": 0.001252708025276661,
+            "maximum": 0.0014574160450138152
           },
           "prepare": {
-            "median": 0.0026258330326527357,
-            "minimum": 0.00259441597154364,
-            "maximum": 0.0026446249685250223
+            "median": 0.002028499962761998,
+            "minimum": 0.001995750004425645,
+            "maximum": 0.0025010000099428
           },
           "solve": {
-            "median": 0.0751229589805007,
-            "minimum": 0.07503979204921052,
-            "maximum": 0.07568187499418855
+            "median": 0.06730624998454005,
+            "minimum": 0.06717912497697398,
+            "maximum": 0.07094558398239315
           },
           "python_validity": {
-            "median": 0.020381457987241447,
-            "minimum": 0.02006245800293982,
-            "maximum": 0.02040366700384766
+            "median": 0.018733916978817433,
+            "minimum": 0.01823104202048853,
+            "maximum": 0.01882041699718684
           },
           "streamwise_std": {
-            "median": 0.02307058300357312,
-            "minimum": 0.02288800000678748,
-            "maximum": 0.023235625005327165
+            "median": 0.022078291978687048,
+            "minimum": 0.020434334001038224,
+            "maximum": 0.02234029199462384
           },
           "turbulence_intensity_including_std": {
-            "median": 0.023739625001326203,
-            "minimum": 0.02280154195614159,
-            "maximum": 0.023868750024121255
+            "median": 0.021394999988842756,
+            "minimum": 0.021359417005442083,
+            "maximum": 0.0223357499926351
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015907666995190084,
-            "minimum": 0.01589658297598362,
-            "maximum": 0.015949124994222075
+            "median": 0.014053958002477884,
+            "minimum": 0.013745500007644296,
+            "maximum": 0.01406870799837634
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 212746240,
-          "after_prepare": 223756288,
-          "after_solve": 229343232,
-          "after_python_validity": 242761728,
-          "after_derived": 255885312,
-          "after_benchmark_oracle": 260358144
+          "imports_and_planning": 211206144,
+          "after_prepare": 221429760,
+          "after_solve": 226066432,
+          "after_python_validity": 237862912,
+          "after_derived": 257687552,
+          "after_benchmark_oracle": 258064384
         },
         "diagnostics": [
           {
@@ -10792,48 +10792,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.001843457983341068,
-            "minimum": 0.0017629999783821404,
-            "maximum": 0.0021562500041909516
+            "median": 0.0013751249643974006,
+            "minimum": 0.00135479198070243,
+            "maximum": 0.0015702910022810102
           },
           "prepare": {
-            "median": 0.02584341703914106,
-            "minimum": 0.025793000007979572,
-            "maximum": 0.0259930839529261
+            "median": 0.023653084004763514,
+            "minimum": 0.023011708981357515,
+            "maximum": 0.02425187500193715
           },
           "solve": {
-            "median": 0.07553583401022479,
-            "minimum": 0.07539170800009742,
-            "maximum": 0.07592937501613051
+            "median": 0.06701325002359226,
+            "minimum": 0.06666320795193315,
+            "maximum": 0.0680811659549363
           },
           "python_validity": {
-            "median": 0.020439625019207597,
-            "minimum": 0.020164749992545694,
-            "maximum": 0.0205047499621287
+            "median": 0.01831683301134035,
+            "minimum": 0.018240457982756197,
+            "maximum": 0.018724834022577852
           },
           "streamwise_std": {
-            "median": 0.02281879202928394,
-            "minimum": 0.022394875006284565,
-            "maximum": 0.02308512502349913
+            "median": 0.02070733404252678,
+            "minimum": 0.0204896250506863,
+            "maximum": 0.026540332997683436
           },
           "turbulence_intensity_including_std": {
-            "median": 0.023485667014028877,
-            "minimum": 0.022793458017986268,
-            "maximum": 0.02367433300241828
+            "median": 0.02157220896333456,
+            "minimum": 0.021190833009313792,
+            "maximum": 0.02163745800498873
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015648000000510365,
-            "minimum": 0.015379832999315113,
-            "maximum": 0.015662375022657216
+            "median": 0.014004292024765164,
+            "minimum": 0.013615958974696696,
+            "maximum": 0.014123792003374547
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213368832,
-          "after_prepare": 223215616,
-          "after_solve": 229752832,
-          "after_python_validity": 238223360,
-          "after_derived": 249331712,
-          "after_benchmark_oracle": 253231104
+          "imports_and_planning": 210632704,
+          "after_prepare": 221773824,
+          "after_solve": 227409920,
+          "after_python_validity": 228392960,
+          "after_derived": 247283712,
+          "after_benchmark_oracle": 251002880
         },
         "diagnostics": [
           {
@@ -11462,25 +11462,25 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0037892499822191894,
-            "minimum": 0.0036896660458296537,
-            "maximum": 0.003798584046307951
+            "median": 0.002768541977275163,
+            "minimum": 0.0026789160328917205,
+            "maximum": 0.0028172499733045697
           },
           "prepare": {
-            "median": 0.0306901250150986,
-            "minimum": 0.029996959026902914,
-            "maximum": 0.030829208029899746
+            "median": 0.023190915992017835,
+            "minimum": 0.023165165970567614,
+            "maximum": 0.031122458982281387
           },
           "solve": {
-            "median": 8.565225625003222,
-            "minimum": 8.565156708005816,
-            "maximum": 8.570352042035665
+            "median": 7.635968082991894,
+            "minimum": 7.601004625030328,
+            "maximum": 7.683552458009217
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 212992000,
-          "after_prepare": 357171200,
-          "after_solve": 419414016
+          "imports_and_planning": 210468864,
+          "after_prepare": 354631680,
+          "after_solve": 416907264
         },
         "diagnostics": [
           {
@@ -11537,48 +11537,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.004169124993495643,
-            "minimum": 0.003480292041786015,
-            "maximum": 0.004274665960110724
+            "median": 0.0031298749963752925,
+            "minimum": 0.003094124956987798,
+            "maximum": 0.003205791988875717
           },
           "prepare": {
-            "median": 0.062374957953579724,
-            "minimum": 0.059816707973368466,
-            "maximum": 0.0643907500198111
+            "median": 0.050792999973054975,
+            "minimum": 0.04935704200761393,
+            "maximum": 0.05435474996920675
           },
           "solve": {
-            "median": 8.93204774998594,
-            "minimum": 8.930849833006505,
-            "maximum": 8.956478458014317
+            "median": 7.930133166024461,
+            "minimum": 7.927814125025179,
+            "maximum": 8.08763700001873
           },
           "python_validity": {
-            "median": 0.5129763329750858,
-            "minimum": 0.5076317500206642,
-            "maximum": 0.5201027499861084
+            "median": 0.46656516700750217,
+            "minimum": 0.45794387499336153,
+            "maximum": 0.46713204198749736
           },
           "streamwise_std": {
-            "median": 0.5799380419775844,
-            "minimum": 0.5715139170060866,
-            "maximum": 0.5842853330541402
+            "median": 0.525641500018537,
+            "minimum": 0.5117376249982044,
+            "maximum": 0.5299223750480451
           },
           "turbulence_intensity_including_std": {
-            "median": 0.6021933750016615,
-            "minimum": 0.5932392079848796,
-            "maximum": 0.6298842920223251
+            "median": 0.5459955409751274,
+            "minimum": 0.527361458982341,
+            "maximum": 0.5482780830352567
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.33512679202249274,
-            "minimum": 0.33164508402114734,
-            "maximum": 0.338249167019967
+            "median": 0.2912335000000894,
+            "minimum": 0.29122404201189056,
+            "maximum": 0.29136087495135143
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 212615168,
-          "after_prepare": 509739008,
+          "imports_and_planning": 210731008,
+          "after_prepare": 506544128,
           "after_solve": 666812416,
-          "after_python_validity": 743374848,
-          "after_derived": 805027840,
-          "after_benchmark_oracle": 860930048
+          "after_python_validity": 725008384,
+          "after_derived": 793083904,
+          "after_benchmark_oracle": 848429056
         },
         "diagnostics": [
           {
@@ -13887,48 +13887,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0041554169729352,
-            "minimum": 0.003795083030126989,
-            "maximum": 0.004270832985639572
+            "median": 0.0031763750012032688,
+            "minimum": 0.0031630409648641944,
+            "maximum": 0.0032706669881008565
           },
           "prepare": {
-            "median": 0.08869316702475771,
-            "minimum": 0.08803204097785056,
-            "maximum": 0.09025479201227427
+            "median": 0.07368554198183119,
+            "minimum": 0.07218620897037908,
+            "maximum": 0.07575379201443866
           },
           "solve": {
-            "median": 8.92696737498045,
-            "minimum": 8.911923124978784,
-            "maximum": 8.930507708981168
+            "median": 8.068678083014674,
+            "minimum": 7.988645875011571,
+            "maximum": 8.245703041029628
           },
           "python_validity": {
-            "median": 0.5043383340234868,
-            "minimum": 0.502996625029482,
-            "maximum": 0.5117207499570213
+            "median": 0.47047429101075977,
+            "minimum": 0.46904362499481067,
+            "maximum": 0.4748027080204338
           },
           "streamwise_std": {
-            "median": 0.5738424999872223,
-            "minimum": 0.5736273329821415,
-            "maximum": 0.5848219580366276
+            "median": 0.5269941659644246,
+            "minimum": 0.5237784159835428,
+            "maximum": 0.538753959001042
           },
           "turbulence_intensity_including_std": {
-            "median": 0.5878747089882381,
-            "minimum": 0.5867769589531235,
-            "maximum": 0.6000471250154078
+            "median": 0.5445684579899535,
+            "minimum": 0.542852624959778,
+            "maximum": 0.5899599170079455
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.32553595898207277,
-            "minimum": 0.3119640840450302,
-            "maximum": 0.32588016701629385
+            "median": 0.3000440829782747,
+            "minimum": 0.294965208042413,
+            "maximum": 0.3192357079824433
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214089728,
-          "after_prepare": 510050304,
-          "after_solve": 667664384,
-          "after_python_validity": 764805120,
-          "after_derived": 815529984,
-          "after_benchmark_oracle": 896679936
+          "imports_and_planning": 210780160,
+          "after_prepare": 507248640,
+          "after_solve": 667467776,
+          "after_python_validity": 751353856,
+          "after_derived": 778485760,
+          "after_benchmark_oracle": 853655552
         },
         "diagnostics": [
           {
@@ -14688,48 +14688,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.004141167039051652,
-            "minimum": 0.004125832987483591,
-            "maximum": 0.004463625024072826
+            "median": 0.0033366670249961317,
+            "minimum": 0.0033353749895468354,
+            "maximum": 0.004260874993633479
           },
           "prepare": {
-            "median": 0.06249058397952467,
-            "minimum": 0.058594833011738956,
-            "maximum": 0.06297841598279774
+            "median": 0.049882832972798496,
+            "minimum": 0.048602750001009554,
+            "maximum": 0.051496375002898276
           },
           "solve": {
-            "median": 8.953857999993488,
-            "minimum": 8.92853387503419,
-            "maximum": 8.956071708002128
+            "median": 8.218537541979458,
+            "minimum": 8.055915832985193,
+            "maximum": 8.321795416995883
           },
           "python_validity": {
-            "median": 0.5076689580455422,
-            "minimum": 0.5038485419936478,
-            "maximum": 0.5346158750471659
+            "median": 0.47401829197769985,
+            "minimum": 0.46650887496070936,
+            "maximum": 0.4823027500533499
           },
           "streamwise_std": {
-            "median": 0.6050403330009431,
-            "minimum": 0.586507374944631,
-            "maximum": 0.610506541968789
+            "median": 0.5317524999845773,
+            "minimum": 0.5168427090393379,
+            "maximum": 0.5374145840178244
           },
           "turbulence_intensity_including_std": {
-            "median": 0.6112748329760507,
-            "minimum": 0.5895877090515569,
-            "maximum": 0.612738125026226
+            "median": 0.5533438749844208,
+            "minimum": 0.5444586670491844,
+            "maximum": 0.5651675830013119
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.344044458004646,
-            "minimum": 0.3413375000236556,
-            "maximum": 0.35468250000849366
+            "median": 0.30399445799412206,
+            "minimum": 0.29624970798613504,
+            "maximum": 0.32713549997424707
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 210780160,
-          "after_prepare": 506511360,
-          "after_solve": 666681344,
-          "after_python_validity": 748535808,
-          "after_derived": 804782080,
-          "after_benchmark_oracle": 860798976
+          "imports_and_planning": 212402176,
+          "after_prepare": 508493824,
+          "after_solve": 667025408,
+          "after_python_validity": 731185152,
+          "after_derived": 775700480,
+          "after_benchmark_oracle": 849182720
         },
         "diagnostics": [
           {
@@ -17039,48 +17039,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.004219374968670309,
-            "minimum": 0.004011957964394242,
-            "maximum": 0.004341749998275191
+            "median": 0.0031687499722465873,
+            "minimum": 0.0031566249672323465,
+            "maximum": 0.0033366670249961317
           },
           "prepare": {
-            "median": 0.08931695896899328,
-            "minimum": 0.08928374998504296,
-            "maximum": 0.08939866698347032
+            "median": 0.07562462496571243,
+            "minimum": 0.07174312503775582,
+            "maximum": 0.07871891598915681
           },
           "solve": {
-            "median": 8.935673500003759,
-            "minimum": 8.933856124989688,
-            "maximum": 8.96257616695948
+            "median": 8.177672208985314,
+            "minimum": 8.02419587498298,
+            "maximum": 8.186553000006825
           },
           "python_validity": {
-            "median": 0.529424958047457,
-            "minimum": 0.5173913339967839,
-            "maximum": 0.5332600419642404
+            "median": 0.46866679104277864,
+            "minimum": 0.46535104198846966,
+            "maximum": 0.4736908750492148
           },
           "streamwise_std": {
-            "median": 0.593249499972444,
-            "minimum": 0.5866997920093127,
-            "maximum": 0.5970407080021687
+            "median": 0.5170235420227982,
+            "minimum": 0.5139407499809749,
+            "maximum": 0.5256502919946797
           },
           "turbulence_intensity_including_std": {
-            "median": 0.6088532079593278,
-            "minimum": 0.5965431669610552,
-            "maximum": 0.6134390420047566
+            "median": 0.5334180000354536,
+            "minimum": 0.5287489580223337,
+            "maximum": 0.5343412919901311
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.3320035830256529,
-            "minimum": 0.32767395803239197,
-            "maximum": 0.3405774169950746
+            "median": 0.2878735840204172,
+            "minimum": 0.2866930830059573,
+            "maximum": 0.29694804101018235
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213237760,
-          "after_prepare": 508035072,
-          "after_solve": 668303360,
-          "after_python_validity": 751714304,
-          "after_derived": 819052544,
-          "after_benchmark_oracle": 874790912
+          "imports_and_planning": 213090304,
+          "after_prepare": 510296064,
+          "after_solve": 670269440,
+          "after_python_validity": 744128512,
+          "after_derived": 814514176,
+          "after_benchmark_oracle": 877772800
         },
         "diagnostics": [
           {
@@ -17839,48 +17839,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0011371249565854669,
-            "minimum": 0.0009478330030106008,
-            "maximum": 0.0013900839840061963
+            "median": 0.0007263339939527214,
+            "minimum": 0.0007062919903546572,
+            "maximum": 0.0008662499603815377
           },
           "prepare": {
-            "median": 0.0003367500030435622,
-            "minimum": 0.0003242920502088964,
-            "maximum": 0.0005598749849013984
+            "median": 0.00022908399114385247,
+            "minimum": 0.00022899999748915434,
+            "maximum": 0.0002531250356696546
           },
           "solve": {
-            "median": 0.0009389999904669821,
-            "minimum": 0.0009188330150209367,
-            "maximum": 0.0009990830440074205
+            "median": 0.0006725420244038105,
+            "minimum": 0.0006662919768132269,
+            "maximum": 0.0006787910242564976
           },
           "python_validity": {
-            "median": 0.0006027920171618462,
-            "minimum": 0.0005927080055698752,
-            "maximum": 0.0006477499846369028
+            "median": 0.00048049999168142676,
+            "minimum": 0.00046558299800381064,
+            "maximum": 0.0005087919998914003
           },
           "streamwise_std": {
-            "median": 0.0006538750021718442,
-            "minimum": 0.0006304589915089309,
-            "maximum": 0.0008030000026337802
+            "median": 0.0005634580156765878,
+            "minimum": 0.0005505839944817126,
+            "maximum": 0.0005740830092690885
           },
           "turbulence_intensity_including_std": {
-            "median": 0.0006394159863702953,
-            "minimum": 0.0006182920187711716,
-            "maximum": 0.0006890409858897328
+            "median": 0.0005590000073425472,
+            "minimum": 0.0005247500375844538,
+            "maximum": 0.0005829579895362258
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.0020199999562464654,
-            "minimum": 0.0019101250218227506,
-            "maximum": 0.002212209044955671
+            "median": 0.0017082080012187362,
+            "minimum": 0.0016327080084010959,
+            "maximum": 0.0019179160008206964
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214073344,
-          "after_prepare": 214073344,
-          "after_solve": 214073344,
-          "after_python_validity": 214204416,
-          "after_derived": 214220800,
-          "after_benchmark_oracle": 214319104
+          "imports_and_planning": 210370560,
+          "after_prepare": 210370560,
+          "after_solve": 210370560,
+          "after_python_validity": 210370560,
+          "after_derived": 210370560,
+          "after_benchmark_oracle": 210370560
         },
         "diagnostics": [
           {
@@ -17955,48 +17955,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0009778339881449938,
-            "minimum": 0.0008747919928282499,
-            "maximum": 0.001316750014666468
+            "median": 0.0007245829910971224,
+            "minimum": 0.0007187500013969839,
+            "maximum": 0.0008424589759670198
           },
           "prepare": {
-            "median": 0.0011435000342316926,
-            "minimum": 0.0010639579850248992,
-            "maximum": 0.0011813329765573144
+            "median": 0.0008207079954445362,
+            "minimum": 0.0007732500089332461,
+            "maximum": 0.0008460000390186906
           },
           "solve": {
-            "median": 0.0027633749996311963,
-            "minimum": 0.0027157499571330845,
-            "maximum": 0.003252208000048995
+            "median": 0.002219957998022437,
+            "minimum": 0.0021527079516090453,
+            "maximum": 0.002383999992161989
           },
           "python_validity": {
-            "median": 0.004766250029206276,
-            "minimum": 0.004669749992899597,
-            "maximum": 0.004790583974681795
+            "median": 0.004483417025767267,
+            "minimum": 0.004421000019647181,
+            "maximum": 0.004849457996897399
           },
           "streamwise_std": {
-            "median": 0.005588500003796071,
-            "minimum": 0.005505457986146212,
-            "maximum": 0.005739665997680277
+            "median": 0.004943500040099025,
+            "minimum": 0.00493504194309935,
+            "maximum": 0.005219999991822988
           },
           "turbulence_intensity_including_std": {
-            "median": 0.005838707962539047,
-            "minimum": 0.005690916965249926,
-            "maximum": 0.005849791981745511
+            "median": 0.005262958002276719,
+            "minimum": 0.005225582979619503,
+            "maximum": 0.005757374980021268
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.004757874994538724,
-            "minimum": 0.004589875054080039,
-            "maximum": 0.004844916984438896
+            "median": 0.0042292500147596,
+            "minimum": 0.004141959012486041,
+            "maximum": 0.004348334041424096
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213467136,
-          "after_prepare": 216104960,
-          "after_solve": 218431488,
-          "after_python_validity": 222150656,
-          "after_derived": 223543296,
-          "after_benchmark_oracle": 224378880
+          "imports_and_planning": 212484096,
+          "after_prepare": 215285760,
+          "after_solve": 217677824,
+          "after_python_validity": 219758592,
+          "after_derived": 222380032,
+          "after_benchmark_oracle": 224034816
         },
         "diagnostics": [
           {
@@ -18071,47 +18071,47 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.001013499975670129,
-            "minimum": 0.0008720419718883932,
-            "maximum": 0.0010753750102594495
+            "median": 0.0005999580025672913,
+            "minimum": 0.0005997080006636679,
+            "maximum": 0.001053375017363578
           },
           "prepare": {
-            "median": 0.006571541947778314,
-            "minimum": 0.005947416997514665,
-            "maximum": 0.006908958952408284
+            "median": 0.00734612497035414,
+            "minimum": 0.005862708028871566,
+            "maximum": 0.008809874998405576
           },
           "solve": {
-            "median": 0.01828220800962299,
-            "minimum": 0.017805874987971038,
-            "maximum": 0.01867779198801145
+            "median": 0.017053832998499274,
+            "minimum": 0.015280458028428257,
+            "maximum": 0.018776957993395627
           },
           "python_validity": {
-            "median": 0.04519450000952929,
-            "minimum": 0.04356679099146277,
-            "maximum": 0.04611674998886883
+            "median": 0.04230016696965322,
+            "minimum": 0.041256166994571686,
+            "maximum": 0.053063167026266456
           },
           "streamwise_std": {
-            "median": 0.05300058296415955,
-            "minimum": 0.050942957983352244,
-            "maximum": 0.05395899998256937
+            "median": 0.050425666966475546,
+            "minimum": 0.04671337502077222,
+            "maximum": 0.05311787500977516
           },
           "turbulence_intensity_including_std": {
-            "median": 0.053530999983195215,
-            "minimum": 0.0529729169793427,
-            "maximum": 0.05437658296432346
+            "median": 0.05178020801395178,
+            "minimum": 0.04799570899922401,
+            "maximum": 0.05440616700798273
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.017646291002165526,
-            "minimum": 0.0171420419937931,
-            "maximum": 0.018068125005811453
+            "median": 0.016764541971497238,
+            "minimum": 0.015268333023414016,
+            "maximum": 0.02027074998477474
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214876160,
-          "after_prepare": 247234560,
-          "after_solve": 264978432,
-          "after_python_validity": 293126144,
-          "after_derived": 333971456,
+          "imports_and_planning": 212664320,
+          "after_prepare": 243417088,
+          "after_solve": 262127616,
+          "after_python_validity": 293502976,
+          "after_derived": 321454080,
           "after_benchmark_oracle": 334381056
         },
         "diagnostics": [
@@ -18187,48 +18187,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0014611660153605044,
-            "minimum": 0.0014390419819392264,
-            "maximum": 0.0018343330011703074
+            "median": 0.0011406659614294767,
+            "minimum": 0.0010649579926393926,
+            "maximum": 0.0019849169766530395
           },
           "prepare": {
-            "median": 0.00042266701348125935,
-            "minimum": 0.0004058330086991191,
-            "maximum": 0.00042891601333394647
+            "median": 0.00028375000692903996,
+            "minimum": 0.00027170899556949735,
+            "maximum": 0.00030462502036243677
           },
           "solve": {
-            "median": 0.0011160830035805702,
-            "minimum": 0.001096291991416365,
-            "maximum": 0.0011758330510929227
+            "median": 0.0008005410199984908,
+            "minimum": 0.0007491669966839254,
+            "maximum": 0.000885375018697232
           },
           "python_validity": {
-            "median": 0.0008193750400096178,
-            "minimum": 0.0008152499794960022,
-            "maximum": 0.0008530409540981054
+            "median": 0.0008389169815927744,
+            "minimum": 0.0007117079803720117,
+            "maximum": 0.0009446670301258564
           },
           "streamwise_std": {
-            "median": 0.0009352079941891134,
-            "minimum": 0.0009261249797418714,
-            "maximum": 0.0009544999920763075
+            "median": 0.0008275409927591681,
+            "minimum": 0.0008022080291993916,
+            "maximum": 0.0008521669660694897
           },
           "turbulence_intensity_including_std": {
-            "median": 0.0009366250014863908,
-            "minimum": 0.0009141250047832727,
-            "maximum": 0.0009653340093791485
+            "median": 0.0008476249640807509,
+            "minimum": 0.0008471659966744483,
+            "maximum": 0.0008691670373082161
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.001903291034977883,
-            "minimum": 0.0018577919690869749,
-            "maximum": 0.0019049159600399435
+            "median": 0.0016827500076033175,
+            "minimum": 0.0015504159964621067,
+            "maximum": 0.0018739579827524722
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214253568,
-          "after_prepare": 214253568,
-          "after_solve": 214253568,
-          "after_python_validity": 214253568,
-          "after_derived": 214253568,
-          "after_benchmark_oracle": 214253568
+          "imports_and_planning": 214122496,
+          "after_prepare": 214122496,
+          "after_solve": 214122496,
+          "after_python_validity": 214122496,
+          "after_derived": 214122496,
+          "after_benchmark_oracle": 214122496
         },
         "diagnostics": [
           {
@@ -18304,48 +18304,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0011576249962672591,
-            "minimum": 0.0010293340310454369,
-            "maximum": 0.001209708978421986
+            "median": 0.000597250007558614,
+            "minimum": 0.0005687500233761966,
+            "maximum": 0.0006467079510912299
           },
           "prepare": {
-            "median": 0.00038354197749868035,
-            "minimum": 0.0003531659604050219,
-            "maximum": 0.0004918749909847975
+            "median": 0.00024041597498580813,
+            "minimum": 0.00023070804309099913,
+            "maximum": 0.00024145800853148103
           },
           "solve": {
-            "median": 0.001032333995681256,
-            "minimum": 0.0010182910482399166,
-            "maximum": 0.0012412500218488276
+            "median": 0.000685917038936168,
+            "minimum": 0.000664958031848073,
+            "maximum": 0.0007410409743897617
           },
           "python_validity": {
-            "median": 0.0006127909873612225,
-            "minimum": 0.0006119169993326068,
-            "maximum": 0.0006554589490406215
+            "median": 0.00047929194988682866,
+            "minimum": 0.0004692919901572168,
+            "maximum": 0.000502042006701231
           },
           "streamwise_std": {
-            "median": 0.0006442500161938369,
-            "minimum": 0.0006364579894579947,
-            "maximum": 0.000655875017400831
+            "median": 0.0005625830381177366,
+            "minimum": 0.0005260420148260891,
+            "maximum": 0.0007327499915845692
           },
           "turbulence_intensity_including_std": {
-            "median": 0.0006148330285213888,
-            "minimum": 0.0006069579976610839,
-            "maximum": 0.0006377500249072909
+            "median": 0.0005529169575311244,
+            "minimum": 0.0005270409747026861,
+            "maximum": 0.0005529170157387853
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.002033625030890107,
-            "minimum": 0.0019264169968664646,
-            "maximum": 0.002037041005678475
+            "median": 0.0016585420235060155,
+            "minimum": 0.0016584169934503734,
+            "maximum": 0.0017022910178638995
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214794240,
-          "after_prepare": 214794240,
-          "after_solve": 214794240,
-          "after_python_validity": 214892544,
-          "after_derived": 214892544,
-          "after_benchmark_oracle": 214990848
+          "imports_and_planning": 211107840,
+          "after_prepare": 211107840,
+          "after_solve": 211107840,
+          "after_python_validity": 211107840,
+          "after_derived": 211107840,
+          "after_benchmark_oracle": 211107840
         },
         "diagnostics": [
           {
@@ -18420,48 +18420,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0013024170184507966,
-            "minimum": 0.0012170420377515256,
-            "maximum": 0.0016058749752119184
+            "median": 0.0006237089983187616,
+            "minimum": 0.0005800420185551047,
+            "maximum": 0.000754666980355978
           },
           "prepare": {
-            "median": 0.0004157089861109853,
-            "minimum": 0.0003614159650169313,
-            "maximum": 0.0005193329998292029
+            "median": 0.0002441250253468752,
+            "minimum": 0.00022966600954532623,
+            "maximum": 0.0002565419999882579
           },
           "solve": {
-            "median": 0.0010705419699661434,
-            "minimum": 0.0010343749891035259,
-            "maximum": 0.001481457962654531
+            "median": 0.0007240840350277722,
+            "minimum": 0.0007239999831654131,
+            "maximum": 0.0007630829932168126
           },
           "python_validity": {
-            "median": 0.0008453750051558018,
-            "minimum": 0.000831749988719821,
-            "maximum": 0.0009000410209409893
+            "median": 0.0006729160086251795,
+            "minimum": 0.0006407499895431101,
+            "maximum": 0.0006737079820595682
           },
           "streamwise_std": {
-            "median": 0.0008831250015646219,
-            "minimum": 0.0008707499946467578,
-            "maximum": 0.0009653749875724316
+            "median": 0.0007140000234358013,
+            "minimum": 0.0007136250496841967,
+            "maximum": 0.0007245420129038393
           },
           "turbulence_intensity_including_std": {
-            "median": 0.0008785829995758832,
-            "minimum": 0.0008728749817237258,
-            "maximum": 0.0008922920096665621
+            "median": 0.0007534589967690408,
+            "minimum": 0.000715208996552974,
+            "maximum": 0.0007580840028822422
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.0023539589601568878,
-            "minimum": 0.0021624169894494116,
-            "maximum": 0.002641916973516345
+            "median": 0.0019533750019036233,
+            "minimum": 0.0019280409906059504,
+            "maximum": 0.00196899997536093
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213286912,
-          "after_prepare": 213286912,
-          "after_solve": 213286912,
-          "after_python_validity": 213286912,
-          "after_derived": 213286912,
-          "after_benchmark_oracle": 213286912
+          "imports_and_planning": 210550784,
+          "after_prepare": 210550784,
+          "after_solve": 210550784,
+          "after_python_validity": 210550784,
+          "after_derived": 210550784,
+          "after_benchmark_oracle": 210550784
         },
         "diagnostics": [
           {
@@ -18536,48 +18536,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.000924833002500236,
-            "minimum": 0.0008694169810041785,
-            "maximum": 0.0012187500251457095
+            "median": 0.0006244159885682166,
+            "minimum": 0.0005871249595656991,
+            "maximum": 0.0007103750249370933
           },
           "prepare": {
-            "median": 0.0011353750014677644,
-            "minimum": 0.0010931669967249036,
-            "maximum": 0.0011500000255182385
+            "median": 0.0008114999509416521,
+            "minimum": 0.0008068750030361116,
+            "maximum": 0.0008477499941363931
           },
           "solve": {
-            "median": 0.0031728330068290234,
-            "minimum": 0.0031477499869652092,
-            "maximum": 0.003230041009373963
+            "median": 0.0025289159966632724,
+            "minimum": 0.0025002079783007503,
+            "maximum": 0.002556541992817074
           },
           "python_validity": {
-            "median": 0.006887084047775716,
-            "minimum": 0.006782124983146787,
-            "maximum": 0.006969415990170091
+            "median": 0.006227666977792978,
+            "minimum": 0.006189167033880949,
+            "maximum": 0.00623916694894433
           },
           "streamwise_std": {
-            "median": 0.007541750033851713,
-            "minimum": 0.007447124982718378,
-            "maximum": 0.007670750026591122
+            "median": 0.006873000005725771,
+            "minimum": 0.006828874989878386,
+            "maximum": 0.006971082999370992
           },
           "turbulence_intensity_including_std": {
-            "median": 0.007888916996307671,
-            "minimum": 0.007765499991364777,
-            "maximum": 0.007945832971017808
+            "median": 0.00701700005447492,
+            "minimum": 0.00700108299497515,
+            "maximum": 0.007123374962247908
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.006377582962159067,
-            "minimum": 0.006180374999530613,
-            "maximum": 0.00693470798432827
+            "median": 0.0055517089786008,
+            "minimum": 0.005513417010661215,
+            "maximum": 0.0055618329788558185
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213680128,
-          "after_prepare": 215547904,
-          "after_solve": 217972736,
-          "after_python_validity": 218333184,
-          "after_derived": 219561984,
-          "after_benchmark_oracle": 222478336
+          "imports_and_planning": 210649088,
+          "after_prepare": 213417984,
+          "after_solve": 215793664,
+          "after_python_validity": 216416256,
+          "after_derived": 216596480,
+          "after_benchmark_oracle": 217153536
         },
         "diagnostics": [
           {
@@ -18652,48 +18652,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0009864579769782722,
-            "minimum": 0.0008999169804155827,
-            "maximum": 0.0011071250191889703
+            "median": 0.0006957080331631005,
+            "minimum": 0.0006165840313769877,
+            "maximum": 0.0009877500124275684
           },
           "prepare": {
-            "median": 0.00686683296225965,
-            "minimum": 0.006541499984450638,
-            "maximum": 0.007654624991118908
+            "median": 0.006438625045120716,
+            "minimum": 0.006317874998785555,
+            "maximum": 0.006565042014699429
           },
           "solve": {
-            "median": 0.02220345800742507,
-            "minimum": 0.020329500024672598,
-            "maximum": 0.023392917006276548
+            "median": 0.02131979097612202,
+            "minimum": 0.01954474998638034,
+            "maximum": 0.022739708016160876
           },
           "python_validity": {
-            "median": 0.06036037503508851,
-            "minimum": 0.0601850840030238,
-            "maximum": 0.06215970800258219
+            "median": 0.05761941702803597,
+            "minimum": 0.056591083004605025,
+            "maximum": 0.05810037499759346
           },
           "streamwise_std": {
-            "median": 0.06901633297093213,
-            "minimum": 0.06805295799858868,
-            "maximum": 0.07164887501858175
+            "median": 0.0632210829644464,
+            "minimum": 0.06214550003642216,
+            "maximum": 0.06425258301896974
           },
           "turbulence_intensity_including_std": {
-            "median": 0.06988129200180992,
-            "minimum": 0.06978345802053809,
-            "maximum": 0.07036308397073299
+            "median": 0.06931941700167954,
+            "minimum": 0.06400400004349649,
+            "maximum": 0.06963087501935661
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.023411249974742532,
-            "minimum": 0.023153583984822035,
-            "maximum": 0.024451499979477376
+            "median": 0.021531625010538846,
+            "minimum": 0.020440375024918467,
+            "maximum": 0.022289249987807125
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 212746240,
-          "after_prepare": 244236288,
-          "after_solve": 261718016,
-          "after_python_validity": 288161792,
-          "after_derived": 328269824,
-          "after_benchmark_oracle": 349732864
+          "imports_and_planning": 212533248,
+          "after_prepare": 244695040,
+          "after_solve": 262078464,
+          "after_python_validity": 289669120,
+          "after_derived": 345505792,
+          "after_benchmark_oracle": 352157696
         },
         "diagnostics": [
           {
@@ -18768,48 +18768,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.001792082970496267,
-            "minimum": 0.0016861250041984022,
-            "maximum": 0.0023080410319380462
+            "median": 0.0011624590260908008,
+            "minimum": 0.0009835829841904342,
+            "maximum": 0.0013226659502834082
           },
           "prepare": {
-            "median": 0.0004563340335153043,
-            "minimum": 0.0003792080096900463,
-            "maximum": 0.00046754098730161786
+            "median": 0.00031516695162281394,
+            "minimum": 0.00026458402862772346,
+            "maximum": 0.00036508403718471527
           },
           "solve": {
-            "median": 0.0011365420068614185,
-            "minimum": 0.0010608750162646174,
-            "maximum": 0.001149832969531417
+            "median": 0.0008827080018818378,
+            "minimum": 0.0008243750198744237,
+            "maximum": 0.000957708980422467
           },
           "python_validity": {
-            "median": 0.0011221249587833881,
-            "minimum": 0.0011169170029461384,
-            "maximum": 0.0011277089943177998
+            "median": 0.0010682920110411942,
+            "minimum": 0.0009704589610919356,
+            "maximum": 0.0011462079710327089
           },
           "streamwise_std": {
-            "median": 0.001207208028063178,
-            "minimum": 0.0012068329961039126,
-            "maximum": 0.001242165977600962
+            "median": 0.0011614169925451279,
+            "minimum": 0.00107683299575001,
+            "maximum": 0.001183625019621104
           },
           "turbulence_intensity_including_std": {
-            "median": 0.001210374990478158,
-            "minimum": 0.001206332992296666,
-            "maximum": 0.0012458330020308495
+            "median": 0.0011829580180346966,
+            "minimum": 0.001110833021812141,
+            "maximum": 0.0012274999753572047
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.002275249978993088,
-            "minimum": 0.002212833031080663,
-            "maximum": 0.0023475000052712858
+            "median": 0.0019115839968435466,
+            "minimum": 0.001832667039707303,
+            "maximum": 0.001991500030271709
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213909504,
-          "after_prepare": 213909504,
-          "after_solve": 213909504,
-          "after_python_validity": 213942272,
-          "after_derived": 213942272,
-          "after_benchmark_oracle": 213991424
+          "imports_and_planning": 213336064,
+          "after_prepare": 213336064,
+          "after_solve": 213336064,
+          "after_python_validity": 213336064,
+          "after_derived": 213336064,
+          "after_benchmark_oracle": 213499904
         },
         "diagnostics": [
           {
@@ -18885,48 +18885,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.000900916988030076,
-            "minimum": 0.0008786250255070627,
-            "maximum": 0.0011033339542336762
+            "median": 0.0007062499644234776,
+            "minimum": 0.0006456670234911144,
+            "maximum": 0.0009051249944604933
           },
           "prepare": {
-            "median": 0.0003289159503765404,
-            "minimum": 0.0003285410348325968,
-            "maximum": 0.00034012499963864684
+            "median": 0.00029329105746001005,
+            "minimum": 0.00024141604080796242,
+            "maximum": 0.00029604200972244143
           },
           "solve": {
-            "median": 0.0009746249997988343,
-            "minimum": 0.0009677080088295043,
-            "maximum": 0.0010102089727297425
+            "median": 0.0007289579953067005,
+            "minimum": 0.0007083340315148234,
+            "maximum": 0.0007372499676421285
           },
           "python_validity": {
-            "median": 0.0007987089920789003,
-            "minimum": 0.000752083957195282,
-            "maximum": 0.000852041004691273
+            "median": 0.0006464160396717489,
+            "minimum": 0.0006267079734243453,
+            "maximum": 0.0006629999843426049
           },
           "streamwise_std": {
-            "median": 0.0008559999987483025,
-            "minimum": 0.0008210000232793391,
-            "maximum": 0.0008600830333307385
+            "median": 0.000806458992883563,
+            "minimum": 0.0007235829834826291,
+            "maximum": 0.0008482089615426958
           },
           "turbulence_intensity_including_std": {
-            "median": 0.000835792045108974,
-            "minimum": 0.0008107500034384429,
-            "maximum": 0.0008735419833101332
+            "median": 0.0007867499953135848,
+            "minimum": 0.0007228750037029386,
+            "maximum": 0.0010405409848317504
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.0022195419878698885,
-            "minimum": 0.0022105840034782887,
-            "maximum": 0.002310417010448873
+            "median": 0.0020053330226801336,
+            "minimum": 0.0019348749774508178,
+            "maximum": 0.0022755410172976553
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213368832,
-          "after_prepare": 213368832,
-          "after_solve": 213368832,
-          "after_python_validity": 213368832,
-          "after_derived": 213368832,
-          "after_benchmark_oracle": 213368832
+          "imports_and_planning": 212549632,
+          "after_prepare": 212549632,
+          "after_solve": 212549632,
+          "after_python_validity": 212566016,
+          "after_derived": 212566016,
+          "after_benchmark_oracle": 212631552
         },
         "diagnostics": [
           {
@@ -19002,48 +19002,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0017145000165328383,
-            "minimum": 0.001606667006853968,
-            "maximum": 0.0017324169748462737
+            "median": 0.00114808400394395,
+            "minimum": 0.0010438329773023725,
+            "maximum": 0.0012664999812841415
           },
           "prepare": {
-            "median": 0.005090624967124313,
-            "minimum": 0.0048089579795487225,
-            "maximum": 0.009431708022020757
+            "median": 0.0041099999798461795,
+            "minimum": 0.0038600830012001097,
+            "maximum": 0.004313083947636187
           },
           "solve": {
-            "median": 0.24646925000706688,
-            "minimum": 0.2450142499874346,
-            "maximum": 0.24684333300683647
+            "median": 0.22184129199013114,
+            "minimum": 0.22053904202766716,
+            "maximum": 0.2221337910159491
           },
           "python_validity": {
-            "median": 0.042004792019724846,
-            "minimum": 0.041089040983933955,
-            "maximum": 0.042474082962144166
+            "median": 0.03817658295156434,
+            "minimum": 0.03780345799168572,
+            "maximum": 0.03846404200885445
           },
           "streamwise_std": {
-            "median": 0.04754454200156033,
-            "minimum": 0.04678874998353422,
-            "maximum": 0.04835579200880602
+            "median": 0.04138658399460837,
+            "minimum": 0.04064566595479846,
+            "maximum": 0.04577329201856628
           },
           "turbulence_intensity_including_std": {
-            "median": 0.04823700000997633,
-            "minimum": 0.04806787503184751,
-            "maximum": 0.04844758298713714
+            "median": 0.04347212496213615,
+            "minimum": 0.04218899999978021,
+            "maximum": 0.046080707979854196
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.016692792007233948,
-            "minimum": 0.016591666964814067,
-            "maximum": 0.017837666033301502
+            "median": 0.014163165993522853,
+            "minimum": 0.013721833995077759,
+            "maximum": 0.01426441699732095
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214548480,
-          "after_prepare": 235651072,
-          "after_solve": 248168448,
-          "after_python_validity": 265011200,
-          "after_derived": 301400064,
-          "after_benchmark_oracle": 313311232
+          "imports_and_planning": 211320832,
+          "after_prepare": 231342080,
+          "after_solve": 242941952,
+          "after_python_validity": 260980736,
+          "after_derived": 278544384,
+          "after_benchmark_oracle": 285491200
         },
         "diagnostics": [
           {
@@ -19939,48 +19939,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0017070419853553176,
-            "minimum": 0.0015612079878337681,
-            "maximum": 0.0018871659995056689
+            "median": 0.0010860829497687519,
+            "minimum": 0.0010704579763114452,
+            "maximum": 0.0011508340248838067
           },
           "prepare": {
-            "median": 0.008606500050518662,
-            "minimum": 0.008531374973244965,
-            "maximum": 0.009598417032975703
+            "median": 0.007960750022903085,
+            "minimum": 0.007629208033904433,
+            "maximum": 0.00801383302314207
           },
           "solve": {
-            "median": 1.3072195840068161,
-            "minimum": 1.3047514170175418,
-            "maximum": 1.3104883750202134
+            "median": 1.207136334036477,
+            "minimum": 1.1723835419979878,
+            "maximum": 1.2141143750050105
           },
           "python_validity": {
-            "median": 0.08341637498233467,
-            "minimum": 0.08179224998457357,
-            "maximum": 0.08385274995816872
+            "median": 0.07495679199928418,
+            "minimum": 0.07493066700408235,
+            "maximum": 0.07561716705095023
           },
           "streamwise_std": {
-            "median": 0.09318987501319498,
-            "minimum": 0.09172108303755522,
-            "maximum": 0.09452541696373373
+            "median": 0.08498629200039431,
+            "minimum": 0.08296458300901577,
+            "maximum": 0.08509133302140981
           },
           "turbulence_intensity_including_std": {
-            "median": 0.09830245899502188,
-            "minimum": 0.0981721660355106,
-            "maximum": 0.10330241697374731
+            "median": 0.08876991702709347,
+            "minimum": 0.08764908398734406,
+            "maximum": 0.08975191600620747
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.01601741701597348,
-            "minimum": 0.015929749992210418,
-            "maximum": 0.017063041974324733
+            "median": 0.0143540000426583,
+            "minimum": 0.014185749983880669,
+            "maximum": 0.015689291001763195
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213876736,
-          "after_prepare": 259080192,
-          "after_solve": 284278784,
-          "after_python_validity": 315195392,
-          "after_derived": 372637696,
-          "after_benchmark_oracle": 383107072
+          "imports_and_planning": 213499904,
+          "after_prepare": 258736128,
+          "after_solve": 282673152,
+          "after_python_validity": 316309504,
+          "after_derived": 362856448,
+          "after_benchmark_oracle": 367771648
         },
         "diagnostics": [
           {
@@ -21474,48 +21474,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0018207499524578452,
-            "minimum": 0.0014952500350773335,
-            "maximum": 0.0024897080147638917
+            "median": 0.0014113750075921416,
+            "minimum": 0.0013116250047460198,
+            "maximum": 0.0014400829677470028
           },
           "prepare": {
-            "median": 0.002477708039805293,
-            "minimum": 0.0024216659949161112,
-            "maximum": 0.0028209160082042217
+            "median": 0.002243166964035481,
+            "minimum": 0.002226583019364625,
+            "maximum": 0.0022564579849131405
           },
           "solve": {
-            "median": 0.1732474589953199,
-            "minimum": 0.17285870894556865,
-            "maximum": 0.1739256670116447
+            "median": 0.1549609589856118,
+            "minimum": 0.15445258299587294,
+            "maximum": 0.15612345800036564
           },
           "python_validity": {
-            "median": 0.023006750037893653,
-            "minimum": 0.022526542015839368,
-            "maximum": 0.023357458994723856
+            "median": 0.020223499974235892,
+            "minimum": 0.020065124961547554,
+            "maximum": 0.02086854202207178
           },
           "streamwise_std": {
-            "median": 0.025771249958779663,
-            "minimum": 0.02564037498086691,
-            "maximum": 0.02604937501018867
+            "median": 0.023253082996234298,
+            "minimum": 0.023113332979846746,
+            "maximum": 0.023308207979425788
           },
           "turbulence_intensity_including_std": {
-            "median": 0.026580250007100403,
-            "minimum": 0.02633533300831914,
-            "maximum": 0.026944165991153568
+            "median": 0.02353420900180936,
+            "minimum": 0.023302666028030217,
+            "maximum": 0.02473879198078066
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.01592758297920227,
-            "minimum": 0.015905082982499152,
-            "maximum": 0.017569249961525202
+            "median": 0.013613124960102141,
+            "minimum": 0.013524167006835341,
+            "maximum": 0.014053417020477355
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214122496,
-          "after_prepare": 226295808,
-          "after_solve": 233357312,
-          "after_python_validity": 246546432,
-          "after_derived": 273809408,
-          "after_benchmark_oracle": 276971520
+          "imports_and_planning": 210206720,
+          "after_prepare": 222461952,
+          "after_solve": 229490688,
+          "after_python_validity": 243040256,
+          "after_derived": 249135104,
+          "after_benchmark_oracle": 249446400
         },
         "diagnostics": [
           {
@@ -22311,48 +22311,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.001743874978274107,
-            "minimum": 0.001651667000260204,
-            "maximum": 0.0020106249721720815
+            "median": 0.0012518750154413283,
+            "minimum": 0.0012302499962970614,
+            "maximum": 0.0012781670084223151
           },
           "prepare": {
-            "median": 0.004625291971024126,
-            "minimum": 0.004592959012370557,
-            "maximum": 0.004794792039319873
+            "median": 0.003913416992872953,
+            "minimum": 0.0037805410102009773,
+            "maximum": 0.004116334021091461
           },
           "solve": {
-            "median": 0.2596006660023704,
-            "minimum": 0.25857575004920363,
-            "maximum": 0.26035158295417204
+            "median": 0.23508316703373566,
+            "minimum": 0.2347882500034757,
+            "maximum": 0.25655750004807487
           },
           "python_validity": {
-            "median": 0.04065500001888722,
-            "minimum": 0.03993754199473187,
-            "maximum": 0.040679958008695394
+            "median": 0.036396709037944674,
+            "minimum": 0.036103208956774324,
+            "maximum": 0.043221832951530814
           },
           "streamwise_std": {
-            "median": 0.04497558402363211,
-            "minimum": 0.044541082985233516,
-            "maximum": 0.045609917026013136
+            "median": 0.041627999977208674,
+            "minimum": 0.04112449998501688,
+            "maximum": 0.049081250035669655
           },
           "turbulence_intensity_including_std": {
-            "median": 0.04699395899660885,
-            "minimum": 0.04698983300477266,
-            "maximum": 0.049981791991740465
+            "median": 0.04285425000125542,
+            "minimum": 0.04154329199809581,
+            "maximum": 0.04292891704244539
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015034165990073234,
-            "minimum": 0.014640707988291979,
-            "maximum": 0.016240208002272993
+            "median": 0.012792542052920908,
+            "minimum": 0.012766667001415044,
+            "maximum": 0.01318050001282245
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213762048,
-          "after_prepare": 236142592,
-          "after_solve": 248676352,
-          "after_python_validity": 273022976,
-          "after_derived": 316669952,
-          "after_benchmark_oracle": 321814528
+          "imports_and_planning": 211533824,
+          "after_prepare": 234422272,
+          "after_solve": 244891648,
+          "after_python_validity": 260407296,
+          "after_derived": 282640384,
+          "after_benchmark_oracle": 283705344
         },
         "diagnostics": [
           {
@@ -24399,48 +24399,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0014076250372454524,
-            "minimum": 0.001357667031697929,
-            "maximum": 0.0017148330225609243
+            "median": 0.0011656670249067247,
+            "minimum": 0.0011539169936440885,
+            "maximum": 0.001505749998614192
           },
           "prepare": {
-            "median": 0.00884745898656547,
-            "minimum": 0.008611124998424202,
-            "maximum": 0.009123000025283545
+            "median": 0.007643666001968086,
+            "minimum": 0.007503667031414807,
+            "maximum": 0.00835679197916761
           },
           "solve": {
-            "median": 1.387129582988564,
-            "minimum": 1.3839254999766126,
-            "maximum": 1.396773167012725
+            "median": 1.2701904170098715,
+            "minimum": 1.2463669999851845,
+            "maximum": 1.2925148750073276
           },
           "python_validity": {
-            "median": 0.0815727089648135,
-            "minimum": 0.08116866700584069,
-            "maximum": 0.08169591700425372
+            "median": 0.07474154199007899,
+            "minimum": 0.07187675003660843,
+            "maximum": 0.07679295801790431
           },
           "streamwise_std": {
-            "median": 0.09479825000744313,
-            "minimum": 0.09311541699571535,
-            "maximum": 0.09944625000935048
+            "median": 0.0840869169915095,
+            "minimum": 0.08032787503907457,
+            "maximum": 0.08941870799753815
           },
           "turbulence_intensity_including_std": {
-            "median": 0.0958627499639988,
-            "minimum": 0.09570929204346612,
-            "maximum": 0.09774104197276756
+            "median": 0.08588741696439683,
+            "minimum": 0.08354670798871666,
+            "maximum": 0.0878916250076145
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015990084037184715,
-            "minimum": 0.014567292004358023,
-            "maximum": 0.01704387494828552
+            "median": 0.013858458027243614,
+            "minimum": 0.013350791996344924,
+            "maximum": 0.014063332986552268
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214024192,
-          "after_prepare": 258490368,
-          "after_solve": 281772032,
-          "after_python_validity": 321945600,
-          "after_derived": 368852992,
-          "after_benchmark_oracle": 371032064
+          "imports_and_planning": 211533824,
+          "after_prepare": 256819200,
+          "after_solve": 279838720,
+          "after_python_validity": 326516736,
+          "after_derived": 346898432,
+          "after_benchmark_oracle": 356073472
         },
         "diagnostics": [
           {
@@ -28011,48 +28011,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.002292666002176702,
-            "minimum": 0.0022718750406056643,
-            "maximum": 0.003018625022377819
+            "median": 0.0015132499975152314,
+            "minimum": 0.001481834042351693,
+            "maximum": 0.00157195795327425
           },
           "prepare": {
-            "median": 0.002895208017434925,
-            "minimum": 0.002833375008776784,
-            "maximum": 0.0029547499725595117
+            "median": 0.0022257089731283486,
+            "minimum": 0.0021683750092051923,
+            "maximum": 0.0023327080416493118
           },
           "solve": {
-            "median": 0.17002650001086295,
-            "minimum": 0.16848004201892763,
-            "maximum": 0.17257608397630975
+            "median": 0.15235850005410612,
+            "minimum": 0.15188129199668765,
+            "maximum": 0.1530568749876693
           },
           "python_validity": {
-            "median": 0.022005332983098924,
-            "minimum": 0.021505459037143737,
-            "maximum": 0.022069415950682014
+            "median": 0.0193243749672547,
+            "minimum": 0.01911608298541978,
+            "maximum": 0.020402624970301986
           },
           "streamwise_std": {
-            "median": 0.02519358298741281,
-            "minimum": 0.02466970804380253,
-            "maximum": 0.026879166951403022
+            "median": 0.022118875000160187,
+            "minimum": 0.022001291974447668,
+            "maximum": 0.022588666004594415
           },
           "turbulence_intensity_including_std": {
-            "median": 0.025442541984375566,
-            "minimum": 0.024824207997880876,
-            "maximum": 0.025842584029305726
+            "median": 0.022572916001081467,
+            "minimum": 0.02182254201034084,
+            "maximum": 0.022612083004787564
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.014987625007051975,
-            "minimum": 0.014323332987260073,
-            "maximum": 0.015697208989877254
+            "median": 0.012896624975837767,
+            "minimum": 0.012777000025380403,
+            "maximum": 0.013084667036309838
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213794816,
-          "after_prepare": 226164736,
-          "after_solve": 232456192,
-          "after_python_validity": 245858304,
-          "after_derived": 270696448,
-          "after_benchmark_oracle": 277118976
+          "imports_and_planning": 210337792,
+          "after_prepare": 221134848,
+          "after_solve": 228425728,
+          "after_python_validity": 236158976,
+          "after_derived": 248987648,
+          "after_benchmark_oracle": 251772928
         },
         "diagnostics": [
           {
@@ -29780,48 +29780,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0021733749890699983,
-            "minimum": 0.0018122500041499734,
-            "maximum": 0.0022372500388883054
+            "median": 0.0014259579475037754,
+            "minimum": 0.0013251249911263585,
+            "maximum": 0.0014729159884154797
           },
           "prepare": {
-            "median": 0.0047995420172810555,
-            "minimum": 0.004699500044807792,
-            "maximum": 0.0049541660118848085
+            "median": 0.0037595839821733534,
+            "minimum": 0.0037068750243633986,
+            "maximum": 0.003850041946861893
           },
           "solve": {
-            "median": 0.20595495804445818,
-            "minimum": 0.20500979101052508,
-            "maximum": 0.20646691595902666
+            "median": 0.18415045796427876,
+            "minimum": 0.18309475004207343,
+            "maximum": 0.18825483304681256
           },
           "python_validity": {
-            "median": 0.03935733297839761,
-            "minimum": 0.0389540420146659,
-            "maximum": 0.039449292002245784
+            "median": 0.03582954203011468,
+            "minimum": 0.035575457965023816,
+            "maximum": 0.036251084005925804
           },
           "streamwise_std": {
-            "median": 0.044382791966199875,
-            "minimum": 0.04391504201339558,
-            "maximum": 0.04592562495963648
+            "median": 0.040120458987075835,
+            "minimum": 0.039389959012623876,
+            "maximum": 0.04138004197739065
           },
           "turbulence_intensity_including_std": {
-            "median": 0.04533683299086988,
-            "minimum": 0.0451408340013586,
-            "maximum": 0.045702458010055125
+            "median": 0.04091891599819064,
+            "minimum": 0.04041124996729195,
+            "maximum": 0.04252583399647847
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.014970541000366211,
-            "minimum": 0.01476387504953891,
-            "maximum": 0.015175332955550402
+            "median": 0.013005167013034225,
+            "minimum": 0.01276458299253136,
+            "maximum": 0.013697250047698617
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213532672,
-          "after_prepare": 235749376,
-          "after_solve": 247545856,
-          "after_python_validity": 269533184,
-          "after_derived": 302956544,
-          "after_benchmark_oracle": 315572224
+          "imports_and_planning": 209616896,
+          "after_prepare": 231243776,
+          "after_solve": 243908608,
+          "after_python_validity": 254525440,
+          "after_derived": 282902528,
+          "after_benchmark_oracle": 283246592
         },
         "diagnostics": [
           {
@@ -30550,48 +30550,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0019444170175120234,
-            "minimum": 0.0017821670044213533,
-            "maximum": 0.0022487090318463743
+            "median": 0.001512582995928824,
+            "minimum": 0.0013266659807413816,
+            "maximum": 0.0017905000131577253
           },
           "prepare": {
-            "median": 0.00905958394287154,
-            "minimum": 0.008838958048727363,
-            "maximum": 0.009074290981516242
+            "median": 0.007861582969781011,
+            "minimum": 0.007654207991436124,
+            "maximum": 0.00801862496882677
           },
           "solve": {
-            "median": 1.211735833028797,
-            "minimum": 1.2069528329884633,
-            "maximum": 1.216028833994642
+            "median": 1.10636383399833,
+            "minimum": 1.0969314170069993,
+            "maximum": 1.123228000011295
           },
           "python_validity": {
-            "median": 0.08037795801647007,
-            "minimum": 0.07914200000232086,
-            "maximum": 0.08506420900812373
+            "median": 0.07524258398916572,
+            "minimum": 0.07420291699236259,
+            "maximum": 0.07694958301726729
           },
           "streamwise_std": {
-            "median": 0.09260341699700803,
-            "minimum": 0.09083616605494171,
-            "maximum": 0.09549195802537724
+            "median": 0.0830335000064224,
+            "minimum": 0.08224158303346485,
+            "maximum": 0.08589570800540969
           },
           "turbulence_intensity_including_std": {
-            "median": 0.09434820897877216,
-            "minimum": 0.09208687499631196,
-            "maximum": 0.09903237503021955
+            "median": 0.08632579201366752,
+            "minimum": 0.08374691696371883,
+            "maximum": 0.08799116697628051
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015836917038541287,
-            "minimum": 0.014632165955845267,
-            "maximum": 0.016426208021584898
+            "median": 0.014256375026889145,
+            "minimum": 0.013454375031869859,
+            "maximum": 0.014613708015531301
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213270528,
-          "after_prepare": 258244608,
-          "after_solve": 282361856,
-          "after_python_validity": 318914560,
-          "after_derived": 364511232,
-          "after_benchmark_oracle": 372637696
+          "imports_and_planning": 210665472,
+          "after_prepare": 255574016,
+          "after_solve": 281083904,
+          "after_python_validity": 306069504,
+          "after_derived": 358809600,
+          "after_benchmark_oracle": 359284736
         },
         "diagnostics": [
           {
@@ -31958,48 +31958,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.002604957961011678,
-            "minimum": 0.0024005830055102706,
-            "maximum": 0.0033751659793779254
+            "median": 0.0020945409778505564,
+            "minimum": 0.0016577920177951455,
+            "maximum": 0.002534375002142042
           },
           "prepare": {
-            "median": 0.0029700000304728746,
-            "minimum": 0.002958166995085776,
-            "maximum": 0.002994874957948923
+            "median": 0.0024313339963555336,
+            "minimum": 0.002241874986793846,
+            "maximum": 0.0027042499859817326
           },
           "solve": {
-            "median": 0.16401000000769272,
-            "minimum": 0.16308274999028072,
-            "maximum": 0.16487445798702538
+            "median": 0.14687245798995718,
+            "minimum": 0.14569783303886652,
+            "maximum": 0.15365833300165832
           },
           "python_validity": {
-            "median": 0.023122832993976772,
-            "minimum": 0.022910250001586974,
-            "maximum": 0.02410479198442772
+            "median": 0.020542417012620717,
+            "minimum": 0.020414124999661,
+            "maximum": 0.020673500024713576
           },
           "streamwise_std": {
-            "median": 0.026274834002833813,
-            "minimum": 0.025630166986957192,
-            "maximum": 0.026858750032261014
+            "median": 0.023246166994795203,
+            "minimum": 0.02281024999683723,
+            "maximum": 0.02355287503451109
           },
           "turbulence_intensity_including_std": {
-            "median": 0.026452334015630186,
-            "minimum": 0.026105209020897746,
-            "maximum": 0.02737849997356534
+            "median": 0.023406166990753263,
+            "minimum": 0.023328999988734722,
+            "maximum": 0.02366150001762435
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015131458989344537,
-            "minimum": 0.014957749983295798,
-            "maximum": 0.016322665964253247
+            "median": 0.012849208025727421,
+            "minimum": 0.012759124976582825,
+            "maximum": 0.013158291985746473
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214056960,
-          "after_prepare": 226918400,
-          "after_solve": 233504768,
-          "after_python_validity": 246497280,
-          "after_derived": 269565952,
-          "after_benchmark_oracle": 276201472
+          "imports_and_planning": 210763776,
+          "after_prepare": 223297536,
+          "after_solve": 229933056,
+          "after_python_validity": 239599616,
+          "after_derived": 249053184,
+          "after_benchmark_oracle": 249479168
         },
         "diagnostics": [
           {
@@ -32940,48 +32940,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0017875420162454247,
-            "minimum": 0.001768540998455137,
-            "maximum": 0.0022522080107592046
+            "median": 0.001356665976345539,
+            "minimum": 0.0013128339778631926,
+            "maximum": 0.001922000024933368
           },
           "prepare": {
-            "median": 0.004761125019285828,
-            "minimum": 0.004716583003755659,
-            "maximum": 0.004767292004544288
+            "median": 0.004088790970854461,
+            "minimum": 0.004014624981209636,
+            "maximum": 0.004114291979931295
           },
           "solve": {
-            "median": 0.27268391696270555,
-            "minimum": 0.2725772919948213,
-            "maximum": 0.27479749999474734
+            "median": 0.25100175000261515,
+            "minimum": 0.24437887500971556,
+            "maximum": 0.25511695799650624
           },
           "python_validity": {
-            "median": 0.04073574999347329,
-            "minimum": 0.04061962501145899,
-            "maximum": 0.041858249984215945
+            "median": 0.03870387497590855,
+            "minimum": 0.03842566697858274,
+            "maximum": 0.038930291950237006
           },
           "streamwise_std": {
-            "median": 0.04664258402772248,
-            "minimum": 0.04629879194544628,
-            "maximum": 0.047047332976944745
+            "median": 0.04239983297884464,
+            "minimum": 0.04237383301369846,
+            "maximum": 0.042861666006501764
           },
           "turbulence_intensity_including_std": {
-            "median": 0.04847383301239461,
-            "minimum": 0.04799954197369516,
-            "maximum": 0.0486304170335643
+            "median": 0.045072333014104515,
+            "minimum": 0.04311675002099946,
+            "maximum": 0.04535166698042303
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015068457985762507,
-            "minimum": 0.014848624996375293,
-            "maximum": 0.016272125008981675
+            "median": 0.013707999954931438,
+            "minimum": 0.013523207977414131,
+            "maximum": 0.013839750026818365
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213762048,
-          "after_prepare": 235192320,
-          "after_solve": 247791616,
-          "after_python_validity": 264880128,
-          "after_derived": 302170112,
-          "after_benchmark_oracle": 311967744
+          "imports_and_planning": 211337216,
+          "after_prepare": 233160704,
+          "after_solve": 245301248,
+          "after_python_validity": 267010048,
+          "after_derived": 290177024,
+          "after_benchmark_oracle": 292290560
         },
         "diagnostics": [
           {
@@ -35607,48 +35607,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0019544580136425793,
-            "minimum": 0.0014545000158250332,
-            "maximum": 0.001999999978579581
+            "median": 0.001504666986875236,
+            "minimum": 0.0014193750103004277,
+            "maximum": 0.0016096250037662685
           },
           "prepare": {
-            "median": 0.009032041998580098,
-            "minimum": 0.008865458017680794,
-            "maximum": 0.00989537499845028
+            "median": 0.008024499984458089,
+            "minimum": 0.007660500006750226,
+            "maximum": 0.012958292034454644
           },
           "solve": {
-            "median": 1.4493776250164956,
-            "minimum": 1.4486118750064634,
-            "maximum": 1.452288666041568
+            "median": 1.3482883750111796,
+            "minimum": 1.309147457999643,
+            "maximum": 1.3584505829494447
           },
           "python_validity": {
-            "median": 0.08440808299928904,
-            "minimum": 0.08322883298387751,
-            "maximum": 0.08761433296604082
+            "median": 0.07681533298455179,
+            "minimum": 0.07646866701543331,
+            "maximum": 0.08081841701641679
           },
           "streamwise_std": {
-            "median": 0.09509008302120492,
-            "minimum": 0.09322562505258247,
-            "maximum": 0.09817712497897446
+            "median": 0.08815933403093368,
+            "minimum": 0.0848911670036614,
+            "maximum": 0.09022929199272767
           },
           "turbulence_intensity_including_std": {
-            "median": 0.09846129099605605,
-            "minimum": 0.0979659580043517,
-            "maximum": 0.10273570800200105
+            "median": 0.08779208402847871,
+            "minimum": 0.08759208302944899,
+            "maximum": 0.08897837501717731
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.015282333013601601,
-            "minimum": 0.014936958032194525,
-            "maximum": 0.0168311670422554
+            "median": 0.013430957973469049,
+            "minimum": 0.013207415991928428,
+            "maximum": 0.013704125012736768
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213385216,
-          "after_prepare": 258719744,
-          "after_solve": 283803648,
-          "after_python_validity": 322486272,
-          "after_derived": 370786304,
-          "after_benchmark_oracle": 379584512
+          "imports_and_planning": 214138880,
+          "after_prepare": 256753664,
+          "after_solve": 280838144,
+          "after_python_validity": 309264384,
+          "after_derived": 337379328,
+          "after_benchmark_oracle": 340017152
         },
         "diagnostics": [
           {
@@ -40677,48 +40677,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.002430416992865503,
-            "minimum": 0.002420000033453107,
-            "maximum": 0.003751249983906746
+            "median": 0.002346542023587972,
+            "minimum": 0.0015981249744072556,
+            "maximum": 0.0035754580167122185
           },
           "prepare": {
-            "median": 0.003253041999414563,
-            "minimum": 0.002886083035264164,
-            "maximum": 0.0033493340015411377
+            "median": 0.0028635839698836207,
+            "minimum": 0.0027697919867932796,
+            "maximum": 0.0029921670211479068
           },
           "solve": {
-            "median": 0.2318099170224741,
-            "minimum": 0.23106558300787583,
-            "maximum": 0.23354679200565442
+            "median": 0.21243549999780953,
+            "minimum": 0.20843141700606793,
+            "maximum": 0.24022637499729171
           },
           "python_validity": {
-            "median": 0.026669041020795703,
-            "minimum": 0.02632916602306068,
-            "maximum": 0.027177416952326894
+            "median": 0.02425858296919614,
+            "minimum": 0.023871999990660697,
+            "maximum": 0.026303458958864212
           },
           "streamwise_std": {
-            "median": 0.029802416975144297,
-            "minimum": 0.029569500009529293,
-            "maximum": 0.03002962499158457
+            "median": 0.027183291967958212,
+            "minimum": 0.026945749996230006,
+            "maximum": 0.030464917013887316
           },
           "turbulence_intensity_including_std": {
-            "median": 0.03133954101940617,
-            "minimum": 0.031106584006920457,
-            "maximum": 0.031771000009030104
+            "median": 0.027535000001080334,
+            "minimum": 0.027326666982844472,
+            "maximum": 0.0325948329991661
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.0156914169783704,
-            "minimum": 0.015032499970402569,
-            "maximum": 0.015783875016495585
+            "median": 0.013492500002030283,
+            "minimum": 0.013118750008288771,
+            "maximum": 0.014314999978523701
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214171648,
-          "after_prepare": 228687872,
-          "after_solve": 236371968,
-          "after_python_validity": 254410752,
-          "after_derived": 282181632,
-          "after_benchmark_oracle": 289243136
+          "imports_and_planning": 212369408,
+          "after_prepare": 226607104,
+          "after_solve": 234094592,
+          "after_python_validity": 251019264,
+          "after_derived": 276561920,
+          "after_benchmark_oracle": 276807680
         },
         "diagnostics": [
           {
@@ -43033,25 +43033,25 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.001743124972563237,
-            "minimum": 0.0016187920118682086,
-            "maximum": 0.002192291954997927
+            "median": 0.002037458005361259,
+            "minimum": 0.0019548750133253634,
+            "maximum": 0.00214545801281929
           },
           "prepare": {
-            "median": 0.0008702499908395112,
-            "minimum": 0.0007784999907016754,
-            "maximum": 0.0008818749920465052
+            "median": 0.0008243329939432442,
+            "minimum": 0.0008126249886117876,
+            "maximum": 0.0008388329879380763
           },
           "solve": {
-            "median": 0.01518350001424551,
-            "minimum": 0.014906583994161338,
-            "maximum": 0.015405041049234569
+            "median": 0.014891666010953486,
+            "minimum": 0.014851209009066224,
+            "maximum": 0.015132041997276247
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214876160,
-          "after_prepare": 216662016,
-          "after_solve": 217202688
+          "imports_and_planning": 214319104,
+          "after_prepare": 216170496,
+          "after_solve": 217300992
         },
         "diagnostics": [
           {
@@ -43108,25 +43108,25 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0026277920114807785,
-            "minimum": 0.002492833009455353,
-            "maximum": 0.0027667080285027623
+            "median": 0.0023195830290205777,
+            "minimum": 0.002309042029082775,
+            "maximum": 0.0024634579895064235
           },
           "prepare": {
-            "median": 0.0010570830199867487,
-            "minimum": 0.001046416989993304,
-            "maximum": 0.0011628330103121698
+            "median": 0.000978041032794863,
+            "minimum": 0.0008152090013027191,
+            "maximum": 0.0011410000151954591
           },
           "solve": {
-            "median": 0.025984208972658962,
-            "minimum": 0.02578537497902289,
-            "maximum": 0.025993250019382685
+            "median": 0.02564429200720042,
+            "minimum": 0.025062125001568347,
+            "maximum": 0.026059457974042743
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213450752,
-          "after_prepare": 215678976,
-          "after_solve": 217448448
+          "imports_and_planning": 215154688,
+          "after_prepare": 216924160,
+          "after_solve": 218693632
         },
         "diagnostics": [
           {
@@ -43183,48 +43183,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0020950419711880386,
-            "minimum": 0.0019477910245768726,
-            "maximum": 0.002097583026625216
+            "median": 0.0016900000046007335,
+            "minimum": 0.0014442079700529575,
+            "maximum": 0.0018967500072903931
           },
           "prepare": {
-            "median": 0.0018812919734045863,
-            "minimum": 0.0017561669810675085,
-            "maximum": 0.001892667030915618
+            "median": 0.0018682500231079757,
+            "minimum": 0.0014854579931125045,
+            "maximum": 0.0020012499880976975
           },
           "solve": {
-            "median": 0.03659775003325194,
-            "minimum": 0.035973666002973914,
-            "maximum": 0.03912408300675452
+            "median": 0.035547458042856306,
+            "minimum": 0.03381691698450595,
+            "maximum": 0.03591891599353403
           },
           "python_validity": {
-            "median": 0.013014082971494645,
-            "minimum": 0.012598125031217933,
-            "maximum": 0.013052291993517429
+            "median": 0.01192379102576524,
+            "minimum": 0.0118499580421485,
+            "maximum": 0.012778999982401729
           },
           "streamwise_std": {
-            "median": 0.01423112500924617,
-            "minimum": 0.014206500025466084,
-            "maximum": 0.01458295900374651
+            "median": 0.014072749996557832,
+            "minimum": 0.013836041965987533,
+            "maximum": 0.014123499975539744
           },
           "turbulence_intensity_including_std": {
-            "median": 0.01476999995065853,
-            "minimum": 0.01460912503534928,
-            "maximum": 0.014866459008771926
+            "median": 0.013999207993037999,
+            "minimum": 0.013988583988975734,
+            "maximum": 0.014273834007326514
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.012751500005833805,
-            "minimum": 0.012362540990579873,
-            "maximum": 0.01341841695830226
+            "median": 0.012090417032595724,
+            "minimum": 0.012004667019937187,
+            "maximum": 0.012703999993391335
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214220800,
-          "after_prepare": 220839936,
-          "after_solve": 224182272,
-          "after_python_validity": 225296384,
-          "after_derived": 235044864,
-          "after_benchmark_oracle": 242368512
+          "imports_and_planning": 213188608,
+          "after_prepare": 219873280,
+          "after_solve": 224231424,
+          "after_python_validity": 232079360,
+          "after_derived": 234160128,
+          "after_benchmark_oracle": 236470272
         },
         "diagnostics": [
           {
@@ -44601,48 +44601,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0020083329873159528,
-            "minimum": 0.0019992089946754277,
-            "maximum": 0.0021915410179644823
+            "median": 0.0022076250170357525,
+            "minimum": 0.001673041027970612,
+            "maximum": 0.002386790991295129
           },
           "prepare": {
-            "median": 0.0019439999596215785,
-            "minimum": 0.0018623750074766576,
-            "maximum": 0.001963249989785254
+            "median": 0.0018378749955445528,
+            "minimum": 0.0016329579520970583,
+            "maximum": 0.0021135840215720236
           },
           "solve": {
-            "median": 0.035798124969005585,
-            "minimum": 0.03568450000602752,
-            "maximum": 0.03586637502303347
+            "median": 0.03575358400121331,
+            "minimum": 0.03566087502986193,
+            "maximum": 0.03609583299839869
           },
           "python_validity": {
-            "median": 0.012881417002063245,
-            "minimum": 0.012787083047442138,
-            "maximum": 0.01314962498145178
+            "median": 0.012936583021655679,
+            "minimum": 0.012614749954082072,
+            "maximum": 0.013061958947218955
           },
           "streamwise_std": {
-            "median": 0.014533416018821299,
-            "minimum": 0.014127833012025803,
-            "maximum": 0.014898916997481138
+            "median": 0.014837833005003631,
+            "minimum": 0.014472165959887207,
+            "maximum": 0.015295792021788657
           },
           "turbulence_intensity_including_std": {
-            "median": 0.014466541993897408,
-            "minimum": 0.014273667009547353,
-            "maximum": 0.014494167000520974
+            "median": 0.015266874979715794,
+            "minimum": 0.015043750056065619,
+            "maximum": 0.01531958399573341
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.012989000009838492,
-            "minimum": 0.01225912501104176,
-            "maximum": 0.013306417036801577
+            "median": 0.013466709002386779,
+            "minimum": 0.01332104200264439,
+            "maximum": 0.013862958003301173
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214188032,
-          "after_prepare": 221429760,
-          "after_solve": 224788480,
-          "after_python_validity": 230670336,
-          "after_derived": 241434624,
-          "after_benchmark_oracle": 247939072
+          "imports_and_planning": 214515712,
+          "after_prepare": 220037120,
+          "after_solve": 223084544,
+          "after_python_validity": 230588416,
+          "after_derived": 244023296,
+          "after_benchmark_oracle": 249839616
         },
         "diagnostics": [
           {
@@ -46018,48 +46018,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0021487079793587327,
-            "minimum": 0.0018241670331917703,
-            "maximum": 0.0022234999923966825
+            "median": 0.0023685420164838433,
+            "minimum": 0.0014857909991405904,
+            "maximum": 0.0024843330029398203
           },
           "prepare": {
-            "median": 0.021268874988891184,
-            "minimum": 0.021162500022910535,
-            "maximum": 0.021645542001351714
+            "median": 0.02212120802141726,
+            "minimum": 0.021040916035417467,
+            "maximum": 0.022231917013414204
           },
           "solve": {
-            "median": 0.036551291996147484,
-            "minimum": 0.03586791601264849,
-            "maximum": 0.036591625015717
+            "median": 0.036303124972619116,
+            "minimum": 0.0358414999791421,
+            "maximum": 0.03653587499866262
           },
           "python_validity": {
-            "median": 0.01257595798233524,
-            "minimum": 0.012188582972157747,
-            "maximum": 0.012946375005412847
+            "median": 0.013328249973710626,
+            "minimum": 0.012084790971130133,
+            "maximum": 0.013776334002614021
           },
           "streamwise_std": {
-            "median": 0.013854208984412253,
-            "minimum": 0.013612125010695308,
-            "maximum": 0.014572583022527397
+            "median": 0.014807250001467764,
+            "minimum": 0.013282792002428323,
+            "maximum": 0.015576999983750284
           },
           "turbulence_intensity_including_std": {
-            "median": 0.0144824999733828,
-            "minimum": 0.01425991702126339,
-            "maximum": 0.014689749979879707
+            "median": 0.015638417040463537,
+            "minimum": 0.014115917030721903,
+            "maximum": 0.01594291703077033
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.013135583023540676,
-            "minimum": 0.012321083981078118,
-            "maximum": 0.013619042001664639
+            "median": 0.01331491704331711,
+            "minimum": 0.012136332981754094,
+            "maximum": 0.014561666990630329
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214368256,
-          "after_prepare": 221511680,
-          "after_solve": 225525760,
-          "after_python_validity": 232308736,
-          "after_derived": 242139136,
-          "after_benchmark_oracle": 249675776
+          "imports_and_planning": 214433792,
+          "after_prepare": 220725248,
+          "after_solve": 223084544,
+          "after_python_validity": 229834752,
+          "after_derived": 245891072,
+          "after_benchmark_oracle": 248709120
         },
         "diagnostics": [
           {
@@ -46473,48 +46473,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0019146249978803098,
-            "minimum": 0.001862625009380281,
-            "maximum": 0.0021742910030297935
+            "median": 0.002130584034603089,
+            "minimum": 0.0013752080267295241,
+            "maximum": 0.0026696669519878924
           },
           "prepare": {
-            "median": 0.021698083030059934,
-            "minimum": 0.02147841698024422,
-            "maximum": 0.02184362499974668
+            "median": 0.021680125035345554,
+            "minimum": 0.020612291991710663,
+            "maximum": 0.022435666993260384
           },
           "solve": {
-            "median": 0.03625441697658971,
-            "minimum": 0.03588737500831485,
-            "maximum": 0.03810816700570285
+            "median": 0.03641433297889307,
+            "minimum": 0.03419162495993078,
+            "maximum": 0.037693874968681484
           },
           "python_validity": {
-            "median": 0.012601875001564622,
-            "minimum": 0.012562874995637685,
-            "maximum": 0.012778541014995426
+            "median": 0.013064250000752509,
+            "minimum": 0.01219199999468401,
+            "maximum": 0.013425791985355318
           },
           "streamwise_std": {
-            "median": 0.014488915971014649,
-            "minimum": 0.014306583965662867,
-            "maximum": 0.015727249963674694
+            "median": 0.015127665945328772,
+            "minimum": 0.013348208041861653,
+            "maximum": 0.015465875039808452
           },
           "turbulence_intensity_including_std": {
-            "median": 0.014554583001881838,
-            "minimum": 0.0144475830020383,
-            "maximum": 0.014672207995317876
+            "median": 0.015499125001952052,
+            "minimum": 0.013702041993383318,
+            "maximum": 0.015966749982908368
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.012548375001642853,
-            "minimum": 0.012088167015463114,
-            "maximum": 0.013005000015255064
+            "median": 0.01291729201329872,
+            "minimum": 0.011418166977819055,
+            "maximum": 0.01354120799805969
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 212828160,
-          "after_prepare": 219676672,
-          "after_solve": 223494144,
-          "after_python_validity": 230408192,
-          "after_derived": 242155520,
-          "after_benchmark_oracle": 247152640
+          "imports_and_planning": 214433792,
+          "after_prepare": 219496448,
+          "after_solve": 223084544,
+          "after_python_validity": 230293504,
+          "after_derived": 236060672,
+          "after_benchmark_oracle": 242876416
         },
         "diagnostics": [
           {
@@ -46927,48 +46927,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.002868249954190105,
-            "minimum": 0.0028596249758265913,
-            "maximum": 0.0034517919993959367
+            "median": 0.002760583010967821,
+            "minimum": 0.002590083982795477,
+            "maximum": 0.003356417000759393
           },
           "prepare": {
-            "median": 0.0027744999970309436,
-            "minimum": 0.0023559590335935354,
-            "maximum": 0.002984958002343774
+            "median": 0.002768208971247077,
+            "minimum": 0.002403291000518948,
+            "maximum": 0.002771915984340012
           },
           "solve": {
-            "median": 0.06029799999669194,
-            "minimum": 0.05961249995743856,
-            "maximum": 0.06153333297697827
+            "median": 0.06061070796567947,
+            "minimum": 0.05872750002890825,
+            "maximum": 0.06083720800234005
           },
           "python_validity": {
-            "median": 0.020872708002571017,
-            "minimum": 0.02062191703589633,
-            "maximum": 0.022740332991816103
+            "median": 0.02096154203172773,
+            "minimum": 0.020647708035539836,
+            "maximum": 0.021306749957147986
           },
           "streamwise_std": {
-            "median": 0.02393791702343151,
-            "minimum": 0.023626415990293026,
-            "maximum": 0.02851049997843802
+            "median": 0.023486999969463795,
+            "minimum": 0.022756499995011836,
+            "maximum": 0.024171207973267883
           },
           "turbulence_intensity_including_std": {
-            "median": 0.025557707995176315,
-            "minimum": 0.02527050004573539,
-            "maximum": 0.027627833012957126
+            "median": 0.024129999976139516,
+            "minimum": 0.02341095800511539,
+            "maximum": 0.0245498750009574
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.013768916018307209,
-            "minimum": 0.01295729196863249,
-            "maximum": 0.014171833987347782
+            "median": 0.012683707987889647,
+            "minimum": 0.011615749972406775,
+            "maximum": 0.012937834020704031
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214056960,
-          "after_prepare": 223461376,
-          "after_solve": 229310464,
-          "after_python_validity": 242237440,
-          "after_derived": 270188544,
-          "after_benchmark_oracle": 278593536
+          "imports_and_planning": 214515712,
+          "after_prepare": 223166464,
+          "after_solve": 229474304,
+          "after_python_validity": 239190016,
+          "after_derived": 260358144,
+          "after_benchmark_oracle": 266600448
         },
         "diagnostics": [
           {
@@ -48343,48 +48343,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.003169375006109476,
-            "minimum": 0.0029502499965019524,
-            "maximum": 0.00325429200893268
+            "median": 0.0025457090232521296,
+            "minimum": 0.002473708998877555,
+            "maximum": 0.0030161659815348685
           },
           "prepare": {
-            "median": 0.02793054102221504,
-            "minimum": 0.027677500038407743,
-            "maximum": 0.02818541700253263
+            "median": 0.027053958969190717,
+            "minimum": 0.026901000004727393,
+            "maximum": 0.028339500015135854
           },
           "solve": {
-            "median": 0.059799375012516975,
-            "minimum": 0.05915237497538328,
-            "maximum": 0.06109608302358538
+            "median": 0.0580956669873558,
+            "minimum": 0.058056124951690435,
+            "maximum": 0.06109112495323643
           },
           "python_validity": {
-            "median": 0.020927625009790063,
-            "minimum": 0.020824624982196838,
-            "maximum": 0.021046374982688576
+            "median": 0.02104433299973607,
+            "minimum": 0.020901417010463774,
+            "maximum": 0.022320209012832493
           },
           "streamwise_std": {
-            "median": 0.024165833019651473,
-            "minimum": 0.023584790993481874,
-            "maximum": 0.02443195803789422
+            "median": 0.025181958975736052,
+            "minimum": 0.022419625020120293,
+            "maximum": 0.03466433403082192
           },
           "turbulence_intensity_including_std": {
-            "median": 0.02540629100985825,
-            "minimum": 0.024286250001750886,
-            "maximum": 0.025800292030908167
+            "median": 0.024508667003829032,
+            "minimum": 0.023755959002301097,
+            "maximum": 0.02514316700398922
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.013263166998513043,
-            "minimum": 0.013102208031341434,
-            "maximum": 0.013324291969183832
+            "median": 0.01259595900774002,
+            "minimum": 0.01157466700533405,
+            "maximum": 0.013067292049527168
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214155264,
-          "after_prepare": 224624640,
-          "after_solve": 230490112,
-          "after_python_validity": 243351552,
-          "after_derived": 256180224,
-          "after_benchmark_oracle": 259457024
+          "imports_and_planning": 214368256,
+          "after_prepare": 225574912,
+          "after_solve": 230408192,
+          "after_python_validity": 243515392,
+          "after_derived": 259375104,
+          "after_benchmark_oracle": 267599872
         },
         "diagnostics": [
           {
@@ -48797,25 +48797,25 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.002854333957657218,
-            "minimum": 0.002424290985800326,
-            "maximum": 0.003515707969199866
+            "median": 0.0029749160166829824,
+            "minimum": 0.002778791997116059,
+            "maximum": 0.0038682500016875565
           },
           "prepare": {
-            "median": 0.0010946249822154641,
-            "minimum": 0.0010578339570201933,
-            "maximum": 0.0011717500165104866
+            "median": 0.0013919589691795409,
+            "minimum": 0.0012482909951359034,
+            "maximum": 0.0014186660409905016
           },
           "solve": {
-            "median": 0.08227920898934826,
-            "minimum": 0.08170095802051947,
-            "maximum": 0.0822867089882493
+            "median": 0.08368333301041275,
+            "minimum": 0.08325145801063627,
+            "maximum": 0.08376287500141189
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214122496,
-          "after_prepare": 217710592,
-          "after_solve": 218939392
+          "imports_and_planning": 214892544,
+          "after_prepare": 218398720,
+          "after_solve": 220086272
         },
         "diagnostics": [
           {
@@ -48872,25 +48872,25 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.002933708019554615,
-            "minimum": 0.0026253340183757246,
-            "maximum": 0.0034182080416940153
+            "median": 0.003678125038277358,
+            "minimum": 0.002960833953693509,
+            "maximum": 0.003818208002485335
           },
           "prepare": {
-            "median": 0.001382292015478015,
-            "minimum": 0.0010537499911151826,
-            "maximum": 0.0013995000044815242
+            "median": 0.0014626659685745835,
+            "minimum": 0.0011477080406621099,
+            "maximum": 0.0014631670201197267
           },
           "solve": {
-            "median": 0.1101090419688262,
-            "minimum": 0.10931954201078042,
-            "maximum": 0.11044270801357925
+            "median": 0.1114242080366239,
+            "minimum": 0.10961666697403416,
+            "maximum": 0.11330429196823388
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213811200,
-          "after_prepare": 218595328,
-          "after_solve": 220004352
+          "imports_and_planning": 214663168,
+          "after_prepare": 219070464,
+          "after_solve": 221364224
         },
         "diagnostics": [
           {
@@ -48947,48 +48947,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0020562499994412065,
-            "minimum": 0.0019000419997610152,
-            "maximum": 0.0026106250006705523
+            "median": 0.0024194170255213976,
+            "minimum": 0.002333874988835305,
+            "maximum": 0.002582582994364202
           },
           "prepare": {
-            "median": 0.0026143750292249024,
-            "minimum": 0.0024366670404560864,
-            "maximum": 0.0028698749956674874
+            "median": 0.002570917014963925,
+            "minimum": 0.0023378750192932785,
+            "maximum": 0.0026876660413108766
           },
           "solve": {
-            "median": 0.12458008399698883,
-            "minimum": 0.12372433301061392,
-            "maximum": 0.12478466698667035
+            "median": 0.12669266696320847,
+            "minimum": 0.12496687495149672,
+            "maximum": 0.12673995801014826
           },
           "python_validity": {
-            "median": 0.01894770801300183,
-            "minimum": 0.018784416955895722,
-            "maximum": 0.01963983295718208
+            "median": 0.019110165943857282,
+            "minimum": 0.018757542013190687,
+            "maximum": 0.019805375020951033
           },
           "streamwise_std": {
-            "median": 0.020924125041346997,
-            "minimum": 0.020696541003417224,
-            "maximum": 0.021600167034193873
+            "median": 0.021240375004708767,
+            "minimum": 0.020770000002812594,
+            "maximum": 0.02233391598565504
           },
           "turbulence_intensity_including_std": {
-            "median": 0.022290874971076846,
-            "minimum": 0.02189337502932176,
-            "maximum": 0.025170332984998822
+            "median": 0.02240283298306167,
+            "minimum": 0.02132433303631842,
+            "maximum": 0.022953249979764223
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.01242141699185595,
-            "minimum": 0.011811959033366293,
-            "maximum": 0.013456334010697901
+            "median": 0.0129398750141263,
+            "minimum": 0.012059375003445894,
+            "maximum": 0.013285791035741568
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213827584,
-          "after_prepare": 223494144,
-          "after_solve": 229752832,
-          "after_python_validity": 241942528,
-          "after_derived": 255033344,
-          "after_benchmark_oracle": 262144000
+          "imports_and_planning": 214368256,
+          "after_prepare": 224444416,
+          "after_solve": 230080512,
+          "after_python_validity": 241893376,
+          "after_derived": 262520832,
+          "after_benchmark_oracle": 267108352
         },
         "diagnostics": [
           {
@@ -50835,48 +50835,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.001882166019640863,
-            "minimum": 0.0018557499861344695,
-            "maximum": 0.002422875026240945
+            "median": 0.0025932079879567027,
+            "minimum": 0.0018171659903600812,
+            "maximum": 0.002742874959949404
           },
           "prepare": {
-            "median": 0.0025856250431388617,
-            "minimum": 0.002401334000751376,
-            "maximum": 0.002721124968957156
+            "median": 0.0021345000131987035,
+            "minimum": 0.0020453750039450824,
+            "maximum": 0.0024903329904191196
           },
           "solve": {
-            "median": 0.12423137499717996,
-            "minimum": 0.12392629100941122,
-            "maximum": 0.12472324998816475
+            "median": 0.1247012079693377,
+            "minimum": 0.12136216601356864,
+            "maximum": 0.12486687500495464
           },
           "python_validity": {
-            "median": 0.019320167019031942,
-            "minimum": 0.018930207996163517,
-            "maximum": 0.020068957994226366
+            "median": 0.018323374970350415,
+            "minimum": 0.017883374996017665,
+            "maximum": 0.0188218749826774
           },
           "streamwise_std": {
-            "median": 0.02145808399654925,
-            "minimum": 0.020665833028033376,
-            "maximum": 0.02148029097588733
+            "median": 0.02123237500200048,
+            "minimum": 0.020705458999145776,
+            "maximum": 0.021734041976742446
           },
           "turbulence_intensity_including_std": {
-            "median": 0.022278791991993785,
-            "minimum": 0.021939042024314404,
-            "maximum": 0.022448709001764655
+            "median": 0.02084766695043072,
+            "minimum": 0.020497042045462877,
+            "maximum": 0.021871207980439067
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.012434792006388307,
-            "minimum": 0.012156957993283868,
-            "maximum": 0.012770625005941838
+            "median": 0.01181933400221169,
+            "minimum": 0.010793125024065375,
+            "maximum": 0.012875916028860956
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214482944,
-          "after_prepare": 223641600,
-          "after_solve": 229294080,
-          "after_python_validity": 240025600,
-          "after_derived": 255262720,
-          "after_benchmark_oracle": 259538944
+          "imports_and_planning": 214450176,
+          "after_prepare": 224067584,
+          "after_solve": 229425152,
+          "after_python_validity": 238977024,
+          "after_derived": 259178496,
+          "after_benchmark_oracle": 262094848
         },
         "diagnostics": [
           {
@@ -52722,48 +52722,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0027454159571789205,
-            "minimum": 0.0024770000018179417,
-            "maximum": 0.0029260830488055944
+            "median": 0.001850667002145201,
+            "minimum": 0.0018273750320076942,
+            "maximum": 0.0023018750362098217
           },
           "prepare": {
-            "median": 0.03527258295798674,
-            "minimum": 0.03514937497675419,
-            "maximum": 0.035503708000760525
+            "median": 0.033811832952778786,
+            "minimum": 0.03379166597733274,
+            "maximum": 0.03532737499335781
           },
           "solve": {
-            "median": 0.12513354199472815,
-            "minimum": 0.12357491703005508,
-            "maximum": 0.1253157919854857
+            "median": 0.12172008299967274,
+            "minimum": 0.12078412499977276,
+            "maximum": 0.12617383297765628
           },
           "python_validity": {
-            "median": 0.018336958019062877,
-            "minimum": 0.018297083966899663,
-            "maximum": 0.01838500000303611
+            "median": 0.017734042019583285,
+            "minimum": 0.01767404202837497,
+            "maximum": 0.01898933300981298
           },
           "streamwise_std": {
-            "median": 0.020905458950437605,
-            "minimum": 0.020739250001497567,
-            "maximum": 0.021597750019282103
+            "median": 0.01991008297773078,
+            "minimum": 0.019489958009216934,
+            "maximum": 0.02061558299465105
           },
           "turbulence_intensity_including_std": {
-            "median": 0.021521167014725506,
-            "minimum": 0.02101291698636487,
-            "maximum": 0.021765165962278843
+            "median": 0.020350625040009618,
+            "minimum": 0.01996454200707376,
+            "maximum": 0.020385208015795797
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.01170191599521786,
-            "minimum": 0.011360750009771436,
-            "maximum": 0.011939458025153726
+            "median": 0.011045749997720122,
+            "minimum": 0.010836041998118162,
+            "maximum": 0.011290499998722225
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 210288640,
-          "after_prepare": 220135424,
-          "after_solve": 226590720,
-          "after_python_validity": 238731264,
-          "after_derived": 247808000,
-          "after_benchmark_oracle": 250445824
+          "imports_and_planning": 213090304,
+          "after_prepare": 223920128,
+          "after_solve": 229834752,
+          "after_python_validity": 240713728,
+          "after_derived": 251871232,
+          "after_benchmark_oracle": 252346368
         },
         "diagnostics": [
           {
@@ -53267,48 +53267,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0024347080034203827,
-            "minimum": 0.0022344590397551656,
-            "maximum": 0.0024855410447344184
+            "median": 0.001841333054471761,
+            "minimum": 0.0018341669929213822,
+            "maximum": 0.001880458032246679
           },
           "prepare": {
-            "median": 0.03533366700867191,
-            "minimum": 0.03504700004123151,
-            "maximum": 0.0354369169799611
+            "median": 0.03397941600997001,
+            "minimum": 0.03359791700495407,
+            "maximum": 0.035063708026427776
           },
           "solve": {
-            "median": 0.12468225002521649,
-            "minimum": 0.12372299999697134,
-            "maximum": 0.12515495799016207
+            "median": 0.12162579101277515,
+            "minimum": 0.12081200000829995,
+            "maximum": 0.12365833297371864
           },
           "python_validity": {
-            "median": 0.01921516697620973,
-            "minimum": 0.01857429201481864,
-            "maximum": 0.0193637500051409
+            "median": 0.017674375034403056,
+            "minimum": 0.01749870803905651,
+            "maximum": 0.018588124949019402
           },
           "streamwise_std": {
-            "median": 0.020957708009518683,
-            "minimum": 0.020536249969154596,
-            "maximum": 0.021350416995119303
+            "median": 0.020405417017173022,
+            "minimum": 0.01985054201213643,
+            "maximum": 0.02063616696977988
           },
           "turbulence_intensity_including_std": {
-            "median": 0.02096970798447728,
-            "minimum": 0.020758334023412317,
-            "maximum": 0.021014708967413753
+            "median": 0.02010620798682794,
+            "minimum": 0.019952917005866766,
+            "maximum": 0.02145116700557992
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.011738249973859638,
-            "minimum": 0.011613750015385449,
-            "maximum": 0.012096000020392239
+            "median": 0.01109987503150478,
+            "minimum": 0.010901250003371388,
+            "maximum": 0.011603666993323714
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213204992,
-          "after_prepare": 223199232,
-          "after_solve": 229081088,
-          "after_python_validity": 236191744,
-          "after_derived": 237371392,
-          "after_benchmark_oracle": 243793920
+          "imports_and_planning": 213876736,
+          "after_prepare": 224051200,
+          "after_solve": 229801984,
+          "after_python_validity": 239452160,
+          "after_derived": 250642432,
+          "after_benchmark_oracle": 254296064
         },
         "diagnostics": [
           {
@@ -53811,48 +53811,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.003584416990634054,
-            "minimum": 0.0029977919766679406,
-            "maximum": 0.0036156249698251486
+            "median": 0.002970915986225009,
+            "minimum": 0.0028925000224262476,
+            "maximum": 0.002988249994814396
           },
           "prepare": {
-            "median": 0.0034292080090381205,
-            "minimum": 0.002968124987091869,
-            "maximum": 0.003839750017505139
+            "median": 0.0029297919827513397,
+            "minimum": 0.0027920000138692558,
+            "maximum": 0.0030901249847374856
           },
           "solve": {
-            "median": 0.17952437500935048,
-            "minimum": 0.1794096669764258,
-            "maximum": 0.18083504197420552
+            "median": 0.17485208297148347,
+            "minimum": 0.17274129204452038,
+            "maximum": 0.17645745899062604
           },
           "python_validity": {
-            "median": 0.026844457956030965,
-            "minimum": 0.02632045903010294,
-            "maximum": 0.02685220801504329
+            "median": 0.025282957998570055,
+            "minimum": 0.025159290991723537,
+            "maximum": 0.025895958009641618
           },
           "streamwise_std": {
-            "median": 0.030076583032496274,
-            "minimum": 0.029992499970830977,
-            "maximum": 0.031481040990911424
+            "median": 0.02863166603492573,
+            "minimum": 0.02858358301455155,
+            "maximum": 0.02896058396436274
           },
           "turbulence_intensity_including_std": {
-            "median": 0.03077670803759247,
-            "minimum": 0.03033216600306332,
-            "maximum": 0.03269533399725333
+            "median": 0.028656709007918835,
+            "minimum": 0.028471458004787564,
+            "maximum": 0.02936929202405736
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.011932333989534527,
-            "minimum": 0.011625083978287876,
-            "maximum": 0.012405333982314914
+            "median": 0.011685000034049153,
+            "minimum": 0.011160583002492785,
+            "maximum": 0.013842333049979061
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213712896,
-          "after_prepare": 228130816,
-          "after_solve": 236650496,
-          "after_python_validity": 249987072,
-          "after_derived": 267649024,
-          "after_benchmark_oracle": 274825216
+          "imports_and_planning": 210763776,
+          "after_prepare": 224739328,
+          "after_solve": 232914944,
+          "after_python_validity": 240599040,
+          "after_derived": 255803392,
+          "after_benchmark_oracle": 256393216
         },
         "diagnostics": [
           {
@@ -55699,48 +55699,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0037648750003427267,
-            "minimum": 0.0029599580448120832,
-            "maximum": 0.0038943749968893826
+            "median": 0.002949999994598329,
+            "minimum": 0.0029070829623378813,
+            "maximum": 0.003809083951637149
           },
           "prepare": {
-            "median": 0.03790529101388529,
-            "minimum": 0.03766116697806865,
-            "maximum": 0.03827012499095872
+            "median": 0.03652475000126287,
+            "minimum": 0.03602666704682633,
+            "maximum": 0.037438708008266985
           },
           "solve": {
-            "median": 0.18080733402166516,
-            "minimum": 0.17967837501782924,
-            "maximum": 0.18191583396401256
+            "median": 0.17419624998001382,
+            "minimum": 0.17254258401226252,
+            "maximum": 0.17571833403781056
           },
           "python_validity": {
-            "median": 0.02687425003387034,
-            "minimum": 0.026396250003017485,
-            "maximum": 0.02788270899327472
+            "median": 0.02533341699745506,
+            "minimum": 0.025149915949441493,
+            "maximum": 0.026013416005298495
           },
           "streamwise_std": {
-            "median": 0.030019083991646767,
-            "minimum": 0.02956487500341609,
-            "maximum": 0.030038958007935435
+            "median": 0.02777312498074025,
+            "minimum": 0.027657207974698395,
+            "maximum": 0.028177166008390486
           },
           "turbulence_intensity_including_std": {
-            "median": 0.03076683299150318,
-            "minimum": 0.03055112500442192,
-            "maximum": 0.030773249978665262
+            "median": 0.028769124997779727,
+            "minimum": 0.028334832983091474,
+            "maximum": 0.029003708041273057
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.011934917012695223,
-            "minimum": 0.011860416969284415,
-            "maximum": 0.012294874992221594
+            "median": 0.011185000010300428,
+            "minimum": 0.010883083974476904,
+            "maximum": 0.012904083996545523
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 212959232,
-          "after_prepare": 228950016,
-          "after_solve": 235470848,
-          "after_python_validity": 250544128,
-          "after_derived": 264208384,
-          "after_benchmark_oracle": 275791872
+          "imports_and_planning": 210731008,
+          "after_prepare": 226082816,
+          "after_solve": 233619456,
+          "after_python_validity": 243810304,
+          "after_derived": 256950272,
+          "after_benchmark_oracle": 261160960
         },
         "diagnostics": [
           {
@@ -56243,25 +56243,25 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0031365000177174807,
-            "minimum": 0.0024357910151593387,
-            "maximum": 0.0032727079815231264
+            "median": 0.0024213329888880253,
+            "minimum": 0.0024179579922929406,
+            "maximum": 0.002491625025868416
           },
           "prepare": {
-            "median": 0.0029383330256678164,
-            "minimum": 0.0026817090110853314,
-            "maximum": 0.0031692919437773526
+            "median": 0.0026294169947504997,
+            "minimum": 0.0026114160427823663,
+            "maximum": 0.002734291017986834
           },
           "solve": {
-            "median": 0.8191991249914281,
-            "minimum": 0.8179404999827966,
-            "maximum": 0.8197873749886639
+            "median": 0.7844565410050564,
+            "minimum": 0.7832421250059269,
+            "maximum": 0.7869022499653511
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213417984,
-          "after_prepare": 226656256,
-          "after_solve": 233275392
+          "imports_and_planning": 211107840,
+          "after_prepare": 225443840,
+          "after_solve": 230981632
         },
         "diagnostics": [
           {
@@ -56318,48 +56318,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.002172832959331572,
-            "minimum": 0.0019855420105159283,
-            "maximum": 0.002555416023824364
+            "median": 0.0018292500171810389,
+            "minimum": 0.0018037079717032611,
+            "maximum": 0.0021335420315153897
           },
           "prepare": {
-            "median": 0.006262624985538423,
-            "minimum": 0.006030375021509826,
-            "maximum": 0.006392500014044344
+            "median": 0.005172582983504981,
+            "minimum": 0.005164542002603412,
+            "maximum": 0.005206207977607846
           },
           "solve": {
-            "median": 0.8614793329616077,
-            "minimum": 0.8602170000085607,
-            "maximum": 0.8630416659871116
+            "median": 0.8190918329637498,
+            "minimum": 0.8173716249875724,
+            "maximum": 0.8374322919989936
           },
           "python_validity": {
-            "median": 0.05264695902587846,
-            "minimum": 0.052533083013258874,
-            "maximum": 0.05280624999431893
+            "median": 0.049916749994736165,
+            "minimum": 0.04982154199387878,
+            "maximum": 0.05152958398684859
           },
           "streamwise_std": {
-            "median": 0.06000133400084451,
-            "minimum": 0.059570625016931444,
-            "maximum": 0.06177387502975762
+            "median": 0.05597437499091029,
+            "minimum": 0.055352540977764875,
+            "maximum": 0.05712391599081457
           },
           "turbulence_intensity_including_std": {
-            "median": 0.06178154097869992,
-            "minimum": 0.0601923749782145,
-            "maximum": 0.062421583046671
+            "median": 0.05675595800857991,
+            "minimum": 0.05668620899086818,
+            "maximum": 0.05818824999732897
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.014340833993628621,
-            "minimum": 0.01278974994784221,
-            "maximum": 0.015593625023029745
+            "median": 0.011926791979931295,
+            "minimum": 0.011560041049961,
+            "maximum": 0.01204920798772946
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 212582400,
-          "after_prepare": 242122752,
-          "after_solve": 258441216,
-          "after_python_validity": 279920640,
-          "after_derived": 303267840,
-          "after_benchmark_oracle": 325304320
+          "imports_and_planning": 213663744,
+          "after_prepare": 242810880,
+          "after_solve": 258424832,
+          "after_python_validity": 284360704,
+          "after_derived": 305430528,
+          "after_benchmark_oracle": 311443456
         },
         "diagnostics": [
           {
@@ -61633,48 +61633,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0024860419798642397,
-            "minimum": 0.0024458750267513096,
-            "maximum": 0.002524249954149127
+            "median": 0.0018847089959308505,
+            "minimum": 0.0017830420401878655,
+            "maximum": 0.0019425840000621974
           },
           "prepare": {
-            "median": 0.006099416990764439,
-            "minimum": 0.005638334027025849,
-            "maximum": 0.006769791012629867
+            "median": 0.005513041978701949,
+            "minimum": 0.0052073749830015,
+            "maximum": 0.006060957966838032
           },
           "solve": {
-            "median": 0.8641984169953503,
-            "minimum": 0.8608324580127373,
-            "maximum": 0.8651445410214365
+            "median": 0.8120664169546217,
+            "minimum": 0.8068163340212777,
+            "maximum": 0.8173553750384599
           },
           "python_validity": {
-            "median": 0.05347687500761822,
-            "minimum": 0.053249082993716,
-            "maximum": 0.05547579098492861
+            "median": 0.04984833300113678,
+            "minimum": 0.04934712499380112,
+            "maximum": 0.05007745901821181
           },
           "streamwise_std": {
-            "median": 0.062036083021666855,
-            "minimum": 0.06159887497778982,
-            "maximum": 0.0642942080157809
+            "median": 0.05468137498246506,
+            "minimum": 0.053890125011093915,
+            "maximum": 0.05572858301457018
           },
           "turbulence_intensity_including_std": {
-            "median": 0.06438545900164172,
-            "minimum": 0.06344245799118653,
-            "maximum": 0.0665614579920657
+            "median": 0.05694862501695752,
+            "minimum": 0.056428292009513825,
+            "maximum": 0.05707820801762864
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.013895458017941564,
-            "minimum": 0.013628542015794665,
-            "maximum": 0.014888416044414043
+            "median": 0.011262666957918555,
+            "minimum": 0.010964332963339984,
+            "maximum": 0.011843165964819491
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213876736,
-          "after_prepare": 243843072,
-          "after_solve": 260341760,
-          "after_python_validity": 284114944,
-          "after_derived": 325615616,
-          "after_benchmark_oracle": 333332480
+          "imports_and_planning": 208961536,
+          "after_prepare": 237797376,
+          "after_solve": 254148608,
+          "after_python_validity": 280166400,
+          "after_derived": 300843008,
+          "after_benchmark_oracle": 305692672
         },
         "diagnostics": [
           {
@@ -66947,48 +66947,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.002582582994364202,
-            "minimum": 0.0018915000255219638,
-            "maximum": 0.0026312500122003257
+            "median": 0.001820666017010808,
+            "minimum": 0.0017388329724781215,
+            "maximum": 0.0018749580485746264
           },
           "prepare": {
-            "median": 0.2415811670362018,
-            "minimum": 0.24148249998688698,
-            "maximum": 0.24268220801604912
+            "median": 0.22426099999574944,
+            "minimum": 0.2241023329552263,
+            "maximum": 0.22434870898723602
           },
           "solve": {
-            "median": 0.8618395000230521,
-            "minimum": 0.8617443340481259,
-            "maximum": 0.8619146670098417
+            "median": 0.8046711250208318,
+            "minimum": 0.8032646670471877,
+            "maximum": 0.8496774580562487
           },
           "python_validity": {
-            "median": 0.053770083002746105,
-            "minimum": 0.05222583404975012,
-            "maximum": 0.05377950001275167
+            "median": 0.04948695795610547,
+            "minimum": 0.04862716601928696,
+            "maximum": 0.06069162499625236
           },
           "streamwise_std": {
-            "median": 0.0614629999618046,
-            "minimum": 0.0614220830029808,
-            "maximum": 0.06272491702111438
+            "median": 0.05498345801606774,
+            "minimum": 0.05418516701320186,
+            "maximum": 0.057179708033800125
           },
           "turbulence_intensity_including_std": {
-            "median": 0.062054417037870735,
-            "minimum": 0.061471583030652255,
-            "maximum": 0.062891292036511
+            "median": 0.05580108298454434,
+            "minimum": 0.05532604199834168,
+            "maximum": 0.05665658402722329
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.012493624992202967,
-            "minimum": 0.012113249977119267,
-            "maximum": 0.012705667002592236
+            "median": 0.012039916997309774,
+            "minimum": 0.011175667052157223,
+            "maximum": 0.014758041012100875
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214417408,
-          "after_prepare": 243515392,
-          "after_solve": 257277952,
-          "after_python_validity": 288325632,
-          "after_derived": 316080128,
-          "after_benchmark_oracle": 329924608
+          "imports_and_planning": 210321408,
+          "after_prepare": 239288320,
+          "after_solve": 255868928,
+          "after_python_validity": 275644416,
+          "after_derived": 296091648,
+          "after_benchmark_oracle": 307494912
         },
         "diagnostics": [
           {
@@ -68172,48 +68172,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.0025542500079609454,
-            "minimum": 0.0025217090151272714,
-            "maximum": 0.0029958750237710774
+            "median": 0.001848959014751017,
+            "minimum": 0.0016593749751336873,
+            "maximum": 0.0018677919870242476
           },
           "prepare": {
-            "median": 0.24072437500581145,
-            "minimum": 0.24053670902503654,
-            "maximum": 0.2439041250036098
+            "median": 0.2212268749717623,
+            "minimum": 0.2208519999985583,
+            "maximum": 0.22695354197639972
           },
           "solve": {
-            "median": 0.8650083750253543,
-            "minimum": 0.862742499972228,
-            "maximum": 0.8658977079903707
+            "median": 0.8066688749822788,
+            "minimum": 0.796103291970212,
+            "maximum": 0.8329633340472355
           },
           "python_validity": {
-            "median": 0.05433795799035579,
-            "minimum": 0.053490249963942915,
-            "maximum": 0.05638254195218906
+            "median": 0.049437084002420306,
+            "minimum": 0.049006667046342045,
+            "maximum": 0.049586292007006705
           },
           "streamwise_std": {
-            "median": 0.06218254199484363,
-            "minimum": 0.061198542010970414,
-            "maximum": 0.06500845804112032
+            "median": 0.05435970798134804,
+            "minimum": 0.054291041975375265,
+            "maximum": 0.055548832984641194
           },
           "turbulence_intensity_including_std": {
-            "median": 0.06340916699264199,
-            "minimum": 0.06245016696630046,
-            "maximum": 0.06575404200702906
+            "median": 0.05606516601983458,
+            "minimum": 0.05602687504142523,
+            "maximum": 0.05708225001581013
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.012593541003298014,
-            "minimum": 0.012367790972348303,
-            "maximum": 0.013683624973054975
+            "median": 0.011228041024878621,
+            "minimum": 0.011098082992248237,
+            "maximum": 0.011293624993413687
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213942272,
-          "after_prepare": 241664000,
-          "after_solve": 258146304,
-          "after_python_validity": 278233088,
-          "after_derived": 318767104,
-          "after_benchmark_oracle": 332365824
+          "imports_and_planning": 210747392,
+          "after_prepare": 238354432,
+          "after_solve": 255574016,
+          "after_python_validity": 273940480,
+          "after_derived": 299368448,
+          "after_benchmark_oracle": 299778048
         },
         "diagnostics": [
           {
@@ -69396,48 +69396,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.004203208023682237,
-            "minimum": 0.0039330830331891775,
-            "maximum": 0.004409459012094885
+            "median": 0.0029223330202512443,
+            "minimum": 0.0028614160255528986,
+            "maximum": 0.003597709001041949
           },
           "prepare": {
-            "median": 0.007371333020273596,
-            "minimum": 0.007250709051731974,
-            "maximum": 0.007642207958269864
+            "median": 0.006321708031464368,
+            "minimum": 0.00623320898739621,
+            "maximum": 0.00637920800363645
           },
           "solve": {
-            "median": 1.113189166993834,
-            "minimum": 1.1102967499755323,
-            "maximum": 1.1219249999849126
+            "median": 1.034657625015825,
+            "minimum": 1.0203106249682605,
+            "maximum": 1.0389649160206318
           },
           "python_validity": {
-            "median": 0.06662408402189612,
-            "minimum": 0.06561312504345551,
-            "maximum": 0.06821112497709692
+            "median": 0.06057716702343896,
+            "minimum": 0.05910933297127485,
+            "maximum": 0.06218554201768711
           },
           "streamwise_std": {
-            "median": 0.07495291600935161,
-            "minimum": 0.07372533297166228,
-            "maximum": 0.07508791697910056
+            "median": 0.06925370800308883,
+            "minimum": 0.06634158303495497,
+            "maximum": 0.07071349996840581
           },
           "turbulence_intensity_including_std": {
-            "median": 0.07949687499785796,
-            "minimum": 0.07640183402691036,
-            "maximum": 0.08079437504056841
+            "median": 0.06954791699536145,
+            "minimum": 0.06920441699912772,
+            "maximum": 0.06959654204547405
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.013515709026250988,
-            "minimum": 0.013340000004973263,
-            "maximum": 0.0161048750160262
+            "median": 0.011521500011440367,
+            "minimum": 0.01142791600432247,
+            "maximum": 0.011894041032064706
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 214269952,
-          "after_prepare": 249135104,
-          "after_solve": 269254656,
-          "after_python_validity": 300171264,
-          "after_derived": 345391104,
-          "after_benchmark_oracle": 355270656
+          "imports_and_planning": 211992576,
+          "after_prepare": 248643584,
+          "after_solve": 267468800,
+          "after_python_validity": 283475968,
+          "after_derived": 314294272,
+          "after_benchmark_oracle": 323239936
         },
         "diagnostics": [
           {
@@ -74710,48 +74710,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.004090250004082918,
-            "minimum": 0.0039297909825108945,
-            "maximum": 0.004135709023103118
+            "median": 0.003113625047262758,
+            "minimum": 0.0028507080278359354,
+            "maximum": 0.0035198329715058208
           },
           "prepare": {
-            "median": 0.2530914999661036,
-            "minimum": 0.2528590419678949,
-            "maximum": 0.26382904197089374
+            "median": 0.23746491700876504,
+            "minimum": 0.2338131659780629,
+            "maximum": 0.24109299998963252
           },
           "solve": {
-            "median": 1.114576958003454,
-            "minimum": 1.1135763329803012,
-            "maximum": 1.1230845000245608
+            "median": 1.0350520000210963,
+            "minimum": 1.0229747499688528,
+            "maximum": 1.0470447079860605
           },
           "python_validity": {
-            "median": 0.06571791699388996,
-            "minimum": 0.06445549998898059,
-            "maximum": 0.06628141604596749
+            "median": 0.059323917026631534,
+            "minimum": 0.05930033401818946,
+            "maximum": 0.0599011669983156
           },
           "streamwise_std": {
-            "median": 0.07498691597720608,
-            "minimum": 0.0747632920392789,
-            "maximum": 0.07597770803840831
+            "median": 0.0673003340489231,
+            "minimum": 0.0660862079821527,
+            "maximum": 0.06791104102740064
           },
           "turbulence_intensity_including_std": {
-            "median": 0.07756391703151166,
-            "minimum": 0.07748741703107953,
-            "maximum": 0.08017254201695323
+            "median": 0.06860891595715657,
+            "minimum": 0.06708591704955325,
+            "maximum": 0.07014879200141877
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.01280479202978313,
-            "minimum": 0.012553583015687764,
-            "maximum": 0.012957625032868236
+            "median": 0.011732999992091209,
+            "minimum": 0.0109974590013735,
+            "maximum": 0.012266124947927892
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213614592,
-          "after_prepare": 249118720,
-          "after_solve": 268795904,
-          "after_python_validity": 297287680,
-          "after_derived": 348536832,
-          "after_benchmark_oracle": 351895552
+          "imports_and_planning": 212189184,
+          "after_prepare": 248512512,
+          "after_solve": 269139968,
+          "after_python_validity": 296091648,
+          "after_derived": 348487680,
+          "after_benchmark_oracle": 348700672
         },
         "diagnostics": [
           {
@@ -75934,48 +75934,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.004092707997187972,
-            "minimum": 0.004088082991074771,
-            "maximum": 0.004610082949511707
+            "median": 0.0031308330362662673,
+            "minimum": 0.003115041006822139,
+            "maximum": 0.004378541023470461
           },
           "prepare": {
-            "median": 0.006620083004236221,
-            "minimum": 0.006530624988954514,
-            "maximum": 0.007444165996275842
+            "median": 0.005651457991916686,
+            "minimum": 0.005347708996850997,
+            "maximum": 0.0065846669604070485
           },
           "solve": {
-            "median": 0.9793405829695985,
-            "minimum": 0.9790854169987142,
-            "maximum": 0.9819581249612384
+            "median": 0.9011155000189319,
+            "minimum": 0.8978042920352891,
+            "maximum": 0.9123559580184519
           },
           "python_validity": {
-            "median": 0.0592866669758223,
-            "minimum": 0.05783320899354294,
-            "maximum": 0.060101416951511055
+            "median": 0.05249741702573374,
+            "minimum": 0.051767083001323044,
+            "maximum": 0.05361216695746407
           },
           "streamwise_std": {
-            "median": 0.06749562500044703,
-            "minimum": 0.06610212498344481,
-            "maximum": 0.07245379203232005
+            "median": 0.05905020795762539,
+            "minimum": 0.05825641698902473,
+            "maximum": 0.06090458296239376
           },
           "turbulence_intensity_including_std": {
-            "median": 0.06667845800984651,
-            "minimum": 0.06667370803188533,
-            "maximum": 0.06712720799259841
+            "median": 0.06148775003384799,
+            "minimum": 0.06125008297385648,
+            "maximum": 0.06407483294606209
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.013008000038098544,
-            "minimum": 0.01297241699649021,
-            "maximum": 0.013663916965015233
+            "median": 0.011467667005490512,
+            "minimum": 0.011163916962686926,
+            "maximum": 0.012957375030964613
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213630976,
-          "after_prepare": 244219904,
-          "after_solve": 261242880,
-          "after_python_validity": 291717120,
-          "after_derived": 311607296,
-          "after_benchmark_oracle": 320094208
+          "imports_and_planning": 211550208,
+          "after_prepare": 241696768,
+          "after_solve": 260292608,
+          "after_python_validity": 287604736,
+          "after_derived": 320028672,
+          "after_benchmark_oracle": 327958528
         },
         "diagnostics": [
           {
@@ -81248,48 +81248,48 @@
         "accepted_repetitions": 3,
         "seconds": {
           "planning": {
-            "median": 0.004384999978356063,
-            "minimum": 0.004101417027413845,
-            "maximum": 0.004706209001597017
+            "median": 0.003246416978072375,
+            "minimum": 0.003120915964245796,
+            "maximum": 0.003942041017580777
           },
           "prepare": {
-            "median": 0.24974050000309944,
-            "minimum": 0.2487874999642372,
-            "maximum": 0.25087412499124184
+            "median": 0.23179262498160824,
+            "minimum": 0.2315930409822613,
+            "maximum": 0.23565937497187406
           },
           "solve": {
-            "median": 0.9805528750293888,
-            "minimum": 0.9783067919779569,
-            "maximum": 0.983450207975693
+            "median": 0.8993083750247024,
+            "minimum": 0.8956173330079764,
+            "maximum": 0.9144957499811426
           },
           "python_validity": {
-            "median": 0.05895116599276662,
-            "minimum": 0.0580366249778308,
-            "maximum": 0.059901083004660904
+            "median": 0.05321245803497732,
+            "minimum": 0.05282500002067536,
+            "maximum": 0.05408979201456532
           },
           "streamwise_std": {
-            "median": 0.06871037499513477,
-            "minimum": 0.06481033301679417,
-            "maximum": 0.08408304199110717
+            "median": 0.058462749992031604,
+            "minimum": 0.05738308298168704,
+            "maximum": 0.062317041971255094
           },
           "turbulence_intensity_including_std": {
-            "median": 0.07146733300760388,
-            "minimum": 0.06750920799095184,
-            "maximum": 0.2475278340280056
+            "median": 0.06127670803107321,
+            "minimum": 0.05955033301142976,
+            "maximum": 0.06302491697715595
           },
           "pedestrian_sampling_and_oracle": {
-            "median": 0.012488375010434538,
-            "minimum": 0.012456041993573308,
-            "maximum": 0.013195999956224114
+            "median": 0.011499541986268014,
+            "minimum": 0.011229249997995794,
+            "maximum": 0.011570416972972453
           }
         },
         "peak_rss_bytes": {
-          "imports_and_planning": 213532672,
-          "after_prepare": 244826112,
-          "after_solve": 261832704,
-          "after_python_validity": 292372480,
-          "after_derived": 327073792,
-          "after_benchmark_oracle": 331972608
+          "imports_and_planning": 209944576,
+          "after_prepare": 241631232,
+          "after_solve": 259375104,
+          "after_python_validity": 271482880,
+          "after_derived": 306413568,
+          "after_benchmark_oracle": 309837824
         },
         "diagnostics": [
           {
@@ -385493,7 +385493,7 @@
   },
   "raw_runs": {
     "file": "benchmark-runs.json.gz",
-    "sha256": "31045a69040de52d72dbfd108222670e6301f0d95fc27e0aa470df7665571006",
+    "sha256": "280a4e10455ea034cfb0c98f15556dcf007ab997a09e2d3e243a35a9f73dc13b",
     "count": 216,
     "encoding": "gzip compressed JSON; null denotes unavailable floats"
   },

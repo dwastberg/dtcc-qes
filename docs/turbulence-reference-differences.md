@@ -743,3 +743,34 @@ accounts for invalid contributors after interpolation. It measures the
 sensitivity. Height remains the provisional default. Task 6 DTCC export is next;
 physical gust validation and comfort certification are not established by
 this gate. Earlier milestone sections above describe their historical state.
+
+## DTCC turbulence export (Task 6, 2026-10-28)
+
+`WindResult.to_dtcc()` now adds five fields when turbulence is present:
+six-component raw `stress` and scalar `tke` in m²/s², `streamwise_std` in m/s,
+dimensionless `turbulence_intensity`, and uint8 `stress_valid` encoded 0/1.
+All fields use the existing y/x/z-fastest cell order and own their arrays.
+Nonuniform layers still reject direct uniform-grid conversion.
+
+Export masks uncomputed floats, preserves invalid computed raw tensors and
+their TKE, and classifies validity from the current tensors. It does not trust
+an editable native validity snapshot or alter original arrays/counts. Derived
+statistics retain the existing full 3D projection and invalid/undefined-direction
+policy; intensity reuses the export's standard deviation. Validity is independent
+of capping and mean direction. Field descriptions record component order, units,
+model/numerics/QES revision, the spectral validity rule and the unvalidated-gust
+screening limitation. The provisional-height warning in result metadata now
+reflects completed numerical acceptance, without claiming physical validation.
+
+Three initial export tests failed before implementation; both compatibility
+checks passed. All 67 turbulence tests now pass, including independent ordering
+and covariance oracles, edited coverage/validity, zero/nonfinite directions and
+native DTCC serialization round-trips for both methods. The full suite passes
+792 tests with 24 existing opt-in skips. Native C++/QES sources are unchanged;
+the Task 9 Release/ASan/UBSan evidence remains applicable. The full benchmark
+refresh passes all 72 configurations/216 repetitions and 18 scaling pairs, so
+the source-distribution audit still verifies matching source fingerprints.
+All 216 wind/solver diagnostic records, 186 raw-stress/validity records and
+62 retained tensor/statistic sample sets match the Task 9 baseline exactly.
+Benchmark timings cover the original solve/statistic operations, rather than
+the new DTCC conversion. Task 7 comfort GEM is next.
