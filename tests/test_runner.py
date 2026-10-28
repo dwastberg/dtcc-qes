@@ -48,6 +48,125 @@ def test_bound_runner_matches_reference(case):
     assert diagnostics["converged"]
     assert diagnostics["max_lagrange_multiplier_change"] <= diagnostics["tolerance"]
     assert result["building_count"] == len(case.buildings)
+    assert result["turbulence"] is None
+
+
+def turbulence_settings(method=0, enabled=True):
+    settings = _qes.TurbulenceSettings()
+    settings.enabled = enabled
+    settings.mixing_length_method = method
+    return settings
+
+
+@pytest.mark.parametrize("setting", [None, False])
+def test_turbulence_disabled(setting):
+    grid, model, condition, solver, arrays = inputs(FLAT)
+    runner = _qes.WindRunner()
+    runner.prepare(grid, model, **arrays,
+                   turbulence=None if setting is None else turbulence_settings(enabled=False))
+    assert runner.solve(condition, solver)["turbulence"] is None
+
+
+@pytest.mark.parametrize("method", [0, 1])
+@pytest.mark.parametrize("precision", ["float32", "float64"])
+def test_turbulence_arrays_masks_metadata_and_ownership(method, precision):
+    grid, model, condition, solver, arrays = inputs(ONE_BUILDING)
+    runner = _qes.WindRunner()
+    solver.precision = precision
+    settings = turbulence_settings(method)
+    runner.prepare(grid, model, **arrays, turbulence=settings)
+    settings.enabled = False
+    settings.mixing_length_method = 4
+    first = runner.solve(condition, solver)
+    turb = first["turbulence"]
+    float_arrays = ("stress", "tke", "co_eps", "mixing_length")
+    arrays_names = (*float_arrays, "state", "stress_valid")
+    scalars = ("friction_velocity", "reference_speed", "reference_height", "roughness_length",
+               "displacement_height", "upper_bound", "computed_cells", "capped_cells",
+               "invalid_stress_cells", "rotation_fallback_columns")
+    assert set(turb) == set((*arrays_names, *scalars))
+    shape = (grid.nz, grid.ny, grid.nx)
+    for name in arrays_names:
+        array = turb[name]
+        assert array.shape == ((*shape, 6) if name == "stress" else shape)
+        assert array.dtype == (np.float32 if name in float_arrays else np.uint8)
+        assert array.flags.c_contiguous and array.flags.owndata
+    computed = turb["state"] > 0
+    assert computed.sum() == turb["computed_cells"]
+    assert not computed[-1].any() and not computed[:, (0, -1), :].any()
+    assert not computed[:, :, (0, -1)].any()
+    assert not computed[np.isin(first["cell_flags"], (0, 2))].any()
+    assert turb["computed_cells"] > 10000
+    assert np.all(np.isin(turb["state"], (0, 1, 2)))
+    assert (turb["state"] == 2).sum() == turb["capped_cells"]
+    bound = (np.float32(turb["upper_bound"]) * np.float32(turb["friction_velocity"]))
+    bound *= np.float32(turb["friction_velocity"])
+    capped = computed & ((turb["tke"] >= bound) | (np.abs(turb["stress"]).max(axis=-1) >= bound))
+    np.testing.assert_array_equal(turb["state"] == 2, capped)
+    assert not turb["stress_valid"][~computed].any()
+    for name in float_arrays:
+        assert np.isnan(turb[name][~computed]).all()
+        assert np.isfinite(turb[name][computed]).all()
+    # Independent covariance check on the extracted, stored float32 values.
+    raw = turb["stress"][computed].astype(np.float64)
+    tensor = raw[:, (0, 1, 2, 1, 3, 4, 2, 4, 5)].reshape(-1, 3, 3)
+    eigenvalues = np.linalg.eigvalsh(tensor)
+    valid = eigenvalues[:, 0] >= -32 * np.finfo(np.float32).eps * np.abs(eigenvalues).max(axis=1)
+    np.testing.assert_array_equal(turb["stress_valid"][computed], valid)
+    assert (~valid).sum() == turb["invalid_stress_cells"]
+    assert turb["reference_height"] == 24
+    assert turb["roughness_length"] == pytest.approx(0.8)
+    assert turb["displacement_height"] == pytest.approx(5.6)
+    assert turb["upper_bound"] == 20
+    assert turb["friction_velocity"] > 0
+    snapshot = {name: turb[name].copy() for name in arrays_names}
+    condition.direction = 0
+    second = runner.solve(condition, solver)
+    assert not np.array_equal(turb["stress"], second["turbulence"]["stress"], equal_nan=True)
+    condition.direction = 270
+    third = runner.solve(condition, solver)["turbulence"]
+    del runner
+    gc.collect()
+    for name in arrays_names:
+        np.testing.assert_array_equal(turb[name], snapshot[name])
+        np.testing.assert_array_equal(third[name], snapshot[name])
+        assert not np.shares_memory(turb[name], third[name])
+
+
+def test_enabling_turbulence_preserves_wind_results():
+    runner, condition, solver = prepared(ONE_BUILDING)
+    original = runner.solve(condition, solver)
+    grid, model, _, _, arrays = inputs(ONE_BUILDING)
+    runner.prepare(grid, model, **arrays, turbulence=turbulence_settings())
+    enabled = runner.solve(condition, solver)
+    np.testing.assert_array_equal(enabled["velocity"], original["velocity"])
+    np.testing.assert_array_equal(enabled["cell_flags"], original["cell_flags"])
+    assert enabled["diagnostics"] == original["diagnostics"]
+    runner.prepare(grid, model, **arrays)
+    assert runner.solve(condition, solver)["turbulence"] is None
+
+
+@pytest.mark.parametrize("method", [-1, 2, 3, 4, 5])
+def test_unsupported_turbulence_method_preserves_preparation(method):
+    runner, condition, solver = prepared(FLAT)
+    grid, model, _, _, arrays = inputs(ONE_BUILDING)
+    arrays["heights"][:] = np.nan  # Method validation must precede native geometry setup.
+    with pytest.raises(ValueError, match="mixing-length method"):
+        runner.prepare(grid, model, **arrays, turbulence=turbulence_settings(method))
+    recovered = runner.solve(condition, solver)
+    assert recovered["turbulence"] is None and recovered["building_count"] == 0
+
+
+def test_turbulence_margin_failure_preserves_preparation():
+    runner, condition, solver = prepared(FLAT)
+    grid, model, _, _, arrays = inputs(ONE_BUILDING)
+    grid.nz = 13
+    with pytest.raises(ValueError, match=r"domain top.*24.*margin.*30"):
+        runner.prepare(grid, model, **arrays, turbulence=turbulence_settings())
+    assert runner.solve(condition, solver)["turbulence"] is None
+    grid.nz = 15
+    runner.prepare(grid, model, **arrays, turbulence=turbulence_settings())
+    assert runner.solve(condition, solver)["turbulence"]["reference_height"] == 24
 
 
 def test_results_survive_runner_and_do_not_alias_later_solves():

@@ -12,12 +12,14 @@ struct QESInputs {
   SimulationParameters simulation;
   MetParams met;
   BuildingsParams buildings;
+  TURBParams turbulence_params;
   Sensor sensor;
   TimeSeries series;
   std::vector<std::unique_ptr<PolyBuilding>> polygons;
   WINDSInputData input;
 
-  QESInputs(const GridConfig &, const ModelSettings &, const BuildingArrays &);
+  QESInputs(const GridConfig &, const ModelSettings &, const BuildingArrays &,
+            const TurbulenceSettings & = {});
   void set_condition(const WindCondition &);
   QESInputs(const QESInputs &) = delete;
   QESInputs &operator=(const QESInputs &) = delete;

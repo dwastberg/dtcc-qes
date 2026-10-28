@@ -2,6 +2,8 @@
 #include "qes_inputs.h"
 #include "divergence.h"
 #include "precision_solver.h"
+#include "turbulence.h"
+#include "winds/TURBGeneralData.h"
 #include "winds/WINDSGeneralData.h"
 #include "winds/SolverFactory.h"
 #include <stdexcept>
@@ -10,16 +12,24 @@ namespace dtcc_qes {
 struct WindRunner::Impl {
   GridConfig grid;
   QESInputs inputs;
-  // Reverse member destruction is essential: solver, data, then input owners.
+  // Reverse destruction frees solvers, then turbulence, then wind data and inputs.
   std::unique_ptr<WINDSGeneralData> data;
+  std::unique_ptr<TURBGeneralData> turbulence;
   std::unique_ptr<Solver> solver;
   std::unique_ptr<PrecisionSolver> precision_solver;
   double tolerance = 0;
 
-  Impl(const GridConfig &g, const ModelSettings &m, const BuildingArrays &b)
-    : grid(g), inputs(g, m, b),
+  Impl(const GridConfig &g, const ModelSettings &m, const BuildingArrays &b,
+       const TurbulenceSettings &t)
+    : grid(g), inputs(g, m, b, t),
       data(std::make_unique<WINDSGeneralData>(&inputs.input,
-        make_domain(inputs), CPU_Type)) {}
+        make_domain(inputs), CPU_Type))
+  {
+    if (t.enabled) {
+      turbulence = std::make_unique<TURBGeneralData>(&inputs.input, data.get());
+      check_turbulence_margin(*turbulence, grid);
+    }
+  }
 };
 
 WindRunner::WindRunner() = default;
@@ -32,9 +42,16 @@ WindRunner::~WindRunner()
 void WindRunner::prepare(const GridConfig &grid, const ModelSettings &model,
                          const BuildingArrays &buildings, Messages &messages)
 {
+  prepare(grid, model, buildings, TurbulenceSettings{}, messages);
+}
+
+void WindRunner::prepare(const GridConfig &grid, const ModelSettings &model,
+                         const BuildingArrays &buildings, const TurbulenceSettings &turbulence,
+                         Messages &messages)
+{
   const std::lock_guard<std::mutex> lock(native_mutex());
   const BufferedLogSink sink(messages);
-  auto prepared = std::make_unique<Impl>(grid, model, buildings);
+  auto prepared = std::make_unique<Impl>(grid, model, buildings, turbulence);
   impl_.swap(prepared);
 }
 
@@ -68,7 +85,10 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
                    legacy.tolerance, legacy.converged};
   }
 
+  if (state.turbulence) state.turbulence->run();
+
   WindData result;
+  if (state.turbulence) result.turbulence = turbulence_fields(*state.turbulence, state.grid);
   result.divergence = divergence_stats(data);
   result.nx = state.grid.nx;
   result.ny = state.grid.ny;

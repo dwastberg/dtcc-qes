@@ -89,6 +89,29 @@ nb::dict python_result(const WindData &data)
   diagnostics["top_band_cell_count"] = div.top_band_cells;
   result["diagnostics"] = diagnostics;
   result["building_count"] = data.building_count;
+  result["turbulence"] = nb::none();
+  if (data.turbulence) {
+    const auto &t = *data.turbulence;
+    const auto shape = nb::make_tuple(data.nz, data.ny, data.nx);
+    nb::dict fields;
+    fields["stress"] = owned_array(t.stress, nb::make_tuple(data.nz, data.ny, data.nx, 6), "float32");
+    fields["tke"] = owned_array(t.tke, shape, "float32");
+    fields["co_eps"] = owned_array(t.co_eps, shape, "float32");
+    fields["mixing_length"] = owned_array(t.mixing_length, shape, "float32");
+    fields["state"] = owned_array(t.state, shape, "uint8");
+    fields["stress_valid"] = owned_array(t.stress_valid, shape, "uint8");
+    fields["friction_velocity"] = t.friction_velocity;
+    fields["reference_speed"] = t.reference_speed;
+    fields["reference_height"] = t.reference_height;
+    fields["roughness_length"] = t.roughness_length;
+    fields["displacement_height"] = t.displacement_height;
+    fields["upper_bound"] = t.upper_bound;
+    fields["computed_cells"] = t.computed_cells;
+    fields["capped_cells"] = t.capped_cells;
+    fields["invalid_stress_cells"] = t.invalid_stress_cells;
+    fields["rotation_fallback_columns"] = t.rotation_fallback_columns;
+    result["turbulence"] = fields;
+  }
   nb::module_::import_("dtcc_qes._logging").attr("_log_solve")(result);
   return result;
 }
@@ -133,25 +156,30 @@ NB_MODULE(_qes, m)
     .def(nb::init<>()).def_rw("tolerance", &SolverOptions::tolerance)
     .def_rw("max_iterations", &SolverOptions::max_iterations)
     .def_rw("precision", &SolverOptions::precision);
+  nb::class_<TurbulenceSettings>(m, "TurbulenceSettings")
+    .def(nb::init<>()).def_rw("enabled", &TurbulenceSettings::enabled)
+    .def_rw("mixing_length_method", &TurbulenceSettings::mixing_length_method);
   nb::class_<WindRunner>(m, "WindRunner")
     .def(nb::init<>())
     .def("prepare", [](WindRunner &runner, const GridConfig &grid, const ModelSettings &model,
                        Vertices vertices, Integers offsets, Floats heights, Floats base_heights, Integers ids,
-                       Floats dz_layers) {
+                       Floats dz_layers, const TurbulenceSettings *turbulence) {
       // Snapshot Python inputs while holding the GIL. Native work never borrows
       // mutable NumPy buffers or configuration objects from another Python thread.
       GridConfig grid_value = grid;
       if (dz_layers.is_valid()) grid_value.dz_layers = copy_input(dz_layers);
       const ModelSettings model_value = model;
+      const TurbulenceSettings turbulence_value = turbulence ? *turbulence : TurbulenceSettings{};
       const BuildingArrays buildings{copy_input(vertices), copy_input(offsets), copy_input(ids),
                                      copy_input(heights), copy_input(base_heights)};
       native_call([&](Messages &messages) {
-        runner.prepare(grid_value, model_value, buildings, messages);
+        runner.prepare(grid_value, model_value, buildings, turbulence_value, messages);
         return 0;
       });
     }, "grid"_a, "model"_a, nb::arg("vertices").noconvert(), nb::arg("offsets").noconvert(),
        nb::arg("heights").noconvert(), nb::arg("base_heights").noconvert(), nb::arg("ids").noconvert(),
-       nb::kw_only(), nb::arg("dz_layers").noconvert().none() = nb::none())
+       nb::kw_only(), nb::arg("dz_layers").noconvert().none() = nb::none(),
+       nb::arg("turbulence").none() = nb::none())
     .def("solve", [](WindRunner &runner, const WindCondition &condition, const SolverOptions &options) {
       const WindCondition wind = condition;
       const SolverOptions solver = options;

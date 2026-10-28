@@ -1,6 +1,8 @@
 #include "qes_inputs.h"
 #include "log_sink.h"
 #include "stress_validity.h"
+#include "turbulence.h"
+#include "wind_runner.h"
 #include "winds/TURBGeneralData.h"
 #include "winds/LocalMixingDefault.h"
 #include "winds/LocalMixingSerial.h"
@@ -9,6 +11,7 @@
 #include <algorithm>
 #include <array>
 #include <cfenv>
+#include <cstring>
 #include <cmath>
 #include <iostream>
 #include <memory>
@@ -711,6 +714,274 @@ void wall_empty()
   require(fixture.data->mixingLengths == emptied, "Repeated wall setup retained removed building faces");
 }
 
+BuildingArrays bridge_building(bool building = true)
+{
+  if (!building) return {{},{0},{},{},{}};
+  return {{30,25, 30,35, 40,35, 40,25, 30,25}, {0,5}, {0}, {8}, {0}};
+}
+
+SolverOptions bridge_solver()
+{
+  SolverOptions options;
+  options.max_iterations = 20000;
+  return options;
+}
+
+void flat_analytic()
+{
+  WindRunner runner;
+  GridConfig grid;
+  Messages messages;
+  runner.prepare(grid, {}, bridge_building(false), {true,0}, messages);
+  const auto result = runner.solve({}, bridge_solver(), messages);
+  require(result.converged && result.turbulence.has_value(), "Missing converged flat turbulence");
+  const auto &t = *result.turbulence;
+  require(t.capped_cells == 0 && t.invalid_stress_cells == 0, "Flat analytic fields were capped or invalid");
+  require(t.computed_cells == std::size_t(grid.nx-2)*(grid.ny-2)*(grid.nz-1),
+          "Extraction computed coverage differs from the QES fluid interior");
+  const int plane = grid.nx * grid.ny;
+  for (int k = 1; k < grid.nz-1; ++k)
+    for (int j = 1; j < grid.ny-1; ++j)
+      for (int i = 1; i < grid.nx-1; ++i) {
+        const auto cell = (k * grid.ny + j) * grid.nx + i;
+        const double g = (result.velocity[3*(cell+plane)] - result.velocity[3*(cell-plane)]) / 4.0;
+        const double lm = 0.4 * result.z[k], lu = lm * g;
+        const double energy = std::pow(lu / 0.55, 2);
+        const std::array<double,6> expected{std::pow(2.5*lu,2), 0, -lm*lm*g*std::abs(g),
+                                          std::pow(2*lu,2), 0, std::pow(1.3*lu,2)};
+        for (int component = 0; component < 6; ++component)
+          close(t.stress[6*cell+component], expected[component], "Extracted flat shear is not analytic");
+        close(t.mixing_length[cell], lm, "Extracted mixing length has the wrong physical z");
+        close(t.tke[cell], energy, "Extracted tke is not analytic");
+        close(t.co_eps[cell], 5.7 * std::pow(0.55 * std::sqrt(energy), 3) / lm,
+              "Extracted dissipation is not analytic");
+      }
+}
+
+bool same_floats(const std::vector<float> &a, const std::vector<float> &b)
+{
+  return a.size() == b.size() && std::memcmp(a.data(), b.data(), a.size()*sizeof(float)) == 0;
+}
+
+void same_turbulence(const TurbulenceData &a, const TurbulenceData &b)
+{
+  require(same_floats(a.stress,b.stress) && same_floats(a.tke,b.tke)
+          && same_floats(a.co_eps,b.co_eps) && same_floats(a.mixing_length,b.mixing_length)
+          && a.state == b.state && a.stress_valid == b.stress_valid,
+          "Repeated solve did not return bitwise identical turbulence arrays");
+  require(a.friction_velocity == b.friction_velocity && a.reference_speed == b.reference_speed
+          && a.reference_height == b.reference_height && a.roughness_length == b.roughness_length
+          && a.displacement_height == b.displacement_height && a.upper_bound == b.upper_bound
+          && a.computed_cells == b.computed_cells && a.capped_cells == b.capped_cells
+          && a.invalid_stress_cells == b.invalid_stress_cells
+          && a.rotation_fallback_columns == b.rotation_fallback_columns,
+          "Repeated solve changed turbulence metadata");
+}
+
+void bridge_repeat()
+{
+  WindRunner runner;
+  Messages messages;
+  runner.prepare({}, {}, bridge_building(), {true,0}, messages);
+  WindCondition condition;
+  const auto first = runner.solve(condition, bridge_solver(), messages);
+  condition.direction = 0;
+  runner.solve(condition, bridge_solver(), messages);
+  condition.direction = 270;
+  const auto third = runner.solve(condition, bridge_solver(), messages);
+  require(first.velocity == third.velocity, "Repeated turbulence solve changed wind");
+  same_turbulence(*first.turbulence, *third.turbulence);
+  GridConfig invalid;
+  invalid.nz = 13;
+  rejects([&] { runner.prepare(invalid, {}, bridge_building(), {true,1}, messages); }, "domain top");
+  same_turbulence(*first.turbulence, *runner.solve(condition, bridge_solver(), messages).turbulence);
+  // Successful reprepare toggles ownership without retaining old model state.
+  runner.prepare({}, {}, bridge_building(false), messages);
+  require(!runner.solve(condition, bridge_solver(), messages).turbulence, "Disabling turbulence retained it");
+}
+
+void bridge_calm()
+{
+  WindRunner runner;
+  GridConfig grid;
+  Messages messages;
+  runner.prepare(grid, {}, bridge_building(false), {true,0}, messages);
+  WindCondition condition;
+  const auto windy = runner.solve(condition, bridge_solver(), messages);
+  condition.speed = 0;
+  const auto result = runner.solve(condition, bridge_solver(), messages);
+  const auto &t = *result.turbulence;
+  require(t.capped_cells == 0 && t.invalid_stress_cells == 0 && t.friction_velocity == 0,
+          "Calm turbulence was invalid or capped");
+  require(t.rotation_fallback_columns == std::size_t(grid.nx-2)*(grid.ny-2),
+          "Calm extraction omitted direction fallback diagnostics");
+  require(same_floats(t.mixing_length, windy.turbulence->mixing_length), "Calm wind changed geometry lengths");
+  for (std::size_t cell = 0; cell < t.state.size(); ++cell) {
+    if (!t.state[cell]) continue;
+    require(t.state[cell] == 1 && t.stress_valid[cell] == 1 && t.tke[cell] == 0 && t.co_eps[cell] == 0,
+            "Calm computed scalars are not finite zero");
+    for (int component = 0; component < 6; ++component)
+      require(t.stress[6*cell+component] == 0, "Calm computed stress is not finite zero");
+  }
+}
+
+void bridge_scaling()
+{
+  WindRunner runner;
+  Messages messages;
+  runner.prepare({}, {}, bridge_building(), {true,0}, messages);
+  WindCondition condition;
+  auto options = bridge_solver();
+  const auto first = runner.solve(condition, options, messages);
+  condition.speed *= 2;
+  // The linear solver uses an absolute stopping criterion. Scale its tolerance
+  // too, to compare the same relative accuracy and deterministic iteration path.
+  options.tolerance *= 2;
+  const auto second = runner.solve(condition, options, messages);
+  require(first.converged && second.converged, "Scaling wind solves did not converge");
+  const auto &a = *first.turbulence, &b = *second.turbulence;
+  require(a.state == b.state && a.stress_valid == b.stress_valid
+          && same_floats(a.mixing_length,b.mixing_length), "Speed changed turbulence masks or lengths");
+  close(b.friction_velocity, 2*a.friction_velocity, "Friction velocity did not scale linearly", 1e-4);
+  for (std::size_t cell = 0; cell < a.state.size(); ++cell) {
+    if (!a.state[cell]) continue;
+    close(b.tke[cell], 4*a.tke[cell], "Tke did not scale quadratically", 1e-4);
+    close(b.co_eps[cell], 8*a.co_eps[cell], "Dissipation did not scale cubically", 1e-4);
+    for (int component = 0; component < 6; ++component)
+      close(b.stress[6*cell+component], 4*a.stress[6*cell+component],
+            "Stress did not scale quadratically", 1e-4);
+  }
+}
+
+void bridge_wall_distance()
+{
+  for (bool thin : {false,true}) {
+    WindRunner runner;
+    GridConfig grid;
+    if (thin) { grid.nz = 80; grid.dz_layers.assign(80,0.5); }
+    Messages messages;
+    runner.prepare(grid, {}, bridge_building(), {true,0}, messages);
+    const auto height = runner.solve({}, bridge_solver(), messages);
+    runner.prepare(grid, {}, bridge_building(), {true,1}, messages);
+    const auto wall = runner.solve({}, bridge_solver(), messages);
+    require(height.converged && wall.converged && height.velocity == wall.velocity,
+            "Wall mixing changed the wind solve");
+    const auto &h = *height.turbulence, &w = *wall.turbulence;
+    for (std::size_t cell = 0; cell < w.state.size(); ++cell) {
+      if (!w.state[cell]) continue;
+      require(std::isfinite(w.tke[cell]) && std::isfinite(w.co_eps[cell])
+              && w.mixing_length[cell] > 0
+              && w.mixing_length[cell] <= 1.000001 * h.mixing_length[cell],
+              "Extracted wall fields violated finite positive height-bounded lengths");
+      for (int component = 0; component < 6; ++component)
+        require(std::isfinite(w.stress[6*cell+component]), "Extracted wall stress is nonfinite");
+    }
+    // Fourth physical layer: z=7 m or 1.75 m, both above the 1 m side-wall
+    // distance. In the thinnest ground cells the height seed correctly wins.
+    const auto adjacent = (3*grid.ny + 14) * grid.nx + 14;
+    require(w.state[adjacent] && w.mixing_length[adjacent] < h.mixing_length[adjacent],
+            "Wall distance did not shorten the length next to the building");
+  }
+}
+
+void bridge_margin()
+{
+  WindRunner runner;
+  Messages messages;
+  GridConfig grid;
+  grid.nz = 13;
+  rejects([&] { runner.prepare(grid, {}, bridge_building(), {true,0}, messages); }, "domain top");
+  grid.nz = 15;
+  runner.prepare(grid, {}, bridge_building(), {true,0}, messages);
+  require(runner.solve({}, bridge_solver(), messages).turbulence->reference_height == 24,
+          "Safe turbulence reference margin was rejected");
+  grid.nz = 13;
+  grid.max_cells = std::int64_t(grid.nx) * grid.ny * grid.nz;
+  rejects([&] { runner.prepare(grid, {}, bridge_building(), {true,0}, messages); }, "max_cells limit");
+  grid.max_cells = 2000000;
+  grid.dz_layers.assign(10,2);
+  for (double h : {3,4,5}) grid.dz_layers.push_back(h);
+  // Top 32 m has too few layers above zRef. Preserving this prefix and
+  // appending two 5 m layers gives 42 m, rather than zRef+3*min(dz)=30 m.
+  rejects([&] { runner.prepare(grid, {}, bridge_building(), {true,0}, messages); }, "sufficient top of 42 m");
+  require(grid.nz == 13 && grid.dz_layers.size() == 13, "Margin check silently extended an explicit grid");
+  grid.dz_layers.insert(grid.dz_layers.end(), {5,5});
+  grid.nz = 15;
+  runner.prepare(grid, {}, bridge_building(), {true,0}, messages);
+}
+
+void bridge_methods()
+{
+  WindRunner runner;
+  Messages messages;
+  for (int method : {-1,2,3,4,5}) {
+    auto malformed = bridge_building();
+    malformed.heights[0] = std::numeric_limits<double>::quiet_NaN();
+    rejects([&] { runner.prepare({}, {}, malformed, {true,method}, messages); }, "mixing-length method");
+    require(messages.empty(), "Unsupported method reached QES setup");
+  }
+}
+
+void invalid_stress()
+{
+  const std::lock_guard<std::mutex> lock(native_mutex());
+  Messages messages;
+  const BufferedLogSink sink(messages);
+  Case fixture;
+  std::fill(fixture.data->u.begin(), fixture.data->u.end(), 3);
+  std::fill(fixture.data->v.begin(), fixture.data->v.end(), 4);
+  auto turb = fixture.construct();
+  const float bound = turb->getUpperBound() * turb->getFrictionVelocity() * turb->getFrictionVelocity();
+  const float nan = std::numeric_limits<float>::quiet_NaN(), inf = std::numeric_limits<float>::infinity();
+  const std::array<Stress,5> cases{{{1,2,0,1,0,1}, {bound,0,0,bound,0,bound},
+                                  {0,0,0,0,0,0}, {nan,0,0,1,0,1}, {inf,0,0,1,0,1}}};
+  for (std::size_t n = 0; n < cases.size(); ++n) {
+    const auto cell = turb->icellfluid[n];
+    const auto &s = cases[n];
+    turb->txx[cell]=s[0]; turb->txy[cell]=s[1]; turb->txz[cell]=s[2];
+    turb->tyy[cell]=s[3]; turb->tyz[cell]=s[4]; turb->tzz[cell]=s[5];
+    if (n == 2) turb->tke[cell] = bound;
+  }
+  const auto &d = fixture.data->domain;
+  turb->iturbflag[d.cell(d.nx()-2,10,5)] = 2; // A marked wall in an uncomputed boundary column.
+  const auto fields = turbulence_fields(*turb, fixture.grid);
+  require(fields.computed_cells == turb->icellfluid.size() && fields.invalid_stress_cells == 3
+          && fields.capped_cells == 3, "Extraction conflated computed, valid and capped stress");
+  const std::array<std::uint8_t,5> states{1,2,2,1,2}, valid{0,1,1,0,0};
+  const auto plane = fixture.grid.nx * fixture.grid.ny;
+  for (std::size_t n = 0; n < cases.size(); ++n) {
+    const auto cell = turb->icellfluid[n], output = cell - plane;
+    require(fields.state[output] == states[n] && fields.stress_valid[output] == valid[n],
+            "Extraction misclassified synthetic raw stress");
+    const auto still_raw = stress_at(*turb, cell);
+    require(std::memcmp(fields.stress.data()+6*output,cases[n].data(),6*sizeof(float)) == 0
+            && std::memcmp(still_raw.data(),cases[n].data(),6*sizeof(float)) == 0,
+            "Extraction rewrote raw indefinite or nonfinite stress");
+  }
+  for (std::size_t cell = 0; cell < fields.state.size(); ++cell) {
+    if (fields.state[cell]) continue;
+    require(fields.stress_valid[cell] == 0 && std::isnan(fields.tke[cell])
+            && std::isnan(fields.co_eps[cell]) && std::isnan(fields.mixing_length[cell]),
+            "Uncomputed cell was exposed as a finite measured scalar");
+    for (int component = 0; component < 6; ++component)
+      require(std::isnan(fields.stress[6*cell+component]), "Uncomputed stress was not masked");
+  }
+}
+
+bool run_bridge(const std::string &mode)
+{
+  if (mode == "flat_analytic") flat_analytic();
+  else if (mode == "bridge_calm") bridge_calm();
+  else if (mode == "scaling") bridge_scaling();
+  else if (mode == "repeat") bridge_repeat();
+  else if (mode == "wall_distance") bridge_wall_distance();
+  else if (mode == "margin") bridge_margin();
+  else if (mode == "bridge_methods") bridge_methods();
+  else if (mode == "invalid_stress") invalid_stress();
+  else return false;
+  return true;
+}
+
 void run(const std::string &mode)
 {
   if (mode == "low_top") {
@@ -782,10 +1053,11 @@ void run(const std::string &mode)
 int main(int argc, char **argv)
 {
   try {
+    require(argc == 2, "A turbulence test mode is required");
+    if (run_bridge(argv[1])) return 0;
     const std::lock_guard<std::mutex> lock(native_mutex());
     Messages messages;
     BufferedLogSink sink(messages);
-    require(argc == 2, "A turbulence test mode is required");
     run(argv[1]);
   } catch (const std::exception &error) {
     std::cerr << error.what() << '\n';

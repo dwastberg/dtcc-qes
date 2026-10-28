@@ -50,6 +50,7 @@ def check_sdist(path):
             "src/cpp/bindings.cpp", "src/cpp/wind_runner.cpp", "src/cpp/qes_inputs.cpp",
             "src/cpp/divergence.cpp", "src/cpp/divergence.h",
             "src/cpp/stress_validity.h", "tests/native/check_turbulence.cpp",
+            "src/cpp/turbulence.h", "src/cpp/turbulence.cpp",
             "tools/check_stress_validity.py",
             "docs/turbulence-reference-differences.md",
             "src/cpp/precision_solver.cpp", "src/cpp/precision_solver.h", "tests/native/check_precision.cpp",

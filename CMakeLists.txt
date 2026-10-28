@@ -67,7 +67,7 @@ endif()
 
 # Bindings contain no QES headers; only the audited bridge instantiates them.
 add_library(qesbridge OBJECT src/cpp/build_info.cpp src/cpp/qes_inputs.cpp src/cpp/divergence.cpp
-  src/cpp/log_sink.cpp src/cpp/wind_runner.cpp src/cpp/precision_solver.cpp)
+  src/cpp/log_sink.cpp src/cpp/wind_runner.cpp src/cpp/precision_solver.cpp src/cpp/turbulence.cpp)
 target_link_libraries(qesbridge PRIVATE qeswindscore)
 target_compile_definitions(qesbridge PRIVATE DTCC_QES_QES_REVISION="${DTCC_QES_QES_REVISION}")
 nanobind_add_module(_qes src/cpp/bindings.cpp $<TARGET_OBJECTS:qesbridge>)
@@ -136,7 +136,8 @@ if(DTCC_QES_BUILD_TESTS)
   target_link_libraries(check_turbulence PRIVATE qeswindscore)
   foreach(mode low_top ref_in_top_cell ref_above_top reference_boundary methods ownership references lifecycle
                rotation rotation_fallback calm validity building_validity wall_thin wall_upper_bound
-               wall_geometry wall_nonuniform wall_transition wall_underside wall_empty)
+               wall_geometry wall_nonuniform wall_transition wall_underside wall_empty
+               flat_analytic bridge_calm scaling repeat wall_distance margin bridge_methods invalid_stress)
     add_test(NAME native_turbulence_${mode} COMMAND check_turbulence ${mode})
     set_tests_properties(native_turbulence_${mode} PROPERTIES
       ENVIRONMENT "OMP_NUM_THREADS=2;OMP_DYNAMIC=FALSE" TIMEOUT 60)

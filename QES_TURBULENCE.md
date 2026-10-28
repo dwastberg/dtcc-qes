@@ -16,9 +16,10 @@ a `Turbulence` spec, a domain-top policy for turbulence's reference heights, a
 dtcc-core, pytest, CTest.
 
 **Status (implementation started 2026-10-27):** work is isolated in the checkout
-below. Tasks 1, 1A and 1B are implemented, verified and committed. The later
-extraction/result work remains required before exposing turbulence-derived
-statistics. Review measurements describe the original core
+below. Tasks 1, 1A, 1B and 2 are implemented and verified, with the existing
+dataset-registration test exception recorded below. Standalone references and
+the public API/result work remain required before exposing turbulence-derived
+statistics through `wind.run`. Review measurements describe the original core
 at the recorded revision, not necessarily the repaired implementation.
 
 **Spec:** the Findings, Decisions and review revisions sections below. The
@@ -80,7 +81,23 @@ Task checkboxes and the execution record below track implementation progress.
   approximation limits. Height remains the provisional default; method 1 is
   qualified for the future Task 2 entry point, with larger-domain cost and
   physical validation still pending.
-- Next: Task 2 (bridge settings, runner lifecycle, extraction and bindings).
+- Task 2 (2026-10-28): native settings, owned/reused turbulence, physical-cell
+  extraction and `_qes` bindings are implemented. Methods 0 and 1 are available
+  through the private runner; existing calls remain wind-only. Returned arrays
+  own their memory and carry separate coverage/cap and covariance-validity
+  masks. The bridge enforces two layers above the reference sample and reports
+  an actual sufficient top using a prefix-preserving constant tail.
+  All 39 Release and all 39 Debug ASan/UBSan native tests pass; the Release
+  no-I/O symbol audit passes. The complete Python run has 605 passes, 24 skips
+  and the same pre-existing dataset-registration failure documented in
+  `docs/stage0-validation.md`. All 65 runner cases pass, including both solver
+  precision modes. The user-committed automatic dataset registration is
+  preserved; resolving that separate package/test contract is outside Task 2.
+  Python tests use a worktree-local Python 3.13 environment; the original
+  environment is unchanged. QES remains at `57ffb0d94dd2dcad0ea5841d6d35620c0bfb7198`.
+  A source distribution was built and passed the artifact check, including
+  both new bridge source files.
+- Next: Task 3 (upstream provenance, audited-fork parity and independent correctness).
 
 ---
 
@@ -637,7 +654,7 @@ unimplemented until Task 2; this qualification does not choose a gust default.
     nonfinite tensors. Keep their raw tensor components unchanged. A mask or
     cap count never substitutes for a validity check.
 
-- [ ] **Step 1: Write the failing tests.** Add these `check_turbulence` modes:
+- [x] **Step 1: Write the failing tests.** Add these `check_turbulence` modes:
   - `flat_analytic`: flat 40×30×20 2 m grid, 270°, method 0. Let `U_k` be the
     returned x-velocity, `G = (U_{k+1} − U_{k−1}) / 4 m` and `Lm = 0.4 z_k`.
     For computed cells with 2 ≤ k ≤ nz−1 (1-based physical), assert
@@ -645,12 +662,15 @@ unimplemented until Task 2; this qualification does not choose a gust default.
     `txz = −Lm² G|G|`, `txy = tyz = 0`, `tke = (Lm G / 0.55)²`,
     `co_eps = 5.7 (0.55 √tke)³ / Lm`, and `capped_cells == 0`
     (rtol 1e-5, atol 1e-7).
-  - `calm`: speed 0. Computed stress, tke and co_eps are finite zeros;
+  - `bridge_calm` (in addition to the existing core `calm`): speed 0.
+    Computed stress, tke and co_eps are finite zeros;
     `capped_cells == 0`; mixing length equals the nonzero-speed run on the same
     grid. Computed zero tensors pass validity.
   - `scaling`: one building at 5 and 10 m/s. Stress and tke ×4 and co_eps ×8
     (rtol 1e-4); `mixing_length`, `state` and `stress_valid` equal;
     `friction_velocity` ×2.
+    The solver uses an absolute stopping criterion, so double its tolerance
+    with speed to compare the same relative accuracy and iteration path.
   - `repeat`: solve 270°, then 0°, then 270°. The third result is bitwise equal
     to the first.
   - `wall_distance`: after Task 1B, one building, method 1, on both the uniform
@@ -666,14 +686,35 @@ unimplemented until Task 2; this qualification does not choose a gust default.
   In `tests/test_runner.py`, add tests that `turbulence=None` gives
   `result["turbulence"] is None`, and that keys, dtypes, shapes and
   no-aliasing across solves match the velocity tests.
-- [ ] **Step 2: Run** `ctest -R native_turbulence` and
+- [x] **Step 2: Run** `ctest -R native_turbulence` and
   `uv run --frozen python -m pytest tests/test_runner.py -q`. Expected: FAIL.
-- [ ] **Step 3: Implement** the interfaces above.
-- [ ] **Step 4: Run** the full `ctest` (Release and sanitizer),
+- [x] **Step 3: Implement** the interfaces above.
+- [x] **Step 4: Run** the full `ctest` (Release and sanitizer),
   `cmake --build build/native --target check_native_symbols`, and
   `uv run --frozen python -m pytest -q`. Expected: all PASS, and existing tests
-  are unchanged.
-- [ ] **Step 5: Commit.**
+  are unchanged. Observed: all native tests and the symbol audit pass;
+  Python has 605 passes, 24 skips and the known pre-existing registration
+  failure described in the execution record. No registration behavior or
+  dataset test was changed to hide it.
+- [x] **Step 5: Commit.**
+
+**Task 2 outcome:** the initial native regression target failed to compile
+without `turbulence.h`; the initial Python runner run had 13 failures and 50
+passes before implementation. Eight new native modes now cover analytic flat
+shear, calm reuse, speed homogeneity, bitwise repeatability, both mixing
+methods on uniform/thin grids, margin rejection, unsupported-method rejection
+before geometry setup, and raw invalid-stress extraction. Coverage comes only
+from `icellfluid`; a boundary cell marked by `iturbflag` stays uncomputed.
+Synthetic indefinite, capped, zero, NaN and infinite tensors verify that raw
+values survive extraction and validity remains independent of capping.
+
+Python checks cover owned float32/uint8 arrays, nonaliasing after reuse and
+destruction, settings snapshots, failed preparation preserving the previous
+geometry, unchanged wind results, and independent NumPy validity/cap checks
+for both solver precisions and both mixing methods. Uniform nz=13 reports a
+sufficient 30 m top for the 8 m box; a nonuniform 32 m prefix with last layers
+3/4/5 m reports 42 m after two 5 m tail layers. Explicit inputs never grow;
+the `max_cells` limit is reported when it prevents that suggestion.
 
 ### Task 3: Upstream provenance, audited-fork parity and independent correctness
 

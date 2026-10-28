@@ -256,6 +256,88 @@ python tools/check_stress_validity.py --cases 5000 --seed 20261027
   benchmark was run at this native-core milestone. The unchanged Debug
   assertion-symbol audit limitation above remains separate from these checks.
 
-Standalone audited reference generation (Task 3), Python bindings/results,
-benchmark gate and physical gust
-validation are still outstanding.
+## Native bridge integration (Task 2, 2026-10-28)
+
+The private runner now accepts `_qes.TurbulenceSettings` through its optional
+keyword-only `turbulence` argument. Disabled/default settings keep the solve
+wind-only and return `result["turbulence"] = None`. Enabled settings accept
+method 0 or the qualified method 1, with background mixing zero, nonlocal
+mixing off, wall flags 2/2, default sigma constants and upper bound 20.
+Unsupported methods fail before wind geometry setup. This does not yet add
+the public `wind.run(..., turbulence=True)` option or derived gust statistics.
+
+`QESInputs` owns the native parameters. The prepared runner owns one turbulence
+object alongside the wind data, reuses it after each wind solve, and destroys
+it before its wind data and input owners. All native work stays under the
+existing process mutex, with the GIL released by the bindings. Configuration
+objects and input arrays are copied before releasing the GIL. Preparation
+still swaps state only after successful construction and margin checks.
+
+Extraction maps native `(k,j,i)` to physical `(k-1,j,i)`. Coverage is defined
+only by `icellfluid`; `iturbflag` is not a coverage mask. Stress components are
+`xx,xy,xz,yy,yz,zz`. Float32 fields outside coverage are NaN; state and validity
+are zero there. Computed raw tensors, including indefinite and nonfinite
+components, remain unchanged. State 1 means computed, state 2 computed and
+capped. Capping is `bound > 0` and either `tke >= bound` or any absolute stress
+component reaches the bound, with `bound = upper_bound * uStar * uStar` evaluated
+in QES's float32 operation order. Thus finite zero tensors in calm wind are
+valid, computed and uncapped. Covariance validity uses the Task 1A helper and
+is independent of state/capping. Counts include only computed cells.
+
+All six returned arrays own their NumPy storage. Scalar metadata includes the
+native reference values, cap, coverage/cap/invalid counts and distinct direction
+fallback-column count. Values and masks are copied anew on every solve, and
+survive runner destruction.
+
+The bridge requires the lower-bound index of native zRef on ghost-inclusive
+faces to be at most `grid.nz - 2`, plus a top reaching 15 m. A failed margin
+check reports the sampled index, required two-layer margin and an actual
+sufficient top for a constant tail using the last valid thickness. It uses
+float32 accumulation, preserves the input prefix and checks layer, cell,
+native-index and coordinate-progress limits. It never grows an explicit grid.
+The 8 m uniform box needs 30 m (nz=15), while a tested nonuniform 32 m prefix
+needs 42 m after appending two 5 m layers. This is the native margin and error
+policy that Task 4's automatic-grid logic must match. Earlier native core
+safety guards can reject an unsampleable reference or top below 15 m before
+the stricter bridge margin check is reached.
+
+Validation on AppleClang 17/macOS arm64 with OpenMP off:
+
+- Full Release native suite: 39/39 passed; no-I/O symbol audit passed with all
+  nine bridge objects included.
+- Full Debug ASan/UBSan native suite: 39/39 passed, no sanitizer reports.
+  Expanded nonuniform/limit margin checks were also rerun after the final
+  diagnostic formatting change in both builds.
+- Initial preimplementation Python runner checks: 13 failed, 50 passed.
+  All 65 final runner cases pass, including both solver precisions and methods,
+  independent NumPy eigenvalue checks, cap checks, owned arrays, snapshots,
+  failure recovery and unchanged wind fields.
+- Full locked Python suite in a worktree-local Python 3.13.11 environment:
+  605 passed, 24 skipped and one pre-existing failure,
+  `test_datasets.py::test_explicit_import_registration`. The same mismatch is
+  documented in `docs/stage0-validation.md`: the user-committed package import
+  registers the dataset, while that test expects explicit-only registration.
+  Registration behavior and its existing test were left unchanged.
+- A source distribution built from this worktree passed `check_artifacts.py`,
+  including the new `turbulence.h` and `turbulence.cpp` sources.
+
+The new native modes independently check flat log-profile shear formulas,
+calm fields/fallback diagnostics, 5-to-10 m/s speed scaling, 270°–0°–270°
+repeatability, wall-distance bounds and strict shortening beside a building,
+margin failures/recovery, method rejection and preservation of synthetic raw
+indefinite/nonfinite stress. The speed-scaling check doubles the linear
+solver's absolute tolerance with speed to retain the same relative accuracy;
+it does not assert identical errors for different absolute stopping criteria.
+Existing wind-only reference fixtures were not regenerated.
+
+```sh
+uv sync --frozen --python 3.13
+uv sync --frozen --reinstall-package dtcc-qes
+ctest --test-dir build/native --output-on-failure
+ctest --test-dir build/asan --output-on-failure
+cmake --build build/native --target check_native_symbols
+uv run --frozen python -m pytest -q
+```
+
+Standalone audited reference generation (Task 3), public Python API/results,
+the benchmark gate and physical gust validation are still outstanding.

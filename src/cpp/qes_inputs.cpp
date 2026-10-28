@@ -1,4 +1,5 @@
 #include "qes_inputs.h"
+#include "turbulence.h"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -80,8 +81,11 @@ double solver_tolerance(const SolverOptions &options)
   return options.tolerance;
 }
 
-QESInputs::QESInputs(const GridConfig &grid, const ModelSettings &model, const BuildingArrays &arrays)
+QESInputs::QESInputs(const GridConfig &grid, const ModelSettings &model, const BuildingArrays &arrays,
+                     const TurbulenceSettings &turbulence)
 {
+  configure_turbulence(turbulence_params, turbulence);
+  input.turbParams = turbulence.enabled ? &turbulence_params : nullptr;
   if (grid.nx < 3 || grid.ny < 3 || grid.nz < 2
       || grid.nx > 10000 || grid.ny > 10000 || grid.nz > 10000)
     throw std::invalid_argument("Grid requires 3..10000 cells in x/y and 2..10000 in z");

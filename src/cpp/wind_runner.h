@@ -14,6 +14,8 @@ public:
 
   // Failed preparation preserves the last successfully prepared geometry.
   void prepare(const GridConfig &, const ModelSettings &, const BuildingArrays &, Messages &);
+  void prepare(const GridConfig &, const ModelSettings &, const BuildingArrays &,
+               const TurbulenceSettings &, Messages &);
   WindData solve(const WindCondition &, const SolverOptions &, Messages &);
 
 private:

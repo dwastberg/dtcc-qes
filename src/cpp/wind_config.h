@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <vector>
 #include <string>
+#include <optional>
 
 namespace dtcc_qes {
 // Private numerical contract. Coordinates are metres in a local, flat frame.
@@ -45,6 +46,23 @@ struct DivergenceStats {
   std::size_t cells = 0, top_band_cells = 0;
 };
 
+struct TurbulenceSettings {
+  bool enabled = false;
+  int mixing_length_method = 0; // 0: height; 1: qualified serial wall distance.
+};
+
+struct TurbulenceData {
+  // Physical (z,y,x) cells, stress ordered xx,xy,xz,yy,yz,zz.
+  // Uncomputed float entries are NaN. Raw computed values are never repaired.
+  std::vector<float> stress, tke, co_eps, mixing_length;
+  std::vector<std::uint8_t> state; // 0 uncomputed; 1 computed; 2 computed and capped.
+  std::vector<std::uint8_t> stress_valid;
+  float friction_velocity = 0, reference_speed = 0, reference_height = 0;
+  float roughness_length = 0, displacement_height = 0, upper_bound = 0;
+  std::size_t computed_cells = 0, capped_cells = 0, invalid_stress_cells = 0;
+  std::size_t rotation_fallback_columns = 0;
+};
+
 struct WindData {
   int nx = 0, ny = 0, nz = 0;
   std::vector<float> x, y, z, z_faces, velocity;
@@ -55,5 +73,6 @@ struct WindData {
   bool converged = false;
   DivergenceStats divergence;
   std::size_t building_count = 0;
+  std::optional<TurbulenceData> turbulence;
 };
 }
