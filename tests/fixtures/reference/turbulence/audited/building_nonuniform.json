@@ -1,0 +1,201 @@
+{
+  "case": "building_nonuniform",
+  "solver_summary": {
+    "iterations": 610,
+    "max_lagrange_multiplier_change": 9.537e-06,
+    "tolerance": 1e-05,
+    "max_iterations": 20000,
+    "converged": true
+  },
+  "qes": {
+    "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71",
+    "modified": false,
+    "tree": "fc1c7aa83094b5793758a228d9b1978588f76d49",
+    "verified_files": 885,
+    "source_manifest_sha256": "59bbb67686c0c75286605ab000ffb1fc3ac7a1ba34e86a4237c2037e73e7fa03"
+  },
+  "toolchain": {
+    "compiler": "/usr/bin/c++",
+    "compiler_version": "17.0.0.17000404",
+    "build_type": "Release",
+    "cxx_flags": "-O3 -DNDEBUG",
+    "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "compiler_command_version": "Apple clang version 17.0.0 (clang-1700.4.4.1)",
+    "compiler_id": "AppleClang"
+  },
+  "solver": "serial CPU (qesWinds -s 1)",
+  "generator": "tools/make_reference.py",
+  "build_options": {
+    "ENABLE_OPENMP": "OFF",
+    "QES_ENABLE_IO": "ON",
+    "QES_ENABLE_CUDA": "OFF",
+    "QES_ENABLE_OPTIX": "OFF",
+    "QES_BUILD_EXECUTABLES": "ON",
+    "CMAKE_POSITION_INDEPENDENT_CODE": "ON",
+    "CMAKE_CXX_STANDARD": "17"
+  },
+  "executable_sha256": "a9d562d4a7ef344a48d387c724d9e2c70446cd07964584c91cd9f2a7964dac91",
+  "baseline": "audited",
+  "schema_version": 1,
+  "case_definition": {
+    "case": {
+      "name": "building_nonuniform",
+      "grid": {
+        "nx": 40,
+        "ny": 30,
+        "nz": 80,
+        "cell_size": 2.0
+      },
+      "wind": {
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "roughness_length": 0.1,
+        "sensor_x": 11.0,
+        "sensor_y": 31.0,
+        "timestamp": "2020-01-01T00:00:00"
+      },
+      "buildings": [
+        {
+          "id": 0,
+          "vertices": [
+            [
+              30.0,
+              25.0
+            ],
+            [
+              30.0,
+              35.0
+            ],
+            [
+              40.0,
+              35.0
+            ],
+            [
+              40.0,
+              25.0
+            ]
+          ],
+          "height": 8.0,
+          "base_height": 0.0
+        }
+      ],
+      "parameterizations": {
+        "wall_roughness": 0.001,
+        "rooftop_flag": 1,
+        "upwind_cavity_flag": 2,
+        "street_canyon_flag": 1,
+        "street_intersection_flag": 0,
+        "wake_flag": 2,
+        "high_rise_flag": 0,
+        "sidewall_flag": 1
+      },
+      "solver": {
+        "tolerance": 1e-05,
+        "max_iterations": 20000
+      },
+      "log_law_flag": 0,
+      "mesh_type_flag": 0,
+      "halo_x": 0.0,
+      "halo_y": 0.0
+    },
+    "mixing_length_method": 0,
+    "dz_layers": [
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25,
+      0.125,
+      0.375,
+      0.75,
+      1.25
+    ]
+  },
+  "archive_sha256": "fa54ecb35a78cc5c209eb628bd02fc9552a0d1abd6ae4d25c89f225a74244830",
+  "stress_components": [
+    "txx",
+    "txy",
+    "txz",
+    "tyy",
+    "tyz",
+    "tzz"
+  ],
+  "upstream_exclusions": {
+    "building_thin_wall": "Known upstream serial wall-distance coordinate overflow on this grid",
+    "building_nonuniform": "Pristine nonuniform turbulence path has not been safety-qualified",
+    "building_nonuniform_wall": "Thin/nonuniform upstream serial wall-distance bounds are unsafe"
+  }
+}

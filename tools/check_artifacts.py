@@ -53,6 +53,7 @@ def check_sdist(path):
             "src/cpp/turbulence.h", "src/cpp/turbulence.cpp",
             "tools/check_stress_validity.py",
             "docs/turbulence-reference-differences.md",
+            "tests/test_turbulence_reference.py", "tests/fixtures/turbulence_cases.py",
             "src/cpp/precision_solver.cpp", "src/cpp/precision_solver.h", "tests/native/check_precision.cpp",
             "tests/test_precision.py", "tests/test_precision_verification.py", "tools/run_precision_verification.py",
             "tools/audit_precision_verification.py", "tools/plot_precision_verification.py",
@@ -115,6 +116,15 @@ def check_sdist(path):
             "docs/wind-comfort.md",
         ):
             require(name in members, f"Source distribution omits {name}")
+        shared = ("flat", "flat_oblique", "one_building", "building_oblique", "building_wall")
+        for baseline, cases in {
+            "upstream": shared,
+            "audited": (*shared, "building_thin_wall", "building_nonuniform", "building_nonuniform_wall"),
+        }.items():
+            for case in cases:
+                for suffix in ("npz", "json"):
+                    name = f"tests/fixtures/reference/turbulence/{baseline}/{case}.{suffix}"
+                    require(name in members, f"Source distribution omits {name}")
         require(not any(name.startswith((".idea/", "build/")) for name in members), "Private build/IDE files in sdist")
         check_metadata(archive.extractfile(members["PKG-INFO"]).read())
 

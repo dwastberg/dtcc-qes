@@ -4,9 +4,9 @@ Task 1A, 2026-10-27. QES repair:
 `2df34fc85c6e859d7c8f3bd4aad3975daa7d81d9`, based on Task 1 revision
 `514d91cdc1bfc220a17af102df2b267cdc0c2c9e`.
 
-This records the numerical exceptions that Task 3 must account for when it
-generates standalone reference fixtures. Audited-fork parity fixtures have not
-yet been generated. Exact wind-only references remain required. Implementation
+This records the numerical exceptions and Task 3's separately identified
+pristine/audited standalone reference fixtures. Exact wind-only references
+remain unchanged. Implementation
 checks below do not establish physical accuracy for pedestrian gusts.
 
 ## Corrected stress rotation
@@ -339,5 +339,138 @@ cmake --build build/native --target check_native_symbols
 uv run --frozen python -m pytest -q
 ```
 
-Standalone audited reference generation (Task 3), public Python API/results,
-the benchmark gate and physical gust validation are still outstanding.
+## Standalone provenance and parity (Task 3, 2026-10-28)
+
+Committed archives and JSON provenance live under
+`tests/fixtures/reference/turbulence/{upstream,audited}`. They were generated
+by the standalone `qesWinds -s 1 -t`, using XML inputs and its actual NetCDF
+turbulence output. The bridge was not used to generate expected arrays.
+
+- Pristine upstream: `dced7ec571487be7538eca17bfc25bb3262fb6d0`, five uniform
+  cases whose reference heights and wall-propagation bounds are safe.
+- Audited fork: `dce15d7e3b0a2d2cb0a29898f3882d103f66de71`, eight cases,
+  including oblique winds, 0.5 m layers and repeating 0.125/0.375/0.75/1.25 m
+  layers. Both mixing methods are represented.
+- Upstream exclusions are explicit in the shared case definitions and every
+  metadata file. The known thin-grid method-1 overflow is never run on pristine
+  QES; unqualified nonuniform upstream paths are also withheld. Explicitly
+  requesting such a case with `--baseline upstream` fails before building or
+  running QES. `--method 0|1` filters immutable method-specific case presets.
+
+The audited driver required a small correction: it constructed a uniform
+`qes::Domain` regardless of XML's `verticalStretching` and `dz_value`. It now
+passes the explicit physical layer vector to the existing domain constructor,
+matching the bridge. With the nonuniform fixture, the old nominal-minimum
+spacing would have made a 10 m uniform domain; the intended physical domain
+is 50 m with last centre 49.375 m. The new standalone output agrees exactly
+with the bridge's effective layers and coordinates. This change is confined
+to `qesWindsMain.cpp`; the Task 1A/1B embedded numerical core is unchanged.
+The QES commit, parent submodule pointer, `_qes_revision.txt` and rebuilt
+extension all identify the same audited revision.
+
+Both standalone builds use AppleClang `17.0.0.17000404`, macOS arm64, Release
+`-O3 -DNDEBUG`, C++17, position-independent code, serial CPU, OpenMP off and
+CUDA/OptiX off. Standalone I/O is on to read XML/write NetCDF; the bridge's
+numerical build keeps I/O off. Complete compiler/build options, source-tree
+and source-manifest fingerprints, executable SHA-256, full case definitions,
+solver summaries and archive SHA-256 are recorded individually.
+
+The tool requires `--turbulence --baseline upstream|audited`. It verifies all
+source files against the pinned Git blobs and modes, checks actual Git HEAD
+and cleanliness for worktrees, and rejects modified or extra files in exports
+even when `.qes-revision` still names the expected commit. A stamp cannot
+override a real Git HEAD. `--exe` additionally requires a matching build
+attestation for the source, options, compiler and executable bytes. These
+checks prevent a stale, dirty or differently revised build from silently
+acquiring authoritative provenance. Regeneration requires the recursive Git
+checkout and optional NetCDF/GDAL/Boost build dependencies, as before.
+
+The reader removes the ground ghost layer from `_turbOut.nc`, verifies the
+remaining physical coordinates, and retains the stored float32 values in
+`xx,xy,xz,yy,yz,zz` order. Coverage comes from the physical fluid interior, not
+`iturbflag`. All four reference turbulence fields are required to be finite
+and zero outside that interior. The bridge returns NaNs outside coverage;
+comparisons use every computed cell and require exact array equality for
+stress, TKE, dissipation and mixing length. Wind arrays and geometry are
+checked too. The original wind-only fixture archives and assertions remain
+unchanged; the wind-only generator `--check` still passes.
+
+### Measured pristine-to-audited differences
+
+The following numbers compare the two committed standalone sets. Counts are
+changed float32 stress components (six per computed cell), not invalid-tensor
+counts. Stress differences have units m²/s².
+
+| Case | Method | Changed stress components | Maximum absolute stress difference | Other turbulence changes |
+| --- | ---: | ---: | ---: | --- |
+| flat, wind-from 270° | 0 | 0 | 0 | None |
+| flat, wind-from 225° | 0 | 20,216 | 0.559255421 | None |
+| one building, wind-from 270° | 0 | 70,940 | 1.99341035 | None |
+| one building, wind-from 225° | 0 | 69,028 | 23.3285427 | None |
+| one building, wind-from 270° | 1 | 79,507 | 7.65667057 | TKE, dissipation and mixing length |
+
+All wind arrays, coordinates, classifications, coverage and `iturbflag` are
+exactly unchanged in these five shared cases. Method-0 TKE, dissipation and
+mixing length are also exactly unchanged. Task 1A changes the stress rotation
+and its arithmetic, including locally oblique flow in a cardinal-inflow
+building case; that explains why cardinal inflow alone does not preserve every
+building stress component. The completely flat cardinal case remains exact
+for every returned field.
+
+For flat 225° inflow at z=9 m, upstream streamwise sigma is
+`0.8714080209 m/s` and audited sigma is `1.0892600544 m/s`: the original is
+20% low. An independent covariance oracle built from the returned log-profile
+shear and streamwise/crosswind/vertical dyads verifies the audited full tensor
+at all computed central-difference levels (rtol 1e-5, atol 1e-7). This analytic
+tolerance does not relax the exact standalone-parity comparisons.
+
+For method 1, Task 1B also changes 3,327 mixing lengths (maximum difference
+`2.53333330 m`), 3,319 TKE values (maximum `7.28535748 m²/s²`) and 3,327
+dissipation values (maximum `21.1174984 m²/s³`). The different TKE count reflects
+the cap retaining equality at some cells. These changes follow the documented
+face-distance, minimum-preservation and transition repairs; they are not
+treated as permissible roundoff in pristine comparisons.
+
+The thin audited case converges in 693 iterations; both nonuniform cases in
+610. They use a 20,000-iteration ceiling and must converge. The original
+uniform cases keep their 500-iteration ceiling (flat: 1; cardinal building:
+162; oblique building: 140). This records solver convergence, not experimental
+or pedestrian-gust validation.
+
+### Reproduction and limits
+
+```sh
+uv run --frozen --group reference python tools/make_reference.py --turbulence --baseline upstream
+uv run --frozen --group reference python tools/make_reference.py --turbulence --baseline audited
+uv run --frozen --group reference python tools/make_reference.py --turbulence --baseline audited --check
+uv run --frozen --group reference python tools/make_reference.py --turbulence --baseline upstream --check
+uv run --frozen --group reference python -m pytest tests/test_turbulence_reference.py tests/test_reference_tool.py -q
+ctest --test-dir build/native --output-on-failure
+```
+
+Exact bridge/runtime comparisons are scoped to the fixture's recorded compiler
+version, platform, Release mode and serial backend. On a different toolchain
+they are explicitly skipped, while provenance and stored upstream-difference
+checks still run. Generate both baselines under a separate local directory
+with `--output`, and set `DTCC_QES_TURBULENCE_REFERENCE_DIR` to that directory
+to exercise exact parity for another supported configuration. The tool's
+`--check` never weakens turbulence comparisons with `--rtol`/`--atol`; those
+options continue to apply only to wind velocities. Same-source parity does
+not prove physical correctness. The independent Task 1A rotation/validity and
+Task 1B box/plane geometry tests remain required and pass in the full native
+Release suite.
+
+Validation results: 46 focused reference/provenance Python checks pass,
+including all eight exact bridge comparisons without skips on the recorded
+host. All 39 Release native tests and the no-I/O symbol audit pass. Fresh
+audited and upstream `--check` runs pass, as does the original wind-only
+`--check`; the verified-existing-executable route also passes for all audited
+cases. The final full Python run has 647 passes, 24 skips and the unchanged
+pre-existing dataset-registration failure documented under Task 2. A rebuilt
+source distribution passes the artifact audit, including every NPZ/JSON pair.
+Task 3 does not repeat the Task 2 full ASan/UBSan suite: its embedded numerical
+code is unchanged, while the new standalone explicit-layer path is exercised
+by actual XML/NetCDF runs and exact nonuniform-coordinate/field comparisons.
+
+Public Python API/results, the benchmark gate and physical gust validation
+remain outstanding.

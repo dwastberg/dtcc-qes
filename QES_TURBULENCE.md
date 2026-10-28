@@ -16,9 +16,9 @@ a `Turbulence` spec, a domain-top policy for turbulence's reference heights, a
 dtcc-core, pytest, CTest.
 
 **Status (implementation started 2026-10-27):** work is isolated in the checkout
-below. Tasks 1, 1A, 1B and 2 are implemented and verified, with the existing
-dataset-registration test exception recorded below. Standalone references and
-the public API/result work remain required before exposing turbulence-derived
+below. Tasks 1, 1A, 1B, 2 and 3 are implemented and verified, with the existing
+dataset-registration test exception recorded below. The public API/result
+work remains required before exposing turbulence-derived
 statistics through `wind.run`. Review measurements describe the original core
 at the recorded revision, not necessarily the repaired implementation.
 
@@ -97,7 +97,24 @@ Task checkboxes and the execution record below track implementation progress.
   environment is unchanged. QES remains at `57ffb0d94dd2dcad0ea5841d6d35620c0bfb7198`.
   A source distribution was built and passed the artifact check, including
   both new bridge source files.
-- Next: Task 3 (upstream provenance, audited-fork parity and independent correctness).
+- Task 3 (2026-10-28): five pristine and eight audited standalone turbulence
+  reference cases are generated with explicit baseline/method identities,
+  source-tree verification, build/executable fingerprints and complete case
+  definitions. All eight bridge comparisons are exact on the recorded serial
+  toolchain; both standalone baseline checks and the original wind-only check
+  pass. Thin/nonuniform cases are deliberately excluded from upstream runs.
+  The standalone driver now consumes explicit layers, committed in QES at
+  `dce15d7e3b0a2d2cb0a29898f3882d103f66de71`; the submodule pointer, package
+  revision and rebuilt isolated extension match it. The embedded numerical
+  core is unchanged by that driver correction. All 39 Release native tests
+  and the no-I/O symbol audit pass, including the independent Task 1A/1B
+  analytic and geometry checks. The numerical report records measured
+  pristine-to-audited differences and the limits of same-source parity.
+  All 46 focused reference/provenance checks pass. The final full Python run
+  has 647 passes, 24 skips and the unchanged registration mismatch recorded
+  for Task 2. A source distribution passed the artifact audit with every
+  reference archive and its paired provenance file included.
+- Next: Task 4 (domain-top policy for turbulence).
 
 ---
 
@@ -727,6 +744,10 @@ the `max_cells` limit is reported when it prevents that suggestion.
   method-1 cases. Existing wind-reference behaviour stays unchanged.
 - Create: `tests/fixtures/reference/turbulence/{upstream,audited}/*.{npz,json}`,
   `tests/test_turbulence_reference.py`, `docs/turbulence-reference-differences.md`.
+- Supporting changes: shared `tests/fixtures/turbulence_cases.py`, generator
+  guards in `tests/test_reference_tool.py`, source-artifact checks and the
+  standalone driver's explicit-layer construction. Keep the fork revision
+  file and submodule pointer synchronized with that committed driver fix.
 
 **Interfaces:**
 - Consumes: the Task 2 runner and `tests/runner_cases.py` (`inputs`, `prepared`).
@@ -746,20 +767,40 @@ the `max_cells` limit is reported when it prevents that suggestion.
   Independent analytic and geometry tests from Tasks 1A/1B remain required:
   two paths through the same QES implementation can agree on a bug.
 
-- [ ] **Step 1: Write the failing test.**
+- [x] **Step 1: Write the failing test.**
   `test_bound_runner_turbulence_matches_audited_reference[case]`: on
   computed cells, `assert_array_equal` holds for stress, tke, co_eps and
   mixing_length. Reference values outside the computed cells are 0.
   Add separate upstream-difference checks and preserve wind-only assertions.
-- [ ] **Step 2: Run** it. Expected: FAIL (missing fixture).
-- [ ] **Step 3: Generate both reference sets** with
+- [x] **Step 2: Run** it. Expected: FAIL (missing fixture).
+- [x] **Step 3: Generate both reference sets** with
   `uv run --frozen --group reference python tools/make_reference.py --turbulence --baseline upstream`
   and `… --baseline audited`. Record the reviewed differences in the report.
-- [ ] **Step 4: Run** the tests and `make_reference.py --turbulence --baseline audited --check`.
+- [x] **Step 4: Run** the tests and `make_reference.py --turbulence --baseline audited --check`.
   Expected: exact audited-fork parity and passing independent correctness
   tests. Investigate unexplained differences; do not relax tolerances or
   overwrite pristine provenance to conceal a numerical change.
-- [ ] **Step 5: Commit.**
+- [x] **Step 5: Commit.**
+
+**Task 3 outcome:** eight initial tests failed on missing fixtures. The five
+shared cases are flat/cardinal, flat/oblique, one-building/cardinal,
+one-building/oblique and one-building/wall-distance. Audited-only cases add
+thin wall-distance and genuinely nonuniform grids with both mixing methods.
+Their iterations are 693 and 610 respectively, so those cases allow 20,000
+iterations and must converge; the original uniform cases retain their 500
+iteration limit. Reference fields outside computed cells are verified zero,
+while bridge outputs retain their documented NaNs there.
+
+All shared wind arrays remain exact. Method-0 TKE, dissipation and mixing
+length also remain exact; changed stresses are attributed to Task 1A.
+Method-1 turbulence changes additionally reflect Task 1B. At z=9 m in the
+225° flat case, streamwise sigma changes from 0.871408 to 1.089260 m/s,
+agreeing with the independent analytic covariance; the original was 20% low.
+No tolerance was introduced for turbulence parity. On another toolchain,
+regenerate separate local baselines and use
+`DTCC_QES_TURBULENCE_REFERENCE_DIR`; committed exact-runtime comparisons are
+explicitly scoped to their recorded compiler, platform and serial build.
+Provenance and stored upstream-difference checks remain active on every host.
 
 ### Task 4: Domain-top policy for turbulence
 

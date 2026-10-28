@@ -1,0 +1,96 @@
+{
+  "case": "flat",
+  "solver_summary": {
+    "iterations": 1,
+    "max_lagrange_multiplier_change": 0.0,
+    "tolerance": 1e-05,
+    "max_iterations": 500,
+    "converged": true
+  },
+  "qes": {
+    "revision": "dced7ec571487be7538eca17bfc25bb3262fb6d0",
+    "modified": false,
+    "tree": "e6f57ce2fd66d525a7cd018c7f84fde08231aa39",
+    "verified_files": 867,
+    "source_manifest_sha256": "6c7e2799005c569319c4250fa351c2cf388ae4913e3cd630388f8df48df352f9"
+  },
+  "toolchain": {
+    "compiler": "/usr/bin/c++",
+    "compiler_version": "17.0.0.17000404",
+    "build_type": "Release",
+    "cxx_flags": "-O3 -DNDEBUG",
+    "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "compiler_command_version": "Apple clang version 17.0.0 (clang-1700.4.4.1)",
+    "compiler_id": "AppleClang"
+  },
+  "solver": "serial CPU (qesWinds -s 1)",
+  "generator": "tools/make_reference.py",
+  "build_options": {
+    "ENABLE_OPENMP": "OFF",
+    "QES_ENABLE_IO": "ON",
+    "QES_ENABLE_CUDA": "OFF",
+    "QES_ENABLE_OPTIX": "OFF",
+    "QES_BUILD_EXECUTABLES": "ON",
+    "CMAKE_POSITION_INDEPENDENT_CODE": "ON",
+    "CMAKE_CXX_STANDARD": "17"
+  },
+  "executable_sha256": "64709bdde1f08474c2a6919bc37b6a03bcbb7a22a258f0ecec867c03c5fbef51",
+  "baseline": "upstream",
+  "schema_version": 1,
+  "case_definition": {
+    "case": {
+      "name": "flat",
+      "grid": {
+        "nx": 40,
+        "ny": 30,
+        "nz": 20,
+        "cell_size": 2.0
+      },
+      "wind": {
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "roughness_length": 0.1,
+        "sensor_x": 11.0,
+        "sensor_y": 31.0,
+        "timestamp": "2020-01-01T00:00:00"
+      },
+      "buildings": [],
+      "parameterizations": {
+        "wall_roughness": 0.001,
+        "rooftop_flag": 1,
+        "upwind_cavity_flag": 2,
+        "street_canyon_flag": 1,
+        "street_intersection_flag": 0,
+        "wake_flag": 2,
+        "high_rise_flag": 0,
+        "sidewall_flag": 1
+      },
+      "solver": {
+        "tolerance": 1e-05,
+        "max_iterations": 500
+      },
+      "log_law_flag": 0,
+      "mesh_type_flag": 0,
+      "halo_x": 0.0,
+      "halo_y": 0.0
+    },
+    "mixing_length_method": 0,
+    "dz_layers": []
+  },
+  "archive_sha256": "41a927a1142973031b32a2e7f4ab3101eca10aa9d0f8a085bfbec83d39660943",
+  "stress_components": [
+    "txx",
+    "txy",
+    "txz",
+    "tyy",
+    "tyz",
+    "tzz"
+  ],
+  "upstream_exclusions": {
+    "building_thin_wall": "Known upstream serial wall-distance coordinate overflow on this grid",
+    "building_nonuniform": "Pristine nonuniform turbulence path has not been safety-qualified",
+    "building_nonuniform_wall": "Thin/nonuniform upstream serial wall-distance bounds are unsafe"
+  }
+}
