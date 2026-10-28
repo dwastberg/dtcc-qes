@@ -193,8 +193,10 @@ valid tensor. Validity masks and metadata counts describe their original solve
 or sample. This algebraic screening model has not been validated for pedestrian
 gusts. The [numerical/performance gate](docs/turbulence-benchmark.md) passes
 across 72 configurations, with measured coverage, scaling, grid sensitivity
-and costs. DTCC turbulence export and comfort GEM screening are supported;
-dataset integration is the next implementation task. Height remains the provisional default.
+and costs. DTCC turbulence export and comfort GEM screening are supported.
+Dataset integration is deferred until further wind-module work is complete;
+the later integration target is a unified wind-comfort dataset. Height remains
+the provisional default.
 
 Turbulence adds roughly 110 bytes per native cell and 39 bytes of returned
 fields/masks per physical cell. Temporary copies, float64 statistics and extra

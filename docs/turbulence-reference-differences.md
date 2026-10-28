@@ -797,5 +797,7 @@ passes **862 tests, no skips**, with warnings treated as errors and native
 integration enabled. The twelve-direction example converges with 161/1,200
 London cells unassessed. Native/QES sources and standalone reference values
 are unchanged; the complete 39/39 Release and ASan/UBSan runs from the preceding
-review remain applicable. Task 8 dataset integration is next. Physical gust
-validation and comfort certification remain outside this numerical gate.
+review remain applicable. Task 8 is deferred until further wind-module work is
+complete. The completed turbulence/GEM implementation can be integrated into
+`main` independently; the later dataset target is a unified wind-comfort product.
+Physical gust validation and comfort certification remain outside this numerical gate.

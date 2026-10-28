@@ -21,7 +21,10 @@ review repaired the domain preflight and resolved the stale dataset-registration
 test/documentation mismatch while preserving runtime behavior. The public API
 now returns turbulence fields and sampled streamwise statistics. Task 9's
 numerical/performance gate passes; DTCC export and comfort GEM screening are
-implemented. Task 8 adds dataset integration next. Physical pedestrian-gust validation remains
+implemented. Task 8 is deferred until further wind-module work is complete.
+The integration target is to merge the completed turbulence/GEM work into `main`,
+then present a unified wind-comfort dataset once the wind interfaces have settled.
+Physical pedestrian-gust validation remains
 outstanding. Review measurements describe the original core at the recorded
 revision, not necessarily the repaired implementation.
 
@@ -236,7 +239,20 @@ Task checkboxes and the execution record below track implementation progress.
   wind/stress hashes, diagnostics, validity records and sample tensors/statistics
   match the preceding review's committed evidence exactly; GEM/assessment cost is
   outside that benchmark's scope.
-- Next: Task 8 dataset integration.
+- Scope update (2026-10-28): the user deferred Task 8 until further wind-module
+  work is complete. Dataset integration is not a prerequisite for merging the
+  completed turbulence/GEM implementation. The later product should be a unified
+  wind-comfort dataset; revisit Task 8's narrower dataset-flag design in that
+  context, preserving its validity, coverage and provenance requirements.
+  Integration preflight found `main` at `3f18072`, with uncommitted wind-validation
+  work and OpenMP now required by default. This branch's numerical qualification
+  is serial (`OpenMP=OFF`). Reconcile the branches and verify the combined OpenMP
+  configuration before merging; retain the serial baseline checks and identify
+  any configuration-dependent reference differences explicitly. The original
+  checkout's ongoing files remain outside this branch's implementation scope.
+- Next integration milestone: reconcile and validate the completed turbulence/GEM
+  work with the current wind module, then merge into `main`. After the remaining
+  wind work is complete, design and implement the unified wind-comfort dataset.
   The numerical gate does not validate gusts against observations or certify comfort.
 
 ---
@@ -1318,6 +1334,12 @@ Wheel/source audits pass, and the wheel built from the sdist passes the GEM
 example with provenance, screening warnings and conservative NaN coverage.
 
 ### Task 8: Dataset flag
+
+**Status: DEFERRED by the user (2026-10-28)** until further work on the wind
+module is complete. It does not block integration of Tasks 1–7 and 9 into
+`main`. The requirements below are retained for the later unified wind-comfort
+dataset; revisit the API and product design against the completed wind module
+before resuming implementation. No Task 8 code has been implemented.
 
 **Files:** Modify `src/dtcc_qes/datasets.py`, `src/dtcc_qes/_dataset_city.py`. Test: `tests/test_datasets.py` (follow its existing offline city fixture pattern).
 
