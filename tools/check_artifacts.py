@@ -1,9 +1,10 @@
 """Verify the licenses and corresponding build sources in release artifacts."""
 
 import argparse
-from email.parser import BytesParser
+import gzip
 import hashlib
 import json
+from email.parser import BytesParser
 from pathlib import Path
 import tarfile
 import zipfile
@@ -124,6 +125,61 @@ def check_sdist(path):
             "tests/test_vertical_grid_study.py",
             "src/dtcc_qes/comfort.py", "tests/test_comfort.py", "examples/wind_comfort.py",
             "docs/wind-comfort.md",
+            "docs/near-wall-validation.md", "tools/near_wall_probe.cpp",
+            "tools/build_near_wall_probe.py", "tools/near_wall_sampling.py",
+            "tools/run_near_wall_validation.py", "tools/audit_near_wall_validation.py",
+            "tools/diagnose_sidewall_transition.py", "tools/plot_near_wall_validation.py",
+            "tests/test_near_wall_validation.py", "tests/test_near_wall_audit.py",
+            "docs/data/near-wall-validation/manifest.json",
+            "docs/data/near-wall-validation/protocol.md",
+            "docs/data/near-wall-validation/summary.json",
+            "docs/data/near-wall-validation/audit.json",
+            "docs/data/near-wall-validation/instrumented-check.json",
+            "docs/data/near-wall-validation/sidewall-transition.json",
+            "docs/data/near-wall-validation/sidewall-transition.png",
+            "docs/data/near-wall-validation/point-comparison.png",
+            "docs/data/near-wall-validation/figures.json",
+            "docs/generated-grid-pilot.md", "tools/run_generated_grid_pilot.py",
+            "tools/audit_generated_grid_pilot.py", "tools/plot_generated_grid_pilot.py",
+            "tests/test_generated_grid_pilot.py", "tests/test_generated_grid_audit.py",
+            "docs/data/generated-grid-pilot/manifest.json",
+            "docs/data/generated-grid-pilot/protocol.md",
+            "docs/data/generated-grid-pilot/raw.json.gz",
+            "docs/data/generated-grid-pilot/summary.json",
+            "docs/data/generated-grid-pilot/audit.json",
+            "docs/data/generated-grid-pilot/execution-environment.json",
+            "docs/vertical-refinement.md", "tools/run_vertical_refinement.py",
+            "tools/audit_vertical_refinement.py", "tools/plot_vertical_refinement.py",
+            "tools/diagnose_vertical_initialization.py",
+            "tests/test_vertical_refinement.py", "tests/test_vertical_refinement_audit.py",
+            "docs/data/vertical-refinement/manifest.json",
+            "docs/data/vertical-refinement/protocol.md",
+            "docs/data/vertical-refinement/raw.json.gz",
+            "docs/data/vertical-refinement/summary.json",
+            "docs/data/vertical-refinement/audit.json",
+            "docs/data/vertical-refinement/execution-environment.json",
+            "docs/data/vertical-refinement/initialization.json",
+            "docs/finest-reference.md", "tools/run_finest_reference.py",
+            "tools/audit_finest_reference.py",
+            "tests/test_finest_reference.py", "tests/test_finest_reference_audit.py",
+            "docs/data/finest-reference/manifest.json",
+            "docs/data/finest-reference/protocol.md",
+            "docs/data/finest-reference/input.txt",
+            "docs/data/finest-reference/summary.json",
+            "docs/data/finest-reference/audit.json",
+            "tools/benchmark_grid_planning.py",
+            "docs/data/finest-reference/planning-timings.json",
+            "docs/data/finest-reference/interruption.json",
+            "docs/data/finest-reference/retry-supervision.json",
+            "docs/data/finest-reference/costs.json",
+            "docs/data/finest-reference/status.json",
+            "docs/data/finest-reference/runtime-review-stop.json",
+            "docs/data/finest-reference/runtime-review.json",
+            "tools/benchmark_fast_wind.py",
+            "docs/data/finest-reference/runtime-cases/float32.json",
+            "docs/data/finest-reference/runtime-cases/float32.log",
+            "docs/data/finest-reference/runtime-cases/float64.json",
+            "docs/data/finest-reference/runtime-cases/float64.log",
         ):
             require(name in members, f"Source distribution omits {name}")
         shared = ("flat", "flat_oblique", "one_building", "building_oblique", "building_wall")
@@ -153,7 +209,80 @@ def check_sdist(path):
         revision = archive.extractfile(members["src/dtcc_qes/_qes_revision.txt"]).read().decode().strip()
         require(verification["qes_revision"] == benchmark["environment"]["qes_revision"] == revision,
                 "Turbulence evidence has a different QES revision")
-        require(not any(name.startswith((".idea/", "build/")) for name in members), "Private build/IDE files in sdist")
+        study = "docs/data/near-wall-validation/"
+        manifest = json.load(archive.extractfile(members[study + "manifest.json"]))
+        evidence = list(manifest["references_sha256"])
+        evidence.extend(study + "sources/" + name for name in manifest["source_sha256"])
+        evidence.extend(study + "cases/" + task["id"] + ".json.gz" for task in manifest["tasks"])
+        for name in evidence:
+            require(name in members, f"Source distribution omits study evidence {name}")
+        study = "docs/data/generated-grid-pilot/"
+        manifest = json.load(archive.extractfile(members[study + "manifest.json"]))
+        summary = json.load(archive.extractfile(members[study + "summary.json"]))
+        audit = json.load(archive.extractfile(members[study + "audit.json"]))
+        evidence = list(manifest["references_sha256"])
+        evidence.extend(study + "sources/" + name for name in manifest["source_sha256"])
+        if summary["complete"]:
+            evidence.extend(study + name for name in ("pilot.png", "figure.json"))
+        for backend in audit["backends"].values():
+            evidence.extend(c["path"] for c in backend["checkpoints"])
+        for backend in manifest["binaries"]:
+            for task in manifest["tasks"]:
+                name = study + backend + "/cases/" + task["id"] + ".json.gz"
+                if not summary["complete"] and name not in members:
+                    continue
+                require(name in members, f"Source distribution omits pilot case {name}")
+                record = json.loads(gzip.decompress(archive.extractfile(members[name]).read()))
+                for run in [record["run"], *record["attempts"]]:
+                    if run is None and not summary["complete"]:
+                        continue
+                    require(run is not None, "Complete pilot contains an unfinished case")
+                    evidence.extend(origin["path"] for origin in run["checkpoint_origins"])
+        for name in evidence:
+            require(name in members, f"Source distribution omits pilot evidence {name}")
+        study = "docs/data/vertical-refinement/"
+        manifest = json.load(archive.extractfile(members[study + "manifest.json"]))
+        summary = json.load(archive.extractfile(members[study + "summary.json"]))
+        audit = json.load(archive.extractfile(members[study + "audit.json"]))
+        evidence = list(manifest["references_sha256"])
+        evidence.extend(study + "sources/" + name for name in manifest["source_sha256"])
+        if summary["complete"]:
+            evidence.extend(study + name for name in ("refinement.png", "figure.json"))
+        for backend in audit["backends"].values():
+            evidence.extend(study + c["path"] for c in backend["checkpoints"])
+        for backend, tasks in manifest["task_matrix"].items():
+            for task in tasks:
+                name = study + backend + "/cases/" + task["id"] + ".json.gz"
+                if not summary["complete"] and name not in members:
+                    continue
+                require(name in members, f"Source distribution omits refinement case {name}")
+                record = json.loads(gzip.decompress(archive.extractfile(members[name]).read()))
+                for run in [record["run"], *record["attempts"]]:
+                    if run is None and not summary["complete"]:
+                        continue
+                    require(run is not None, "Complete refinement study contains unfinished case")
+                    evidence.extend(origin["path"] for origin in run["checkpoint_origins"])
+        for name in evidence:
+            require(name in members, f"Source distribution omits refinement evidence {name}")
+        diagnosis = json.load(archive.extractfile(members[study + "initialization.json"]))
+        for name in diagnosis["source_sha256"]:
+            required = study + "initialization-sources/" + name
+            require(required in members, f"Source distribution omits initialization source {required}")
+        for name in diagnosis["input_sha256"]:
+            require(name in members, f"Source distribution omits initialization evidence {name}")
+        study = "docs/data/finest-reference/"
+        manifest = json.load(archive.extractfile(members[study + "manifest.json"]))
+        status = json.load(archive.extractfile(members[study + "status.json"]))
+        require(status["state"] == "stopped_for_runtime_review" and not status["complete"]
+                and not status["reference_usable"], "Stopped study must not qualify a reference")
+        evidence = list(manifest["references_sha256"])
+        evidence.extend(study + "sources/" + name for name in manifest["source_sha256"])
+        for name in evidence:
+            require(name in members, f"Source distribution omits finest-reference evidence {name}")
+        require(not any(name.startswith((".idea/", "build/", ".venv/", ".pytest_cache/")) for name in members),
+                "Private build/environment/cache files in sdist")
+        require(not any("__pycache__" in name.split("/") or name.endswith(".pyc") for name in members),
+                "Python bytecode caches in sdist")
         check_metadata(archive.extractfile(members["PKG-INFO"]).read())
 
 
