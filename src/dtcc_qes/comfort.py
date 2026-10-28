@@ -17,12 +17,14 @@ clockwise from north, for both the hourly climate and the fields.
 """
 
 from dataclasses import dataclass
+from collections.abc import Mapping
+from copy import deepcopy
 from typing import NamedTuple
 
 import numpy as np
 
 __all__ = ["Rule", "Rating", "Criterion", "ComfortResult", "NEN8100", "CITY_OF_LONDON",
-           "assess", "exceedance", "speed_at_exceedance", "log_law_transfer"]
+           "assess", "exceedance", "speed_at_exceedance", "log_law_transfer", "gust_equivalent_mean"]
 
 SEASONS = {"winter": (12, 1, 2), "spring": (3, 4, 5), "summer": (6, 7, 8), "autumn": (9, 10, 11)}
 
@@ -130,8 +132,51 @@ class ComfortResult:
         return np.where(self.comfort >= 0, ratings[np.maximum(self.comfort, 0)], np.int8(-1))
 
 
+def gust_equivalent_mean(speed, streamwise_std, *, peak_factor: float,
+                         gust_ratio: float = 1.85) -> np.ndarray:
+    """Estimate GEM as ``(speed + peak_factor * streamwise_std) / gust_ratio``.
+
+    Inputs are equal-shape nonnegative speeds/deviations in m/s; NaN propagates.
+    The result is float64. Infinities, negative values, unequal shapes, invalid
+    factors and overflowing estimates raise ValueError. Factors must be finite
+    positive scalars. ``peak_factor`` is required and has no calibrated default.
+
+    The City of London Wind Microclimate Guidelines (2019), printed p. 11,
+    defines gust speed / 1.85. It does not establish a QES-Turb peak factor or
+    gust averaging duration. A peak estimate from QES's algebraic stresses is
+    unvalidated screening; record factors and averaging-time assumptions in
+    ``assess(..., gem_metadata=...)``. Unknown durations remain unspecified.
+    See https://www.cityoflondon.gov.uk/assets/Services-Environment/wind-microclimate-guidelines.pdf
+    """
+    factors = []
+    for name, value in (("peak_factor", peak_factor), ("gust_ratio", gust_ratio)):
+        if np.ndim(value) != 0 or np.asarray(value).dtype.kind in ("b", "c"):
+            raise ValueError(f"{name} must be a positive finite scalar")
+        value = _number(value, name)
+        if value <= 0:
+            raise ValueError(f"{name} must be a positive finite scalar")
+        factors.append(value)
+    peak_factor, gust_ratio = factors
+    try:
+        if np.iscomplexobj(speed) or np.iscomplexobj(streamwise_std):
+            raise ValueError("GEM inputs must be real")
+        speed = np.asarray(speed, dtype=np.float64)
+        std = np.asarray(streamwise_std, dtype=np.float64)
+    except (TypeError, ValueError, OverflowError) as error:
+        raise ValueError("speed and streamwise_std must be numeric real arrays") from error
+    if speed.shape != std.shape:
+        raise ValueError("speed and streamwise_std must have the same shape")
+    if np.isinf(speed).any() or np.isinf(std).any() or np.any(speed < 0) or np.any(std < 0):
+        raise ValueError("speed and streamwise_std must be nonnegative, finite or NaN")
+    with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
+        estimate = np.asarray((speed + peak_factor * std) / gust_ratio, dtype=np.float64)
+    if np.isinf(estimate).any():
+        raise ValueError("GEM estimate overflows float64")
+    return estimate
+
+
 def assess(speeds, directions, fields, field_directions, reference_speed, criterion=NEN8100, *,
-           gem_fields=None, times=None, height=None) -> ComfortResult:
+           gem_fields=None, gem_metadata=None, times=None, height=None) -> ComfortResult:
     """Classify comfort and safety for every field cell.
 
     ``speeds`` and ``directions`` are hourly (T,) arrays; ``fields`` is a
@@ -149,9 +194,20 @@ def assess(speeds, directions, fields, field_directions, reference_speed, criter
     datetime64) enables per-season comfort for seasonal criteria. ``height``
     records the fields' height in metres and warns when it differs from the
     criterion's.
+
+    Optional ``gem_metadata`` is a mapping of source/model, factors, averaging
+    times and limitations, deep-copied into ``metadata['gem']``. It requires
+    ``gem_fields``. QES provenance in source/model/numerics_version preserves
+    an unvalidated-gust screening warning. Missing source/model provenance is
+    warned about; supplying GEM does not establish validation or compliance.
     """
     if not isinstance(criterion, Criterion):
         raise ValueError("criterion must be a comfort.Criterion such as NEN8100 or CITY_OF_LONDON")
+    if gem_metadata is not None and gem_fields is None:
+        raise ValueError("gem_metadata requires gem_fields")
+    if gem_metadata is not None and not isinstance(gem_metadata, Mapping):
+        raise ValueError("gem_metadata must be a mapping")
+    provenance = deepcopy(dict(gem_metadata)) if gem_metadata is not None else {}
     if gem_fields is not None and not criterion.gust_equivalent:
         raise ValueError(f"{criterion.name} is defined on mean speeds; gem_fields is not used")
     hourly = _Hourly(speeds, directions, field_directions, times)
@@ -170,6 +226,15 @@ def assess(speeds, directions, fields, field_directions, reference_speed, criter
     if criterion.gust_equivalent and gem_fields is None:
         warnings.append(f"Mean speeds only: {criterion.name} also applies gust equivalent mean (GEM) "
                         "speeds; results are non-conservative where gusts govern.")
+    if gem_fields is not None:
+        identifiers = (provenance.get(key) for key in ("source", "model", "numerics_version"))
+        if any(isinstance(value, str) and "qes" in value.casefold() for value in identifiers):
+            warnings.append("QES-Turb GEM is an algebraic screening estimate, not validated for pedestrian gusts; "
+                            "peak factors and averaging times are modelling assumptions.")
+        elif not any(isinstance(provenance.get(key), str) and
+                     provenance[key].strip().casefold() not in ("", "unspecified") for key in ("source", "model")):
+            warnings.append("GEM source/model provenance is unspecified; supplying GEM fields does not establish "
+                            "gust validation or guideline compliance.")
     if criterion.seasonal_comfort and hourly.months is not None:
         for season, months in SEASONS.items():
             selected = np.isin(hourly.months, months)
@@ -197,6 +262,8 @@ def assess(speeds, directions, fields, field_directions, reference_speed, criter
         hours_per_direction=annual.counts, field_directions=hourly.field_directions.tolist(),
         direction_assignment="nearest field direction; ties to the earlier field",
     )
+    if gem_metadata is not None:
+        metadata["gem"] = provenance
     return ComfortResult(criterion, comfort, safety, fractions, seasonal, tuple(warnings), metadata)
 
 
@@ -359,7 +426,7 @@ def _number(value, name):
         raise ValueError(f"{name} must be a finite number")
     try:
         value = float(value)
-    except (TypeError, ValueError) as error:
+    except (TypeError, ValueError, OverflowError) as error:
         raise ValueError(f"{name} must be a finite number") from error
     if not np.isfinite(value) or value < 0:
         raise ValueError(f"{name} must be a finite nonnegative number")

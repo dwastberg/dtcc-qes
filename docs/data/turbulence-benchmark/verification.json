@@ -179,5 +179,60 @@
     },
     "passed": true,
     "scope": "Exact wind/stress hashes, diagnostics and retained sample/validity values; excludes timings, RSS and source fingerprints"
+  },
+  "task7_python_check": {
+    "baseline_revision": "3ee778d",
+    "command": [
+      ".venv/bin/python",
+      "-W",
+      "error",
+      "-m",
+      "pytest",
+      "tests",
+      "-q"
+    ],
+    "environment": {
+      "DTCC_QES_NATIVE_TEST": "/private/tmp/dtcc-qes-turbulence/build/native/check_safety",
+      "DTCC_QES_STUDY_EXECUTABLE": "/private/tmp/dtcc-qes-turbulence/build/native/vertical_grid_study"
+    },
+    "exit_code": 0,
+    "passed": 862,
+    "skipped": 0,
+    "log": "build/task7-python-tests.log",
+    "log_sha256": "eca29de42cf6ccd755d96ed2edeab79ad855cd91e38c3f636d9e049766caa50d",
+    "tail": "........................................................................ [ 91%]\n......................................................................   [100%]\n862 passed in 31.42s"
+  },
+  "task7_example_check": {
+    "command": [
+      ".venv/bin/python",
+      "-W",
+      "error",
+      "examples/wind_comfort.py"
+    ],
+    "exit_code": 0,
+    "directions": 12,
+    "london_unassessed_cells": 161,
+    "total_cells": 1200,
+    "peak_factor": 3.0,
+    "gust_ratio": 1.85,
+    "peak_factor_basis": "user-selected screening assumption",
+    "mean_averaging_time": "unspecified",
+    "gust_averaging_time": "unspecified",
+    "log": "build/task7-example.log",
+    "log_sha256": "a206af80d40599c6cf3291bb48e43411548069aaae5d25d32ccf1ed9f6796e95"
+  },
+  "task7_native_checks_basis": "Native C++/QES sources unchanged; review at 3ee778d passed 39/39 Release, 39/39 ASan/UBSan and the Release symbol audit",
+  "task7_numerical_parity": {
+    "baseline_revision": "3ee778d",
+    "baseline_raw_sha256": "280a4e10455ea034cfb0c98f15556dcf007ab997a09e2d3e243a35a9f73dc13b",
+    "comparisons": {
+      "velocity": 216,
+      "stress": 186,
+      "diagnostics": 216,
+      "sampled_tensors_and_statistics": 62,
+      "validity_diagnostics": 186
+    },
+    "passed": true,
+    "scope": "Exact wind/stress hashes, diagnostics and retained sample/validity values; excludes timings, RSS and source fingerprints"
   }
 }

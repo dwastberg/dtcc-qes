@@ -43,9 +43,18 @@ def test_wind_comfort_example():
     nen, london = runpy.run_path(str(example))["main"]()
     for result in (nen, london):
         assert result.comfort.shape == result.safety.shape == (30, 40)
-        assert (result.comfort == -1).sum() == 25  # the 10 m x 10 m building at 2 m spacing
         assert len(np.unique(result.comfort[result.comfort >= 0])) > 1
         assert result.metadata["hours"] == 8760 and result.metadata["field_height"] == 1.5
     assert set(london.seasonal) == {"winter", "spring", "summer", "autumn"}
-    assert any("Mean speeds only" in warning for warning in london.warnings)
+    assert (nen.comfort == -1).sum() == 25  # building cells
+    assert (london.comfort == -1).sum() > 25  # also uncomputed/invalid QES stress
+    assert london.metadata["speed_measure"] == "mean and GEM"
+    gem = london.metadata["gem"]
+    assert "QES-Turb" in gem["source"] and gem["numerics_version"] == "dtcc-qes-turbulence-v1"
+    assert gem["peak_factor"] == 3 and gem["gust_ratio"] == 1.85
+    assert "user-selected" in gem["peak_factor_basis"]
+    assert gem["mean_averaging_time"] == gem["gust_averaging_time"] == "unspecified"
+    assert len(gem["runs"]) == 12
+    assert not any("Mean speeds only" in warning for warning in london.warnings)
+    assert any("not validated for pedestrian gusts" in warning for warning in london.warnings)
     assert any("1.75 m" in warning for warning in nen.warnings)

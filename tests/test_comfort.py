@@ -1,5 +1,6 @@
 import ast
 from dataclasses import FrozenInstanceError
+from copy import deepcopy
 from pathlib import Path
 import sys
 
@@ -7,6 +8,152 @@ import numpy as np
 import pytest
 
 from dtcc_qes import comfort
+
+
+def test_gem_formula_and_nan_propagation():
+    speed = np.array([[0, 5, np.nan], [2, 4, 6]], dtype=np.float32)
+    std = np.array([[0, .5, 1], [np.nan, 2, 3]], dtype=np.float32)
+    before = speed.copy(), std.copy()
+    actual = comfort.gust_equivalent_mean(speed, std, peak_factor=3)
+    np.testing.assert_array_equal(actual, (speed.astype(float)+3*std.astype(float))/1.85)
+    assert actual.dtype == np.float64 and actual.shape == speed.shape
+    assert not np.shares_memory(actual, speed) and not np.shares_memory(actual, std)
+    np.testing.assert_array_equal(speed, before[0])
+    np.testing.assert_array_equal(std, before[1])
+    custom = comfort.gust_equivalent_mean([2, 4], [.5, 1], peak_factor=2, gust_ratio=2)
+    np.testing.assert_array_equal(custom, [1.5, 3])
+    scalar = comfort.gust_equivalent_mean(4., 2., peak_factor=3.)
+    assert isinstance(scalar, np.ndarray) and scalar.shape == () and scalar.dtype == np.float64
+    assert scalar == pytest.approx(10/1.85)
+    assert "gust_equivalent_mean" in comfort.__all__
+    with pytest.raises(TypeError):
+        comfort.gust_equivalent_mean(speed, std)
+
+
+@pytest.mark.parametrize("name", ["peak_factor", "gust_ratio"])
+@pytest.mark.parametrize("value", [0, -1, np.nan, np.inf, -np.inf, True, None, [3.], np.array([3.]),
+                                 np.array(True), 3j, np.array(3j), 10**400])
+def test_gem_rejects_bad_factors(name, value):
+    options = dict(peak_factor=3., gust_ratio=1.85)
+    options[name] = value
+    with pytest.raises(ValueError, match=name):
+        comfort.gust_equivalent_mean([5.], [1.], **options)
+
+
+@pytest.mark.parametrize("speed,std", [([-1], [1]), ([1], [-1]), ([np.inf], [1]),
+    ([1], [-np.inf]), ([1], [np.inf]), ([1, 2], [1]), ([[1]], [1]), ([1], ["bad"])])
+def test_gem_rejects_bad_arrays(speed, std):
+    with pytest.raises(ValueError):
+        comfort.gust_equivalent_mean(speed, std, peak_factor=3.)
+
+
+def test_gem_rejects_overflow_without_runtime_warning():
+    with np.errstate(all="raise"), pytest.raises(ValueError, match="overflow"):
+        comfort.gust_equivalent_mean([1e308], [1e308], peak_factor=3.)
+
+
+def test_gem_fields_remove_only_mean_only_warning():
+    arguments = ([5.], [0.], np.full((1, 2), 5.), [0.], 5., comfort.CITY_OF_LONDON)
+    mean = comfort.assess(*arguments, height=1.)
+    both = comfort.assess(*arguments, height=1., gem_fields=np.full((1, 2), 6.))
+    assert any("Mean speeds only" in warning for warning in mean.warnings)
+    assert not any("Mean speeds only" in warning for warning in both.warnings)
+    assert all(warning in both.warnings for warning in mean.warnings if "Mean speeds only" not in warning)
+    assert any("provenance" in warning.lower() and "unspecified" in warning.lower() for warning in both.warnings)
+
+
+@pytest.mark.parametrize("identification", [
+    dict(source="dtcc_qes.wind"), dict(model="QES-Turb algebraic mixing-length model"),
+    dict(numerics_version="dtcc-qes-turbulence-v1"),
+])
+def test_qes_gem_metadata_and_screening_warning_survive_assess(identification):
+    provenance = dict(identification, peak_factor=3., gust_ratio=1.85,
+        mean_averaging_time="unspecified", gust_averaging_time="unspecified",
+        validity_policy="raw_and_mask", limitations=["not validated for pedestrian gusts"],
+        assumptions=dict(peak_factor="user-selected screening assumption"))
+    expected = deepcopy(provenance)
+    result = comfort.assess([5.], [0.], [[5.]], [0.], 5., comfort.CITY_OF_LONDON,
+                            gem_fields=[[6.]], gem_metadata=provenance)
+    assert result.metadata["gem"] == expected
+    assert any("QES-Turb" in warning and "not validated for pedestrian gusts" in warning
+               for warning in result.warnings)
+    assert not any("Mean speeds only" in warning for warning in result.warnings)
+    provenance["limitations"].append("edited")
+    provenance["assumptions"]["peak_factor"] = "edited"
+    assert result.metadata["gem"] == expected
+    assert result.metadata["speed_measure"] == "mean and GEM"
+
+
+def test_gem_metadata_validation_and_external_sources():
+    arguments = ([5.], [0.], [[5.]], [0.], 5., comfort.CITY_OF_LONDON)
+    for metadata in ({}, {"source": "QES-Turb"}):
+        with pytest.raises(ValueError, match="gem_metadata.*gem_fields"):
+            comfort.assess(*arguments, gem_metadata=metadata)
+    with pytest.raises(ValueError, match="gem_metadata.*mapping"):
+        comfort.assess(*arguments, gem_fields=[[6.]], gem_metadata="QES-Turb")
+    external = {"source": "external wind tunnel", "gust_averaging_time": "3 s"}
+    result = comfort.assess(*arguments, gem_fields=[[6.]], gem_metadata=external)
+    assert result.metadata["gem"] == external
+    assert not any("QES-Turb" in warning for warning in result.warnings)
+    assert "gem" not in comfort.assess(*arguments).metadata
+
+
+@pytest.mark.usefixtures("dtcc_logger")
+@pytest.mark.parametrize("method", ["height", "wall_distance"])
+def test_gem_from_runs_scales_with_reference_speed(method):
+    from city_cases import city_case
+    from fixtures.cases import ONE_BUILDING
+    from dtcc_qes import wind
+
+    fields, estimates, assessments = [], [], []
+    directions = [225., 270.]
+    climate_speed, climate_direction, _, _ = random_case(hours=1000)
+    for speed in (5., 10.):
+        means, gems = [], []
+        for direction in directions:
+            city, condition, grid, solver = city_case(ONE_BUILDING)
+            condition.update(speed=speed, direction=direction)
+            solver.update(tolerance=1e-7*speed/5, max_iterations=2000, solver_precision="float64")
+            run = wind.run(city, **condition, **grid, **solver, turbulence=wind.Turbulence(method))
+            assert run.diagnostics.converged
+            sample = run.sample(1.5, "linear")
+            means.append(sample.speed)
+            gems.append(comfort.gust_equivalent_mean(sample.speed, sample.streamwise_std, peak_factor=3.))
+        fields.append(np.stack(means))
+        estimates.append(np.stack(gems))
+        assessments.append(comfort.assess(climate_speed, climate_direction, fields[-1], directions, speed,
+                           comfort.CITY_OF_LONDON, gem_fields=estimates[-1], height=1.5))
+    np.testing.assert_allclose(estimates[1], 2*estimates[0], rtol=1e-4, atol=1e-7, equal_nan=True)
+    for attribute in ("comfort", "safety"):
+        np.testing.assert_array_equal(getattr(assessments[0], attribute), getattr(assessments[1], attribute))
+    assert (assessments[0].comfort >= 0).any()
+    assert (assessments[0].comfort == -1).any()
+
+
+def test_invalid_stress_and_undefined_direction_remain_unassessed():
+    from test_turbulence import synthetic
+
+    source = synthetic()
+    source.turbulence.stress[:, 0, 0] = [1, 2, 0, 1, 0, 1]
+    source.velocity[:, 0, 1] = 0
+    source.turbulence.computed[:, 0, 2] = False
+    raw = source.turbulence.stress.copy()
+    sample = source.sample(1.5, "linear")
+    gem = comfort.gust_equivalent_mean(sample.speed, sample.streamwise_std, peak_factor=3.)
+    assert np.isnan(gem[0, :3]).all()
+    # The invalid GEM direction is unused by the climate; coverage stays conservative.
+    fields = np.stack([np.full_like(sample.speed, 5), sample.speed])
+    gems = np.stack([np.full_like(gem, 5), gem])
+    result = comfort.assess([5.]*4, [0.]*4, fields, [0., 90.], 5., comfort.CITY_OF_LONDON,
+        gem_fields=gems, times=np.array(["2023-01-01", "2023-04-01", "2023-07-01", "2023-10-01"],
+                                       dtype="datetime64[D]"))
+    assert (result.comfort[0, :3] == -1).all() and (result.safety[0, :3] == -1).all()
+    for values in result.exceedance.values():
+        assert np.isnan(values[0, :3]).all()
+    for values in result.seasonal.values():
+        assert (values[0, :3] == -1).all()
+    assert (result.comfort[1:] >= 0).all()
+    np.testing.assert_array_equal(source.turbulence.stress, raw)
 
 
 def one_direction(values, total, low=1.0):

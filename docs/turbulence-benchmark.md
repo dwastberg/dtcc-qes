@@ -12,6 +12,9 @@ decision.
 The isolated feature branch starts this task at parent revision `2e69e95`.
 Task 6 refreshes the complete matrix after parent revision `0d7905a`, so the
 source fingerprints include the new DTCC export. Native numerics are unchanged.
+Task 7 refreshes it again after `3ee778d`, including the comfort GEM helper
+in the source audit. GEM generation and comfort assessment are tested separately;
+their costs are outside this native-solve/statistic benchmark.
 The timings still measure native solve and Python statistics, not DTCC
 conversion; separate export tests verify ordering, masks and serialization.
 QES is `dce15d7e3b0a2d2cb0a29898f3882d103f66de71`. The native Python extension
@@ -69,6 +72,17 @@ wind hashes and solver diagnostics, 186 raw-stress hashes and validity records,
 and all 62 retained tensor/statistic sample sets. This establishes unchanged
 numerical results for the refresh; timing and RSS differences reflect the new
 measurements. The verification JSON retains the baseline checksum and counts.
+
+Task 7 passes **862 tests, no skips**, under `-W error` with the Release native
+safety/study executables enabled. Its twelve-direction comfort example converges
+and retains the QES screening warning and explicit peak/averaging assumptions.
+The preceding review at `3ee778d` passed 39/39 native tests in Release and
+ASan/UBSan plus the Release symbol audit; native sources are unchanged in Task 7.
+The verification record includes the Task 7 commands, coverage and log checksums.
+Its full matrix again passes 72 configurations/216 repetitions and 18 scaling
+pairs. Exact comparisons with `3ee778d` match 216 wind/diagnostic records,
+186 raw-stress/validity records and 62 retained tensor/statistic sample sets.
+Only source fingerprints, timings and process memory measurements change.
 
 ## Measurement and comparison policy
 
@@ -175,21 +189,21 @@ All times below are median seconds. RSS columns are median MiB high-water values
 
 | Layout | Method | Cells | Prepare | Solve | Validity | σ | TI | RSS solve | RSS derived |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| isolated | off | 51200 | 0.0010211 | 0.042059 | — | — | — | 206.8 | — |
-| isolated | 0 | 51200 | 0.0020832 | 0.055675 | 0.017712 | 0.019983 | 0.020488 | 216.03 | 237.73 |
-| isolated | 1 | 51200 | 0.0057145 | 0.056635 | 0.01775 | 0.020227 | 0.020322 | 217.39 | 222.88 |
-| passage | off | 51200 | 0.00096487 | 0.049464 | — | — | — | 208.95 | — |
-| passage | 0 | 51200 | 0.0019597 | 0.062126 | 0.017489 | 0.019435 | 0.019646 | 215.75 | 222.52 |
-| passage | 1 | 51200 | 0.012796 | 0.063324 | 0.017662 | 0.019595 | 0.019723 | 215.11 | 226.28 |
-| array | off | 51200 | 0.00099396 | 0.046425 | — | — | — | 206.61 | — |
-| array | 0 | 51200 | 0.0020486 | 0.061632 | 0.018802 | 0.020367 | 0.020477 | 217.45 | 233.25 |
-| array | 1 | 51200 | 0.0050037 | 0.059466 | 0.017527 | 0.019251 | 0.020025 | 216.14 | 228.03 |
-| tower | off | 51200 | 0.00097954 | 0.053408 | — | — | — | 207.58 | — |
-| tower | 0 | 51200 | 0.002012 | 0.068479 | 0.018519 | 0.020703 | 0.020847 | 217.23 | 237.28 |
-| tower | 1 | 51200 | 0.023048 | 0.066492 | 0.018339 | 0.020249 | 0.020682 | 216.73 | 234.45 |
-| city | off | 1.28e+06 | 0.023191 | 7.636 | — | — | — | 397.59 | — |
-| city | 0 | 1.28e+06 | 0.050793 | 7.9301 | 0.46657 | 0.52564 | 0.546 | 635.92 | 756.34 |
-| city | 1 | 1.28e+06 | 0.073686 | 8.0687 | 0.47047 | 0.52699 | 0.54457 | 636.55 | 742.42 |
+| isolated | off | 51200 | 0.0010545 | 0.046444 | — | — | — | 209.94 | — |
+| isolated | 0 | 51200 | 0.0023198 | 0.059109 | 0.018833 | 0.021239 | 0.021567 | 218.53 | 252.95 |
+| isolated | 1 | 51200 | 0.0062437 | 0.059866 | 0.018759 | 0.021808 | 0.021924 | 218.22 | 249.58 |
+| passage | off | 51200 | 0.0011303 | 0.05182 | — | — | — | 209.14 | — |
+| passage | 0 | 51200 | 0.0022193 | 0.065227 | 0.018554 | 0.020875 | 0.022109 | 219.14 | 244.8 |
+| passage | 1 | 51200 | 0.013096 | 0.065845 | 0.018231 | 0.020121 | 0.02068 | 215.67 | 232.19 |
+| array | off | 51200 | 0.0010176 | 0.047408 | — | — | — | 207.59 | — |
+| array | 0 | 51200 | 0.0023649 | 0.061428 | 0.017884 | 0.020331 | 0.020548 | 214.36 | 243 |
+| array | 1 | 51200 | 0.0050091 | 0.060786 | 0.017908 | 0.019998 | 0.020538 | 217.28 | 230.17 |
+| tower | off | 51200 | 0.0010213 | 0.053963 | — | — | — | 208.14 | — |
+| tower | 0 | 51200 | 0.0020588 | 0.067952 | 0.019005 | 0.020977 | 0.021002 | 215.25 | 227.72 |
+| tower | 1 | 51200 | 0.023509 | 0.067988 | 0.01865 | 0.020525 | 0.020816 | 217.27 | 235.03 |
+| city | off | 1.28e+06 | 0.023779 | 7.7868 | — | — | — | 399.08 | — |
+| city | 0 | 1.28e+06 | 0.051493 | 8.1378 | 0.48138 | 0.55711 | 0.58181 | 636.58 | 729.28 |
+| city | 1 | 1.28e+06 | 0.078199 | 8.1695 | 0.4914 | 0.57698 | 0.57777 | 638.25 | 786.19 |
 
 Returned wind is bitwise identical for off/0/1 on each of these explicit grids. Method 1 adds preparation work on these layouts; solve costs are close to method 0. The 110 B/native-cell plus 39 B/physical-cell field estimate is not a peak-memory budget. Double solver storage, extraction copies, Python masks, eigenvalue work and float64 arrays raise measured peaks. Independent benchmark-oracle memory is recorded separately and excluded from the derived-array RSS column. Larger/taller/denser geometries can change wall-search cost substantially.
 
@@ -300,17 +314,17 @@ These are differences from the 2 m vertical grid, using height mixing length and
 
 | Case/grid/domain/method | Cells | Prepare s | Solve s | RSS solve MiB |
 | --- | --- | --- | --- | --- |
-| midrise-2-auto-None | 23328 | 0.00082433 | 0.014892 | 207.23 |
-| midrise-2-grown_off-None | 33696 | 0.00097804 | 0.025644 | 208.56 |
-| midrise-2-auto-0 | 33696 | 0.0018683 | 0.035547 | 213.84 |
-| midrise-2-auto-1 | 33696 | 0.022121 | 0.036303 | 212.75 |
-| midrise-auto-auto-None | 38880 | 0.001392 | 0.083683 | 209.89 |
-| midrise-auto-grown_off-None | 49248 | 0.0014627 | 0.11142 | 211.11 |
-| midrise-auto-auto-0 | 49248 | 0.0025709 | 0.12669 | 219.42 |
-| midrise-auto-auto-1 | 49248 | 0.033812 | 0.12172 | 219.19 |
-| regenerated-auto-grown_off-None | 134784 | 0.0026294 | 0.78446 | 220.28 |
-| regenerated-auto-auto-0 | 134784 | 0.0051726 | 0.81909 | 246.45 |
-| regenerated-auto-auto-1 | 134784 | 0.22426 | 0.80467 | 244.02 |
+| midrise-2-auto-None | 23328 | 0.000572 | 0.013454 | 206.16 |
+| midrise-2-grown_off-None | 33696 | 0.00077521 | 0.023949 | 206.34 |
+| midrise-2-auto-0 | 33696 | 0.001739 | 0.033386 | 211.67 |
+| midrise-2-auto-1 | 33696 | 0.020845 | 0.035168 | 215.38 |
+| midrise-auto-auto-None | 38880 | 0.00083875 | 0.076638 | 205.08 |
+| midrise-auto-grown_off-None | 49248 | 0.0010647 | 0.1024 | 206.33 |
+| midrise-auto-auto-0 | 49248 | 0.002157 | 0.11381 | 218.98 |
+| midrise-auto-auto-1 | 49248 | 0.032371 | 0.11378 | 215.88 |
+| regenerated-auto-grown_off-None | 134784 | 0.0025311 | 0.75635 | 222.84 |
+| regenerated-auto-auto-0 | 134784 | 0.0050889 | 0.78845 | 243.95 |
+| regenerated-auto-auto-1 | 134784 | 0.22024 | 0.78886 | 243.7 |
 
 Compare `auto-None` with `grown_off-None` to isolate extra-layer cost, then `grown_off-None` with `auto-0`/`auto-1` for turbulence on the same grown grid. The original regenerated wind-only grid is infeasible, and is therefore not assigned a fabricated timing. Its allocation-free rejection and regeneration are covered by domain regressions.
 
@@ -353,4 +367,4 @@ The regenerated comparisons are separate: the base first had to replace its infe
 
 Keep **height** as the provisional default. Both implementations meet this numerical gate, and wall distance is a useful explicit option that reduces cap/invalid counts in these layouts. Its voxel-wall model, changed stresses and extra preparation work do not establish better agreement with measured pedestrian gusts. There is no observational basis here to promote either method as physically validated. Default changes require the user’s review and a separate commit.
 
-Task 6 DTCC export now preserves raw stress, independent validity and masked derived statistics. Later comfort/dataset outputs must keep the screening qualification. The coarse-grid profile error, building sensitivity, top sensitivity, indefinite tensors and real peak-memory cost remain material limits; downstream integration must not describe this gate as gust validation or comfort certification.
+Task 6 DTCC export preserves raw stress, independent validity and masked derived statistics. Task 7 comfort GEM preserves invalid coverage, explicit modelling assumptions and the screening warning. Task 8 dataset outputs must retain those qualifications. The coarse-grid profile error, building sensitivity, top sensitivity, indefinite tensors and real peak-memory cost remain material limits; downstream integration must not describe this gate as gust validation or comfort certification.

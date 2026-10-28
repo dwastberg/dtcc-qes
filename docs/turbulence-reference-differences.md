@@ -774,3 +774,28 @@ All 216 wind/solver diagnostic records, 186 raw-stress/validity records and
 62 retained tensor/statistic sample sets match the Task 9 baseline exactly.
 Benchmark timings cover the original solve/statistic operations, rather than
 the new DTCC conversion. Task 7 comfort GEM is next.
+
+## Comfort GEM screening (Task 7, 2026-10-28)
+
+`comfort.gust_equivalent_mean` computes `(speed + peak_factor * streamwise_std) /
+gust_ratio` in float64, preserving NaN coverage. Peak factor is required; ratio
+defaults to 1.85. Invalid factors/arrays, shape mismatches and overflowing
+estimates raise `ValueError`. `assess` copies optional GEM provenance into
+`metadata['gem']`, retains a QES unvalidated-gust warning, and warns when the
+source/model is unspecified. Seasonal and height warnings still apply.
+
+The [City of London guideline (2019)](https://www.cityoflondon.gov.uk/assets/Services-Environment/wind-microclimate-guidelines.pdf)
+supports the 1.85 conversion and worse mean/GEM assessment. It does not calibrate
+a QES peak factor. The example labels 3.0 as a user-selected screening assumption,
+records unknown mean/gust averaging times as unspecified, and retains model,
+numerics version, QES revision, cap/validity and sampled coverage per direction.
+Invalid stress, uncomputed cells and undefined mean direction stay unassessed.
+
+All 102 comfort/example checks pass, including native 5/10 m/s scaling for both
+mixing methods and invalid GEM in an unused climate direction. The full suite
+passes **862 tests, no skips**, with warnings treated as errors and native
+integration enabled. The twelve-direction example converges with 161/1,200
+London cells unassessed. Native/QES sources and standalone reference values
+are unchanged; the complete 39/39 Release and ASan/UBSan runs from the preceding
+review remain applicable. Task 8 dataset integration is next. Physical gust
+validation and comfort certification remain outside this numerical gate.

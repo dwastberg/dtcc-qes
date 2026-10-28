@@ -16,12 +16,12 @@ a `Turbulence` spec, a domain-top policy for turbulence's reference heights, a
 dtcc-core, pytest, CTest.
 
 **Status (implementation started 2026-10-27):** work is isolated in the checkout
-below. Tasks 1, 1A, 1B, 2, 3, 4, 5, 9 and 6 are implemented and verified. The follow-up
+below. Tasks 1, 1A, 1B, 2, 3, 4, 5, 9, 6 and 7 are implemented and verified. The follow-up
 review repaired the domain preflight and resolved the stale dataset-registration
 test/documentation mismatch while preserving runtime behavior. The public API
 now returns turbulence fields and sampled streamwise statistics. Task 9's
-numerical/performance gate passes; DTCC export (Task 6) is implemented. Task 7
-adds the comfort GEM helper next. Physical pedestrian-gust validation remains
+numerical/performance gate passes; DTCC export and comfort GEM screening are
+implemented. Task 8 adds dataset integration next. Physical pedestrian-gust validation remains
 outstanding. Review measurements describe the original core at the recorded
 revision, not necessarily the repaired implementation.
 
@@ -215,7 +215,28 @@ Task checkboxes and the execution record below track implementation progress.
   Runtime Python/native sources, reference values and benchmark fingerprints
   are unchanged by this review. Task 6 is committed as `a512f36`; the review
   cleanup is recorded separately. Physical gust validation remains outstanding.
-- Next: Task 7 (comfort GEM helper), followed by Task 8 dataset integration.
+- Task 7 (2026-10-28): `comfort.gust_equivalent_mean` returns float64 GEM estimates
+  with a required positive finite peak factor, default ratio 1.85, strict matching
+  shapes, NaN propagation and clear errors for invalid inputs/overflow.
+  `assess(gem_metadata=...)` snapshots nested caller provenance under `metadata['gem']`
+  and rejects provenance without GEM fields. QES sources/model/numerics retain an
+  explicit unvalidated-gust warning; unspecified sources retain a provenance
+  warning. Seasonal/height warnings remain, and invalid GEM in any direction keeps
+  comfort/safety/seasonal classes at -1 and exceedance NaN. The 2019 City of London
+  guideline supports the gust/1.85 conversion and worse mean/GEM assessment, not a
+  calibrated QES peak factor. The example explicitly labels 3.0 as a user-selected
+  screening assumption and records unknown averaging times as unspecified, model
+  version/revision, validity, cap and sampled coverage per direction. All 102 focused
+  comfort/example checks pass, including real 5/10 m/s solves for both mixing methods.
+  Full Python with native integration enabled: **862 passed, no skips**, under
+  `-W error`. The twelve-direction example converges and reports 161/1,200 London
+  cells unassessed, retaining the screening warning. Native sources/QES revision
+  and field/statistic numerics are unchanged. The source-audit benchmark refresh
+  passes all 72 configurations/216 repetitions and 18 scaling pairs. All retained
+  wind/stress hashes, diagnostics, validity records and sample tensors/statistics
+  match the preceding review's committed evidence exactly; GEM/assessment cost is
+  outside that benchmark's scope.
+- Next: Task 8 dataset integration.
   The numerical gate does not validate gusts against observations or certify comfort.
 
 ---
@@ -1263,14 +1284,14 @@ numerical acceptance while preserving the physical-validation limitation.
   mean-only warning. Generic externally supplied GEM arrays remain supported;
   missing provenance must not imply validated or guideline-compliant gusts.
 
-- [ ] **Step 1: Document the source and modelling assumptions.** Cite the
+- [x] **Step 1: Document the source and modelling assumptions.** Cite the
   [City of London Wind Microclimate Guidelines (2019)](https://www.cityoflondon.gov.uk/assets/Services-Environment/wind-microclimate-guidelines.pdf)
   for the 1.85 conversion and worse mean/GEM assessment. The review did not
   establish a peak factor or gust averaging time for this algebraic model
   from that source. Keep `peak_factor` required. Justify any example value and
   its averaging assumptions with a separate primary source or clearly label
   them as user-selected screening assumptions in the docstring and metadata.
-- [ ] **Step 2: Write the failing tests:**
+- [x] **Step 2: Write the failing tests:**
   - `test_gem_formula_and_nan_propagation`.
   - `test_gem_rejects_bad_factors`.
   - `test_gem_from_runs_scales_with_reference_speed`: GEM fields from
@@ -1280,13 +1301,21 @@ numerical acceptance while preserving the physical-validation limitation.
   - `test_qes_gem_metadata_and_screening_warning_survive_assess`.
   - `test_invalid_stress_and_undefined_direction_remain_unassessed`:
     NaN GEM in any direction retains the existing invalid-cell classification.
-- [ ] **Step 3: Run.** Expected: FAIL.
-- [ ] **Step 4: Implement.** Update `docs/wind-comfort.md`: replace "QES
+- [x] **Step 3: Run.** Expected: FAIL.
+- [x] **Step 4: Implement.** Update `docs/wind-comfort.md`: replace "QES
   computes no turbulence…" with how to build `gem_fields` from
   `sample.speed` and `sample.streamwise_std`, and say these are unvalidated
   screening results.
-- [ ] **Step 5: Run** the full pytest suite and `examples/wind_comfort.py`. Expected: PASS.
-- [ ] **Step 6: Commit.**
+- [x] **Step 5: Run** the full pytest suite and `examples/wind_comfort.py`. Expected: PASS.
+- [x] **Step 6: Commit.**
+
+**Task 7 outcome:** the initial comfort run had 36 failures and 54 existing
+passes before implementation. Final tests verify the helper, metadata ownership,
+warnings, conservative coverage and class invariance under reference-speed scaling
+for both turbulence methods. The example and documentation expose the required
+screening assumptions; no physical gust validation or comfort certification is claimed.
+Wheel/source audits pass, and the wheel built from the sdist passes the GEM
+example with provenance, screening warnings and conservative NaN coverage.
 
 ### Task 8: Dataset flag
 

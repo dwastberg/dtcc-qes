@@ -104,13 +104,51 @@ August) reported separately.
 **Safety** uses all hours of the year. A cell is unsafe if 15 m/s is exceeded
 for more than 0.022 % of hours.
 
-GEM is gust speed divided by 1.85. City of London assessments are mean-only
-unless `gem_fields` are supplied; the result records this in its warnings,
-because gusts can govern near corners and in passages. `wind.run` now supports
-optional QES-Turb stresses and streamwise standard deviations. These are
-algebraic screening estimates, not validated gust speeds. The comfort helper
-and gust-assumption provenance described in [Task 7](../QES_TURBULENCE.md#task-7-comfort-gem-helper) are
-still pending; turbulence output does not automatically supply GEM fields.
+GEM is gust speed divided by 1.85. The [City of London guideline (2019)](https://www.cityoflondon.gov.uk/assets/Services-Environment/wind-microclimate-guidelines.pdf),
+printed page 11, specifies that conversion; Annex A, printed page 23, requires
+separate mean/GEM assessments and the worse category for comfort and safety.
+`assess` implements this through the larger mean/GEM exceedance at each threshold.
+City of London assessments remain mean-only unless `gem_fields` are supplied.
+
+For optional QES-Turb output, `comfort.gust_equivalent_mean` estimates
+`(speed + peak_factor * streamwise_std) / gust_ratio`, with `gust_ratio=1.85`.
+`peak_factor` is required: this guideline does not establish a peak factor or
+gust averaging time for this algebraic model. QES mean/stress output has no
+established averaging duration here. These are unvalidated gust screening
+estimates. The example's factor **3.0 is a user-selected screening assumption**;
+it has no claimed QES calibration or validated averaging time.
+
+The helper returns float64 arrays of the same shape as its two inputs. It
+preserves NaN values, including invalid stress and undefined mean directions.
+Negative speeds/deviations, infinities, mismatched shapes and non-positive or
+non-finite scalar factors raise `ValueError`; an overflowing estimate also raises.
+Do not replace masked values with zero: NaN in any direction leaves that cell
+unassessed (`comfort`/`safety` = -1, exceedance = NaN).
+
+For each direction, solve with `turbulence=True`, sample at the criterion height,
+and build the fields explicitly:
+
+```python
+sample = result.sample(1.5, method="linear")
+mean_fields.append(sample.speed)
+gem_fields.append(comfort.gust_equivalent_mean(
+    sample.speed, sample.streamwise_std, peak_factor=3.0,
+))
+```
+
+Pass the stacked arrays as `fields` and `gem_fields` to `assess`, together with
+`gem_metadata`, a mapping copied into `ComfortResult.metadata["gem"]`. Record
+`source`, `model`, `numerics_version`, `peak_factor`, `gust_ratio`,
+`mean_averaging_time`, `gust_averaging_time`, `validity_policy` and `limitations`.
+Use `"unspecified"` for unknown averaging times. The complete
+[example](../examples/wind_comfort.py) records these assumptions for its QES runs.
+
+QES provenance in `source`, `model` or `numerics_version` retains an explicit
+unvalidated-gust screening warning. Supplying GEM removes the mean-only warning;
+seasonal/height warnings still apply. Generic externally supplied GEM fields
+remain supported; missing source/model provenance produces an unspecified-source
+warning. Metadata records the caller's claims and does not certify gust validation
+or guideline compliance. `gem_metadata` without `gem_fields` is rejected.
 
 The original Lawson LDDC table (4 / 6 / 8 / 10 m/s comfort at 5 %) is not
 built in, because its safety thresholds could not be verified from a primary

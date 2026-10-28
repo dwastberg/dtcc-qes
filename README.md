@@ -193,14 +193,14 @@ valid tensor. Validity masks and metadata counts describe their original solve
 or sample. This algebraic screening model has not been validated for pedestrian
 gusts. The [numerical/performance gate](docs/turbulence-benchmark.md) passes
 across 72 configurations, with measured coverage, scaling, grid sensitivity
-and costs. DTCC turbulence export is supported; comfort and dataset integration
-are the next implementation tasks. Height remains the provisional default.
+and costs. DTCC turbulence export and comfort GEM screening are supported;
+dataset integration is the next implementation task. Height remains the provisional default.
 
 Turbulence adds roughly 110 bytes per native cell and 39 bytes of returned
 fields/masks per physical cell. Temporary copies, float64 statistics and extra
 domain layers increase peak memory. On the benchmark's 1.28-million-cell
-serial case, median peak process RSS is about 398 MiB for wind-only, 636–637 MiB
-after native turbulence extraction and 742–756 MiB after Python statistics.
+serial case, median peak process RSS is about 399 MiB for wind-only, 637–638 MiB
+after native turbulence extraction and 729–786 MiB after Python statistics.
 These figures include Python/imports and are not a universal memory budget.
 
 The automatic generator is available as an **unvalidated prototype**, opt-in
@@ -385,8 +385,10 @@ result.exceedance[15]  # fraction of hours above 15 m/s
 Each hour uses the field of the nearest simulated direction, scaled by
 `speed / reference_speed`. QES speed-ups do not depend on inflow speed, so one
 solve per direction is enough; see [the example](examples/wind_comfort.py).
-QES gives mean speeds only, so Lawson results are mean-only and flagged as
-non-conservative unless `gem_fields` are supplied. Treat QES comfort maps as
+Optional QES-Turb output can feed `comfort.gust_equivalent_mean` with an explicit
+`peak_factor`. Pass those fields and `gem_metadata` to `assess` to retain the
+model, averaging assumptions and unvalidated-gust screening warning. Lawson
+results remain mean-only unless `gem_fields` are supplied. Treat QES comfort maps as
 screening: planning guidelines such as City of London's require RANS or LES
 CFD. Method, conventions and sources are in
 [docs/wind-comfort.md](docs/wind-comfort.md).
