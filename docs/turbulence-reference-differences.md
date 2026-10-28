@@ -725,3 +725,21 @@ uv run --frozen --group reference python -m pytest -q
 The numerical/performance benchmark (Task 9) is next. DTCC turbulence export,
 comfort GEM and dataset flags remain gated on that acceptance work. The new
 API and same-source parity do not establish physical pedestrian-gust validity.
+
+## Numerical acceptance (Task 9, 2026-10-28)
+
+The [benchmark report](turbulence-benchmark.md) now records a passing numerical
+implementation gate: 72 configurations in 216 fresh subprocesses, 18 successful
+whole-volume speed-scaling pairs, independent validity accounting and flat-grid
+refinement at both pedestrian heights for cardinal/oblique winds. All 39 native
+tests pass again in Release and ASan/UBSan; the spectral probe, audited
+standalone parity and domain controls also pass. No native numerical code or
+QES revision changed in this task.
+
+The report separates identical-grid costs from automatic-domain growth,
+compares both methods, retains invalid locations/raw pedestrian tensors and
+accounts for invalid contributors after interpolation. It measures the
+1.28-million-cell synthetic case and quantifies building, grid and domain
+sensitivity. Height remains the provisional default. Task 6 DTCC export is next;
+physical gust validation and comfort certification are not established by
+this gate. Earlier milestone sections above describe their historical state.

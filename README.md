@@ -191,12 +191,17 @@ Properties recheck edited tensors. Height samples interpolate stress components
 and preserve invalid-contributor evidence even when interpolation produces a
 valid tensor. Validity masks and metadata counts describe their original solve
 or sample. This algebraic screening model has not been validated for pedestrian
-gusts; the numerical/performance benchmark is still required before downstream
-DTCC, comfort and dataset integration.
+gusts. The [numerical/performance gate](docs/turbulence-benchmark.md) passes
+across 72 configurations, with measured coverage, scaling, grid sensitivity
+and costs. DTCC turbulence export, comfort and dataset integration are the
+next implementation tasks. Height remains the provisional default.
 
 Turbulence adds roughly 110 bytes per native cell and 39 bytes of returned
 fields/masks per physical cell. Temporary copies, float64 statistics and extra
-domain layers increase peak memory; larger-domain cost remains to be measured.
+domain layers increase peak memory. On the benchmark's 1.28-million-cell
+serial case, median peak process RSS is about 400 MiB for wind-only, 636–637 MiB
+after native turbulence extraction and 768–778 MiB after Python statistics.
+These figures include Python/imports and are not a universal memory budget.
 
 The automatic generator is available as an **unvalidated prototype**, opt-in
 through `VerticalGrid.auto(...)`:

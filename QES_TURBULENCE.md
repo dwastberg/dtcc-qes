@@ -16,12 +16,12 @@ a `Turbulence` spec, a domain-top policy for turbulence's reference heights, a
 dtcc-core, pytest, CTest.
 
 **Status (implementation started 2026-10-27):** work is isolated in the checkout
-below. Tasks 1, 1A, 1B, 2, 3, 4 and 5 are implemented and verified. The follow-up
+below. Tasks 1, 1A, 1B, 2, 3, 4, 5 and 9 are implemented and verified. The follow-up
 review repaired the domain preflight and resolved the stale dataset-registration
 test/documentation mismatch while preserving runtime behavior. The public API
-now returns turbulence fields and sampled streamwise statistics. Task 9 remains
-the required numerical/performance gate before DTCC, comfort and dataset
-integration. Review measurements describe the original core
+now returns turbulence fields and sampled streamwise statistics. Task 9's
+numerical/performance gate passes; DTCC export (Task 6) is next. This does not
+establish physical pedestrian-gust validity. Review measurements describe the original core
 at the recorded revision, not necessarily the repaired implementation.
 
 **Spec:** the Findings, Decisions and review revisions sections below. The
@@ -166,8 +166,24 @@ Task checkboxes and the execution record below track implementation progress.
   source-fingerprinted control remains current. Wheel and source artifacts
   pass their audits. The wheel built from the sdist passes native revision,
   specification, preview, fields, sampling/statistics and wind-parity smoke checks.
-- Next: Task 9 (numerical acceptance and mixing-length benchmark), before
-  downstream Tasks 6–8. Height remains the provisional default.
+- Task 9 (2026-10-28): the benchmark and numerical report cover 72 configurations,
+  each in three fresh subprocesses (216 repetitions), including the four C2
+  layouts and a 1,280,000-cell synthetic city. All solves converge; all 18
+  whole-volume speed-scaling pairs pass. Native/Python/independent float64
+  validity checks agree, with no unexpected computed NaN/inf and no finite
+  derived statistic from invalid stress/contributors. Release and ASan/UBSan
+  each pass all 39 native tests; the independent 5,000-tensor spectral probe,
+  audited standalone parity and domain controls pass. Flat 0.5 m grids improve
+  on 2 m at both pedestrian heights for cardinal/oblique winds, while coarse
+  profile errors, building sensitivity and indefinite raw tensors remain
+  quantified limitations. Median large-city solve: wind-only 8.565 s,
+  height 8.932 s, wall 8.927 s; Python sigma/TI cost and peak RSS are reported
+  separately. Taller controls retain lower operands; regenerated grids have
+  separate comparisons. Final Python: 782 passed, 24 existing opt-in skips.
+  Keep height as the provisional default. See
+  `docs/turbulence-benchmark.md` and its source-fingerprinted JSON/raw evidence.
+- Next: Task 6 (DTCC export fields). Tasks 7–8 remain to be implemented;
+  the numerical gate does not validate gusts against observations or certify comfort.
 
 ---
 
@@ -1126,16 +1142,28 @@ criterion. The report must distinguish those conclusions explicitly. A
 realizability correction, if later proposed to recover masked coverage, needs
 separate tests and measurements rather than replacing raw tensors silently.
 
-- [ ] **Step 1: Write the self-test** for statistics, mask accounting and
+- [x] **Step 1: Write the self-test** for statistics, mask accounting and
   rejection of failed solves, and run it. Expected: FAIL.
-- [ ] **Step 2: Implement the tool.** Run the self-test. Expected: PASS.
-- [ ] **Step 3: Run the full benchmark.** Write the report with commands, host,
+- [x] **Step 2: Implement the tool.** Run the self-test. Expected: PASS.
+- [x] **Step 3: Run the full benchmark.** Write the report with commands, host,
   QES revision, build type and per-criterion pass/fail evidence. Do not reduce
   the report to timings and a default-method recommendation.
-- [ ] **Step 4: Assess the numerical gate and recommend a default.** Return
+- [x] **Step 4: Assess the numerical gate and recommend a default.** Return
   failed checks to their repair task before downstream work. Changing the
   provisional default needs the user's sign-off and a separate commit.
-- [ ] **Step 5: Commit** the benchmark, data and report.
+- [x] **Step 5: Commit** the benchmark, data and report.
+
+**Task 9 outcome:** numerical gate PASS. All 72 configurations/216 repetitions
+are accepted, 18 speed-scaling pairs pass, and independent validity and
+interpolation accounting pass. The public default stays height. On the 2 m
+flat grid, linear sigma is about 22% low at 1.5 m and 14% low at 1.75 m;
+the finest uniform grid is closer at both heights. Wall distance reduces
+caps/invalid tensors in these cases but is not established as physically
+more accurate. The passage has two invalid-source pedestrian locations whose
+interpolants appear valid; derived statistics correctly remain masked.
+Measured memory includes native extraction and Python temporaries, rather
+than relying on raw field sizes. No quantitative urban-gust accuracy claim
+or comfort certification follows from this implementation gate.
 
 ### Task 6: DTCC export fields
 

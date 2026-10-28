@@ -13,8 +13,9 @@ from .result import _STRESS_RELATIVE_TOLERANCE, _velocity_magnitude
 class Turbulence:
     """Algebraic turbulence model; height is the provisional default.
 
-    Both methods passed native safety/correctness checks. Pedestrian-gust
-    validation and the numerical/performance benchmark remain outstanding.
+    Both methods passed native safety/correctness checks. See the numerical
+    benchmark report for measured costs and sensitivity. Pedestrian-gust
+    validation against observations remains outstanding.
     """
     mixing_length: Literal["height", "wall_distance"] = "height"
 

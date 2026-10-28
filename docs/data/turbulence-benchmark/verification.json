@@ -1,0 +1,154 @@
+{
+  "qes_revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71",
+  "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+  "python": "3.13.11 (main, Dec  5 2025, 21:16:49) [Clang 21.1.4 ]",
+  "checks": [
+    {
+      "name": "release-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/native",
+        "--parallel",
+        "8"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.35809004202019423,
+      "log": "release-build.log",
+      "log_sha256": "f92c48f17a8b755355b444fdd3377d8c72b5bdef5fe5662c25df579057fb6cf0",
+      "tail": "[ 24%] Built target qesutil\n[ 25%] Built target nanobind-static\n[ 71%] Built target qeswindscore\n[ 75%] Built target check_noio\n[ 75%] Built target check_safety\n[ 83%] Built target qesbridge\n[ 87%] Built target check_runner\n[ 87%] Built target _qes\n[ 90%] Built target check_physics\n[ 92%] Built target check_vertical_grid\n[ 94%] Built target check_turbulence\n[ 97%] Built target vertical_grid_study\n[100%] Built target check_precision\n"
+    },
+    {
+      "name": "release-tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.785901166964322,
+      "log": "release-tests.log",
+      "log_sha256": "e5783403286729e058aa9cd924599272d83d9f0d0ea67678d71ddc58369d5097",
+      "tail": "Test project /private/tmp/dtcc-qes-turbulence/build/native\n      Start  1: noio_rejects_files\n 1/39 Test  #1: noio_rejects_files .....................   Passed    0.02 sec\n      Start  2: native_success\n 2/39 Test  #2: native_success .........................   Passed    0.08 sec\n      Start  3: native_failures\n 3/39 Test  #3: native_failures ........................   Passed    0.03 sec\n      Start  4: native_nonconvergence\n 4/39 Test  #4: native_nonconvergence ..................   Passed    0.01 sec\n      Start  5: native_messages\n 5/39 Test  #5: native_messages ........................   Passed    0.00 sec\n      Start  6: runner_lifecycle\n 6/39 Test  #6: runner_lifecycle .......................   Passed    0.48 sec\n      Start  7: staggered_flux\n 7/39 Test  #7: staggered_flux .........................   Passed    1.79 sec\n      Start  8: native_turbulence_low_top\n 8/39 Test  #8: native_turbulence_low_top ..............   Passed    0.01 sec\n      Start  9: native_turbulence_ref_in_top_cell\n 9/39 Test  #9: native_turbulence_ref_in_top_cell ......   Passed    0.00 sec\n      Start 10: native_turbulence_ref_above_top\n10/39 Test #10: native_turbulence_ref_above_top ........   Passed    0.00 sec\n      Start 11: native_turbulence_reference_boundary\n11/39 Test #11: native_turbulence_reference_boundary ...   Passed    0.00 sec\n      Start 12: native_turbulence_methods\n12/39 Test #12: native_turbulence_methods ..............   Passed    0.00 sec\n      Start 13: native_turbulence_ownership\n13/39 Test #13: native_turbulence_ownership ............   Passed    0.00 sec\n      Start 14: native_turbulence_references\n14/39 Test #14: native_turbulence_references ...........   Passed    0.00 sec\n      Start 15: native_turbulence_lifecycle\n15/39 Test #15: native_turbulence_lifecycle ............   Passed    0.03 sec\n      Start 16: native_turbulence_rotation\n16/39 Test #16: native_turbulence_rotation .............   Passed    0.01 sec\n      Start 17: native_turbulence_rotation_fallback\n17/39 Test #17: native_turbulence_rotation_fallback ....   Passed    0.01 sec\n      Start 18: native_turbulence_calm\n18/39 Test #18: native_turbulence_calm .................   Passed    0.01 sec\n      Start 19: native_turbulence_validity\n19/39 Test #19: native_turbulence_validity .............   Passed    0.00 sec\n      Start 20: native_turbulence_building_validity\n20/39 Test #20: native_turbulence_building_validity ....   Passed    0.04 sec\n      Start 21: native_turbulence_wall_thin\n21/39 Test #21: native_turbulence_wall_thin ............   Passed    0.02 sec\n      Start 22: native_turbulence_wall_upper_bound\n22/39 Test #22: native_turbulence_wall_upper_bound .....   Passed    0.02 sec\n      Start 23: native_turbulence_wall_geometry\n23/39 Test #23: native_turbulence_wall_geometry ........   Passed    0.16 sec\n      Start 24: native_turbulence_wall_nonuniform\n24/39 Test #24: native_turbulence_wall_nonuniform ......   Passed    0.02 sec\n      Start 25: native_turbulence_wall_transition\n25/39 Test #25: native_turbulence_wall_transition ......   Passed    0.01 sec\n      Start 26: native_turbulence_wall_underside\n26/39 Test #26: native_turbulence_wall_underside .......   Passed    0.01 sec\n      Start 27: native_turbulence_wall_empty\n27/39 Test #27: native_turbulence_wall_empty ...........   Passed    0.01 sec\n      Start 28: native_turbulence_flat_analytic\n28/39 Test #28: native_turbulence_flat_analytic ........   Passed    0.01 sec\n      Start 29: native_turbulence_bridge_calm\n29/39 Test #29: native_turbulence_bridge_calm ..........   Passed    0.01 sec\n      Start 30: native_turbulence_scaling\n30/39 Test #30: native_turbulence_scaling ..............   Passed    0.05 sec\n      Start 31: native_turbulence_repeat\n31/39 Test #31: native_turbulence_repeat ...............   Passed    0.09 sec\n      Start 32: native_turbulence_wall_distance\n32/39 Test #32: native_turbulence_wall_distance ........   Passed    0.64 sec\n      Start 33: native_turbulence_margin\n33/39 Test #33: native_turbulence_margin ...............   Passed    0.02 sec\n      Start 34: native_turbulence_bridge_methods\n34/39 Test #34: native_turbulence_bridge_methods .......   Passed    0.00 sec\n      Start 35: native_turbulence_invalid_stress\n35/39 Test #35: native_turbulence_invalid_stress .......   Passed    0.00 sec\n      Start 36: explicit_vertical_grid\n36/39 Test #36: explicit_vertical_grid .................   Passed    0.77 sec\n      Start 37: precision_solver\n37/39 Test #37: precision_solver .......................   Passed    0.31 sec\n      Start 38: study_sampler\n38/39 Test #38: study_sampler ..........................   Passed    0.03 sec\n      Start 39: study_solver_diagnostics\n39/39 Test #39: study_solver_diagnostics ...............   Passed    0.00 sec\n\n100% tests passed, 0 tests failed out of 39\n\nTotal Test time (real) =   4.73 sec\n"
+    },
+    {
+      "name": "release-symbols",
+      "command": [
+        "cmake",
+        "--build",
+        "build/native",
+        "--target",
+        "check_native_symbols"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.5128042089636438,
+      "log": "release-symbols.log",
+      "log_sha256": "836a420124e79c150924860bf0807cf94bd8c69b54d37ded87952b2af05481db",
+      "tail": "[ 18%] Built target qesutil\n[ 88%] Built target qeswindscore\n[100%] Built target qesbridge\nNative symbol audit passed (termination, console, file_io, io_libraries; 9 inputs)\n[100%] Built target check_native_symbols\n"
+    },
+    {
+      "name": "sanitizer-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/asan",
+        "--parallel",
+        "6"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.3942405419657007,
+      "log": "sanitizer-build.log",
+      "log_sha256": "368d4a7991cf16d963919f13c83917c5c923446160f7bab1bc02651894071fbb",
+      "tail": "[ 25%] Built target qesutil\n[ 25%] Built target nanobind-static\n[ 71%] Built target qeswindscore\n[ 73%] Built target check_noio\n[ 75%] Built target check_safety\n[ 83%] Built target qesbridge\n[ 85%] Built target _qes\n[ 87%] Built target check_vertical_grid\n[ 92%] Built target check_runner\n[ 92%] Built target check_precision\n[ 96%] Built target check_turbulence\n[ 96%] Built target check_physics\n[100%] Built target vertical_grid_study\n"
+    },
+    {
+      "name": "sanitizer-tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/asan",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 272.39565270900493,
+      "log": "sanitizer-tests.log",
+      "log_sha256": "8d19dc09a9fb079b65ab7025ca66521458cec73fe45fbd0f34fcf5a284f493d5",
+      "tail": "Test project /private/tmp/dtcc-qes-turbulence/build/asan\n      Start  1: noio_rejects_files\n 1/39 Test  #1: noio_rejects_files .....................   Passed    0.15 sec\n      Start  2: native_success\n 2/39 Test  #2: native_success .........................   Passed    4.65 sec\n      Start  3: native_failures\n 3/39 Test  #3: native_failures ........................   Passed    2.34 sec\n      Start  4: native_nonconvergence\n 4/39 Test  #4: native_nonconvergence ..................   Passed    0.24 sec\n      Start  5: native_messages\n 5/39 Test  #5: native_messages ........................   Passed    0.04 sec\n      Start  6: runner_lifecycle\n 6/39 Test  #6: runner_lifecycle .......................   Passed   29.80 sec\n      Start  7: staggered_flux\n 7/39 Test  #7: staggered_flux .........................   Passed  109.22 sec\n      Start  8: native_turbulence_low_top\n 8/39 Test  #8: native_turbulence_low_top ..............   Passed    0.16 sec\n      Start  9: native_turbulence_ref_in_top_cell\n 9/39 Test  #9: native_turbulence_ref_in_top_cell ......   Passed    0.08 sec\n      Start 10: native_turbulence_ref_above_top\n10/39 Test #10: native_turbulence_ref_above_top ........   Passed    0.07 sec\n      Start 11: native_turbulence_reference_boundary\n11/39 Test #11: native_turbulence_reference_boundary ...   Passed    0.07 sec\n      Start 12: native_turbulence_methods\n12/39 Test #12: native_turbulence_methods ..............   Passed    0.10 sec\n      Start 13: native_turbulence_ownership\n13/39 Test #13: native_turbulence_ownership ............   Passed    0.10 sec\n      Start 14: native_turbulence_references\n14/39 Test #14: native_turbulence_references ...........   Passed    0.16 sec\n      Start 15: native_turbulence_lifecycle\n15/39 Test #15: native_turbulence_lifecycle ............   Passed    1.41 sec\n      Start 16: native_turbulence_rotation\n16/39 Test #16: native_turbulence_rotation .............   Passed    0.60 sec\n      Start 17: native_turbulence_rotation_fallback\n17/39 Test #17: native_turbulence_rotation_fallback ....   Passed    0.37 sec\n      Start 18: native_turbulence_calm\n18/39 Test #18: native_turbulence_calm .................   Passed    0.23 sec\n      Start 19: native_turbulence_validity\n19/39 Test #19: native_turbulence_validity .............   Passed    0.04 sec\n      Start 20: native_turbulence_building_validity\n20/39 Test #20: native_turbulence_building_validity ....   Passed    1.28 sec\n      Start 21: native_turbulence_wall_thin\n21/39 Test #21: native_turbulence_wall_thin ............   Passed    0.96 sec\n      Start 22: native_turbulence_wall_upper_bound\n22/39 Test #22: native_turbulence_wall_upper_bound .....   Passed    0.94 sec\n      Start 23: native_turbulence_wall_geometry\n23/39 Test #23: native_turbulence_wall_geometry ........   Passed    7.31 sec\n      Start 24: native_turbulence_wall_nonuniform\n24/39 Test #24: native_turbulence_wall_nonuniform ......   Passed    0.78 sec\n      Start 25: native_turbulence_wall_transition\n25/39 Test #25: native_turbulence_wall_transition ......   Passed    0.19 sec\n      Start 26: native_turbulence_wall_underside\n26/39 Test #26: native_turbulence_wall_underside .......   Passed    0.27 sec\n      Start 27: native_turbulence_wall_empty\n27/39 Test #27: native_turbulence_wall_empty ...........   Passed    0.25 sec\n      Start 28: native_turbulence_flat_analytic\n28/39 Test #28: native_turbulence_flat_analytic ........   Passed    0.23 sec\n      Start 29: native_turbulence_bridge_calm\n29/39 Test #29: native_turbulence_bridge_calm ..........   Passed    0.33 sec\n      Start 30: native_turbulence_scaling\n30/39 Test #30: native_turbulence_scaling ..............   Passed    2.24 sec\n      Start 31: native_turbulence_repeat\n31/39 Test #31: native_turbulence_repeat ...............   Passed    4.30 sec\n      Start 32: native_turbulence_wall_distance\n32/39 Test #32: native_turbulence_wall_distance ........   Passed   37.38 sec\n      Start 33: native_turbulence_margin\n33/39 Test #33: native_turbulence_margin ...............   Passed    0.99 sec\n      Start 34: native_turbulence_bridge_methods\n34/39 Test #34: native_turbulence_bridge_methods .......   Passed    0.04 sec\n      Start 35: native_turbulence_invalid_stress\n35/39 Test #35: native_turbulence_invalid_stress .......   Passed    0.12 sec\n      Start 36: explicit_vertical_grid\n36/39 Test #36: explicit_vertical_grid .................   Passed   46.15 sec\n      Start 37: precision_solver\n37/39 Test #37: precision_solver .......................   Passed   18.39 sec\n      Start 38: study_sampler\n38/39 Test #38: study_sampler ..........................   Passed    0.30 sec\n      Start 39: study_solver_diagnostics\n39/39 Test #39: study_solver_diagnostics ...............   Passed    0.07 sec\n\n100% tests passed, 0 tests failed out of 39\n\nTotal Test time (real) = 272.38 sec\n"
+    },
+    {
+      "name": "independent-eigen",
+      "command": [
+        "/private/tmp/dtcc-qes-turbulence/.venv/bin/python",
+        "tools/check_stress_validity.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.9592873750370927,
+      "log": "independent-eigen.log",
+      "log_sha256": "ef81444ec79a9728cc240bafd5b461466f64ca6cb52a27c9fbfbe2729739cd8a",
+      "tail": "{\n  \"seed\": 20261027,\n  \"cases\": 5000,\n  \"numpy\": \"2.5.4\",\n  \"compiler\": \"c++\",\n  \"header_sha256\": \"e9567d7b8ef371cab711b7aa050221b40589a063a653ccf65a02b667b53c9b8a\",\n  \"validity_mismatches\": 0,\n  \"maximum_eigenvalue_error_over_spectral_radius\": 1.0544456312324755e-15,\n  \"scale_range\": [\n    1e-30,\n    1e+30\n  ]\n}\n"
+    },
+    {
+      "name": "audited-parity",
+      "command": [
+        "/private/tmp/dtcc-qes-turbulence/.venv/bin/python",
+        "tools/make_reference.py",
+        "--turbulence",
+        "--baseline",
+        "audited",
+        "--exe",
+        "/private/tmp/dtcc-qes-turbulence/build/qes-turbulence-reference/audited/dce15d7e3b0a2d2cb0a29898f3882d103f66de71/build/qesWinds/qesWinds",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.8878532079979777,
+      "log": "audited-parity.log",
+      "log_sha256": "5adf07a482afb254dfff4e6044bb1ee83ccb349f44e1d132d5a7487034bcf8d5",
+      "tail": "flat: 1 iterations, max Lagrange multiplier change 0\nflat_oblique: 1 iterations, max Lagrange multiplier change 0\none_building: 162 iterations, max Lagrange multiplier change 9.54e-06\nbuilding_oblique: 140 iterations, max Lagrange multiplier change 9.54e-06\nbuilding_wall: 162 iterations, max Lagrange multiplier change 9.54e-06\nbuilding_thin_wall: 693 iterations, max Lagrange multiplier change 9.54e-06\nbuilding_nonuniform: 610 iterations, max Lagrange multiplier change 9.54e-06\nbuilding_nonuniform_wall: 610 iterations, max Lagrange multiplier change 9.54e-06\nreference check passed\n"
+    },
+    {
+      "name": "domain-control",
+      "command": [
+        "/private/tmp/dtcc-qes-turbulence/.venv/bin/python",
+        "tools/check_turbulence_domain.py",
+        "--output",
+        "build/task9-verification/domain-control.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.1097837499692105,
+      "log": "domain-control.log",
+      "log_sha256": "82bfdd021c7cda8c3746e6af529c3c0ac4cfa928e899bb2eec5de9b31fd5c3f7",
+      "tail": "[15:59:32] [dtcc-qes] [info] Wind grid 36 x 36 x 104, 4 buildings: 2000 \niterations, converged=True, max_divergence=7.074442292923962e-07 s^-1\n[15:59:33] [dtcc-qes] [info] Wind grid 36 x 36 x 110, 4 buildings: 2110 \niterations, converged=True, max_divergence=6.350557045429409e-07 s^-1\n[15:59:34] [dtcc-qes] [info] Wind grid 36 x 36 x 119, 4 buildings: 2114 \niterations, converged=True, max_divergence=8.85472274227896e-07 s^-1\n{\n  \"runs\": {\n    \"base\": {\n      \"layers\": 104,\n      \"effective_top\": 50.99998474121094,\n      \"solver_dz_sha256\": \"45de89ca4f1daf27191d7a4bd36849196dc6af5b87d16cccfc74785f7d932afd\",\n      \"iterations\": 2000,\n      \"converged\": true,\n      \"max_divergence\": 7.074442292923962e-07,\n      \"rms_divergence\": 9.489996758799412e-08\n    },\n    \"regenerated_tall\": {\n      \"layers\": 110,\n      \"effective_top\": 72.05193328857422,\n      \"solver_dz_sha256\": \"a258c747467519f29e7681a3afe56a08c1bc31c44031703d2ec3e271ecadcdff\",\n      \"iterations\": 2110,\n      \"converged\": true,\n      \"max_divergence\": 6.350557045429409e-07,\n      \"rms_divergence\": 9.559819199664555e-08\n    },\n    \"preserved_tall\": {\n      \"layers\": 119,\n      \"effective_top\": 72.05196380615234,\n      \"solver_dz_sha256\": \"c704f8fc01ad63ac8d724fa81313ff7c8de85539cfe05a239322c3e535db237a\",\n      \"iterations\": 2114,\n      \"converged\": true,\n      \"max_divergence\": 8.85472274227896e-07,\n      \"rms_divergence\": 9.572123204240031e-08\n    }\n  },\n  \"comparisons\": [\n    {\n      \"baseline\": \"base\",\n      \"control\": \"regenerated_tall\",\n      \"height\": 1.5,\n      \"fluid_points\": 1152,\n      \"p95_abs_delta_K\": 0.0002154250609428616,\n      \"max_abs_delta_K\": 0.000282427039060007,\n      \"peak_relative_difference\": 0.00015377135109975352,\n      \"passed\": true\n    },\n    {\n      \"baseline\": \"base\",\n      \"control\": \"regenerated_tall\",\n      \"height\": 1.75,\n      \"fluid_points\": 1152,\n      \"p95_abs_delta_K\": 0.00021586835785259448,\n      \"max_abs_delta_K\": 0.00028269051052765004,\n      \"peak_relative_difference\": 0.00014891001521767194,\n      \"passed\": true\n    },\n    {\n      \"baseline\": \"base\",\n      \"control\": \"preserved_tall\",\n      \"height\": 1.5,\n      \"fluid_points\": 1152,\n      \"p95_abs_delta_K\": 0.00021828348243564116,\n      \"max_abs_delta_K\": 0.00028652040334253837,\n      \"peak_relative_difference\": 0.00015640799445951792,\n      \"passed\": true\n    },\n    {\n      \"baseline\": \"base\",\n      \"control\": \"preserved_tall\",\n      \"height\": 1.75,\n      \"fluid_points\": 1152,\n      \"p95_abs_delta_K\": 0.00021872978719973687,\n      \"max_abs_delta_K\": 0.0002867829867945204,\n      \"peak_relative_difference\": 0.000151515554531103,\n      \"passed\": true\n    },\n    {\n      \"baseline\": \"preserved_tall\",\n      \"control\": \"regenerated_tall\",\n      \"height\": 1.5,\n      \"fluid_points\": 1152,\n      \"p95_abs_delta_K\": 2.8745100927957124e-06,\n      \"max_abs_delta_K\": 4.093364282531375e-06,\n      \"peak_relative_difference\": 2.6370558163759208e-06,\n      \"passed\": true\n    },\n    {\n      \"baseline\": \"preserved_tall\",\n      \"control\": \"regenerated_tall\",\n      \"height\": 1.75,\n      \"fluid_points\": 1152,\n      \"p95_abs_delta_K\": 2.887429330150626e-06,\n      \"max_abs_delta_K\": 4.092476266870371e-06,\n      \"peak_relative_difference\": 2.605934152989322e-06,\n      \"passed\": true\n    }\n  ],\n  \"passed\": true\n}\n"
+    },
+    {
+      "name": "python-tests",
+      "command": [
+        "/private/tmp/dtcc-qes-turbulence/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests",
+        "-q"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 30.591817292035557,
+      "log": "python-tests.log",
+      "log_sha256": "a8636a73d85039254be34c4055744eaa193f2da5941ee8448494802eb9173920",
+      "tail": "........................................................................ [  8%]\n........................................................................ [ 17%]\n....sssssss............................................................. [ 26%]\n........................................................................ [ 35%]\n...................................................................sssss [ 44%]\nsssss.................sssss.ss.......................................... [ 53%]\n........................................................................ [ 62%]\n........................................................................ [ 71%]\n........................................................................ [ 80%]\n........................................................................ [ 89%]\n........................................................................ [ 98%]\n.............                                                            [100%]\n781 passed, 24 skipped in 30.09s\n"
+    }
+  ],
+  "passed": true,
+  "final_python_check": {
+    "command": [
+      "/private/tmp/dtcc-qes-turbulence/.venv/bin/python",
+      "-m",
+      "pytest",
+      "tests",
+      "-q"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 32.74804199999198,
+    "log": "python-tests-final.log",
+    "log_sha256": "a181ef00683c154d16519eb2dc1b0e80e2cafd6147b751c239b73325584acd3a",
+    "tail": "........................................................................ [  8%]\n........................................................................ [ 17%]\n....sssssss............................................................. [ 26%]\n........................................................................ [ 35%]\n...................................................................sssss [ 44%]\nsssss.................sssss.ss.......................................... [ 53%]\n........................................................................ [ 62%]\n........................................................................ [ 71%]\n........................................................................ [ 80%]\n........................................................................ [ 89%]\n........................................................................ [ 98%]\n..............                                                           [100%]\n782 passed, 24 skipped in 32.22s\n"
+  }
+}

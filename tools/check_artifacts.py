@@ -60,6 +60,10 @@ def check_sdist(path):
             "src/dtcc_qes/_turbulence_domain.py", "tests/test_turbulence_domain.py",
             "src/dtcc_qes/turbulence.py", "tests/test_turbulence.py",
             "tools/check_turbulence_domain.py", "docs/data/turbulence-domain/control.json",
+            "tools/run_turbulence_benchmark.py", "tests/test_turbulence_benchmark.py",
+            "docs/turbulence-benchmark.md", "docs/data/turbulence-benchmark/benchmark.json",
+            "docs/data/turbulence-benchmark/benchmark-runs.json.gz",
+            "docs/data/turbulence-benchmark/verification.json",
             "src/cpp/precision_solver.cpp", "src/cpp/precision_solver.h", "tests/native/check_precision.cpp",
             "tests/test_precision.py", "tests/test_precision_verification.py", "tools/run_precision_verification.py",
             "tools/audit_precision_verification.py", "tools/plot_precision_verification.py",
@@ -136,6 +140,19 @@ def check_sdist(path):
         for name, expected in control["source_sha256"].items():
             actual = hashlib.sha256(archive.extractfile(members[name]).read()).hexdigest()
             require(actual == expected, f"Turbulence domain control is stale for {name}")
+        benchmark = json.loads(archive.extractfile(members["docs/data/turbulence-benchmark/benchmark.json"]).read())
+        require(benchmark["benchmark_passed"], "Turbulence benchmark did not pass")
+        for name, expected in benchmark["source_sha256"].items():
+            actual = hashlib.sha256(archive.extractfile(members[name]).read()).hexdigest()
+            require(actual == expected, f"Turbulence benchmark is stale for {name}")
+        raw = "docs/data/turbulence-benchmark/" + benchmark["raw_runs"]["file"]
+        require(hashlib.sha256(archive.extractfile(members[raw]).read()).hexdigest() ==
+                benchmark["raw_runs"]["sha256"], "Turbulence benchmark raw evidence checksum differs")
+        verification = json.loads(archive.extractfile(members["docs/data/turbulence-benchmark/verification.json"]).read())
+        require(verification["passed"], "Turbulence verification did not pass")
+        revision = archive.extractfile(members["src/dtcc_qes/_qes_revision.txt"]).read().decode().strip()
+        require(verification["qes_revision"] == benchmark["environment"]["qes_revision"] == revision,
+                "Turbulence evidence has a different QES revision")
         require(not any(name.startswith((".idea/", "build/")) for name in members), "Private build/IDE files in sdist")
         check_metadata(archive.extractfile(members["PKG-INFO"]).read())
 
