@@ -7,19 +7,34 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 option(DTCC_QES_BUILD_TESTS "Build native embedding safety checks" OFF)
 option(DTCC_QES_ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
-set(DTCC_QES_OPENMP "AUTO" CACHE STRING "OpenMP CPU solver: OFF, AUTO, or ON")
+set(DTCC_QES_OPENMP "ON" CACHE STRING "OpenMP CPU solver: OFF, AUTO, or ON")
 set_property(CACHE DTCC_QES_OPENMP PROPERTY STRINGS OFF AUTO ON)
 if(NOT DTCC_QES_OPENMP MATCHES "^(OFF|AUTO|ON)$")
   message(FATAL_ERROR "DTCC_QES_OPENMP must be OFF, AUTO, or ON")
 endif()
 set(ENABLE_OPENMP OFF)
-if(DTCC_QES_OPENMP STREQUAL "ON")
-  find_package(OpenMP REQUIRED COMPONENTS CXX)
-  set(ENABLE_OPENMP ON)
-elseif(DTCC_QES_OPENMP STREQUAL "AUTO")
+if(NOT DTCC_QES_OPENMP STREQUAL "OFF")
+  # Homebrew's keg-only libomp is outside Apple Clang's normal search paths.
+  # Keep explicit OpenMP package roots authoritative; let
+  # FindOpenMP check the compiler, header and runtime together.
+  if(APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang"
+      AND NOT OpenMP_ROOT AND NOT DEFINED ENV{OpenMP_ROOT})
+    find_path(DTCC_QES_LIBOMP_ROOT NAMES include/omp.h
+      PATHS /opt/homebrew/opt/libomp /usr/local/opt/libomp NO_DEFAULT_PATH)
+    if(DTCC_QES_LIBOMP_ROOT)
+      set(OpenMP_ROOT "${DTCC_QES_LIBOMP_ROOT}")
+    endif()
+  endif()
   find_package(OpenMP QUIET COMPONENTS CXX)
   if(OpenMP_CXX_FOUND)
     set(ENABLE_OPENMP ON)
+  elseif(DTCC_QES_OPENMP STREQUAL "ON")
+    message(FATAL_ERROR
+      "OpenMP is required by default. Install an OpenMP-capable compiler/runtime "
+      "(on macOS: brew install libomp). For a custom installation, set OpenMP_ROOT. "
+      "To explicitly build the serial solver, set -DDTCC_QES_OPENMP=OFF.")
+  else()
+    message(WARNING "OpenMP was not found; explicit AUTO mode selects the serial CPU solver")
   endif()
 endif()
 message(STATUS "dtcc-qes OpenMP CPU solver: ${ENABLE_OPENMP} (requested ${DTCC_QES_OPENMP})")
