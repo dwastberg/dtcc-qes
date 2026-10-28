@@ -154,6 +154,50 @@ wind-only grid and append layers at its final thickness. Explicit bounds or
 faces raise if their margin is insufficient. `preview.domain["turbulence"]`
 records the effective top, added layers and any necessary regeneration.
 
+Optional QES turbulence is returned from the same wind solve:
+
+```python
+result = wind.run(city, speed=5.0, direction=270.0, turbulence=True)
+sigma = result.streamwise_std       # float64, m/s, shape (z, y, x)
+intensity = result.turbulence_intensity  # dimensionless sigma / mean speed
+pedestrian = result.sample(1.5, method="linear")
+pedestrian_sigma = pedestrian.streamwise_std
+
+wall_model = wind.Turbulence(mixing_length="wall_distance")
+preview = wind.preview_grid(city, turbulence=wall_model)
+```
+
+`True` selects the provisional `"height"` default (QES method 0).
+`"wall_distance"` selects the qualified serial voxel-face method (method 1).
+Both use the audited fork's corrected rotation. Automatic bounds can add
+layers, which can change the wind field; use identical explicit grids when
+comparing turbulence on/off. Explicit bounds and faces must provide the
+reference-height margin.
+
+`result.turbulence` is a `wind.TurbulenceFields` with owned float32 `stress`
+(`z, y, x, 6`, ordered xx/xy/xz/yy/yz/zz), `tke`, `co_eps` and `mixing_length`.
+Stress and TKE are in m²/s², `co_eps` is C0·epsilon with C0=5.7 in m²/s³,
+and mixing length is in metres. TKE is computed before stress anisotropy
+scaling. Independent boolean `computed`, `capped` and `stress_valid` masks
+record coverage, cap equality and covariance validity. Uncomputed float
+entries are NaN; invalid computed tensors remain available for diagnosis.
+Reference scalars and model constants/counts are recorded in
+`result.metadata["turbulence"]`.
+
+Streamwise statistics project the full covariance along the current 3D mean
+velocity. They return NaN for uncomputed or materially indefinite stress and
+undefined mean directions, and raise if turbulence was not requested.
+Properties recheck edited tensors. Height samples interpolate stress components
+and preserve invalid-contributor evidence even when interpolation produces a
+valid tensor. Validity masks and metadata counts describe their original solve
+or sample. This algebraic screening model has not been validated for pedestrian
+gusts; the numerical/performance benchmark is still required before downstream
+DTCC, comfort and dataset integration.
+
+Turbulence adds roughly 110 bytes per native cell and 39 bytes of returned
+fields/masks per physical cell. Temporary copies, float64 statistics and extra
+domain layers increase peak memory; larger-domain cost remains to be measured.
+
 The automatic generator is available as an **unvalidated prototype**, opt-in
 through `VerticalGrid.auto(...)`:
 
@@ -518,7 +562,8 @@ GPL-3.0-only; see [LICENSE](LICENSE), [QES's license](QES-Public/LICENSE) and
 both distributions carry the licenses/notices. The upstream metadata discrepancy
 has a [prepared report](docs/upstream-license-report.md).
 
-Terrain sampling, cut cells, roof detail, vegetation, turbulence, multiple
-conditions, CUDA and public binary wheel distribution remain deferred.
+Terrain sampling, cut cells, roof detail, vegetation, multiple conditions,
+CUDA and public binary wheel distribution remain deferred. Turbulence export,
+comfort and dataset integration follow the turbulence numerical acceptance gate.
 `Domain::getDomainSize()`'s anisotropic-spacing correction belongs to the
 terrain milestone; this implementation uses scalar spacing throughout.

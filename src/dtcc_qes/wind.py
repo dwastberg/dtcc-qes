@@ -11,11 +11,12 @@ from dtcc_core.model import Bounds
 
 from . import __version__, _qes
 from ._city import extract_city, number, prepare_domain
-from .result import ConvergenceError, SolveDiagnostics, WindResult, WindSample
+from .result import ConvergenceError, SolveDiagnostics, TurbulenceFields, WindResult, WindSample
+from .turbulence import Turbulence, _resolve_turbulence, _turbulence_metadata
 from .vertical_grid import GridPreview, VerticalGrid
 
 __all__ = ["run", "preview_grid", "WindResult", "WindSample", "GridPreview",
-           "SolveDiagnostics", "ConvergenceError", "VerticalGrid"]
+           "SolveDiagnostics", "ConvergenceError", "VerticalGrid", "Turbulence", "TurbulenceFields"]
 
 
 def _dtcc_version():
@@ -30,7 +31,8 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
         horizontal_padding: float = 20.0, vertical_clearance: float = 20.0,
         max_cells: int = 20_000_000, tolerance: float = 1e-5, max_iterations: int = 500,
         raise_on_nonconvergence: bool = False, terrain=None, height_policy="measured",
-        vertical_grid: VerticalGrid | None = None, solver_precision: str = "float32") -> WindResult:
+        vertical_grid: VerticalGrid | None = None, solver_precision: str = "float32",
+        turbulence: bool | Turbulence = False) -> WindResult:
     """Solve one explicit wind condition without modifying the source city.
 
     Speed is in m/s. Direction is clockwise from north and denotes where the
@@ -53,6 +55,14 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
     remain float32. Tolerance bounds follow the selected arithmetic precision;
     convergence still measures multiplier change, not a residual guarantee.
 
+    ``turbulence=True`` also returns QES-Turb stresses, TKE, C0*epsilon and
+    mixing lengths. ``Turbulence(mixing_length='wall_distance')`` selects the
+    qualified serial wall method; the provisional default is height. Automatic
+    bounds may grow to provide the reference-height margin. Explicit bounds
+    and faces are checked. Derived streamwise standard deviation and intensity
+    mask uncomputed or invalid covariance and undefined mean directions.
+    This algebraic model has not been validated for pedestrian gusts.
+
     The input uses one shared planar frame in metres (or an unlabelled local
     metre frame). Only single, hole-free LOD0 Surfaces are accepted; footprints
     may not overlap or touch, and building parts are unsupported. Measured
@@ -70,11 +80,13 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
     conflicting declarations raise. Rotations, scales and shears are rejected.
     Other city objects are omitted and listed in result metadata.
     """
+    turbulence_spec = _resolve_turbulence(turbulence)
     condition = _validate_condition(speed, direction, reference_height, roughness_length)
     grid = _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, max_cells,
                           vertical_grid=vertical_grid)
     solver = _validate_solver(tolerance, max_iterations, raise_on_nonconvergence, solver_precision)
-    geometry, prepared = _prepare_city(city, condition, grid, terrain, height_policy)
+    geometry, prepared = _prepare_city(city, condition, grid, terrain, height_policy,
+                                        turbulence=turbulence_spec is not None)
     native_condition = _qes.WindCondition()
     for name in ("speed", "direction", "reference_height"):
         setattr(native_condition, name, condition[name])
@@ -83,7 +95,14 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
     native_solver.precision = solver["precision"]
     runner = _qes.WindRunner()
     try:
-        runner.prepare(prepared.grid, prepared.model, **prepared.arrays, dz_layers=prepared.dz_layers)
+        turbulence_options = {}
+        if turbulence_spec is not None:
+            native_turbulence = _qes.TurbulenceSettings()
+            native_turbulence.enabled = True
+            native_turbulence.mixing_length_method = turbulence_spec.qes_method
+            turbulence_options["turbulence"] = native_turbulence
+        runner.prepare(prepared.grid, prepared.model, **prepared.arrays, dz_layers=prepared.dz_layers,
+                       **turbulence_options)
         native = runner.solve(native_condition, native_solver)
     finally:
         # Arrays already own their storage. A retained Python exception's
@@ -123,16 +142,26 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
         coordinates="local metres; add origin to recover the input global frame",
         dtcc_cell_order="y, x, z fastest (VolumeGrid.coordinates meshgrid xy)",
     )
+    turbulence_fields = None
+    if turbulence_spec is not None:
+        fields = native["turbulence"]
+        turbulence_fields = TurbulenceFields(stress=fields["stress"],tke=fields["tke"],co_eps=fields["co_eps"],
+            mixing_length=fields["mixing_length"],computed=fields["state"] > 0,capped=fields["state"] == 2,
+            stress_valid=fields["stress_valid"].astype(bool),friction_velocity=fields["friction_velocity"],
+            reference_speed=fields["reference_speed"],reference_height=fields["reference_height"],
+            roughness_length=fields["roughness_length"],displacement_height=fields["displacement_height"])
+        metadata["turbulence"] = _turbulence_metadata(turbulence_spec,fields,prepared.domain["turbulence"],
+                                                    native["velocity"],bool(geometry.heights))
     return WindResult(native["velocity"], native["x"], native["y"], native["z"], native["cell_flags"],
                       prepared.origin, geometry.crs, prepared.resolution, diagnostics, metadata,
-                      z_faces=native["z_faces"])
+                      z_faces=native["z_faces"],turbulence=turbulence_fields)
 
 
 def preview_grid(city, *, reference_height: float = 10.0, roughness_length: float = 0.1,
                  resolution: float = 2.0, bounds=None, horizontal_padding: float = 20.0,
                  vertical_clearance: float = 20.0, max_cells: int = 20_000_000,
                  terrain=None, height_policy="measured",
-                 vertical_grid: VerticalGrid | None = None, turbulence: bool = False) -> GridPreview:
+                 vertical_grid: VerticalGrid | None = None, turbulence: bool | Turbulence = False) -> GridPreview:
     """Inspect a uniform, explicit or automatic grid without QES wind arrays.
 
     Geometry, terrain, bounds, clearance and cell limits use the same preparation
@@ -146,10 +175,12 @@ def preview_grid(city, *, reference_height: float = 10.0, roughness_length: floa
     explicit bounds/faces are checked. Growth and any required regeneration
     are recorded in ``domain['turbulence']``.
     """
+    turbulence_spec = _resolve_turbulence(turbulence)
     condition = _validate_condition(0, 0, reference_height, roughness_length)
     grid = _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, max_cells,
                           vertical_grid=vertical_grid)
-    geometry, prepared = _prepare_city(city, condition, grid, terrain, height_policy, turbulence=turbulence)
+    geometry, prepared = _prepare_city(city, condition, grid, terrain, height_policy,
+                                        turbulence=turbulence_spec is not None)
     nz, ny, nx = prepared.domain["shape"]
     spacing = np.float32(prepared.resolution)
     faces = np.asarray(prepared.domain["vertical_grid"]["effective_faces"], dtype=np.float32)

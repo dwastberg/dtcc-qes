@@ -16,11 +16,12 @@ a `Turbulence` spec, a domain-top policy for turbulence's reference heights, a
 dtcc-core, pytest, CTest.
 
 **Status (implementation started 2026-10-27):** work is isolated in the checkout
-below. Tasks 1, 1A, 1B, 2, 3 and 4 are implemented and verified. The follow-up
+below. Tasks 1, 1A, 1B, 2, 3, 4 and 5 are implemented and verified. The follow-up
 review repaired the domain preflight and resolved the stale dataset-registration
-test/documentation mismatch while preserving runtime behavior. The public API/result
-work remains required before exposing turbulence-derived
-statistics through `wind.run`. Review measurements describe the original core
+test/documentation mismatch while preserving runtime behavior. The public API
+now returns turbulence fields and sampled streamwise statistics. Task 9 remains
+the required numerical/performance gate before DTCC, comfort and dataset
+integration. Review measurements describe the original core
 at the recorded revision, not necessarily the repaired implementation.
 
 **Spec:** the Findings, Decisions and review revisions sections below. The
@@ -150,7 +151,23 @@ Task checkboxes and the execution record below track implementation progress.
   unchanged. Wheel/source artifacts pass their audits, including control/source
   fingerprints; a wheel smoke check passes preview, revision and calm solve.
   See the numerical report for metadata definitions and controls.
-- Next: Task 5 (public turbulence specification, results and derived statistics).
+- Task 5 (2026-10-28): `Turbulence`, `TurbulenceFields`, the public run/preview
+  option and streamwise statistics are implemented. One prepare/solve returns
+  owned raw fields with separate computed/capped/valid masks. Float64 derived
+  properties reclassify current tensors with the native scale-relative policy.
+  Nearest/linear stress sampling preserves invalid-contributor evidence in a
+  private snapshot independent of editable public masks and sampled tensors.
+  Model constants, references, cap/validity snapshots, domain policy, audited
+  fixes, scaling and screening limitations are recorded. All 57 public tests
+  pass, including oblique full-tensor oracles, stretched gradients, both solver
+  precisions/methods, near-calm flow, editing, sampling and eight exact audited
+  standalone comparisons. Full Python: 772 passed, 24 skipped, no failures.
+  Native code, QES revision and reference archives are unchanged; Task 4's
+  source-fingerprinted control remains current. Wheel and source artifacts
+  pass their audits. The wheel built from the sdist passes native revision,
+  specification, preview, fields, sampling/statistics and wind-parity smoke checks.
+- Next: Task 9 (numerical acceptance and mixing-length benchmark), before
+  downstream Tasks 6–8. Height remains the provisional default.
 
 ---
 
@@ -972,6 +989,10 @@ The full Python suite passes with the original 24 opt-in skips. Public
   cross-check its validity result against native extraction. Because arrays
   are editable, derived properties recheck the current tensors rather than
   trusting a stale validity mask. Metadata counts describe the original solve.
+  A private sampling-time contributor mask retains invalid-source evidence
+  independently of the editable public `stress_valid` snapshot; it is never
+  reconstructed from a potentially valid interpolant alone. Covariance checks
+  use normalized float64 eigensolver batches of at most 65,536 tensors.
 - `metadata["turbulence"]` is absent when turbulence is off. When on, it has:
   - `model`, `mixing_length`, `qes_method`, `numerics_version` and the audited
     fixes/parity exceptions applied.
@@ -988,7 +1009,7 @@ The full Python suite passes with the original 24 opt-in skips. Public
     policy/count. Keep validity independent from the cap diagnostics.
   - `domain_top` (from Task 4), `speed_scaling`, `limitations`.
 
-- [ ] **Step 1: Write the failing tests:**
+- [x] **Step 1: Write the failing tests:**
   - `test_run_returns_wind_and_turbulence_in_one_call`: one building. Velocity
     is bitwise equal to a `turbulence=False` run **on the same sufficiently
     tall explicit grid**; turbulence shapes and dtypes are correct. Automatic
@@ -1019,10 +1040,21 @@ The full Python suite passes with the original 24 opt-in skips. Public
   - `test_invalid_turbulence_argument`.
   - `test_wall_distance_mixing_length_not_longer_than_height`.
   - `test_turbulence_false_metadata_unchanged`.
-- [ ] **Step 2: Run** `uv run --frozen python -m pytest tests/test_turbulence.py -q`. Expected: FAIL.
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Run** the full pytest suite. Expected: PASS.
-- [ ] **Step 5: Commit.**
+- [x] **Step 2: Run** `uv run --frozen python -m pytest tests/test_turbulence.py -q`. Expected: FAIL.
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Run** the full pytest suite. Expected: PASS.
+- [x] **Step 5: Commit.**
+
+**Task 5 outcome:** all 34 initial tests failed before implementation; the
+final 57 pass. The public API preserves wind results on identical explicit
+grids and returns raw stress unchanged, including invalid computed tensors.
+Derived statistics use the current three-dimensional mean direction, mask
+undefined directions, and match independent shear/factor covariance oracles.
+Python validity agrees with native extraction for both methods and precisions.
+All eight audited reference cases match exactly through public `wind.run` on
+the recorded serial toolchain. Arrays survive native runner destruction;
+sample arrays own their storage. Wind-only metadata and native preparation
+remain unchanged. The full suite passes with the original 24 opt-in skips.
 
 ### Task 9: Numerical acceptance, mixing-length benchmark and validation report
 

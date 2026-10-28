@@ -645,3 +645,83 @@ Wheel and source-distribution audits pass, including source hashes for the
 recorded control. The wheel was built from the source distribution and passes
 source-content, native-revision, turbulence-preview and calm-solve smoke checks.
 The local no-isolation build used the system Unix Makefiles generator.
+
+## Public results and statistics (Task 5, 2026-10-28)
+
+`wind.run(..., turbulence=True)` now returns wind and turbulence from one
+prepare/solve. `wind.Turbulence(mixing_length='height'|'wall_distance')` selects
+the same qualified native methods 0/1 for run and preview; the height model
+remains provisional. Other values raise before native allocation. Domain
+preparation uses Task 4's effective-face policy. Tests compare wind on/off on
+identical explicit grids for both solver precisions and both methods; their
+velocities, classifications and diagnostics remain equal.
+
+`TurbulenceFields` holds the owned float32 stress/TKE/C0·epsilon/mixing-length
+arrays and owned boolean coverage/cap/validity masks. Uncomputed entries remain
+NaN, and raw invalid computed tensors remain available. Reference scalars,
+model constants, audited numerical fixes, component order/units, cap and
+validity counts, direction-fallback policy, speed scaling, domain-top policy
+and screening limitations are recorded in `metadata['turbulence']`. Counts
+and validity masks describe the original solve; editing arrays does not
+rewrite provenance. The existing wind-only metadata remains unchanged.
+
+### Derived statistics and sampling
+
+The shared private projection helper in `result.py` calculates float64
+streamwise standard deviation from the current full tensor and current 3D
+mean velocity. Intensity divides that standard deviation by mean-speed
+magnitude. Both raise without turbulence and return NaN where stress is
+uncomputed/nonfinite/materially indefinite, or the mean direction is undefined.
+A finite zero tensor is valid; calm flow still has undefined direction.
+
+Validity follows the native policy: `lambda_min >= -32 * float32_epsilon *
+max(abs(eigenvalues))`. The float64 eigensolver normalizes each tensor and
+processes batches of at most 65,536 cells, bounding its matrix workspace.
+The mean direction uses a hypot-based magnitude so finite 1e-200 and 1e200
+vectors do not fail merely through squaring. Only a roundoff-sized negative
+projection of a valid covariance can clamp to zero. No raw stress is repaired,
+and a positive projection cannot excuse an indefinite tensor.
+
+Nearest and linear height samples return owned float64 stress components.
+Exact-centre selection uses only that centre; every positive-weight source
+must be computed. A separate private contributor-validity snapshot prevents
+an invalid neighbour from becoming usable when its interpolant is PSD.
+`WindSample.stress_valid` records the original sampling decision. Derived
+properties recheck the current sampled tensor and retain contributor evidence
+independently of that editable public snapshot. Thus changing a public mask
+cannot hide an invalid contributor, while editing an originally valid sample's
+stress to an invalid tensor makes its statistics NaN immediately. Velocity
+coverage and stress validity remain separate masks.
+
+Independent checks cover full flat-shear covariances at meteorological
+270/240/225/0 degrees, the nonuniform central-gradient formula, full 3D
+factor-based covariance projection, calm/near-calm flow and speed homogeneity.
+Scaling comparisons double the solver's absolute tolerance with speed to
+retain the same relative solve accuracy. Python covariance validity matches
+the native extraction masks for both solver precisions and methods. Mask,
+editing, exact-centre, nonfinite and out-of-centre sampling cases are tested.
+All eight audited standalone cases also match exactly through the public API,
+with the existing recorded-toolchain restriction; reference archives were
+not regenerated.
+
+All 34 initial tests failed before implementation. All 57 final public tests
+pass; the complete Python suite has 772 passes and the existing 24 opt-in
+skips. Native QES code and revision are unchanged; the earlier native safety
+and analytic checks remain the basis for those repairs. This Python milestone
+does not repeat the unchanged native sanitizer suite. The Task 4 recorded
+control's source fingerprints remain current.
+Wheel and source-distribution artifacts pass the expanded audit, including
+`turbulence.py` and the public API tests. A wheel built from the source
+distribution passes an isolated import/revision check and exercises spec,
+preview, raw fields, sampling, derived statistics and identical-grid wind
+parity. The local no-isolation build uses the system Unix Makefiles generator.
+
+```sh
+uv sync --frozen --group reference --reinstall-package dtcc-qes
+uv run --frozen --group reference python -m pytest tests/test_turbulence.py -q
+uv run --frozen --group reference python -m pytest -q
+```
+
+The numerical/performance benchmark (Task 9) is next. DTCC turbulence export,
+comfort GEM and dataset flags remain gated on that acceptance work. The new
+API and same-source parity do not establish physical pedestrian-gust validity.

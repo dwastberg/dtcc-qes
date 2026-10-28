@@ -1,10 +1,99 @@
 """Physical wind arrays, height sampling and DTCC uniform-grid conversion."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from numbers import Real
 
 import numpy as np
 from dtcc_core.model import Bounds, Field, Transform, VolumeGrid
+
+
+_STRESS_RELATIVE_TOLERANCE = 32 * float(np.finfo(np.float32).eps)
+_STRESS_CHUNK_SIZE = 65536
+
+
+def _stress_validity(stress):
+    """Native raw-and-mask policy, in bounded float64 eigensolver batches.
+
+    Use the stored tensors, including float64 interpolants, without narrowing
+    or repairing them. Normalization protects the spectral calculation across
+    scales. The returned tolerance is in squared-velocity units.
+    """
+    raw = np.asarray(stress)
+    if raw.ndim < 1 or raw.shape[-1] != 6:
+        raise ValueError("stress must have six components: xx, xy, xz, yy, yz, zz")
+    flat = raw.reshape(-1,6)
+    valid = np.zeros(len(flat),dtype=bool)
+    tolerance = np.full(len(flat),np.nan,dtype=np.float64)
+    for start in range(0,len(flat),_STRESS_CHUNK_SIZE):
+        values = np.asarray(flat[start:start+_STRESS_CHUNK_SIZE],dtype=np.float64)
+        finite = np.isfinite(values).all(axis=-1)
+        values = values[finite]
+        scale = np.max(np.abs(values),axis=-1)
+        normalized = values/np.where(scale > 0,scale,1)[:,None]
+        eigenvalues = np.linalg.eigvalsh(normalized[:,(0,1,2,1,3,4,2,4,5)].reshape(-1,3,3))
+        relative = _STRESS_RELATIVE_TOLERANCE*np.max(np.abs(eigenvalues),axis=-1)
+        locations = start+np.flatnonzero(finite)
+        valid[locations] = eigenvalues[:,0] >= -relative
+        tolerance[locations] = relative*scale
+    return valid.reshape(raw.shape[:-1]),tolerance.reshape(raw.shape[:-1])
+
+
+def _velocity_magnitude(velocity):
+    with np.errstate(over="ignore",invalid="ignore"):
+        return np.hypot.reduce(np.asarray(velocity,dtype=np.float64),axis=-1)
+
+
+def _streamwise_std(stress, velocity, covered):
+    """Reclassify current tensors, then project only covered, directed cells."""
+    raw,velocity,covered = np.asarray(stress),np.asarray(velocity),np.asarray(covered,dtype=bool)
+    if raw.shape != (*covered.shape,6) or velocity.shape != (*covered.shape,3):
+        raise ValueError("Stress, velocity and coverage must have matching cell shapes")
+    valid,tolerance = _stress_validity(raw)
+    speed = _velocity_magnitude(velocity)
+    usable = covered & valid & np.isfinite(velocity).all(axis=-1) & np.isfinite(speed) & (speed > 0)
+    result = np.full(covered.shape,np.nan,dtype=np.float64)
+    flat = raw.reshape(-1,6)
+    mean = velocity.reshape(-1,3)
+    for start in range(0,len(flat),_STRESS_CHUNK_SIZE):
+        locations = start+np.flatnonzero(usable.reshape(-1)[start:start+_STRESS_CHUNK_SIZE])
+        s = np.asarray(flat[locations],dtype=np.float64)
+        n = np.asarray(mean[locations],dtype=np.float64)/speed.reshape(-1)[locations,None]
+        x,y,z = n.T
+        projected = (s[:,0]*x*x+s[:,3]*y*y+s[:,5]*z*z
+                     +2*(s[:,1]*x*y+s[:,2]*x*z+s[:,4]*y*z))
+        accepted = np.isfinite(projected) & (projected >= -tolerance.reshape(-1)[locations])
+        result.reshape(-1)[locations[accepted]] = np.sqrt(np.maximum(0,projected[accepted]))
+    return result
+
+
+def _turbulence_intensity(std, velocity):
+    with np.errstate(over="ignore",invalid="ignore",divide="ignore"):
+        intensity = std/_velocity_magnitude(velocity)
+    intensity[~np.isfinite(intensity)] = np.nan
+    return intensity
+
+
+@dataclass(frozen=True)
+class TurbulenceFields:
+    """Owned raw float32 turbulence and independent bool masks on (z,y,x).
+
+    Stress order is xx,xy,xz,yy,yz,zz in m²/s²; tke is QES's separately
+    scaled kinetic energy, co_eps is C0*epsilon (m²/s³), and mixing_length is
+    in metres. Uncomputed float entries are NaN. stress_valid is a snapshot;
+    derived properties reclassify edited tensors. Scalars describe the solve.
+    """
+    stress: np.ndarray
+    tke: np.ndarray
+    co_eps: np.ndarray
+    mixing_length: np.ndarray
+    computed: np.ndarray
+    capped: np.ndarray
+    stress_valid: np.ndarray
+    friction_velocity: float
+    reference_speed: float
+    reference_height: float
+    roughness_length: float
+    displacement_height: float
 
 
 @dataclass(frozen=True)
@@ -45,6 +134,9 @@ class WindSample:
     Widen x/y to float64 before adding ``origin`` for global coordinates;
     add origin[2] to sampled height for global elevation.
     Arrays remain editable and do not share storage with the source result.
+    Optional stress is float64 (y,x,6) in xx,xy,xz,yy,yz,zz order.
+    stress_valid is a sampling-time snapshot; statistics recheck current
+    tensors and retain evidence of invalid contributing cells.
     """
     velocity: np.ndarray
     valid: np.ndarray
@@ -55,11 +147,30 @@ class WindSample:
     method: str
     origin: tuple[float, float, float]
     crs: str | None
+    stress: np.ndarray | None = None
+    stress_valid: np.ndarray | None = None
+    # Preserve invalid-contributor evidence independently of editable tensors
+    # and their public validity snapshot. Rechecking an interpolant alone can
+    # conceal a materially indefinite contributor.
+    _stress_contributors_valid: np.ndarray | None = field(default=None,repr=False,compare=False,kw_only=True)
 
     @property
     def speed(self):
         """Magnitude of the sampled mean velocity vector, in m/s."""
         return np.linalg.norm(self.velocity, axis=-1)
+
+    @property
+    def streamwise_std(self):
+        if self.stress is None:
+            raise ValueError("Sample has no turbulence; run with turbulence=True")
+        contributors = self._stress_contributors_valid
+        if contributors is None:
+            contributors = self.stress_valid if self.stress_valid is not None else True
+        return _streamwise_std(self.stress,self.velocity,self.valid & contributors)
+
+    @property
+    def turbulence_intensity(self):
+        return _turbulence_intensity(self.streamwise_std,self.velocity)
 
 
 @dataclass(frozen=True)
@@ -82,6 +193,23 @@ class WindResult:
     diagnostics: SolveDiagnostics
     metadata: dict
     z_faces: np.ndarray | None = None
+    turbulence: TurbulenceFields | None = None
+
+    @property
+    def speed(self):
+        """Magnitude of mean velocity in float64, in m/s."""
+        return _velocity_magnitude(self.velocity)
+
+    @property
+    def streamwise_std(self):
+        if self.turbulence is None:
+            raise ValueError("Result has no turbulence; run with turbulence=True")
+        return _streamwise_std(self.turbulence.stress,self.velocity,
+                               self.turbulence.computed & ~self.solid_mask)
+
+    @property
+    def turbulence_intensity(self):
+        return _turbulence_intensity(self.streamwise_std,self.velocity)
 
     @property
     def dz(self):
@@ -113,6 +241,9 @@ class WindResult:
         extrapolation. Every contributing cell must be fluid with finite
         velocity. Flags 0/2 are solid; air parameterization flags remain valid.
         Requested heights are compared in float64, without snapping to float32.
+        Optional stresses use the same contributors. Uncomputed stresses are
+        NaN; invalid computed tensors remain available and disqualify derived
+        statistics even when their interpolated tensor is positive semidefinite.
         """
         if not isinstance(method, str) or method not in ("nearest", "linear"):
             raise ValueError("method must be 'nearest' or 'linear'")
@@ -178,8 +309,29 @@ class WindResult:
                     velocity += weight * (other - velocity)
                 valid &= np.isfinite(velocity).all(axis=-1)
             velocity[~valid] = np.nan
+        stress = stress_valid = contributors = None
+        if self.turbulence is not None:
+            fields = self.turbulence
+            if fields.stress.shape != (*shape,6) or fields.computed.shape != shape:
+                raise ValueError("Turbulence stress and coverage must match the result's coordinate axes")
+            stress = np.full((*plane_shape,6),np.nan,dtype=np.float64)
+            contributors = np.zeros(plane_shape,dtype=bool)
+            if indices is not None:
+                lo,hi = indices
+                covered = fields.computed[lo].copy()
+                stress = fields.stress[lo].astype(np.float64,copy=True)
+                contributors = _stress_validity(stress)[0] & covered
+                if hi != lo:
+                    other = fields.stress[hi].astype(np.float64)
+                    covered &= fields.computed[hi]
+                    contributors &= _stress_validity(other)[0] & covered
+                    with np.errstate(invalid="ignore",over="ignore"):
+                        stress += weight*(other-stress)
+                stress[~covered] = np.nan
+            stress_valid = contributors & _stress_validity(stress)[0]
         return WindSample(velocity, valid, np.array(self.x, copy=True), np.array(self.y, copy=True),
-                          requested, sampled, method, self.origin, self.crs)
+                          requested, sampled, method, self.origin, self.crs,stress,stress_valid,
+                          _stress_contributors_valid=contributors)
 
     def to_dtcc(self):
         """Return independent cell fields in DTCC's y, x, z-fastest order.

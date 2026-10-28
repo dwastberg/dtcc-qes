@@ -36,7 +36,7 @@ def check_wheel(path):
         require(any(name.startswith("dtcc_qes/_qes.") and name.endswith((".so", ".pyd")) for name in names),
                 "Wheel omits native extension")
         for name in ("wind.py", "result.py", "_city.py", "vertical_grid.py", "_auto_grid.py",
-                     "_turbulence_domain.py", "comfort.py", "_qes_revision.txt"):
+                     "_turbulence_domain.py", "turbulence.py", "comfort.py", "_qes_revision.txt"):
             require("dtcc_qes/" + name in names, f"Wheel omits {name}")
         require(len(archive.read("dtcc_qes/_qes_revision.txt").strip()) == 40, "Missing source revision")
 
@@ -58,6 +58,7 @@ def check_sdist(path):
             "docs/turbulence-reference-differences.md",
             "tests/test_turbulence_reference.py", "tests/fixtures/turbulence_cases.py",
             "src/dtcc_qes/_turbulence_domain.py", "tests/test_turbulence_domain.py",
+            "src/dtcc_qes/turbulence.py", "tests/test_turbulence.py",
             "tools/check_turbulence_domain.py", "docs/data/turbulence-domain/control.json",
             "src/cpp/precision_solver.cpp", "src/cpp/precision_solver.h", "tests/native/check_precision.cpp",
             "tests/test_precision.py", "tests/test_precision_verification.py", "tools/run_precision_verification.py",
