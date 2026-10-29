@@ -41,17 +41,11 @@
 #define MIN_S(x, y) ((x) < (y) ? (x) : (y))
 #define MAX_S(x, y) ((x) > (y) ? (x) : (y))
 
-#include "WINDSInputData.h"
+#include "WindModelInputs.h"
 
 #include "qes/Domain.h"
 
-#include "WindProfilerType.h"
-#include "WindProfilerBarnCPU.h"
-#include "WindProfilerBarnGPU.h"
-
 #include "Building.h"
-#include "Canopy.h"
-#include "CanopyElement.h"
 
 #include "LocalMixing.h"
 #include "LocalMixingDefault.h"
@@ -60,8 +54,7 @@
 #include "CutCell.h"
 #include "Wall.h"
 
-// #include "util/Mesh.h"
-#include "util/QEStime.h"
+#include "util/Mesh.h"
 
 #ifdef HAS_OPTIX
 
@@ -77,8 +70,6 @@
 #include "OptixRayTrace.h"
 #endif
 
-class NetCDFInput;
-class HRRRData;
 
 struct WINDSDeviceData
 {
@@ -87,8 +78,6 @@ struct WINDSDeviceData
   float *w;
 };
 
-class WINDSInputData;
-
 /**
  * @class WindsGeneralData
  * @brief :document this:
@@ -96,67 +85,38 @@ class WINDSInputData;
 class WINDSGeneralData
 {
 private:
-  void validateSensors(const WINDSInputData *) const;
+  void validateInflow(const InflowCondition &) const;
   std::vector<std::unique_ptr<Building>> ownedBuildings_;
-  void initializeWRFSensors(const WINDSInputData *WID);
-  void initializeTerrain(const WINDSInputData *WID);
-  void initializeShapefileBuildings(const WINDSInputData *WID);
-  void readCoefficients(const WINDSInputData *WID);
 
   WINDSGeneralData() : domain(1, 1, 1, 1, 1, 1) {}// do not allow empty domain to be created
 
 public:
   explicit WINDSGeneralData(qes::Domain domain_in);
-  WINDSGeneralData(const WINDSInputData *WID, qes::Domain domain_in, int solverType);
-  explicit WINDSGeneralData(const std::string &inputFile);
+  /**
+   * Prepares the wind model on flat ground. Builds one stair-step building per
+   * footprint, which the model owns, and sets the solver coefficients.
+   *
+   * @param site_z0 inflow roughness length (m), used for the ground
+   */
+  WINDSGeneralData(qes::Domain domain_in, const std::vector<BuildingFootprint> &buildings,
+                   const BuildingParameterizations &parameterizations, float site_z0);
 
   virtual ~WINDSGeneralData() = default;
   WINDSGeneralData(const WINDSGeneralData &) = delete;
   WINDSGeneralData &operator=(const WINDSGeneralData &) = delete;
-  // allBuildingsV borrows input buildings. Only shapefile-created buildings
-  // belong to ownedBuildings_; destruction never deletes caller geometry.
 
   void mergeSort(std::vector<float> &effective_height,
                  std::vector<int> &building_id);
 
-  void mergeSortTime(std::vector<QEStime> &sensortime,
-                     std::vector<int> &sensortime_id);
+  /** Sets the initial field u0/v0/w0 to the inflow's log profile. */
+  void applyWindProfile(const InflowCondition &);
 
-  void applyWindProfile(const WINDSInputData *, int, int);
-
-  void applyParametrizations(const WINDSInputData *);
-
-  void downscaleHRRR(const WINDSInputData *);
-  // void applyParametrizations(const WINDSInputData*);
-
-  QEStime nextTimeInstance(const int &, const float &);
-
-  void printTimeProgress(int);
+  void applyParametrizations();
 
   void resetICellFlag();
   bool isSolid(const int &);
-  bool isCanopy(const int &);
   bool isTerrain(const int &);
   bool isBuilding(const int &);
-  /**
-   * Uses bisection method to find the displacement height of the canopy.
-   *
-   * @note Called within plantInitial method.
-   *
-   * @param ustar :document this:
-   * @param z0 :document this:
-   * @param canopy_top :document this:
-   * @param canopy_atten :document this:
-   * @param vk :document this:
-   * @param psi_m :document this:
-   */
-  float canopyBisection(float ustar, float z0, float canopy_top, float canopy_atten, float vk, float psi_m);
-
-  /**
-   * Saves user-defined data to file.
-   */
-  void save();
-  void loadNetCDFData(int);
 
   ////////////////////////////////////////////////////////////////////////////
   //////// Variables and constants needed only in other functions-- Behnam
@@ -175,6 +135,9 @@ public:
   // General QES Domain Data -- winds does not create this... provide const & in constructor of WINDS...
   qes::Domain domain;
 
+  BuildingParameterizations parameterizations; /**< Empirical models applied per solve */
+  int meshTypeFlag = 0; /**< 0 stair-step buildings; cut cells (1) are not built */
+
   ///@{
   /** Number of cells */
   // int nx, ny, nz;
@@ -185,13 +148,8 @@ public:
   ///@}
   // float dxy; /**< Minimum value between dx and dy */
 
-  int wrf_nx{}, wrf_ny{};
-
   float halo_x{}, halo_y{};
   int halo_index_x{}, halo_index_y{};
-
-  float UTMx{}, UTMy{};
-  int UTMZone{};
 
   // long numcell_cout{}; /**< :document this: */
   // long numcell_cout_2d; /**< :document this: */
@@ -218,17 +176,6 @@ public:
   // std::vector<float> x, y, z;
   ///@}
   // std::vector<float> z_face; /**< :Location of the bottom face of the cell in z-direction: */
-
-  std::vector<QEStime> sensortime; /**< :document this: */
-  std::vector<int> sensortime_id;
-  // FM TEMPORARY!!!!!!!!!!!!!
-  std::vector<int> time_id;
-
-  // time variables
-  int nt{}; /**< :document this: */
-  int totalTimeIncrements{}; /**< :document this: */
-  std::vector<float> dt_array; /**< :document this: */
-  std::vector<QEStime> timestamp; /**< :document this: */
 
 
   ///@{
@@ -285,15 +232,6 @@ public:
   LocalMixing *localMixing{}; /**< :document this: */
   std::vector<double> mixingLengths; /**< :document this: */
 
-  // HRRR Input class
-  HRRRData *hrrrInputData = nullptr;
-  std::vector<int> nearest_site_id;
-  std::vector<std::vector<int>> closest_site_ids;
-  // Sensor* sensor;      may not need this now
-
-  // wind profiler class
-  std::unique_ptr<WindProfilerType> windProfiler; /**< pointer to the wind profiler class, used to interp wind */
-
   int id{}; /**< :document this: */
 
   // [FM Feb.28.2020] there 2 variables are not used anywhere
@@ -309,8 +247,6 @@ public:
   // std::vector<float> canopy_z0;	   /**< Canopy surface roughness */
   // std::vector<float> canopy_ustar;   /**< Velocity gradient at the top of canopy */
   // std::vector<float> canopy_d;	   /**< Canopy displacement length */
-
-  std::unique_ptr<Canopy> canopy; /**< :document this: */
 
 
   float max_velmag{}; /**< In polygonWake */
@@ -352,10 +288,6 @@ public:
   void copyDataToDevice();
   void copyDataFromDevice();
 
-private:
-  // input: store here for multiple time instance.
-  NetCDFInput *input{}; /**< :document this: */
-
 protected:
   // void defineHorizontalGrid();
   // void defineVerticalGrid();
@@ -364,11 +296,6 @@ protected:
 
   void allocateMemory();
 };
-
-inline bool WINDSGeneralData::isCanopy(const int &cellID)
-{
-  return (icellflag[cellID] == 20 || icellflag[cellID] == 22 || icellflag[cellID] == 24 || icellflag[cellID] == 28);
-}
 
 inline bool WINDSGeneralData::isBuilding(const int &cellID)
 {

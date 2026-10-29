@@ -1,4 +1,4 @@
-#include "qes_inputs.h"
+#include "model_inputs.h"
 #include "winds/SolverFactory.h"
 #include "winds/Solver_CPU.h"
 #include "winds/Solver_CPU_RB.h"
@@ -36,15 +36,15 @@ static Snapshot solve(float height, bool serial, int threads)
     geometry.vertices.insert(geometry.vertices.end(), {vertex[0], vertex[1]});
   geometry.offsets = {0, static_cast<std::int64_t>(geometry.vertices.size() / 2)};
   geometry.ids = {0}; geometry.heights = {height}; geometry.base_heights = {fixture::base_height};
-  QESInputs inputs(grid, model, geometry);
+  ModelInputs inputs(grid, model, geometry);
   // The tall obstacle has stronger blockage; use a 1 m/s profile to keep its
   // float32 multiplier changes resolvable at the fixture's 1e-5 tolerance.
   const float speed = height > fixture::height ? 1.0f : fixture::speed;
   inputs.set_condition({speed, fixture::direction, fixture::reference_height});
-  WINDSGeneralData data(&inputs.input, qes::Domain(inputs.simulation.domain, inputs.simulation.grid), CPU_Type);
+  WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
   data.resetICellFlag();
-  data.applyWindProfile(&inputs.input, 0, CPU_Type);
-  data.applyParametrizations(&inputs.input);
+  data.applyWindProfile(inputs.inflow);
+  data.applyParametrizations();
   std::unique_ptr<Solver> solver;
   if (serial) {
     solver = std::make_unique<Solver_CPU>(data.domain, fixture::tolerance);

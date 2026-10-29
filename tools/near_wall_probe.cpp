@@ -83,9 +83,9 @@ int main(int argc,char **argv) try {
   if(control.disabled&8) model.wake_flag=0;
   if(control.disabled&16) model.sidewall_flag=0;
   auto start=Clock::now();
-  QESInputs inputs(grid,model,buildings); inputs.set_condition({5,direction,10});
-  WINDSGeneralData data(&inputs.input,make_domain(inputs),CPU_Type);
-  data.applyWindProfile(&inputs.input,0,CPU_Type);
+  ModelInputs inputs(grid,model,buildings); inputs.set_condition({5,direction,10});
+  WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
+  data.applyWindProfile(inputs.inflow);
   std::ostringstream out; out << std::setprecision(17);
   out << "{\"backend\":\"" << backend << "\",\"direction\":" << direction
       << ",\"resolution\":" << grid.cell_size << ",\"origin\":[" << control.ox << ',' << control.oy
@@ -93,7 +93,7 @@ int main(int argc,char **argv) try {
       << ",\"cells\":" << std::int64_t(grid.nx)*grid.ny*grid.nz << ",\"start\":\"zero\",\"z_faces\":[";
   for(int k=1;k<data.domain.z_face.size();++k) out << (k==1 ? "" : ",") << data.domain.z_face[k];
   out << "],\"stages\":{\"profile\":"; write_stage(out,data,control,heights,true);
-  data.applyParametrizations(&inputs.input);
+  data.applyParametrizations();
   out << ",\"initial\":"; write_stage(out,data,control,heights,true);
   const double preparation=elapsed(start);
   DivergenceStats residual; double solve_time=0;

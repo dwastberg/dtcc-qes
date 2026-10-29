@@ -267,7 +267,7 @@ def main():
         executable_sha256=digest(executable), reference=str(args.reference), reference_sha256=digest(args.reference),
         source_sha256={str(p): digest(p) for p in (Path(__file__), Path("tools/run_auto_grid_controls.py"),
             Path("tools/run_vertical_grid_study.py"), Path("tools/vertical_grid_study.cpp"),
-            Path("src/qes_core/dtcc/divergence.cpp"), Path("src/qes_core/dtcc/qes_inputs.cpp"))},
+            Path("src/qes_core/dtcc/divergence.cpp"), Path("src/qes_core/dtcc/model_inputs.cpp"))},
         initial_n=args.n, max_n=args.max_n, qes_revision=Path("src/dtcc_qes/_qes_revision.txt").read_text().strip(),
         frozen_critical_indices=frozen_locations(refs), heights=list(HEIGHTS), comparison_points=POINTS.tolist(),
         away_region_distance_m=4, error_targets=dict(p95_abs_delta_K=.05, peak_relative=.05,

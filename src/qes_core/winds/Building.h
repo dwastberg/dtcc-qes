@@ -38,10 +38,8 @@
 
 using namespace std;
 
-// forward declaration of WINDSInputData and WINDSGeneralData, which
-// will be used by the derived classes and thus included there in the
-// C++ files
-class WINDSInputData;
+// forward declaration of WINDSGeneralData, which will be used by the
+// derived classes and thus included there in the C++ files
 class WINDSGeneralData;
 class TURBGeneralData;
 
@@ -54,7 +52,6 @@ class TURBGeneralData;
  * @sa Canopy
  * @sa PolyBuilding
  * @sa RectangularBuilding
- * @sa WINDSInputData
  * @sa WINDSGeneralData
  * @sa TURBGeneralData
  */
@@ -125,15 +122,15 @@ public:
   }
 
   // Need to finalize the parameters here...
-  virtual void setCellFlags(const WINDSInputData *WID, WINDSGeneralData *WGD, int building_number)
+  virtual void setCellFlags(WINDSGeneralData *WGD, int building_number)
   {
   }
 
-  virtual void upwindCavity(const WINDSInputData *WID, WINDSGeneralData *WGD)
+  virtual void upwindCavity(WINDSGeneralData *WGD)
   {
   }
 
-  virtual void polygonWake(const WINDSInputData *WID, WINDSGeneralData *WGD, int building_id)
+  virtual void polygonWake(WINDSGeneralData *WGD, int building_id)
   {
   }
 
@@ -161,11 +158,11 @@ public:
   {
   }
 
-  virtual void sideWall(const WINDSInputData *WID, WINDSGeneralData *WGD)
+  virtual void sideWall(WINDSGeneralData *WGD)
   {
   }
 
-  virtual void rooftop(const WINDSInputData *WID, WINDSGeneralData *WGD)
+  virtual void rooftop(WINDSGeneralData *WGD)
   {
   }
 

@@ -27,64 +27,50 @@ static void rejects(Operation operation)
   throw std::runtime_error("Expected native exception was not thrown");
 }
 
-// Inputs and buildings are owned here; WINDSInputData and allBuildingsV borrow
-// them. Fresh objects prevent QES's halo mutations from crossing preparations.
+// Inputs are plain values; the wind model builds and owns its buildings.
 struct Inputs
 {
-  std::unique_ptr<SimulationParameters> simulation = std::make_unique<SimulationParameters>();
-  std::unique_ptr<MetParams> met = std::make_unique<MetParams>();
-  std::unique_ptr<BuildingsParams> buildings = std::make_unique<BuildingsParams>();
-  std::unique_ptr<Sensor> sensor = std::make_unique<Sensor>();
-  std::unique_ptr<TimeSeries> series = std::make_unique<TimeSeries>();
-  std::unique_ptr<PolyBuilding> building;
-  WINDSInputData input;
+  std::vector<BuildingFootprint> buildings;
+  BuildingParameterizations parameterizations;
+  InflowCondition inflow;
 
   explicit Inputs(bool with_building = false)
   {
-    simulation->domain = {fixture::nx, fixture::ny, fixture::nz};
-    simulation->grid = {fixture::cell_size, fixture::cell_size, fixture::cell_size};
-    simulation->tolerance = fixture::tolerance;
-    simulation->maxIterations = fixture::max_iterations;
-    series->time = std::string(fixture::timestamp);
-    series->site_z0 = fixture::roughness;
-    series->site_z_ref = {fixture::reference_height};
-    series->site_U_ref = {fixture::speed};
-    series->site_wind_dir = {fixture::direction};
-    sensor->site_xcoord = fixture::sensor_x;
-    sensor->site_ycoord = fixture::sensor_y;
-    sensor->TS = {series.get()};
-    met->sensors = {sensor.get()};
-    buildings->wallRoughness = fixture::wall_roughness;
-    buildings->rooftopFlag = fixture::rooftop_flag;
-    buildings->upwindCavityFlag = fixture::upwind_cavity_flag;
-    buildings->streetCanyonFlag = fixture::street_canyon_flag;
-    buildings->streetIntersectionFlag = fixture::street_intersection_flag;
-    buildings->wakeFlag = fixture::wake_flag;
-    buildings->highRiseFlag = fixture::high_rise_flag;
-    buildings->sidewallFlag = fixture::sidewall_flag;
+    inflow.site_z0 = fixture::roughness;
+    inflow.site_z_ref = fixture::reference_height;
+    inflow.site_U_ref = fixture::speed;
+    inflow.site_wind_dir = fixture::direction;
+    inflow.site_xcoord = fixture::sensor_x;
+    inflow.site_ycoord = fixture::sensor_y;
+    parameterizations.wallRoughness = fixture::wall_roughness;
+    parameterizations.rooftopFlag = fixture::rooftop_flag;
+    parameterizations.upwindCavityFlag = fixture::upwind_cavity_flag;
+    parameterizations.streetCanyonFlag = fixture::street_canyon_flag;
+    parameterizations.wakeFlag = fixture::wake_flag;
+    parameterizations.highRiseFlag = fixture::high_rise_flag;
+    parameterizations.sidewallFlag = fixture::sidewall_flag;
     if (with_building) {
-      std::vector<polyVert> vertices;
-      for (const auto &v : fixture::vertices) vertices.emplace_back(v[0], v[1]);
-      building = std::make_unique<PolyBuilding>(vertices, fixture::height, fixture::base_height, 0);
-      buildings->buildings = {building.get()};
+      BuildingFootprint building;
+      for (const auto &v : fixture::vertices) building.vertices.emplace_back(v[0], v[1]);
+      building.height = fixture::height;
+      building.base_height = fixture::base_height;
+      buildings = {building};
     }
-    input.simParams = simulation.get();
-    input.metParams = met.get();
-    input.buildingsParams = buildings.get();
   }
 
   std::unique_ptr<WINDSGeneralData> prepare()
   {
-    return std::make_unique<WINDSGeneralData>(&input,
-      qes::Domain(simulation->domain, simulation->grid), CPU_Type);
+    return std::make_unique<WINDSGeneralData>(
+      qes::Domain(fixture::nx, fixture::ny, fixture::nz, fixture::cell_size, fixture::cell_size, fixture::cell_size),
+      buildings, parameterizations, inflow.site_z0);
   }
 };
 
 static SolveDiagnostics solve(Inputs &inputs, WINDSGeneralData &data, int limit)
 {
   data.resetICellFlag();
-  data.applyWindProfile(&inputs.input, 0, CPU_Type);
-  data.applyParametrizations(&inputs.input);
+  data.applyWindProfile(inputs.inflow);
+  data.applyParametrizations();
   std::unique_ptr<Solver> solver(SolverFactory::create(CPU_Type, data.domain, fixture::tolerance));
   solver->resetLambda();
   return solver->solve(&data, limit);
@@ -111,13 +97,14 @@ static void success()
     Inputs inputs(true);
     {
       auto data = inputs.prepare();
-      require(data->allBuildingsV.at(0) == inputs.building.get(), "Building must be borrowed");
+      require(data->allBuildingsV.size() == 1 && data->allBuildingsV.at(0)->polygonVertices.size() == 5,
+              "The wind model must own one building per footprint");
       const auto result = solve(inputs, *data, fixture::max_iterations);
       require(result.converged && result.iterations > 0, "Building case did not converge");
       for (const auto *field : {&data->u, &data->v, &data->w})
         for (float value : *field) require(std::isfinite(value), "Velocity is non-finite");
     }
-    require(inputs.building->polygonVertices.size() == 5, "Wind data deleted caller geometry");
+    require(inputs.buildings.at(0).vertices.size() == 5, "Wind data changed caller geometry");
   }
 }
 
@@ -128,44 +115,43 @@ static void failures()
   rejects<qes::InputError>([] { qes::Domain d(100000, 100000, 100000, 2, 2, 2); });
   rejects<qes::InputError>([&] { qes::Domain d(4, 3, 2, nan, 2, 2); });
   rejects<qes::RuntimeError>([] { QESout::error("Deliberate native error"); });
-  rejects<qes::UnsupportedFeature>([] { WINDSInputData input("missing.xml"); });
   for (int repeat = 0; repeat < 20; ++repeat) {
     Inputs inputs;
-    inputs.met->sensors.clear();
+    inputs.inflow.site_z0 = 0;
     rejects<qes::InputError>([&] { inputs.prepare(); });
-    inputs.met->sensors = {nullptr};
-    rejects<qes::InputError>([&] { inputs.prepare(); });
-    inputs.met->sensors = {inputs.sensor.get()};
-    inputs.sensor->TS.clear();
-    rejects<qes::InputError>([&] { inputs.prepare(); });
-    inputs.sensor->TS = {inputs.series.get()};
-    inputs.series->site_z_ref.clear();
-    rejects<qes::InputError>([&] { inputs.prepare(); });
-    inputs.series->site_z_ref = {fixture::reference_height};
-    inputs.series->site_U_ref = {nan};
-    rejects<qes::InputError>([&] { inputs.prepare(); });
-    inputs.series->site_U_ref = {fixture::speed};
-    inputs.sensor->site_xcoord = -1;
-    rejects<qes::InputError>([&] { inputs.prepare(); });
-    inputs.sensor->site_xcoord = fixture::sensor_x;
+    inputs.inflow.site_z0 = fixture::roughness;
     auto data = inputs.prepare();
-    rejects<qes::InputError>([&] { data->applyWindProfile(&inputs.input, -1, CPU_Type); });
+    // The inflow is validated for every profile it produces.
+    inputs.inflow.site_z_ref = 0;
+    rejects<qes::InputError>([&] { data->applyWindProfile(inputs.inflow); });
+    inputs.inflow.site_z_ref = fixture::reference_height;
+    inputs.inflow.site_U_ref = nan;
+    rejects<qes::InputError>([&] { data->applyWindProfile(inputs.inflow); });
+    inputs.inflow.site_U_ref = -1;
+    rejects<qes::InputError>([&] { data->applyWindProfile(inputs.inflow); });
+    inputs.inflow.site_U_ref = fixture::speed;
+    inputs.inflow.site_one_overL = nan;
+    rejects<qes::InputError>([&] { data->applyWindProfile(inputs.inflow); });
+    inputs.inflow.site_one_overL = 0;
+    inputs.inflow.site_xcoord = -1;
+    rejects<qes::InputError>([&] { data->applyWindProfile(inputs.inflow); });
+    inputs.inflow.site_xcoord = fixture::sensor_x;
     rejects<qes::InputError>([&] { std::unique_ptr<Solver> s(SolverFactory::create(99, data->domain, fixture::tolerance)); });
     rejects<qes::InputError>([&] { std::unique_ptr<Solver> s(SolverFactory::create(1, data->domain, 1e-12f)); });
-    data->applyWindProfile(&inputs.input, 0, CPU_Type);
+    data->applyWindProfile(inputs.inflow);
     std::unique_ptr<Solver> solver(SolverFactory::create(1, data->domain, fixture::tolerance));
     rejects<qes::InputError>([&] { solver->solve(data.get(), 0); });
     data->u0[0] = nan;
     rejects<qes::InputError>([&] { solver->solve(data.get(), 2); });
-    data->applyWindProfile(&inputs.input, 0, CPU_Type);
+    data->applyWindProfile(inputs.inflow);
     const auto cell = data->domain.cell(2, 2, 2);
     for (auto *values : {&data->e, &data->f, &data->g, &data->h, &data->m, &data->n})
       (*values)[cell] = 0.0f;
     rejects<qes::RuntimeError>([&] { solver->solve(data.get(), 2); });
   }
-  // Failure after the wind profiler is allocated must also release it.
+  // Failure after the arrays are allocated must also release the partial model.
   Inputs bad_building(true);
-  bad_building.building->polygonVertices.clear();
+  bad_building.buildings.at(0).vertices.clear();
   rejects<qes::InputError>([&] { bad_building.prepare(); });
 }
 

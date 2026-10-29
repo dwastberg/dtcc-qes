@@ -32,33 +32,48 @@ into the extension as `_qes.qes_revision`.
 
 ## Contents
 
-`qes/`, `util/` and `winds/` contain exactly the files that the former
+`qes/`, `util/` and `winds/` hold the QES-derived core; `dtcc/` holds the
+dtcc-qes layer that drives it (moved from `src/cpp`), with the QES-free headers
+used by the Python bindings in `dtcc/api/`. `LICENSE` is the QES license and
+`CMakeLists.txt` builds the `qesutil`, `qeswindscore` and `qesbridge` targets.
+
+### At vendoring (commit `6c2c65c`)
+
+`qes/`, `util/` and `winds/` contained exactly the files that the former
 `QES-Public` subproject compiled with `QES_ENABLE_IO`, CUDA and OptiX off: the
-`qesutil` and `qeswindscore` sources and every header they include. The list
-was taken from compiler dependency files. The files are byte-identical to
-`src/<path>` at the vendored revision. `LICENSE` is the QES license.
-`CMakeLists.txt` is new: it reproduces the former `qesbuild`, `qesutil` and
-`qeswindscore` targets with the same source order and compile settings.
+`qesutil` and `qeswindscore` sources and every header they include, taken from
+compiler dependency files and byte-identical to `src/<path>` at the vendored
+revision. Builds from the submodule and from this directory were compared with
+AppleClang 17 in Release mode, OpenMP and serial, with and without native tests:
+the normalized compile commands matched, and every object file, the `_qes`
+extension module and every native test executable were byte-identical. Plume,
+Fire, the standalone executables and the I/O, WRF/HRRR, CUDA and OptiX sources
+were not vendored.
 
-Sources still contain `#if QES_ENABLE_IO`, `#ifdef HAS_CUDA` and `#ifdef HAS_OPTIX`
-branches that include headers that were not vendored (I/O readers, GPU solvers,
-OptiX). These branches are never compiled here. Plume, Fire, the standalone
-executables and the I/O, WRF/HRRR, CUDA and OptiX sources were not vendored.
-
-## Equivalence with the submodule build
-
-At vendoring time, builds from the submodule and from this directory were
-compared with AppleClang 17 in Release mode: OpenMP and serial, with and without
-native tests. The normalized compile commands matched. Every object file, the
-`_qes` extension module and every native test executable were byte-identical.
-The static archives differed only in member timestamps. A 14-case Python API
-matrix gave bitwise-identical velocity, turbulence, coordinate and diagnostic
-outputs. The cases covered float32 and float64, explicit and automatic vertical
-grids, both mixing-length methods, oblique winds and nonconverged runs.
-
-To check that a file is still unmodified relative to the fork, compare it with
-the submodule (reference-only, see the main README):
+To see what a file looked like in the fork, compare it with the submodule
+(reference-only, see the main README):
 
 ```sh
 git -C QES-Public show dce15d7e:src/winds/Solver_CPU.cpp | diff - src/qes_core/winds/Solver_CPU.cpp
 ```
+
+## Changes since vendoring
+
+Each change below kept every output of `tools/compare_native_builds.py`
+bitwise identical to the preceding commit, in OpenMP and serial builds, unless
+it says otherwise.
+
+- **In-memory inputs.** The model is built from plain structs in
+  `winds/WindModelInputs.h` (`BuildingFootprint`, `BuildingParameterizations`,
+  `InflowCondition`, `TurbulenceConfig`) instead of the XML parameter classes.
+  `WINDSGeneralData` now owns its buildings; `applyWindProfile` takes one
+  inflow condition and validates it on every call; the parameterizations,
+  turbulence walls and mixing-length methods take the structs. The executed
+  single-sensor log profile moved verbatim from `WindProfilerSensorType` and
+  `singleSensorInterpolation` into `winds/LogProfile.cpp`.
+- **Removed with the XML inputs:** `WINDSInputData`, `SimulationParameters`,
+  `MetParams`, `BuildingsParams`, `VegetationParams`, `FileOptions`,
+  `HRRRInput`, `TURBParams`, `Sensor`, `TimeSeries`, the wind profilers (Barnes
+  interpolation), `RectangularBuilding`, `PolygonQUICBuilding`, the canopy
+  (vegetation) classes, which were unreachable, and the no-I/O stubs of the
+  file-backed constructors and mixing-length output.

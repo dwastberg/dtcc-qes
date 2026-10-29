@@ -1,5 +1,5 @@
 // Synthetic sensitivity/cost study, not an experimental validation or public API.
-#include "qes_inputs.h"
+#include "model_inputs.h"
 #include "divergence.h"
 #include "precision_solver.h"
 #include "log_sink.h"
@@ -277,8 +277,8 @@ static void sampler_self_test()
   grid.nx = grid.ny = 8;
   grid.dz_layers = {0.5, 0.75, 1, 2, 3}; grid.nz = grid.dz_layers.size();
   ModelSettings model; model.sensor_x = model.sensor_y = 5;
-  QESInputs inputs(grid, model, BuildingArrays{{}, {0}, {}, {}, {}});
-  WINDSGeneralData data(&inputs.input, make_domain(inputs), CPU_Type);
+  ModelInputs inputs(grid, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
   const auto &d = data.domain;
   std::fill(data.icellflag.begin(), data.icellflag.end(), 1);
   // A manufactured affine vector field must survive staggering and vertical
@@ -383,10 +383,10 @@ try {
     if (control.disabled & 8) model.wake_flag = 0;
     if (control.disabled & 16) model.sidewall_flag = 0;
   }
-  QESInputs inputs(grid, model, b);
+  ModelInputs inputs(grid, model, b);
   inputs.set_condition({5, direction, 10});
-  WINDSGeneralData data(&inputs.input, make_domain(inputs), CPU_Type);
-  data.applyWindProfile(&inputs.input, 0, CPU_Type);
+  WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
+  data.applyWindProfile(inputs.inflow);
   std::vector<int> ii, jj;
   std::ostringstream profile;
   if (horizontal) {
@@ -394,7 +394,7 @@ try {
     profile << std::setprecision(10);
     write_planes(profile, data, heights, ii, jj, true);
   }
-  data.applyParametrizations(&inputs.input);
+  data.applyParametrizations();
   std::unique_ptr<FixedSweeps> solver;
   std::unique_ptr<PrecisionSolver> precision_solver;
   if (n) {

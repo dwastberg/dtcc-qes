@@ -42,12 +42,9 @@
 #include <cmath>
 #include <limits>
 #include <sstream>
-#if QES_ENABLE_IO
-#include "LocalMixingNetCDF.h"
-#endif
 
 // TURBGeneralData::TURBGeneralData(Args* arguments, URBGeneralData* WGD){
-TURBGeneralData::TURBGeneralData(const WINDSInputData *WID, WINDSGeneralData *WGD)
+TURBGeneralData::TURBGeneralData(const TurbulenceConfig &config, WINDSGeneralData *WGD)
   : domain(WGD->domain)
 {
 
@@ -56,9 +53,7 @@ TURBGeneralData::TURBGeneralData(const WINDSInputData *WID, WINDSGeneralData *WG
   qes::log::info() << "[QES-TURB]\t Initialization of turbulence model...\n";
   m_WGD = WGD;
 
-  if (!WID || !WID->turbParams)
-    throw qes::InputError("Turbulence requires turbulence parameters");
-  const int method = WID->turbParams->methodLocalMixing;
+  const int method = config.methodLocalMixing;
   bool supported = method == 0 || method == 1;
 #ifdef HAS_OPTIX
   supported = supported || method == 3;
@@ -71,8 +66,8 @@ TURBGeneralData::TURBGeneralData(const WINDSInputData *WID, WINDSGeneralData *WG
     message << "Unsupported turbulence mixing-length method: " << method;
     throw qes::InputError(message.str());
   }
-  const float terrain_top = WID->simParams->DTE_heightField && !WGD->terrain.empty()
-    ? *std::max_element(WGD->terrain.begin(), WGD->terrain.end()) : 0.0f;
+  // Flat ground: no terrain raises the 15 m rotation reference.
+  const float terrain_top = 0.0f;
   if (domain.z_face.back() < 15.0f + terrain_top) {
     std::ostringstream message;
     message << "Turbulence domain top must reach at least " << 15.0f + terrain_top
@@ -83,11 +78,11 @@ TURBGeneralData::TURBGeneralData(const WINDSInputData *WID, WINDSGeneralData *WG
   allocateMemory();
 
   // local copies of trubulence parameters
-  turbUpperBound = WID->turbParams->turbUpperBound;
+  turbUpperBound = config.turbUpperBound;
 
-  if (WID->turbParams->sigConst) {
+  if (config.sigConst) {
     Vector3Float sigConst;
-    sigConst = *(WID->turbParams->sigConst);
+    sigConst = *(config.sigConst);
 
     sigUOrg = sigConst[0];
     sigVOrg = sigConst[1];
@@ -98,16 +93,16 @@ TURBGeneralData::TURBGeneralData(const WINDSInputData *WID, WINDSGeneralData *WG
     sigWConst = 1.5f * sigWOrg * sigWOrg * cPope * cPope;
   }
 
-  flagNonLocalMixing = WID->turbParams->flagNonLocalMixing;
+  flagNonLocalMixing = config.flagNonLocalMixing;
   if (flagNonLocalMixing) {
     qes::log::info() << "[QES-TURB]\t Non-Local mixing for buidlings: ON \n";
   }
 
-  if (WID->simParams->verticalStretching > 0) {
+  if (config.verticalStretching > 0) {
     flagUniformZGrid = false;
   }
 
-  backgroundMixing = WID->turbParams->backgroundMixing;
+  backgroundMixing = config.backgroundMixing;
 
   /*
      vector containing cell id of fluid cell
@@ -132,32 +127,25 @@ TURBGeneralData::TURBGeneralData(const WINDSInputData *WID, WINDSGeneralData *WG
 
   // definition of the solid wall for loglaw
   qes::log::info() << "[QES-TURB]\t Defining Solid Walls...\n";
-  wallVec.push_back(std::make_unique<TURBWallBuilding>(WID, m_WGD, this));
-  wallVec.push_back(std::make_unique<TURBWallTerrain>(WID, m_WGD, this));
+  wallVec.push_back(std::make_unique<TURBWallBuilding>(config, m_WGD, this));
+  wallVec.push_back(std::make_unique<TURBWallTerrain>(config, m_WGD, this));
   // qes::log::info() << "\t\t Walls Defined...\n";
 
   // mixing length
 
   qes::log::info() << "[QES-TURB]\t Defining Local Mixing Length...\n";
   auto mlStartTime = std::chrono::high_resolution_clock::now();
-  if (WID->turbParams->methodLocalMixing == 0) {
+  if (config.methodLocalMixing == 0) {
     qes::log::info() << "[QES-TURB]\t Default Local Mixing Length...\n";
     localMixing = std::make_unique<LocalMixingDefault>();
-  } else if (WID->turbParams->methodLocalMixing == 1) {
+  } else if (config.methodLocalMixing == 1) {
     qes::log::info() << "[QES-TURB]\t Computing Local Mixing Length using serial code...\n";
     localMixing = std::make_unique<LocalMixingSerial>();
-  } else if (WID->turbParams->methodLocalMixing == 3) {
+  } else if (config.methodLocalMixing == 3) {
     localMixing = std::make_unique<LocalMixingOptix>();
-  } else if (WID->turbParams->methodLocalMixing == 4) {
-    qes::log::info() << "[QES-TURB]\t Loading Local Mixing Length data form NetCDF...\n";
-#if QES_ENABLE_IO
-    localMixing = std::make_unique<LocalMixingNetCDF>();
-#else
-    throw qes::UnsupportedFeature("NetCDF mixing lengths require QES_ENABLE_IO=ON");
-#endif
   }
 
-  localMixing->defineMixingLength(WID, m_WGD);
+  localMixing->defineMixingLength(config, m_WGD);
 
   // make a copy as mixing length will be modify by non-local
   // (need to be reset at each time instances)
@@ -179,11 +167,7 @@ TURBGeneralData::TURBGeneralData(const WINDSInputData *WID, WINDSGeneralData *WG
 
   qes::log::info() << "[QES-TURB]\t Calculating Morphometric parametrization of trubulence..." << std::endl;
 
-  if (WID->simParams->DTE_heightField) {
-    terrainH_max = *max_element(m_WGD->terrain.begin(), m_WGD->terrain.end());
-  } else {
-    terrainH_max = 0.0;
-  }
+  terrainH_max = 0.0;
 
   // qes::log::info() << "\t\t max terrain height = "<< terrainH_max << std::endl;
 
@@ -211,7 +195,7 @@ TURBGeneralData::TURBGeneralData(const WINDSInputData *WID, WINDSGeneralData *WG
     zRef = 3.0 * bldgH_mean;
 
   } else {
-    z0d = WID->metParams->sensors[0]->TS[0]->site_z0;
+    z0d = config.site_z0;
     d0d = 0.0;
     zRef = 100.0 * z0d;
   }
@@ -329,19 +313,9 @@ void TURBGeneralData::run()
   //    qes::log::info() << "Applying canopy wake turbulence parameterization...\n";
   //    m_WGD->canopy->applyCanopyTurbulenceWake(m_WGD, this);
   //  }
-  if (m_WGD->canopy) {
-    qes::log::info() << "[QES-TURB]\t Applying canopy wake turbulence parameterization...\n";
-    m_WGD->canopy->applyCanopyTurbulenceWake(m_WGD, this);
-  }
-
   qes::log::info() << "[QES-TURB]\t Computing Stess Tensor..." << std::endl;
   stressTensor();
   // qes::log::info()<<"\t\t Stress Tensor computed."<<std::endl;
-
-  if (m_WGD->canopy) {
-    qes::log::info() << "[QES-TURB]\t Applying canopy stresses...\n";
-    m_WGD->canopy->applyCanopyStress(m_WGD, this);
-  }
 
   if (flagNonLocalMixing) {
     qes::log::info() << "[QES-TURB]\t Applying non-local mixing..." << std::endl;

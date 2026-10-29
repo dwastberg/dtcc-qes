@@ -40,7 +40,6 @@
 #include "Wall.h"
 
 #include "WINDSGeneralData.h"
-#include "WINDSInputData.h"
 
 
 void Wall::defineWalls(WINDSGeneralData *WGD)

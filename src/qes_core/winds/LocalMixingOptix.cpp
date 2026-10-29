@@ -44,10 +44,9 @@
 #endif
 
 // These take care of the circular reference
-#include "WINDSInputData.h"
 #include "WINDSGeneralData.h"
 
-void LocalMixingOptix::defineMixingLength(const WINDSInputData *WID, WINDSGeneralData *WGD)
+void LocalMixingOptix::defineMixingLength(const TurbulenceConfig &config, WINDSGeneralData *WGD)
 {
 
   auto [nx, ny, nz] = WGD->domain.getDomainCellNum();
@@ -183,11 +182,9 @@ void LocalMixingOptix::defineMixingLength(const WINDSInputData *WID, WINDSGenera
   }
 
 
+  // Flat ground: add the ground plane triangles (there is no DEM).
   std::vector<Triangle *> groundTris(2);
-  if (WID->simParams->DTE_heightField == nullptr) {
-
-    // need to make sure we add the ground plane triangles.  There
-    // // is no DEM in this case.
+  {
     groundTris[0] = new Triangle(Vector3Float(0.0, 0.0, 0.0), Vector3Float(nx * dx, 0.0f, 0.0f), Vector3Float(nx * dx, ny * dy, 0.0f));
     groundTris[1] = new Triangle(Vector3Float(0.0, 0.0, 0.0), Vector3Float(nx * dx, ny * dy, 0.0f), Vector3Float(0.0f, ny * dy, 0.0f));
   }
@@ -195,23 +192,7 @@ void LocalMixingOptix::defineMixingLength(const WINDSInputData *WID, WINDSGenera
   // Assemble list of all triangles and create the mesh BVH
   qes::log::info() << "Forming Length Scale triangle mesh...\n";
   std::vector<Triangle *> allTriangles;
-  if (WID->simParams->DTE_heightField) {
-#if QES_ENABLE_IO
-
-    allTriangles.resize(WID->simParams->DTE_heightField->getTris().size());
-
-    // std::copy(WID->simParams->DTE_heightField->getTris().begin(), WID->simParams->DTE_heightField->getTris().end(), allTriangles.begin());
-
-    for (size_t i = 0; i < WID->simParams->DTE_heightField->getTris().size(); i++) {
-      allTriangles[i] = WID->simParams->DTE_heightField->getTris()[i];
-    }
-
-#else
-    throw qes::UnsupportedFeature("Terrain mixing lengths require QES_ENABLE_IO=ON");
-#endif
-  } else {
-    allTriangles.insert(allTriangles.end(), groundTris.begin(), groundTris.end());
-  }
+  allTriangles.insert(allTriangles.end(), groundTris.begin(), groundTris.end());
 
   // Add building triangles to terrain and/or ground triangle
   for (size_t i = 0; i < buildingTris.size(); i++) {
@@ -230,7 +211,7 @@ void LocalMixingOptix::defineMixingLength(const WINDSInputData *WID, WINDSGenera
 
   qes::log::info() << "--------------------Before OptiX calls-------------------------" << std::endl;
   OptixRayTrace optixRayTracer(m_mixingLengthMesh->getTris());
-  optixRayTracer.calculateMixingLength(WID->turbParams->mlSamplesPerAirCell, nx, ny, nz, dx, dy, dz, WGD->icellflag, WGD->mixingLengths);
+  optixRayTracer.calculateMixingLength(config.mlSamplesPerAirCell, nx, ny, nz, dx, dy, dz, WGD->icellflag, WGD->mixingLengths);
 
   qes::log::info() << "--------------------End of OptiX calls-------------------------" << std::endl;
 #else
@@ -240,10 +221,6 @@ void LocalMixingOptix::defineMixingLength(const WINDSInputData *WID, WINDSGenera
   qes::log::info() << std::endl;
   qes::log::info() << std::endl;
 #endif
-
-  if (WID->turbParams->save2file) {
-    saveMixingLength(WID, WGD);
-  }
 
   return;
 }

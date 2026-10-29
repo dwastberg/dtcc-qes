@@ -1,4 +1,4 @@
-#include "qes_inputs.h"
+#include "model_inputs.h"
 #include "divergence.h"
 #include "winds/SolverFactory.h"
 #include "winds/Solver_CPU.h"
@@ -50,31 +50,24 @@ static void guard_checks()
   g.nx = g.ny = 8; g.nz = 4; g.dz_layers = {0.5, 0.75, 1, 2};
   ModelSettings model;
   model.sensor_x = model.sensor_y = 1;
-  QESInputs inputs(g, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  ModelInputs inputs(g, model, BuildingArrays{{}, {0}, {}, {}, {}});
   const auto d = make_domain(inputs);
   require(vertical_faces(g) == std::vector<float>(d.z_face.begin() + 1, d.z_face.end()),
           "Preparation and Domain coordinates disagree");
-  auto prepare = [&] { return std::make_unique<WINDSGeneralData>(&inputs.input, d, CPU_Type); };
-  inputs.simulation.dz_value.pop_back();
-  rejects(prepare);
-  inputs.simulation.dz_value = {0.5f, 0.75f, 1, 3};
-  rejects(prepare);
-  inputs.simulation.dz_value = {0.5f, 0.75f, 1, 2};
-  inputs.simulation.verticalStretching = 0;
-  rejects(prepare);
-  inputs.simulation.verticalStretching = 2;
-  rejects(prepare);
-  inputs.simulation.verticalStretching = 1;
-  inputs.simulation.logLawFlag = 1;
-  rejects<qes::UnsupportedFeature>(prepare);
-  inputs.simulation.logLawFlag = 0;
-  auto data = prepare();
-  data->applyWindProfile(&inputs.input, 0, CPU_Type);
-  data->applyParametrizations(&inputs.input);
+  // The Domain is the only description of the layers the core receives; the
+  // bridge's float32 copy must match it, and explicit layers must select the
+  // nonuniform turbulence derivatives even when the thicknesses are equal.
+  require(inputs.layers.size() == static_cast<std::size_t>(d.nz() - 2)
+            && std::equal(inputs.layers.begin(), inputs.layers.end(), d.dz_array.begin() + 1),
+          "Bridge layers and Domain disagree");
+  require(inputs.turbulence.verticalStretching == 1, "Explicit layers must select stretched derivatives");
+  auto data = std::make_unique<WINDSGeneralData>(d, inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
+  data->applyWindProfile(inputs.inflow);
+  data->applyParametrizations();
   Solver_CPU wrong(qes::Domain(8, 8, 4, 2, 2, 2), 1e-5f);
   rejects([&] { static_cast<Solver &>(wrong).solve(data.get(), 1); });
   g.dz_layers = {1, 2};
-  rejects<std::invalid_argument>([&] { QESInputs bad(g, model, BuildingArrays{{}, {0}, {}, {}, {}}); });
+  rejects<std::invalid_argument>([&] { ModelInputs bad(g, model, BuildingArrays{{}, {0}, {}, {}, {}}); });
 }
 
 static std::vector<float> injection(const std::vector<double> &layers, bool serial)
@@ -83,11 +76,11 @@ static std::vector<float> injection(const std::vector<double> &layers, bool seri
   g.nx = g.ny = 24; g.nz = static_cast<int>(layers.size()); g.dz_layers = layers;
   ModelSettings model;
   model.sensor_x = model.sensor_y = 5;
-  QESInputs inputs(g, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  ModelInputs inputs(g, model, BuildingArrays{{}, {0}, {}, {}, {}});
   inputs.set_condition({0, 270, 10});
-  WINDSGeneralData data(&inputs.input, make_domain(inputs), CPU_Type);
-  data.applyWindProfile(&inputs.input, 0, CPU_Type);
-  data.applyParametrizations(&inputs.input);
+  WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
+  data.applyWindProfile(inputs.inflow);
+  data.applyParametrizations();
   data.w0[data.domain.face(12, 12, 6)] = 0.1f;
   std::unique_ptr<Solver> solver;
   if (serial) solver = std::make_unique<Solver_CPU>(data.domain, 2e-7f);
@@ -108,12 +101,12 @@ static void building_checks()
   model.rooftop_flag = 2; // Exercise the vortex branch's bounded shell search.
   for (double height : {7.99, 8.0, 8.25, 8.5}) {
     BuildingArrays b{{16,16, 16,30, 30,30, 30,16, 16,16}, {0,5}, {0}, {height}, {0}};
-    QESInputs inputs(g, model, b);
+    ModelInputs inputs(g, model, b);
     for (double direction : {0.0, 45.0, 90.0, 270.0}) {
       inputs.set_condition({5, direction, 10});
-      WINDSGeneralData data(&inputs.input, make_domain(inputs), CPU_Type);
-      data.applyWindProfile(&inputs.input, 0, CPU_Type);
-      data.applyParametrizations(&inputs.input);
+      WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
+      data.applyWindProfile(inputs.inflow);
+      data.applyParametrizations();
       const auto &d = data.domain;
       for (int k = 1; k <= g.nz; ++k) {
         const bool expected = d.z[k] <= static_cast<float>(height);
@@ -143,11 +136,11 @@ static void stretched_canyon(bool report)
   }
   ModelSettings model;
   model.sensor_x = model.sensor_y = 5;
-  QESInputs inputs(g, model, b);
+  ModelInputs inputs(g, model, b);
   inputs.set_condition({5, 270, 10});
-  WINDSGeneralData data(&inputs.input, make_domain(inputs), CPU_Type);
-  data.applyWindProfile(&inputs.input, 0, CPU_Type);
-  data.applyParametrizations(&inputs.input);
+  WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
+  data.applyWindProfile(inputs.inflow);
+  data.applyParametrizations();
   std::unique_ptr<Solver> solver(SolverFactory::create(CPU_Type, data.domain, std::numeric_limits<float>::epsilon()));
   const auto diagnostics = solver->solve(&data, 2000);
   const auto stats = divergence_stats(data);

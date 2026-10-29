@@ -34,7 +34,7 @@
 
 #include "LocalMixing.h"
 
-class WINDSInputData;
+struct TurbulenceConfig;
 class WINDSGeneralData;
 
 /**
@@ -47,5 +47,5 @@ class WINDSGeneralData;
 class LocalMixingSerial : public LocalMixing
 {
 public:
-  void defineMixingLength(const WINDSInputData *, WINDSGeneralData *) override;
+  void defineMixingLength(const TurbulenceConfig &, WINDSGeneralData *) override;
 };

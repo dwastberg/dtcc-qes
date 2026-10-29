@@ -1,5 +1,5 @@
 #include "wind_runner.h"
-#include "qes_inputs.h"
+#include "model_inputs.h"
 #include "divergence.h"
 #include "precision_solver.h"
 #include "turbulence.h"
@@ -11,8 +11,9 @@
 namespace dtcc_qes {
 struct WindRunner::Impl {
   GridConfig grid;
-  QESInputs inputs;
-  // Reverse destruction frees solvers, then turbulence, then wind data and inputs.
+  ModelInputs inputs;
+  // Reverse destruction frees solvers, then turbulence (which points at the
+  // wind data), then the wind data and its buildings.
   std::unique_ptr<WINDSGeneralData> data;
   std::unique_ptr<TURBGeneralData> turbulence;
   std::unique_ptr<Solver> solver;
@@ -22,12 +23,12 @@ struct WindRunner::Impl {
   Impl(const GridConfig &g, const ModelSettings &m, const BuildingArrays &b,
        const TurbulenceSettings &t)
     : grid(g), inputs(g, m, b, t),
-      data(std::make_unique<WINDSGeneralData>(&inputs.input,
-        make_domain(inputs), CPU_Type))
+      data(std::make_unique<WINDSGeneralData>(make_domain(inputs), inputs.buildings,
+        inputs.parameterizations, inputs.inflow.site_z0))
   {
-    if (t.enabled) {
-      check_turbulence_margin(inputs.input, *data, grid);
-      turbulence = std::make_unique<TURBGeneralData>(&inputs.input, data.get());
+    if (inputs.turbulence_enabled) {
+      check_turbulence_margin(inputs, *data, grid);
+      turbulence = std::make_unique<TURBGeneralData>(inputs.turbulence, data.get());
     }
   }
 };
@@ -65,8 +66,8 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
   state.inputs.set_condition(condition);
   auto &data = *state.data;
   data.resetICellFlag();
-  data.applyWindProfile(&state.inputs.input, 0, CPU_Type);
-  data.applyParametrizations(&state.inputs.input);
+  data.applyWindProfile(state.inputs.inflow);
+  data.applyParametrizations();
   PrecisionDiagnostics diagnostics;
   if (options.precision == "float64") {
     state.solver.reset();
@@ -97,7 +98,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
   result.y = data.domain.y;
   result.z.assign(data.domain.z.begin() + 1, data.domain.z.end());
   result.z_faces.assign(data.domain.z_face.begin() + 1, data.domain.z_face.end());
-  result.building_count = state.inputs.polygons.size();
+  result.building_count = state.inputs.buildings.size();
   const auto count = std::size_t(result.nx) * result.ny * result.nz;
   result.velocity.resize(count * 3);
   result.cell_flags.resize(count);

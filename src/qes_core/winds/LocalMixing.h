@@ -48,7 +48,7 @@ class NetCDFOutput;
 
 */
 
-class WINDSInputData;
+struct TurbulenceConfig;
 class WINDSGeneralData;
 
 /**
@@ -61,12 +61,11 @@ private:
   NetCDFOutput *mixLengthOut; /**< :document this: */
 
 protected:
-  void saveMixingLength(const WINDSInputData *, WINDSGeneralData *);
 
 public:
   LocalMixing()
   {}
   virtual ~LocalMixing() = default;
 
-  virtual void defineMixingLength(const WINDSInputData *, WINDSGeneralData *) = 0;
+  virtual void defineMixingLength(const TurbulenceConfig &, WINDSGeneralData *) = 0;
 };

@@ -1,4 +1,4 @@
-#include "qes_inputs.h"
+#include "model_inputs.h"
 #include "turbulence.h"
 #include <algorithm>
 #include <cmath>
@@ -51,12 +51,11 @@ std::vector<float> vertical_faces(const GridConfig &grid)
   return {domain.z_face.begin() + 1, domain.z_face.end()};
 }
 
-qes::Domain make_domain(const QESInputs &inputs)
+qes::Domain make_domain(const ModelInputs &inputs)
 {
-  const auto &s = inputs.simulation;
-  if (s.verticalStretching == 1)
-    return qes::Domain(s.domain[0], s.domain[1], s.grid[0], s.grid[1], s.dz_value);
-  return qes::Domain(s.domain, s.grid);
+  if (!inputs.layers.empty())
+    return qes::Domain(inputs.nx, inputs.ny, inputs.spacing, inputs.spacing, inputs.layers);
+  return qes::Domain(inputs.nx, inputs.ny, inputs.nz, inputs.spacing, inputs.spacing, inputs.spacing);
 }
 
 float qes_tolerance(const SolverOptions &options)
@@ -81,11 +80,11 @@ double solver_tolerance(const SolverOptions &options)
   return options.tolerance;
 }
 
-QESInputs::QESInputs(const GridConfig &grid, const ModelSettings &model, const BuildingArrays &arrays,
-                     const TurbulenceSettings &turbulence)
+ModelInputs::ModelInputs(const GridConfig &grid, const ModelSettings &model, const BuildingArrays &arrays,
+                         const TurbulenceSettings &settings)
 {
-  configure_turbulence(turbulence_params, turbulence);
-  input.turbParams = turbulence.enabled ? &turbulence_params : nullptr;
+  configure_turbulence(turbulence, settings);
+  turbulence_enabled = settings.enabled;
   if (grid.nx < 3 || grid.ny < 3 || grid.nz < 2
       || grid.nx > 10000 || grid.ny > 10000 || grid.nz > 10000)
     throw std::invalid_argument("Grid requires 3..10000 cells in x/y and 2..10000 in z");
@@ -93,38 +92,32 @@ QESInputs::QESInputs(const GridConfig &grid, const ModelSettings &model, const B
   const auto faces = std::int64_t(grid.nx + 1) * (grid.ny + 1) * (grid.nz + 2);
   if (grid.max_cells < 1 || cells > grid.max_cells || faces > std::numeric_limits<int>::max())
     throw std::invalid_argument("Grid exceeds the cell limit or QES index range");
-  const float spacing = positive(grid.cell_size, "Cell size");
+  spacing = positive(grid.cell_size, "Cell size");
   if (!std::isfinite(spacing * spacing) || spacing * spacing == 0
       || !std::isfinite(1.0f / (spacing * spacing)))
     throw std::invalid_argument("Cell size cannot form finite float32 solver coefficients");
-  simulation.domain = {grid.nx, grid.ny, grid.nz};
-  simulation.grid = {spacing, spacing, spacing};
+  nx = grid.nx;
+  ny = grid.ny;
+  nz = grid.nz;
   const auto faces_z = vertical_faces(grid);
   if (!grid.dz_layers.empty()) {
-    simulation.verticalStretching = 1;
-    simulation.dz_value = narrow_layers(grid);
-    simulation.grid[2] = *std::min_element(simulation.dz_value.begin(), simulation.dz_value.end());
+    layers = narrow_layers(grid);
+    // Explicit layers select QES's nonuniform derivatives even when equal.
+    turbulence.verticalStretching = 1;
   }
-  // All other simulation members use the explicit, I/O-free defaults: flat,
-  // no halos, uniform horizontal spacing, stair-step mesh and logLawFlag=0.
-  simulation.totalTimeIncrements = 1;
-  series.time = std::string("2020-01-01T00:00:00");
-  series.site_z0 = positive(model.roughness_length, "Roughness length");
-  series.site_blayer_flag = 1;
-  series.site_one_overL = 0;
-  series.site_z_ref = {10.0f};
-  series.site_U_ref = {5.0f};
-  series.site_wind_dir = {270.0f};
-  sensor.site_coord_flag = 1;
-  sensor.site_xcoord = narrow(model.sensor_x, "Sensor x");
-  sensor.site_ycoord = narrow(model.sensor_y, "Sensor y");
-  if (sensor.site_xcoord < 0 || sensor.site_xcoord >= grid.nx * spacing
-      || sensor.site_ycoord < 0 || sensor.site_ycoord >= grid.ny * spacing)
+  // Defaults until set_condition: a neutral log profile from one sensor.
+  inflow.site_z0 = positive(model.roughness_length, "Roughness length");
+  inflow.site_one_overL = 0;
+  inflow.site_z_ref = 10.0f;
+  inflow.site_U_ref = 5.0f;
+  inflow.site_wind_dir = 270.0f;
+  inflow.site_xcoord = narrow(model.sensor_x, "Sensor x");
+  inflow.site_ycoord = narrow(model.sensor_y, "Sensor y");
+  if (inflow.site_xcoord < 0 || inflow.site_xcoord >= grid.nx * spacing
+      || inflow.site_ycoord < 0 || inflow.site_ycoord >= grid.ny * spacing)
     throw std::invalid_argument("Sensor must be inside the horizontal domain");
-  sensor.TS = {&series};
-  met.sensors = {&sensor};
-  met.z0_domain_flag = 0;
-  buildings.wallRoughness = positive(model.wall_roughness, "Wall roughness");
+  turbulence.site_z0 = inflow.site_z0;
+  parameterizations.wallRoughness = positive(model.wall_roughness, "Wall roughness");
   flag(model.rooftop_flag, 2, "rooftop flag");
   flag(model.upwind_cavity_flag, 3, "upwind cavity flag");
   flag(model.street_canyon_flag, 1, "street canyon flag");
@@ -132,13 +125,13 @@ QESInputs::QESInputs(const GridConfig &grid, const ModelSettings &model, const B
   flag(model.wake_flag, 2, "wake flag");
   flag(model.high_rise_flag, 1, "high rise flag");
   flag(model.sidewall_flag, 1, "sidewall flag");
-  buildings.rooftopFlag = model.rooftop_flag;
-  buildings.upwindCavityFlag = model.upwind_cavity_flag;
-  buildings.streetCanyonFlag = model.street_canyon_flag;
-  buildings.streetIntersectionFlag = model.street_intersection_flag;
-  buildings.wakeFlag = model.wake_flag;
-  buildings.highRiseFlag = model.high_rise_flag;
-  buildings.sidewallFlag = model.sidewall_flag;
+  // street_intersection_flag is validated but, as in QES, has no model.
+  parameterizations.rooftopFlag = model.rooftop_flag;
+  parameterizations.upwindCavityFlag = model.upwind_cavity_flag;
+  parameterizations.streetCanyonFlag = model.street_canyon_flag;
+  parameterizations.wakeFlag = model.wake_flag;
+  parameterizations.highRiseFlag = model.high_rise_flag;
+  parameterizations.sidewallFlag = model.sidewall_flag;
 
   const auto count = arrays.heights.size();
   if (arrays.vertices.size() % 2 || arrays.offsets.size() != count + 1
@@ -186,27 +179,23 @@ QESInputs::QESInputs(const GridConfig &grid, const ModelSettings &model, const B
       area += double(ring[v - 1].x_poly) * ring[v].y_poly - double(ring[v].x_poly) * ring[v - 1].y_poly;
     if (area >= 0)
       throw std::invalid_argument("Building footprint must have positive area and clockwise winding");
-    polygons.push_back(std::make_unique<PolyBuilding>(ring, height, base, static_cast<int>(arrays.ids[b])));
-    buildings.buildings.push_back(polygons.back().get());
+    // IDs are validated for the caller; the model numbers buildings by position.
+    buildings.push_back({std::move(ring), height, base});
   }
-  buildings.numBuildings = static_cast<int>(count);
-  input.simParams = &simulation;
-  input.metParams = &met;
-  input.buildingsParams = &buildings;
 }
 
-void QESInputs::set_condition(const WindCondition &condition)
+void ModelInputs::set_condition(const WindCondition &condition)
 {
   const float speed = narrow(condition.speed, "Wind speed");
   const float direction = narrow(condition.direction, "Wind direction");
   const float height = positive(condition.reference_height, "Reference height");
   if (condition.speed < 0 || condition.direction < 0 || condition.direction >= 360)
     throw std::invalid_argument("Wind speed must be nonnegative and direction must be in [0, 360)");
-  const float ratio = (height + series.site_z0) / series.site_z0;
+  const float ratio = (height + inflow.site_z0) / inflow.site_z0;
   if (!std::isfinite(ratio) || ratio <= 1)
     throw std::invalid_argument("Reference height and roughness cannot form a finite float32 log profile");
-  series.site_U_ref[0] = speed;
-  series.site_wind_dir[0] = direction;
-  series.site_z_ref[0] = height;
+  inflow.site_U_ref = speed;
+  inflow.site_wind_dir = direction;
+  inflow.site_z_ref = height;
 }
 }

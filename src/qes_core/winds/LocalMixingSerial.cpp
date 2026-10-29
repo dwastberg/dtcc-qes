@@ -31,7 +31,6 @@
 /** @file LocalMixingSerial.cpp */
 
 #include "LocalMixingSerial.h"
-#include "WINDSInputData.h"
 #include "WINDSGeneralData.h"
 #include "util/QESLog.h"
 
@@ -40,7 +39,7 @@
 #include <cmath>
 #include <vector>
 
-void LocalMixingSerial::defineMixingLength(const WINDSInputData *WID, WINDSGeneralData *WGD)
+void LocalMixingSerial::defineMixingLength(const TurbulenceConfig &, WINDSGeneralData *WGD)
 {
   const auto &d = WGD->domain;
   const int cx = static_cast<int>(d.x.size());
@@ -185,5 +184,4 @@ void LocalMixingSerial::defineMixingLength(const WINDSInputData *WID, WINDSGener
                      << transition_start << " to " << transition_end << " m" << std::endl;
   }
 
-  if (WID->turbParams->save2file) saveMixingLength(WID, WGD);
 }

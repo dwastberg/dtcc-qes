@@ -36,7 +36,6 @@
 #include "PolyBuilding.h"
 
 // These take care of the circular reference
-#include "WINDSInputData.h"
 #include "WINDSGeneralData.h"
 
 
@@ -48,11 +47,10 @@
  * constructor ans setCellsFlag function. It defines cells in each wake area and applies the approperiate
  * parameterization to them.
  *
- * @param WID :document this:
  * @param WGD :document this:
  * @param building_id :document this:
  */
-void PolyBuilding::polygonWake(const WINDSInputData *WID, WINDSGeneralData *WGD, int building_id)
+void PolyBuilding::polygonWake(WINDSGeneralData *WGD, int building_id)
 {
   auto [nx, ny, nz] = WGD->domain.getDomainCellNum();
   const float dx = WGD->domain.dx(), dy = WGD->domain.dy();
@@ -156,7 +154,7 @@ void PolyBuilding::polygonWake(const WINDSInputData *WID, WINDSGeneralData *WGD,
   W_over_H = width_eff / wake_height;// Width over height
   H_over_L = wake_height / length_eff;
 
-  if (H_over_L >= 2.0 && WID->buildingsParams->highRiseFlag == 1) {
+  if (H_over_L >= 2.0 && WGD->parameterizations.highRiseFlag == 1) {
     tall_flag = 1;
   }
 
@@ -181,7 +179,7 @@ void PolyBuilding::polygonWake(const WINDSInputData *WID, WINDSGeneralData *WGD,
 
 
   // if rectangular building and rooftop vortex, recalculate the top of the wake
-  if (rectangular_flag && WID->buildingsParams->rooftopFlag == 2) {
+  if (rectangular_flag && WGD->parameterizations.rooftopFlag == 2) {
     int id_valid = -1;
     int bldg_upwind = 0;
 
@@ -253,7 +251,7 @@ void PolyBuilding::polygonWake(const WINDSInputData *WID, WINDSGeneralData *WGD,
         W_over_H = width_eff / wake_height;// Width over height
         H_over_L = wake_height / length_eff;
 
-        if (H_over_L >= 2.0 && WID->buildingsParams->highRiseFlag == 1) {
+        if (H_over_L >= 2.0 && WGD->parameterizations.highRiseFlag == 1) {
           tall_flag = 1;
         }
 

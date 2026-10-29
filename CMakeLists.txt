@@ -118,7 +118,7 @@ if(DTCC_QES_BUILD_TESTS)
   else()
     target_link_libraries(check_noio PRIVATE qeswindscore)
   endif()
-  add_test(NAME noio_rejects_files COMMAND check_noio)
+  add_test(NAME noio_core COMMAND check_noio)
   set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/cases.py"
     "${CMAKE_CURRENT_SOURCE_DIR}/tools/make_native_fixture.py")

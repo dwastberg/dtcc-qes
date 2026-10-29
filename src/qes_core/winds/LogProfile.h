@@ -28,23 +28,17 @@
  * along with QES-Winds. If not, see <https://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-/** @file WINDSGeneralData.h */
+/** @file LogProfile.h */
 
 #pragma once
 
-#include <vector>
-#include <cmath>
+#include "WindModelInputs.h"
 
-#include "WindProfilerSensorType.h"
+class WINDSGeneralData;
 
-class WindProfilerBarnGPU : public WindProfilerSensorType
-{
-private:
-  template<typename T>
-  void _cudaCheck(T e, const char *func, const char *call, const int line);
-
-  void BarnesInterpolationGPU(const WINDSInputData *WID, WINDSGeneralData *WGD);
-
-public:
-  void interpolateWindProfile(const WINDSInputData *, WINDSGeneralData *);
-};
+/**
+ * Sets u0/v0 to the inflow's log profile over the whole domain and w0 to zero.
+ * Formerly WindProfilerSensorType::sensorsProfiles (site_blayer_flag 1) and
+ * singleSensorInterpolation for a single sensor.
+ */
+void applyLogProfile(const InflowCondition &inflow, WINDSGeneralData *WGD);

@@ -33,7 +33,6 @@
 #include "PolyBuilding.h"
 
 // These take care of the circular reference
-#include "WINDSInputData.h"
 #include "WINDSGeneralData.h"
 
 /**
@@ -44,10 +43,9 @@
  * cells qualified on top of buildings and applies the approperiate parameterization to them.
  * More information:
  *
- * @param WID :document this:
  * @param WGD :document this:
  */
-void PolyBuilding::rooftop(const WINDSInputData *WID, WINDSGeneralData *WGD)
+void PolyBuilding::rooftop(WINDSGeneralData *WGD)
 {
   float tol = 30 * M_PI / 180.0;// Rooftop criteria for vortex parameterization
   // unused-variable:float wing_tol = 70 * M_PI / 180.0;// Rooftop criteria for delta wing parameterization
@@ -85,10 +83,10 @@ void PolyBuilding::rooftop(const WINDSInputData *WID, WINDSGeneralData *WGD)
   float u0_roof(0.0), v0_roof(0.0);
 
   // check which rooftop method to use
-  if (WID->buildingsParams->rooftopFlag == 1) {
+  if (WGD->parameterizations.rooftopFlag == 1) {
     // everything uses log-law
     rooftop_method = 1;
-  } else if (WID->buildingsParams->rooftopFlag == 2) {
+  } else if (WGD->parameterizations.rooftopFlag == 2) {
     // rectangulare building can use rooftop vortex
     if (rectangular_flag && rooftop_flag == 1) {
       rooftop_method = 2;

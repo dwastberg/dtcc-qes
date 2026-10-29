@@ -35,7 +35,6 @@
 #include "PolyBuilding.h"
 
 // These take care of the circular reference
-#include "WINDSInputData.h"
 #include "WINDSGeneralData.h"
 
 /**

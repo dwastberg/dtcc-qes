@@ -75,21 +75,6 @@ public:
    */
   Domain(const Vector3Int&, const Vector3Float&);
 
-  /**
-   * /brief Standard domain constructor.
-   *
-   * The standard domain constructor takes the base level
-   * description for the domain in terms of number of cell in the X,
-   * Y and Z dimensions as arguments (nx, ny, nz). It also takes the
-   * discretization in X, Y and Z dimensions as arguments (dx, dy,
-   * dz).
-   *
-   * Internally, the class will manage this information as a staggered grid.
-   *
-   * @param inputFile initialize from input file data
-   */
-  explicit Domain(const std::string &NetCDFFileDataName);
-
   ~Domain() = default;
 
   /**

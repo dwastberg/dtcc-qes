@@ -120,18 +120,6 @@ public:
    * Calculates and initializes all the features specific to this type of the building.
    * This function reads in nodes of the polygon along with height and base height of the building.
    *
-   * @param WID :document this:
-   * @param WGD :document this:
-   * @param id :document this:
-   */
-  PolyBuilding(const WINDSInputData *WID, WINDSGeneralData *WGD, int id);
-
-  /**
-   * Creates a polygon type building.
-   *
-   * Calculates and initializes all the features specific to this type of the building.
-   * This function reads in nodes of the polygon along with height and base height of the building.
-   *
    * @param iSP :document this:
    * @param iH :document this:
    * @param iH :document this:
@@ -155,11 +143,10 @@ public:
    * Defines bounds of the polygon building and sets the icellflag values
    * for building cells. It applies the Stair-step method to define building bounds.
    *
-   * @param WID :document this:
    * @param WGD :document this:
    * @param building_number :document this:
    */
-  void setCellFlags(const WINDSInputData *WID, WINDSGeneralData *WGD, int building_number);
+  void setCellFlags(WINDSGeneralData *WGD, int building_number);
 
   /**
    * Applies the upwind cavity in front of the building to buildings defined as polygons.
@@ -169,10 +156,9 @@ public:
    * cells in the upwind area and applies the approperiate parameterization to them.
    * More information: "Improvements to a fast-response WINDSan wind model, M. Nelson et al. (2008)"
    *
-   * @param WID :document this:
    * @param WGD :document this:
    */
-  void upwindCavity(const WINDSInputData *WID, WINDSGeneralData *WGD);
+  void upwindCavity(WINDSGeneralData *WGD);
 
   /**
    * Applies wake behind the building parameterization to buildings defined as polygons.
@@ -182,11 +168,10 @@ public:
    * constructor ans setCellsFlag function. It defines cells in each wake area and applies the approperiate
    * parameterization to them.
    *
-   * @param WID :document this:
    * @param WGD :document this:
    * @param building_id :document this:
    */
-  void polygonWake(const WINDSInputData *WID, WINDSGeneralData *WGD, int building_id);
+  void polygonWake(WINDSGeneralData *WGD, int building_id);
 
 
   /**
@@ -224,10 +209,9 @@ public:
    * More information: "Comprehensive Evaluation of Fast-Response, Reynolds-Averaged Navier–Stokes, and Large-Eddy Simulation
    * Methods Against High-Spatial-Resolution Wind-Tunnel Data in Step-Down Street Canyons, A. N. Hayati et al. (2017)"
    *
-   * @param WID :document this:
    * @param WGD :document this:
    */
-  void sideWall(const WINDSInputData *WID, WINDSGeneralData *WGD);
+  void sideWall(WINDSGeneralData *WGD);
 
 
   /**
@@ -238,10 +222,9 @@ public:
    * cells qualified on top of buildings and applies the approperiate parameterization to them.
    * More information:
    *
-   * @param WID :document this:
    * @param WGD :document this:
    */
-  void rooftop(const WINDSInputData *WID, WINDSGeneralData *WGD);
+  void rooftop(WINDSGeneralData *WGD);
 
 
   /*
@@ -252,7 +235,6 @@ public:
    * cells qualified on top of buildings and applies the approperiate parameterization to them.
    * More information:
    *
-   * @param WID :document this:
    * @param WGD :document this:
    */
   // void streetIntersection (const WINDSInputData* WID, WINDSGeneralData* WGD);
@@ -265,7 +247,6 @@ public:
    * cells qualified on top of buildings and applies the approperiate parameterization to them.
    * More information:
    *
-   * @param WID :document this:
    * @param WGD :document this:
    */
   // void poisson (const WINDSInputData* WID, WINDSGeneralData* WGD);

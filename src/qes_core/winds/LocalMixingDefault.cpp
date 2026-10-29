@@ -37,10 +37,9 @@
 #include "LocalMixingDefault.h"
 
 // These take care of the circular reference
-#include "WINDSInputData.h"
 #include "WINDSGeneralData.h"
 
-void LocalMixingDefault::defineMixingLength(const WINDSInputData *WID, WINDSGeneralData *WGD)
+void LocalMixingDefault::defineMixingLength(const TurbulenceConfig &, WINDSGeneralData *WGD)
 {
   auto [nx, ny, nz] = WGD->domain.getDomainCellNum();
 

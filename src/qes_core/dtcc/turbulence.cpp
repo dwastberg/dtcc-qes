@@ -1,8 +1,7 @@
 #include "turbulence.h"
+#include "model_inputs.h"
 #include "stress_validity.h"
 #include "winds/TURBGeneralData.h"
-#include "winds/TURBParams.h"
-#include "winds/WINDSInputData.h"
 #include "winds/WINDSGeneralData.h"
 #include <algorithm>
 #include <cmath>
@@ -12,7 +11,7 @@
 #include <stdexcept>
 
 namespace dtcc_qes {
-void configure_turbulence(TURBParams &params, const TurbulenceSettings &settings)
+void configure_turbulence(TurbulenceConfig &params, const TurbulenceSettings &settings)
 {
   if (settings.mixing_length_method != 0 && settings.mixing_length_method != 1)
     throw std::invalid_argument("Unsupported turbulence mixing-length method: "
@@ -20,15 +19,14 @@ void configure_turbulence(TURBParams &params, const TurbulenceSettings &settings
   // Method 1 passed Task 1B's bounds, height-invariant and geometry gates.
   // Keep every other model choice at the audited QES defaults.
   params.methodLocalMixing = settings.mixing_length_method;
-  params.save2file = false;
-  params.sigConst = nullptr;
+  params.sigConst.reset();
   params.flagNonLocalMixing = false;
   params.buildingWallFlag = params.terrainWallFlag = 2;
   params.turbUpperBound = 20;
   params.backgroundMixing = 0;
 }
 
-void check_turbulence_margin(const WINDSInputData &input, const WINDSGeneralData &wind,
+void check_turbulence_margin(const ModelInputs &inputs, const WINDSGeneralData &wind,
                              const GridConfig &grid)
 {
   const auto &faces = wind.domain.z_face;
@@ -37,7 +35,7 @@ void check_turbulence_margin(const WINDSInputData &input, const WINDSGeneralData
   // otherwise throw before we can explain how to obtain a sufficient grid.
   float reference;
   if (wind.allBuildingsV.empty()) {
-    reference = 100.0 * input.metParams->sensors[0]->TS[0]->site_z0;
+    reference = 100.0 * inputs.turbulence.site_z0;
   } else {
     float mean = 0;
     for (int id : wind.building_id) mean += wind.allBuildingsV[id]->H;

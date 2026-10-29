@@ -66,7 +66,7 @@ protected:
   void set_loglaw_stairstep(WINDSGeneralData *, TURBGeneralData *);
 
 public:
-  TURBWallBuilding(const WINDSInputData *, WINDSGeneralData *, TURBGeneralData *);
+  TURBWallBuilding(const TurbulenceConfig &, WINDSGeneralData *, TURBGeneralData *);
   ~TURBWallBuilding()
   {}
 

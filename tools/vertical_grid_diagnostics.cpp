@@ -1,6 +1,6 @@
 // Independent, study-only reconstruction of the alpha1 = alpha2 = 1 CPU path.
 #include "vertical_grid_diagnostics.h"
-#include "qes_inputs.h"
+#include "model_inputs.h"
 #include "divergence.h"
 #include "winds/WINDSGeneralData.h"
 #include "winds/SolverFactory.h"
@@ -369,8 +369,8 @@ void diagnostics_self_test()
   GridConfig grid; grid.nx = grid.ny = 8; grid.nz = 8;
   grid.dz_layers.assign(grid.nz,0.5);
   ModelSettings model; model.sensor_x = model.sensor_y = 5;
-  QESInputs inputs(grid,model,BuildingArrays{{},{0},{},{},{}});
-  WINDSGeneralData a(&inputs.input,make_domain(inputs),CPU_Type);
+  ModelInputs inputs(grid,model,BuildingArrays{{},{0},{},{},{}});
+  WINDSGeneralData a(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
   const auto &d = a.domain;
   std::fill(a.icellflag.begin(),a.icellflag.end(),1);
   for (auto *field : {&a.u0,&a.v0,&a.w0}) std::fill(field->begin(),field->end(),0);

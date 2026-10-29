@@ -54,7 +54,7 @@
   Date: Feb. 2020
 */
 
-class WINDSInputData;
+struct TurbulenceConfig;
 class WINDSGeneralData;
 
 /**
@@ -75,5 +75,5 @@ public:
   /**
    * Defines the mixing length as the height above the ground.
    */
-  void defineMixingLength(const WINDSInputData *, WINDSGeneralData *);
+  void defineMixingLength(const TurbulenceConfig &, WINDSGeneralData *);
 };

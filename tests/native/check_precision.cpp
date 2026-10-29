@@ -1,5 +1,5 @@
 #include "precision_solver.h"
-#include "qes_inputs.h"
+#include "model_inputs.h"
 #include "divergence.h"
 #include "wind_runner.h"
 #include "winds/WINDSGeneralData.h"
@@ -29,11 +29,11 @@ static void injection(double spacing, bool stretched, int axis)
     grid.dz_layers.insert(grid.dz_layers.end(), 8, 2);
   }
   ModelSettings model; model.sensor_x = model.sensor_y = 2.5*spacing;
-  QESInputs input(grid, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  ModelInputs input(grid, model, BuildingArrays{{}, {0}, {}, {}, {}});
   input.set_condition({0, 270, 10});
-  WINDSGeneralData data(&input.input, make_domain(input), CPU_Type);
-  data.applyWindProfile(&input.input, 0, CPU_Type);
-  data.applyParametrizations(&input.input);
+  WINDSGeneralData data(make_domain(input), input.buildings, input.parameterizations, input.inflow.site_z0);
+  data.applyWindProfile(input.inflow);
+  data.applyParametrizations();
   auto &initial = axis == 0 ? data.u0 : axis == 1 ? data.v0 : data.w0;
   initial[data.domain.face(12,12,6)] = .1f;
   PrecisionSolver solver(data.domain, 1e-12);
@@ -116,11 +116,11 @@ static void solid_faces()
   GridConfig grid; grid.nx = grid.ny = 16; grid.nz = 20;
   ModelSettings model; model.sensor_x = model.sensor_y = 5;
   BuildingArrays buildings{{12,12, 12,18, 18,18, 18,12, 12,12}, {0,5}, {0}, {24}, {0}};
-  QESInputs input(grid, model, buildings);
+  ModelInputs input(grid, model, buildings);
   input.set_condition({5, 315, 10});
-  WINDSGeneralData data(&input.input, make_domain(input), CPU_Type);
-  data.applyWindProfile(&input.input, 0, CPU_Type);
-  data.applyParametrizations(&input.input);
+  WINDSGeneralData data(make_domain(input), input.buildings, input.parameterizations, input.inflow.site_z0);
+  data.applyWindProfile(input.inflow);
+  data.applyParametrizations();
   PrecisionSolver solver(data.domain, 1e-10);
   require(solver.solve(&data, 2000).converged, "Solid-face precision fixture did not converge");
   const auto &d = data.domain;

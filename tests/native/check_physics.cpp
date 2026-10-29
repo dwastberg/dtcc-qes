@@ -1,4 +1,4 @@
-#include "qes_inputs.h"
+#include "model_inputs.h"
 #include "divergence.h"
 #include "winds/Solver_CPU.h"
 #include <limits>
@@ -32,12 +32,12 @@ static void check(bool with_building, bool report)
     geometry.offsets.push_back(geometry.vertices.size() / 2);
     geometry.ids = {0}; geometry.heights = {fixture::height}; geometry.base_heights = {fixture::base_height};
   }
-  QESInputs inputs(grid, model, geometry);
+  ModelInputs inputs(grid, model, geometry);
   inputs.set_condition({fixture::speed, fixture::direction, fixture::reference_height});
-  WINDSGeneralData data(&inputs.input, qes::Domain(inputs.simulation.domain, inputs.simulation.grid), CPU_Type);
+  WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
   data.resetICellFlag();
-  data.applyWindProfile(&inputs.input, 0, CPU_Type);
-  data.applyParametrizations(&inputs.input);
+  data.applyWindProfile(inputs.inflow);
+  data.applyParametrizations();
   const auto before = divergence_stats(data, true);
   std::unique_ptr<Solver> solver(SolverFactory::create(CPU_Type, data.domain, fixture::tolerance));
   solver->resetLambda();
@@ -68,11 +68,11 @@ static void injection(bool serial, bool vertical, float spacing, bool report)
   grid.nx = grid.ny = 24; grid.nz = 16; grid.cell_size = spacing;
   ModelSettings model;
   model.sensor_x = model.sensor_y = 2.5 * spacing;
-  QESInputs inputs(grid, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  ModelInputs inputs(grid, model, BuildingArrays{{}, {0}, {}, {}, {}});
   inputs.set_condition({0, 270, 10});
-  WINDSGeneralData data(&inputs.input, qes::Domain(inputs.simulation.domain, inputs.simulation.grid), CPU_Type);
-  data.applyWindProfile(&inputs.input, 0, CPU_Type);
-  data.applyParametrizations(&inputs.input);
+  WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
+  data.applyWindProfile(inputs.inflow);
+  data.applyParametrizations();
   (vertical ? data.w0 : data.u0)[data.domain.face(12, 12, 6)] = 0.1f;
   const auto before = divergence_stats(data, true);
   std::unique_ptr<Solver> solver;
@@ -98,11 +98,11 @@ static void diagnostic_checks()
   grid.dz_layers = {0.5, 0.75, 1.0, 1.5, 2.0};
   ModelSettings model;
   model.sensor_x = model.sensor_y = 1;
-  QESInputs inputs(grid, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  ModelInputs inputs(grid, model, BuildingArrays{{}, {0}, {}, {}, {}});
   const auto domain = make_domain(inputs);
-  WINDSGeneralData data(&inputs.input, domain, CPU_Type);
-  data.applyWindProfile(&inputs.input, 0, CPU_Type);
-  data.applyParametrizations(&inputs.input);
+  WINDSGeneralData data(domain, inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
+  data.applyWindProfile(inputs.inflow);
+  data.applyParametrizations();
   const auto &d = data.domain;
   for (int k = 0; k < d.nz(); ++k)
     for (int j = 0; j < d.ny(); ++j)
@@ -137,11 +137,10 @@ static void diagnostic_checks()
 
   GridConfig small;
   small.nx = small.ny = 3; small.nz = 2;
-  QESInputs small_inputs(small, model, BuildingArrays{{}, {0}, {}, {}, {}});
-  WINDSGeneralData small_data(&small_inputs.input,
-    qes::Domain(small_inputs.simulation.domain, small_inputs.simulation.grid), CPU_Type);
-  small_data.applyWindProfile(&small_inputs.input, 0, CPU_Type);
-  small_data.applyParametrizations(&small_inputs.input);
+  ModelInputs small_inputs(small, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  WINDSGeneralData small_data(make_domain(small_inputs), small_inputs.buildings, small_inputs.parameterizations, small_inputs.inflow.site_z0);
+  small_data.applyWindProfile(small_inputs.inflow);
+  small_data.applyParametrizations();
   const auto empty = divergence_stats(small_data, true);
   require(empty.cells == 0 && empty.top_band_cells == 1, "Small grid diagnostic bands are incorrect");
   std::fill(small_data.icellflag.begin(), small_data.icellflag.end(), 2);
@@ -166,11 +165,11 @@ static std::vector<float> canyon(bool serial, bool report)
   model.sensor_x = model.sensor_y = 5;
   BuildingArrays geometry{{}, {0}, {}, {}, {}};
   box(geometry, 0, 30, 40); box(geometry, 1, 52, 62);
-  QESInputs inputs(grid, model, geometry);
+  ModelInputs inputs(grid, model, geometry);
   inputs.set_condition({5, 270, 10});
-  WINDSGeneralData data(&inputs.input, qes::Domain(inputs.simulation.domain, inputs.simulation.grid), CPU_Type);
-  data.applyWindProfile(&inputs.input, 0, CPU_Type);
-  data.applyParametrizations(&inputs.input);
+  WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
+  data.applyWindProfile(inputs.inflow);
+  data.applyParametrizations();
   const auto before = divergence_stats(data, true);
   require(before.interior_max > 0.1, "Canyon did not exercise divergent parameterizations");
   std::unique_ptr<Solver> solver;

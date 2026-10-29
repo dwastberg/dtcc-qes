@@ -40,7 +40,6 @@
 #include <algorithm>
 
 #include "util/ParseInterface.h"
-#include "WINDSInputData.h"
 #include "WINDSGeneralData.h"
 
 class PolyBuilding;

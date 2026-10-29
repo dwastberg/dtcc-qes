@@ -75,7 +75,7 @@ def main():
             "tools/run_vertical_grid_study.py", "src/qes_core/dtcc/divergence.cpp",
             "src/qes_core/winds/Solver_CPU.cpp", "src/qes_core/winds/Solver_CPU_RB.cpp",
             "src/qes_core/winds/Wall.cpp", "src/qes_core/qes/Domain.cpp",
-            "src/qes_core/dtcc/qes_inputs.cpp", "CMakeLists.txt",
+            "src/qes_core/dtcc/model_inputs.cpp", "CMakeLists.txt",
         ]
         raw = {"metadata": {
             "recorded_utc": datetime.now(timezone.utc).isoformat(),

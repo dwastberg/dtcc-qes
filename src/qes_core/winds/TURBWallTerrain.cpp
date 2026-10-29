@@ -35,11 +35,11 @@
 
 #include "TURBWallTerrain.h"
 
-TURBWallTerrain::TURBWallTerrain(const WINDSInputData *WID,
+TURBWallTerrain::TURBWallTerrain(const TurbulenceConfig &config,
                                  WINDSGeneralData *WGD,
                                  TURBGeneralData *TGD)
 {
-  if (WID->simParams->meshTypeFlag == 1) {
+  if (WGD->meshTypeFlag == 1) {
     use_cutcell = true;
     // fill array with cellid  of cutcell cells
     get_cutcell_wall_id(WGD, icellflag_cutcell);
@@ -56,9 +56,9 @@ TURBWallTerrain::TURBWallTerrain(const WINDSInputData *WID,
     // use stairstep
     get_stairstep_wall_id(WGD, icellflag_terrain);
     set_stairstep_wall_flag(TGD, iturbflag_stairstep);
-    if (WID->turbParams->terrainWallFlag == 1) {
+    if (config.terrainWallFlag == 1) {
       comp_wall_velocity_deriv = &TURBWallTerrain::set_loglaw_stairstep;
-    } else if (WID->turbParams->terrainWallFlag == 2) {
+    } else if (config.terrainWallFlag == 2) {
       comp_wall_velocity_deriv = &TURBWallTerrain::comp_velocity_deriv_finitediff_stairstep;
     } else {
       comp_wall_velocity_deriv = nullptr;

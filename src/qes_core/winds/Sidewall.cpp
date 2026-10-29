@@ -33,7 +33,6 @@
 #include "PolyBuilding.h"
 
 // These take care of the circular reference
-#include "WINDSInputData.h"
 #include "WINDSGeneralData.h"
 
 
@@ -46,10 +45,9 @@
  * More information: "Comprehensive Evaluation of Fast-Response, Reynolds-Averaged Navier–Stokes, and Large-Eddy Simulation
  * Methods Against High-Spatial-Resolution Wind-Tunnel Data in Step-Down Street Canyons, A. N. Hayati et al. (2017)"
  *
- * @param WID :document this:
  * @param WGD :document this:
  */
-void PolyBuilding::sideWall(const WINDSInputData *WID, WINDSGeneralData *WGD)
+void PolyBuilding::sideWall(WINDSGeneralData *WGD)
 {
   auto [nx, ny, nz] = WGD->domain.getDomainCellNum();
   const float dx = WGD->domain.dx(), dy = WGD->domain.dy();

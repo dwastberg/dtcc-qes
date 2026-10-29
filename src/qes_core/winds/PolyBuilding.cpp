@@ -44,7 +44,6 @@
 #include "CutBuilding.h"
 
 // These take care of the circular reference
-#include "WINDSInputData.h"
 #include "WINDSGeneralData.h"
 
 
@@ -130,11 +129,11 @@ void PolyBuilding::setPolyBuilding(WINDSGeneralData *WGD)
  * for building cells. It applies the Stair-step method to define building bounds.
  *
  */
-void PolyBuilding::setCellFlags(const WINDSInputData *WID, WINDSGeneralData *WGD, int building_number)
+void PolyBuilding::setCellFlags(WINDSGeneralData *WGD, int building_number)
 {
   const float dx = WGD->domain.dx(), dy = WGD->domain.dy();
 
-  int mesh_type_flag = WID->simParams->meshTypeFlag;
+  int mesh_type_flag = WGD->meshTypeFlag;
   float ray_intersect;
   int num_crossing, start_poly;
   unsigned int vert_id;
@@ -220,7 +219,7 @@ void PolyBuilding::setCellFlags(const WINDSInputData *WID, WINDSGeneralData *WGD
       if ((num_crossing % 2) != 0) {
         for (auto k = k_start; k < k_end; k++) {
           long icell_cent = WGD->domain.cell(i, j, k);
-          if (WID->simParams->readCoefficientsFlag == 0 && WGD->icellflag[icell_cent] != 7) {
+          if (WGD->icellflag[icell_cent] != 7) {
             WGD->icellflag[icell_cent] = 0;
           }
           if (WGD->ibuilding_flag[icell_cent] == -1) {
@@ -232,7 +231,7 @@ void PolyBuilding::setCellFlags(const WINDSInputData *WID, WINDSGeneralData *WGD
     }
   }
 
-  if (mesh_type_flag == 1 && WID->simParams->readCoefficientsFlag == 0)// Cut-cell method for buildings
+  if (mesh_type_flag == 1)// Cut-cell method for buildings
   {
     cutBuilding->setCutCellFlags(WGD, this, building_number);
   }

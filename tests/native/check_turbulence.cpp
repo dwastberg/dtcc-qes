@@ -1,4 +1,4 @@
-#include "qes_inputs.h"
+#include "model_inputs.h"
 #include "log_sink.h"
 #include "stress_validity.h"
 #include "turbulence.h"
@@ -44,8 +44,8 @@ void rejects(Operation operation, const std::string &message_fragment)
 struct Case {
   GridConfig grid;
   ModelSettings model;
-  TURBParams params;
-  std::unique_ptr<QESInputs> inputs;
+  TurbulenceConfig params;
+  std::unique_ptr<ModelInputs> inputs;
   std::unique_ptr<WINDSGeneralData> data;
 
   explicit Case(int nz = 20, double roughness = 0.1, bool building = false,
@@ -60,14 +60,15 @@ struct Case {
     BuildingArrays geometry{{}, {0}, {}, {}, {}};
     if (building)
       geometry = {{30,25, 30,35, 40,35, 40,25, 30,25}, {0,5}, {0}, {8}, {0}};
-    inputs = std::make_unique<QESInputs>(grid, model, geometry);
-    inputs->input.turbParams = &params;
-    data = std::make_unique<WINDSGeneralData>(&inputs->input, make_domain(*inputs), CPU_Type);
+    inputs = std::make_unique<ModelInputs>(grid, model, geometry);
+    // The runner's audited settings, including the grid's stretching flag.
+    params = inputs->turbulence;
+    data = std::make_unique<WINDSGeneralData>(make_domain(*inputs), inputs->buildings, inputs->parameterizations, inputs->inflow.site_z0);
   }
 
   std::unique_ptr<TURBGeneralData> construct()
   {
-    return std::make_unique<TURBGeneralData>(&inputs->input, data.get());
+    return std::make_unique<TURBGeneralData>(params, data.get());
   }
 };
 
@@ -75,7 +76,7 @@ struct CountingMixing : LocalMixing {
   int &destroyed;
   explicit CountingMixing(int &count) : destroyed(count) {}
   ~CountingMixing() override { ++destroyed; }
-  void defineMixingLength(const WINDSInputData *, WINDSGeneralData *) override {}
+  void defineMixingLength(const TurbulenceConfig &, WINDSGeneralData *) override {}
 };
 
 struct CountingWall : TURBWall {
@@ -136,10 +137,10 @@ void lifecycle()
   }
   // The reference-plane failure happens after helper construction. Member
   // ownership must also unwind correctly when the complete object never exists.
-  fixture.inputs->series.site_z0 = 0.5f;
+  fixture.params.site_z0 = 0.5f;
   for (int repeat = 0; repeat < 32; ++repeat)
     rejects([&] { fixture.construct(); }, "reference height");
-  fixture.inputs->series.site_z0 = 0.1f;
+  fixture.params.site_z0 = 0.1f;
   require(!fixture.construct()->icellfluid.empty(), "Failed construction damaged the wind geometry");
   // The existing geometry-only constructor also destroys an empty helper set.
   TURBGeneralData geometry_only(fixture.data.get());
@@ -260,7 +261,7 @@ void rotation_fallback()
 {
   Case fixture;
   std::fill(fixture.data->u.begin(), fixture.data->u.end(), 10);
-  DirectTurbulence turb(&fixture.inputs->input, fixture.data.get());
+  DirectTurbulence turb(fixture.params, fixture.data.get());
   auto &data = *fixture.data;
   const auto &d = data.domain;
   const int i = 10, j = 10;
@@ -322,7 +323,7 @@ void rotation_fallback()
 
   Case stretched(15, 0.1, false, {1,1,1,1,1,1,1,1,1,1,3.8,0.2,6,10,10});
   std::fill(stretched.data->u.begin(), stretched.data->u.end(), 10);
-  DirectTurbulence nonuniform(&stretched.inputs->input, stretched.data.get());
+  DirectTurbulence nonuniform(stretched.params, stretched.data.get());
   const auto &sd = stretched.data->domain;
   const int sr = static_cast<int>(std::lower_bound(sd.z_face.begin(), sd.z_face.end(), 15.f)
                                    - sd.z_face.begin());
@@ -430,8 +431,8 @@ void building_validity()
   auto &data = *fixture.data;
   fixture.inputs->set_condition({5,270,10});
   data.resetICellFlag();
-  data.applyWindProfile(&fixture.inputs->input, 0, CPU_Type);
-  data.applyParametrizations(&fixture.inputs->input);
+  data.applyWindProfile(fixture.inputs->inflow);
+  data.applyParametrizations();
   std::unique_ptr<Solver> solver(SolverFactory::create(CPU_Type, data.domain, 1e-5f));
   solver->resetLambda();
   require(solver->solve(&data, 20000).converged, "Building validity case did not converge");
@@ -479,8 +480,8 @@ void building_validity()
 }
 
 struct WallCase {
-  TURBParams params;
-  std::unique_ptr<QESInputs> inputs;
+  TurbulenceConfig params;
+  std::unique_ptr<ModelInputs> inputs;
   std::unique_ptr<WINDSGeneralData> data;
 
   WallCase(int nx, int ny, std::vector<double> layers,
@@ -494,14 +495,14 @@ struct WallCase {
     grid.dz_layers = std::move(layers);
     ModelSettings model;
     model.sensor_x = model.sensor_y = 3;
-    inputs = std::make_unique<QESInputs>(grid, model, geometry);
-    inputs->input.turbParams = &params;
-    data = std::make_unique<WINDSGeneralData>(&inputs->input, make_domain(*inputs), CPU_Type);
+    inputs = std::make_unique<ModelInputs>(grid, model, geometry);
+    params = inputs->turbulence;
+    data = std::make_unique<WINDSGeneralData>(make_domain(*inputs), inputs->buildings, inputs->parameterizations, inputs->inflow.site_z0);
   }
 
   void lengths(LocalMixing &method)
   {
-    method.defineMixingLength(&inputs->input, data.get());
+    method.defineMixingLength(params, data.get());
   }
 
   void invariant()
@@ -535,7 +536,7 @@ void wall_thin(bool wide)
     fixture.lengths(method);
   } else {
     fixture.params.methodLocalMixing = 1;
-    TURBGeneralData turb(&fixture.inputs->input, fixture.data.get());
+    TURBGeneralData turb(fixture.params, fixture.data.get());
     for (int cell : turb.icellfluid)
       close(turb.Lm[cell], 0.4 * fixture.data->mixingLengths[cell],
             "Turbulence setup did not consume the wall distance");

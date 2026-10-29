@@ -39,7 +39,6 @@
 
 #include "qes/Domain.h"
 
-#include "WINDSInputData.h"
 #include "WINDSGeneralData.h"
 #include "TURBWall.h"
 #include "TURBWallBuilding.h"
@@ -59,8 +58,7 @@ class TURBGeneralData
 {
 
 public:
-  TURBGeneralData(const WINDSInputData *, WINDSGeneralData *);
-  TURBGeneralData(const std::string, WINDSGeneralData *);
+  TURBGeneralData(const TurbulenceConfig &, WINDSGeneralData *);
   TURBGeneralData(WINDSGeneralData *);
   virtual ~TURBGeneralData()
   {}
@@ -75,7 +73,6 @@ public:
   float getUpperBound() const noexcept { return turbUpperBound; }
   std::size_t getRotationFallbackColumns() const noexcept { return rotationFallbackColumns; }
 
-  void loadNetCDFData(int);
   void divergenceStress();
   void derivativeVelocity();
 
@@ -240,7 +237,6 @@ private:
   // float dx, dy, dz;
 
   // input: store here for multiple time instance.
-  NetCDFInput *input = nullptr;
 
   bool flagUniformZGrid = true; /**< :document this: */
   bool flagNonLocalMixing = false; /**< :document this: */
