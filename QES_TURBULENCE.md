@@ -15,6 +15,16 @@ a `Turbulence` spec, a domain-top policy for turbulence's reference heights, a
 **Tech Stack:** C++17, QES-Public fork (branch `dtcc-embed`), nanobind, NumPy,
 dtcc-core, pytest, CTest.
 
+**Layout note (2026-10-29):** the QES core was later vendored into
+`src/qes_core` and driven from in-memory inputs (see
+`src/qes_core/PROVENANCE.md`). Paths below describe the layout when this plan
+was executed: `QES-Public/src/winds/*` is now `src/qes_core/winds/*`, the bridge
+in `src/cpp/*` is now `src/qes_core/dtcc/*` (QES-free headers in
+`src/qes_core/dtcc/api/`, `qes_inputs.*` renamed `model_inputs.*`), and
+`TURBParams` is now `TurbulenceConfig` in `winds/WindModelInputs.h`. The
+fork-branch and submodule-pointer instructions no longer apply; QES changes are
+ordinary commits under `src/qes_core`.
+
 **Status (implementation started 2026-10-27):** work is isolated in the checkout
 below. Tasks 1, 1A, 1B, 2, 3, 4, 5, 9, 6 and 7 are implemented and verified. The follow-up
 review repaired the domain preflight and resolved the stale dataset-registration

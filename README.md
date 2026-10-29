@@ -29,7 +29,10 @@ uv run --frozen python examples/single_building.py
 
 The QES-Winds core is vendored in `src/qes_core`; its
 [provenance](src/qes_core/PROVENANCE.md) records the fork commit it was taken
-from. Building needs no submodule. The `QES-Public` submodule is only used by
+from and every change since. `src/qes_core/dtcc` drives the core from
+in-memory inputs; `src/cpp/bindings.cpp`, the only Python-boundary file, can
+include only the QES-free headers in `src/qes_core/dtcc/api`. Building needs no
+submodule. The `QES-Public` submodule is only used by
 the [reference tooling](#regenerate-executable-references).
 `pyproject.toml` and
 `uv.lock` pin DTCC Core to `625a8feaff5d0da11d3f078082072e185ffa60a4`.
