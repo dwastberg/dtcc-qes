@@ -30,7 +30,7 @@ def check_wheel(path):
         metadata = next(name for name in names if name.endswith(".dist-info/METADATA"))
         check_metadata(archive.read(metadata))
         prefix = metadata.rsplit("/", 1)[0] + "/licenses/"
-        for name in ("LICENSE", "NOTICE", "QES-Public/LICENSE"):
+        for name in ("LICENSE", "NOTICE", "src/qes_core/LICENSE"):
             require(prefix + name in names, f"Wheel omits {name}")
         require(b"GNU GENERAL PUBLIC LICENSE" in archive.read(prefix + "LICENSE"), "Wrong root license")
         require(b"QES-Winds" in archive.read(prefix + "NOTICE"), "Missing QES attribution")
@@ -47,10 +47,9 @@ def check_sdist(path):
         members = {name.split("/", 1)[1]: name for name in archive.getnames() if "/" in name}
         for name in (
             "LICENSE", "NOTICE", "README.md", "pyproject.toml", "uv.lock", "CMakeLists.txt",
-            "QES-Public/LICENSE", "QES-Public/CMakeLists.txt", "QES-Public/src/winds/Solver_CPU.cpp",
-            "QES-Public/src/winds/Solver_CPU_RB.cpp", "QES-Public/src/winds/Solver_CPU_RB.h",
-            "QES-Public/src/winds/CMakeLists.txt", "QES-Public/src/util/CMakeLists.txt",
-            "QES-Public/src/qes/Domain.cpp", "QES-Public/cmake/Modules/FindNetCDF.cmake",
+            "src/qes_core/LICENSE", "src/qes_core/PROVENANCE.md", "src/qes_core/CMakeLists.txt",
+            "src/qes_core/winds/Solver_CPU.cpp", "src/qes_core/winds/Solver_CPU_RB.cpp",
+            "src/qes_core/winds/Solver_CPU_RB.h", "src/qes_core/qes/Domain.cpp",
             "src/cpp/bindings.cpp", "src/cpp/wind_runner.cpp", "src/cpp/qes_inputs.cpp",
             "src/cpp/divergence.cpp", "src/cpp/divergence.h",
             "src/cpp/stress_validity.h", "tests/native/check_turbulence.cpp",
@@ -281,6 +280,8 @@ def check_sdist(path):
             require(name in members, f"Source distribution omits finest-reference evidence {name}")
         require(not any(name.startswith((".idea/", "build/", ".venv/", ".pytest_cache/")) for name in members),
                 "Private build/environment/cache files in sdist")
+        require(not any(name.startswith("QES-Public/") for name in members),
+                "Reference-only QES-Public submodule in sdist")
         require(not any("__pycache__" in name.split("/") or name.endswith(".pyc") for name in members),
                 "Python bytecode caches in sdist")
         check_metadata(archive.extractfile(members["PKG-INFO"]).read())

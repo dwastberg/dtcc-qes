@@ -1,9 +1,11 @@
 dtcc-qes is licensed under the GNU General Public License, version 3 only.
 
-This package statically links QES-Winds 2.3.1. Its copyright and license notices
-are preserved in QES-Public/LICENSE and the corresponding source files.
+This package statically links QES-Winds 2.3.1, vendored with modifications in
+src/qes_core (see src/qes_core/PROVENANCE.md). Its copyright and license notices
+are preserved in src/qes_core/LICENSE and the corresponding source files.
 QES-Winds is developed by the University of Utah and University of Minnesota
-Duluth; see QES-Public/README.md and source headers for attribution.
+Duluth; see https://github.com/UtahEFD/QES-Public and the source headers for
+attribution.
 
 The original QES CMake/CPack metadata said MIT, conflicting with its GPL-3.0
 LICENSE and source notices. This fork corrects the build metadata to match

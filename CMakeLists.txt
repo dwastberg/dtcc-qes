@@ -48,15 +48,8 @@ if(NOT DTCC_QES_NANOBIND_STATUS EQUAL 0)
 endif()
 find_package(nanobind CONFIG REQUIRED)
 
-# Normal variables honour the embedding build without overwriting user caches.
-set(QES_ENABLE_IO OFF)
-set(QES_ENABLE_CUDA OFF)
-set(QES_ENABLE_OPTIX OFF)
-set(QES_BUILD_EXECUTABLES OFF)
-set(QES_BUILD_EXAMPLES OFF)
-set(QES_BUILD_PLUME OFF)
-set(QES_BUILD_FIRE OFF)
-add_subdirectory(QES-Public)
+# Vendored QES no-I/O CPU core (qesbuild, qesutil, qeswindscore).
+add_subdirectory(src/qes_core)
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT DTCC_QES_ENABLE_SANITIZERS)
   target_compile_definitions(qesbuild INTERFACE NDEBUG)
 endif()
@@ -68,16 +61,12 @@ if(DTCC_QES_ENABLE_SANITIZERS)
   target_link_options(qesbuild INTERFACE -fsanitize=address,undefined)
 endif()
 
+# The QES-Public fork commit the vendored sources were taken from.
 set(DTCC_QES_QES_REVISION "unknown" CACHE STRING "QES source revision (recorded in sdists)")
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/dtcc_qes/_qes_revision.txt")
   set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/dtcc_qes/_qes_revision.txt")
   file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/src/dtcc_qes/_qes_revision.txt" DTCC_QES_QES_REVISION LIMIT_COUNT 1)
-endif()
-find_package(Git QUIET)
-if(Git_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/QES-Public/.git")
-  execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${CMAKE_CURRENT_SOURCE_DIR}/QES-Public" rev-parse HEAD
-    OUTPUT_VARIABLE DTCC_QES_QES_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
 # Bindings contain no QES headers; only the audited bridge instantiates them.

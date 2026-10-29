@@ -20,21 +20,22 @@ are separate from the native QES build requirements.
 On macOS, install native tools with `brew install cmake ninja boost`.
 On Debian/Ubuntu use
 `sudo apt-get install build-essential cmake ninja-build libboost-dev git`.
-Install [uv](https://docs.astral.sh/uv/) and start from a recursive checkout:
+Install [uv](https://docs.astral.sh/uv/) and start from a checkout:
 
 ```sh
-git submodule update --init --recursive
 uv sync --frozen --group dev
 uv run --frozen python examples/single_building.py
 ```
 
-The submodule pins an exact commit on the embedding fork's `dtcc-embed` branch.
+The QES-Winds core is vendored in `src/qes_core`; its
+[provenance](src/qes_core/PROVENANCE.md) records the fork commit it was taken
+from. Building needs no submodule. The `QES-Public` submodule is only used by
+the [reference tooling](#regenerate-executable-references).
 `pyproject.toml` and
 `uv.lock` pin DTCC Core to `625a8feaff5d0da11d3f078082072e185ffa60a4`.
 Keep the lockfile when reproducing this milestone; do not update it to track
 `develop`. First installation downloads the locked packages and builds the
-native extensions. The fork's recorded commit must be available on its remote
-before another machine can fetch the submodule.
+native extensions.
 
 ### OpenMP
 
@@ -559,7 +560,12 @@ and Python netCDF4. On macOS: `brew install gdal netcdf netcdf-cxx boost`.
 On Debian/Ubuntu install `libgdal-dev libnetcdf-dev libnetcdf-c++4-dev
 libboost-program-options-dev pkg-config` in addition to the native build tools.
 
+The generator builds standalone QES executables from the reference-only
+`QES-Public` submodule (the embedding fork's `dtcc-embed` branch), so fetch it
+first. The fork's recorded commit must be available on its remote.
+
 ```sh
+git submodule update --init --recursive
 uv sync --frozen --group dev --group reference
 uv run --frozen --group reference python tools/make_reference.py --check
 # Intentionally replace references only when reviewing a changed baseline:
@@ -578,8 +584,8 @@ compared exactly on the same host without overwriting committed fixtures.
 
 ## License and deferred work
 
-GPL-3.0-only; see [LICENSE](LICENSE), [QES's license](QES-Public/LICENSE) and
-[NOTICE](NOTICE). The sdist contains corresponding QES sources and build files;
+GPL-3.0-only; see [LICENSE](LICENSE), [QES's license](src/qes_core/LICENSE) and
+[NOTICE](NOTICE). The sdist contains the vendored QES sources and build files;
 both distributions carry the licenses/notices. The upstream metadata discrepancy
 has a [prepared report](docs/upstream-license-report.md).
 

@@ -9,7 +9,7 @@ description = "DTCC integration with the QES-Winds CPU solver"
 readme = "README.md"
 requires-python = ">=3.13"
 license = "GPL-3.0-only"
-license-files = ["LICENSE", "QES-Public/LICENSE", "NOTICE"]
+license-files = ["LICENSE", "src/qes_core/LICENSE", "NOTICE"]
 classifiers = ["Development Status :: 4 - Beta"]
 dependencies = [
     "dtcc-core",
@@ -23,13 +23,12 @@ build-dir = "build/{wheel_tag}"
 # Root anchors keep names such as LICENSE from matching ignored build trees.
 # Negated cache includes let the corresponding exclusions take effect.
 sdist.include = [
-    "/QES-Public/src/**", "/QES-Public/cmake/**", "/QES-Public/CMakeLists.txt",
-    "/QES-Public/LICENSE", "/QES-Public/README.md", "/src/**", "/tests/**",
-    "/tools/**", "/examples/**", "/demo/**", "/docs/**", "/CMakeLists.txt",
+    "/src/**", "/tests/**", "/tools/**", "/examples/**", "/demo/**", "/docs/**", "/CMakeLists.txt",
     "/README.md", "/DYNAMIC_VERTICAL_GRID.md", "/SOLVER_CONTROL_REFACTOR.md", "/LICENSE", "/NOTICE",
     "!**/__pycache__/**", "!**/*.pyc",
 ]
-sdist.exclude = [".idea/**", "dtcc-qes/**", "build/**", "**/__pycache__/**", "**/*.pyc"]
+# The QES-Public submodule is reference-only; the build uses src/qes_core.
+sdist.exclude = [".idea/**", "dtcc-qes/**", "/QES-Public/**", "build/**", "**/__pycache__/**", "**/*.pyc"]
 
 [tool.uv.sources]
 dtcc-core = { git = "https://github.com/dtcc-platform/dtcc-core.git", branch = "develop" }
