@@ -1,4 +1,9 @@
 cmake_minimum_required(VERSION 3.18)
+# CMake >= 3.24 honours $<LINK_ONLY> in a target's own link libraries, which
+# keeps the core's include paths away from the bindings (see _qes below).
+if(POLICY CMP0131)
+  cmake_policy(SET CMP0131 NEW)
+endif()
 project(dtcc_qes VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -70,9 +75,14 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/dtcc_qes/_qes_revision.txt")
 endif()
 
 # Bindings contain no QES headers; only the audited bridge (qesbridge) instantiates them.
+# LINK_ONLY keeps the core's include paths away from bindings.cpp, so a QES
+# include there fails to compile instead of relying on convention.
 target_compile_definitions(qesbridge PRIVATE DTCC_QES_QES_REVISION="${DTCC_QES_QES_REVISION}")
 nanobind_add_module(_qes src/cpp/bindings.cpp $<TARGET_OBJECTS:qesbridge>)
-target_link_libraries(_qes PRIVATE dtcc_qes_api qeswindscore)
+target_link_libraries(_qes PRIVATE dtcc_qes_api $<LINK_ONLY:qeswindscore>)
+if(DTCC_QES_ENABLE_SANITIZERS)
+  target_compile_options(_qes PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+endif()
 target_compile_definitions(_qes PRIVATE
   DTCC_QES_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}"
   DTCC_QES_COMPILER_VERSION="${CMAKE_CXX_COMPILER_VERSION}"
