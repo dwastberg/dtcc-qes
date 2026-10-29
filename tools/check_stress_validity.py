@@ -59,7 +59,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix="dtcc-qes-stress-validity-") as directory:
         source, binary = Path(directory) / "probe.cpp", Path(directory) / "probe"
         source.write_text(PROBE)
-        subprocess.run([args.compiler, "-std=c++17", "-O2", "-I", str(ROOT / "src/cpp"),
+        subprocess.run([args.compiler, "-std=c++17", "-O2", "-I", str(ROOT / "src/qes_core/dtcc/api"),
                         str(source), "-o", str(binary)], check=True)
         result = subprocess.run([str(binary)], input=request, text=True,
                                 capture_output=True, check=True)
@@ -72,7 +72,7 @@ def main():
     np.testing.assert_allclose(actual[:, 3], tolerance, rtol=5e-13, atol=0)
     print(json.dumps(dict(seed=args.seed, cases=count, numpy=np.__version__,
         compiler=args.compiler, header_sha256=hashlib.sha256(
-            (ROOT / "src/cpp/stress_validity.h").read_bytes()).hexdigest(),
+            (ROOT / "src/qes_core/dtcc/api/stress_validity.h").read_bytes()).hexdigest(),
         validity_mismatches=int(np.count_nonzero(actual[:, 0].astype(bool) != expected)),
         maximum_eigenvalue_error_over_spectral_radius=float(error.max()),
         scale_range=[1e-30, 1e30]), indent=2))

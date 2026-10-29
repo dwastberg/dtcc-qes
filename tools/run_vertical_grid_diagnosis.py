@@ -72,16 +72,15 @@ def main():
         source_paths = [
             "tools/vertical_grid_study.cpp", "tools/vertical_grid_diagnostics.cpp",
             "tools/vertical_grid_diagnostics.h", "tools/run_vertical_grid_diagnosis.py",
-            "tools/run_vertical_grid_study.py", "src/cpp/divergence.cpp",
-            "QES-Public/src/winds/Solver_CPU.cpp", "QES-Public/src/winds/Solver_CPU_RB.cpp",
-            "QES-Public/src/winds/Wall.cpp", "QES-Public/src/qes/Domain.cpp",
-            "src/cpp/qes_inputs.cpp", "CMakeLists.txt",
+            "tools/run_vertical_grid_study.py", "src/qes_core/dtcc/divergence.cpp",
+            "src/qes_core/winds/Solver_CPU.cpp", "src/qes_core/winds/Solver_CPU_RB.cpp",
+            "src/qes_core/winds/Wall.cpp", "src/qes_core/qes/Domain.cpp",
+            "src/qes_core/dtcc/qes_inputs.cpp", "CMakeLists.txt",
         ]
         raw = {"metadata": {
             "recorded_utc": datetime.now(timezone.utc).isoformat(),
             "platform": platform.platform(), "python": platform.python_version(),
-            "qes_revision": subprocess.check_output(
-                ["git", "-C", str(ROOT / "QES-Public"), "rev-parse", "HEAD"], text=True).strip(),
+            "qes_revision": (ROOT / "src/dtcc_qes/_qes_revision.txt").read_text().strip(),
             "source_sha256": {name: sha256(ROOT / name) for name in source_paths},
             "workers": [{"path": str(p.resolve()), "sha256": sha256(p)} for p in workers],
             "purpose": "Focused operator/roundoff diagnosis, not timing or automatic-preset validation",

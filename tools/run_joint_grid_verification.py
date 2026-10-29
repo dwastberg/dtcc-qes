@@ -328,7 +328,7 @@ def main():
         Path("tools/vertical_grid_diagnostics.h"), Path("tools/run_precision_verification.py"),
         Path("tools/run_horizontal_sensitivity.py"), Path("tools/run_auto_grid_controls.py"),
         Path("tools/run_vertical_grid_study.py"), Path("CMakeLists.txt")]
-    sources += sorted(Path("src/cpp").glob("*.cpp"))+sorted(Path("src/cpp").glob("*.h"))
+    sources += sorted(Path("src/cpp").glob("*.cpp"))+sorted(Path("src/qes_core/dtcc").rglob("*.cpp"))+sorted(Path("src/qes_core/dtcc").rglob("*.h"))
     metadata = dict(phase="joint", backend=BACKENDS[args.backend], executable=str(executable),
         executable_sha256=digest(executable), source_sha256={str(p): digest(p) for p in sources},
         references_sha256=archive_hashes, baseline_worker_sha256=digest(BASELINE/"tools/vertical_grid_study.cpp"),

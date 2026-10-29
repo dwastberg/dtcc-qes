@@ -34,8 +34,8 @@ def main():
     documents = {}
     summaries = {}
     result = dict(backends={}, cross_backend=[], additional_source_sha256={str(p): digest(p) for p in (
-        Path(__file__), Path("tools/plot_precision_verification.py"), Path("src/cpp/wind_config.h"),
-        Path("src/cpp/wind_runner.cpp"), Path("src/cpp/bindings.cpp"), Path("CMakeLists.txt"),
+        Path(__file__), Path("tools/plot_precision_verification.py"), Path("src/qes_core/dtcc/api/wind_config.h"),
+        Path("src/qes_core/dtcc/wind_runner.cpp"), Path("src/cpp/bindings.cpp"), Path("CMakeLists.txt"),
         Path("src/dtcc_qes/wind.py"), Path("src/dtcc_qes/result.py"))})
     for backend in ("serial", "openmp"):
         precision_path = base/"precision-remedy"/backend/"raw.json.gz"

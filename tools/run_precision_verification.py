@@ -193,8 +193,8 @@ def main():
         precision_doc = json.loads(gzip.decompress(args.precision_reference.read_bytes()))
         require_precision_reference(precision_doc)
     executable = args.executable.resolve()
-    sources = (Path(__file__), Path("tools/vertical_grid_study.cpp"), Path("src/cpp/precision_solver.cpp"),
-               Path("src/cpp/precision_solver.h"), Path("src/cpp/divergence.cpp"), Path("src/cpp/qes_inputs.cpp"),
+    sources = (Path(__file__), Path("tools/vertical_grid_study.cpp"), Path("src/qes_core/dtcc/precision_solver.cpp"),
+               Path("src/qes_core/dtcc/precision_solver.h"), Path("src/qes_core/dtcc/divergence.cpp"), Path("src/qes_core/dtcc/qes_inputs.cpp"),
                Path("tools/run_horizontal_sensitivity.py"), Path("tools/run_auto_grid_controls.py"),
                Path("tools/run_vertical_grid_study.py"))
     metadata = dict(utc=datetime.now(timezone.utc).isoformat(), phase=args.phase, platform=platform.platform(),

@@ -36,3 +36,14 @@ add_library(qeswindscore STATIC
 target_link_libraries(qeswindscore PUBLIC qesutil)
 target_include_directories(qeswindscore PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/winds")
 set_target_properties(qeswindscore PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+# dtcc layer. dtcc/api holds the QES-free headers seen by the Python bindings;
+# dtcc holds the bridge that drives the core. Tests and tools use both.
+add_library(dtcc_qes_api INTERFACE)
+target_include_directories(dtcc_qes_api INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/dtcc/api")
+add_library(dtcc_qes_internal INTERFACE)
+target_include_directories(dtcc_qes_internal INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/dtcc")
+target_link_libraries(dtcc_qes_internal INTERFACE dtcc_qes_api qeswindscore)
+add_library(qesbridge OBJECT dtcc/build_info.cpp dtcc/qes_inputs.cpp dtcc/divergence.cpp
+  dtcc/log_sink.cpp dtcc/wind_runner.cpp dtcc/precision_solver.cpp dtcc/turbulence.cpp)
+target_link_libraries(qesbridge PRIVATE dtcc_qes_internal)

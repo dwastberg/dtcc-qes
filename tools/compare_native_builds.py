@@ -293,6 +293,9 @@ def main():
         built = {}
         for label, tree, tree_id in (("baseline", baseline, baseline_id), ("candidate", candidate, candidate_id)):
             build_dir = work / "builds" / f"{tree_id}-{backend}"
+            if args.binaries and tree is ROOT:
+                # The working tree can move sources; stale objects would otherwise remain.
+                shutil.rmtree(build_dir, ignore_errors=True)
             module = build(tree, build_dir, backend)
             pkg = work / "packages" / f"{tree_id}-{backend}"
             stage_package(tree, module, pkg)
