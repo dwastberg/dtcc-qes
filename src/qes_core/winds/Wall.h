@@ -75,14 +75,6 @@ public:
   void defineWalls(WINDSGeneralData *WGD);
 
 
-  /**
-   * This function takes in vectores of indices of the cells that have wall to right/left,
-   * wall above/bellow and wall in front/back and applies the log law boundary condition fix
-   * to the cells near Walls (based on Kevin Briggs master's thesis (2015))
-   *
-   * @param WGD :document this:
-   */
-  void wallLogBC(WINDSGeneralData *WGD, bool isInitial);
 
 
   /**

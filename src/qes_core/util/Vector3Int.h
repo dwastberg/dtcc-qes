@@ -32,10 +32,10 @@
 #pragma once
 
 #include <iostream>
-#include "util/ParseInterface.h"
+#include <vector>
 
 
-class Vector3Int : public ParseInterface
+class Vector3Int
 {
 protected:
   std::vector<int> values;
@@ -61,12 +61,6 @@ public:
     values[0] = a;
     values[1] = b;
     values[2] = c;
-  }
-
-  void parseValues() override
-  {
-    values.clear();
-    parseTaglessValues(values);
   }
 
   ~Vector3Int() {}

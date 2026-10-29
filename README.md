@@ -11,15 +11,15 @@ release; supported inputs and solver limitations are documented below.
 
 ## Build and install
 
-Requirements are Python 3.13+, a C++17 compiler, CMake 3.18+, Git and Boost
-1.73+ headers. OpenMP is detected automatically, with a serial CPU fallback
-when unavailable. The library requires no GDAL, NetCDF, compiled Boost or CUDA
+Requirements are Python 3.13+, a C++17 compiler, CMake 3.18+ and Git.
+OpenMP is detected automatically, with a serial CPU fallback
+when unavailable. The library requires no GDAL, NetCDF, Boost or CUDA
 libraries. DTCC's Python dependencies include their usual GIS wheels; those
 are separate from the native QES build requirements.
 
-On macOS, install native tools with `brew install cmake ninja boost`.
+On macOS, install native tools with `brew install cmake ninja`.
 On Debian/Ubuntu use
-`sudo apt-get install build-essential cmake ninja-build libboost-dev git`.
+`sudo apt-get install build-essential cmake ninja-build git`.
 Install [uv](https://docs.astral.sh/uv/) and start from a checkout:
 
 ```sh

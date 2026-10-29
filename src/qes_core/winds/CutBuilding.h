@@ -39,7 +39,6 @@
 #include <math.h>
 #include <algorithm>
 
-#include "util/ParseInterface.h"
 #include "WINDSGeneralData.h"
 
 class PolyBuilding;

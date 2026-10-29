@@ -54,7 +54,6 @@
 #include "CutCell.h"
 #include "Wall.h"
 
-#include "util/Mesh.h"
 
 #ifdef HAS_OPTIX
 
@@ -190,25 +189,16 @@ public:
                         8 = Terrain cut-cells, 9 = Sidewall, 10 = Rooftop,
                         11 = Canopy vegetation, 12 = Fire) */
   std::vector<int> icellflag_initial;
-  std::vector<int> icellflag_footprint;
 
-  ///@{
-  /** :document this: */
-  std::vector<float> building_volume_frac, terrain_volume_frac;
-  ///@}
+  std::vector<float> building_volume_frac; /**< Cut-cell building volume fraction */
 
   ///@{
   /** Normal components of the cut surface for the solid elements (Building or Terrain) */
   std::vector<float> ni, nj, nk;
   ///@}
-  ///@{
-  /** Tangential components of the cut surface for the solid elements (Building or Terrain) */
-  std::vector<float> ti, tj, tk;
-  ///@}
   std::vector<float> wall_distance; /**< :Distance of the cell center from the cut face: */
   std::vector<int> center_id; /**< :Defines whether a cell center is inside a solid (0) or air (1): */
   std::vector<float> terrain; /**< :document this: */
-  std::vector<int> terrain_id;
   std::vector<int> terrain_face_id; /**< Sensor function (inputWindProfile) */
 
   std::vector<float> base_height; /**< Base height of buildings */
@@ -250,17 +240,6 @@ public:
 
 
   float max_velmag{}; /**< In polygonWake */
-
-  // In getWallIndices and wallLogBC
-  std::vector<int> wall_right_indices; /**< Indices of the cells with wall to right boundary condition */
-  std::vector<int> wall_left_indices; /**< Indices of the cells with wall to left boundary condition */
-  std::vector<int> wall_above_indices; /**< Indices of the cells with wall above boundary condition */
-  std::vector<int> wall_below_indices; /**< Indices of the cells with wall bellow boundary condition */
-  std::vector<int> wall_back_indices; /**< Indices of the cells with wall in back boundary condition */
-  std::vector<int> wall_front_indices; /**< Indices of the cells with wall in front boundary condition */
-  std::vector<int> wall_indices; /**< Indices of the cells with wall on at least one side */
-
-  Mesh *mesh{}; /**< In Terrain functions */
 
   Cell *cells{}; /**< :document this: */
   // bool DTEHFExists = false;

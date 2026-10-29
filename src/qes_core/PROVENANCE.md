@@ -77,3 +77,14 @@ it says otherwise.
   interpolation), `RectangularBuilding`, `PolygonQUICBuilding`, the canopy
   (vegetation) classes, which were unreachable, and the no-I/O stubs of the
   file-backed constructors and mixing-length output.
+- **Unreachable code removed:** the XML parsing base (`ParseInterface`,
+  `ParseVector`, `ParseException`), `QEStime`, `calcTime`, `TimerTool`,
+  `GIStool`, `QESout` (use `qes::log` and the `qes::` exceptions), the
+  `QES_ENABLE_IO` macro with its branches, the commented-out street
+  intersection, and the log-law wall correction (`Wall::wallLogBC`) with the
+  wall index lists that only it read. The arrays `terrain_volume_frac`,
+  `ti/tj/tk`, `terrain_id` and the write-only `icellflag_footprint` are no
+  longer allocated. The core no longer needs Boost.
+- **Kept for their own decisions:** cut cells (`CutCell`, `CutBuilding` and the
+  arrays they share with `Wall`), `StreetCanyonModified`, OptiX mixing lengths
+  (`LocalMixingOptix` with the util mesh classes) and the `HAS_CUDA` hooks.

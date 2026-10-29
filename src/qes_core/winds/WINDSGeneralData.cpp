@@ -41,7 +41,6 @@
 
 #include <chrono>
 #include <utility>
-#include "util/QESFeatures.h"
 #include "util/UnsupportedFeature.h"
 
 #define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
@@ -254,19 +253,14 @@ void WINDSGeneralData::allocateMemory()
   n.resize(numcell_cent, 1.0);
 
   building_volume_frac.resize(numcell_cent, 1.0);
-  terrain_volume_frac.resize(numcell_cent, 1.0);
   ni.resize(numcell_cent, 0.0);
   nj.resize(numcell_cent, 0.0);
   nk.resize(numcell_cent, 0.0);
-  ti.resize(numcell_cent, 0.0);
-  tj.resize(numcell_cent, 0.0);
-  tk.resize(numcell_cent, 0.0);
   center_id.resize(numcell_cent, 1);
   wall_distance.resize(numcell_cent, 0.0);
 
   icellflag.resize(numcell_cent, 1);
   icellflag_initial.resize(numcell_cent, 1);
-  icellflag_footprint.resize(numcell_cout_2d, 1);
 
   ibuilding_flag.resize(numcell_cent, -1);
 
@@ -274,7 +268,6 @@ void WINDSGeneralData::allocateMemory()
 
   terrain.resize(numcell_cout_2d, 0.0);
   terrain_face_id.resize(domain.nx() * domain.ny(), 1);
-  terrain_id.resize(numcell_cout_2d, 1);
 
   // Set the Wind Velocity data elements to be of the correct size
   // Initialize u0,v0, and w0 to 0.0

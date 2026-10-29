@@ -39,7 +39,6 @@
 #include <math.h>
 #include <algorithm>
 
-#include "util/ParseInterface.h"
 #include "Building.h"
 
 class CutBuilding;
@@ -60,7 +59,6 @@ using std::vector;
  * parameterizations related to each building will be applied. For now,
  *
  * @sa Building
- * @sa ParseInterface
  */
 class PolyBuilding : public Building
 {
@@ -126,9 +124,6 @@ public:
    * @param iID :document this:
    */
   PolyBuilding(const std::vector<polyVert> &iSP, float iH, float iBH, int iID);
-
-  // Need to complete!!!
-  virtual void parseValues() {}
 
 
   /**
@@ -227,29 +222,8 @@ public:
   void rooftop(WINDSGeneralData *WGD);
 
 
-  /*
-   * Applies the rooftop parameterization to the qualified space on top of buildings defined as polygons.
-   *
-   * Reads in building features like nodes, building height and base height and uses
-   * features of the building defined in the class constructor and setPolyBuilding and setCellsFlag functions. It defines
-   * cells qualified on top of buildings and applies the approperiate parameterization to them.
-   * More information:
-   *
-   * @param WGD :document this:
-   */
-  // void streetIntersection (const WINDSInputData* WID, WINDSGeneralData* WGD);
 
 
-  /*
-   * Applies the rooftop parameterization to the qualified space on top of buildings defined as polygons.
-   * This function reads in building features like nodes, building height and base height and uses
-   * features of the building defined in the class constructor and setPolyBuilding and setCellsFlag functions. It defines
-   * cells qualified on top of buildings and applies the approperiate parameterization to them.
-   * More information:
-   *
-   * @param WGD :document this:
-   */
-  // void poisson (const WINDSInputData* WID, WINDSGeneralData* WGD);
 
 
   /**

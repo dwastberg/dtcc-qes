@@ -36,7 +36,6 @@
 
 #include "util/QESLog.h"
 #include "TURBGeneralData.h"
-#include "util/QESFeatures.h"
 #include "util/UnsupportedFeature.h"
 #include <algorithm>
 #include <cmath>
@@ -57,9 +56,6 @@ TURBGeneralData::TURBGeneralData(const TurbulenceConfig &config, WINDSGeneralDat
   bool supported = method == 0 || method == 1;
 #ifdef HAS_OPTIX
   supported = supported || method == 3;
-#endif
-#if QES_ENABLE_IO
-  supported = supported || method == 4;
 #endif
   if (!supported) {
     std::ostringstream message;

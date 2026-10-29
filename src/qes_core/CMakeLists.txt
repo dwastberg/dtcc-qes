@@ -1,19 +1,17 @@
 # Vendored QES-Winds no-I/O CPU core, driven from in-memory inputs; see
 # PROVENANCE.md. GPL-3.0; see LICENSE.
-find_package(Boost 1.73 REQUIRED)
 add_library(qesbuild INTERFACE)
 target_compile_features(qesbuild INTERFACE cxx_std_17)
-target_compile_definitions(qesbuild INTERFACE QES_ENABLE_IO=0 QES_VERSION_INFO="v2.3.1")
+target_compile_definitions(qesbuild INTERFACE QES_VERSION_INFO="v2.3.1")
 target_include_directories(qesbuild INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
-target_link_libraries(qesbuild INTERFACE Boost::headers)
 if(ENABLE_OPENMP)
   find_package(OpenMP REQUIRED COMPONENTS CXX)
   target_link_libraries(qesbuild INTERFACE OpenMP::OpenMP_CXX)
 endif()
 
 add_library(qesutil STATIC
-  util/QESout.cpp util/QESLog.cpp util/calcTime.cpp util/BVH.cpp util/HitRecord.cpp
-  util/Mesh.cpp util/Triangle.cpp util/Ray.cpp util/SphereDirections.cpp util/QEStime.cpp)
+  util/QESLog.cpp util/BVH.cpp util/HitRecord.cpp
+  util/Mesh.cpp util/Triangle.cpp util/Ray.cpp util/SphereDirections.cpp)
 target_link_libraries(qesutil PUBLIC qesbuild)
 target_include_directories(qesutil PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/util")
 set_target_properties(qesutil PROPERTIES POSITION_INDEPENDENT_CODE ON)
@@ -28,7 +26,7 @@ add_library(qeswindscore STATIC
   winds/LogProfile.cpp
   winds/WINDSGeneralData.cpp winds/Wall.cpp winds/UpwindCavity.cpp winds/NonLocalMixing.cpp
   winds/PolygonWake.cpp winds/StreetCanyon.cpp winds/StreetCanyonModified.cpp winds/Sidewall.cpp
-  winds/Rooftop.cpp winds/StreetIntersection.cpp)
+  winds/Rooftop.cpp)
 target_link_libraries(qeswindscore PUBLIC qesutil)
 target_include_directories(qeswindscore PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/winds")
 set_target_properties(qeswindscore PROPERTIES POSITION_INDEPENDENT_CODE ON)

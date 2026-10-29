@@ -1,7 +1,6 @@
 #include "winds/WINDSGeneralData.h"
 #include "winds/SolverFactory.h"
 #include "util/QESLog.h"
-#include "util/QESout.h"
 #include "fixture.h"
 #include <cmath>
 #include <iostream>
@@ -114,7 +113,6 @@ static void failures()
   rejects<qes::InputError>([] { qes::Domain d(0, 2, 3, 2, 2, 2); });
   rejects<qes::InputError>([] { qes::Domain d(100000, 100000, 100000, 2, 2, 2); });
   rejects<qes::InputError>([&] { qes::Domain d(4, 3, 2, nan, 2, 2); });
-  rejects<qes::RuntimeError>([] { QESout::error("Deliberate native error"); });
   for (int repeat = 0; repeat < 20; ++repeat) {
     Inputs inputs;
     inputs.inflow.site_z0 = 0;
@@ -180,12 +178,10 @@ static void check_messages()
     });
     debug() << "debug";
     info() << "info";
-    QESout::warning("warning");
+    warning() << "warning";
     error() << "error";
     require(levels == std::vector<Level>({Level::debug, Level::info, Level::warning, Level::error}),
       "Diagnostic levels were lost");
-    rejects<qes::RuntimeError>([] { QESout::error("Exception, not a log record"); });
-    require(levels.size() == 4, "Native error was reported twice");
     { ScopedHandler bad([](Level, const std::string &) { throw std::runtime_error("Bad callback"); });
       info() << "Callback exceptions must not escape destruction"; }
     info() << "Handler restored";

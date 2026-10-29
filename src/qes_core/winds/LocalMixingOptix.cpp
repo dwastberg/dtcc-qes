@@ -37,11 +37,7 @@
 
 #include "util/QESLog.h"
 #include "LocalMixingOptix.h"
-#include "util/QESFeatures.h"
 #include "util/UnsupportedFeature.h"
-#if QES_ENABLE_IO
-#include "DTEHeightField.h"
-#endif
 
 // These take care of the circular reference
 #include "WINDSGeneralData.h"

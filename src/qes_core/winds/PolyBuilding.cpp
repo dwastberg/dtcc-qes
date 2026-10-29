@@ -37,7 +37,6 @@
  * parameterizations related to each building will be applied.
  *
  * @sa Building
- * @sa ParseInterface
  */
 
 #include "PolyBuilding.h"
@@ -226,7 +225,6 @@ void PolyBuilding::setCellFlags(WINDSGeneralData *WGD, int building_number)
             WGD->ibuilding_flag[icell_cent] = building_number;
           }
         }
-        WGD->icellflag_footprint[WGD->domain.cell2d(i, j)] = 0;
       }
     }
   }

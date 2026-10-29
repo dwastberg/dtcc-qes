@@ -7,7 +7,6 @@
 #include "winds/LocalMixingDefault.h"
 #include "winds/LocalMixingSerial.h"
 #include "winds/SolverFactory.h"
-#include "util/QESFeatures.h"
 #include <algorithm>
 #include <array>
 #include <cfenv>
@@ -1024,10 +1023,8 @@ void run(const std::string &mode)
     fixture.params.methodLocalMixing = 3;
     rejects([&] { fixture.construct(); }, "mixing");
 #endif
-#if !QES_ENABLE_IO
     fixture.params.methodLocalMixing = 4;
     rejects([&] { fixture.construct(); }, "mixing");
-#endif
     fixture.params.methodLocalMixing = 0;
     require(!fixture.construct()->icellfluid.empty(), "Rejected method damaged later setup");
   } else if (mode == "ownership") {

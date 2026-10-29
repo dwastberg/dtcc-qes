@@ -32,7 +32,6 @@
 
 #pragma once
 
-#include "util/ParseInterface.h"
 #include "util/PolygonVertex.h"
 #include "CutVertex.h"
 
@@ -55,7 +54,7 @@ class TURBGeneralData;
  * @sa WINDSGeneralData
  * @sa TURBGeneralData
  */
-class Building : public ParseInterface
+class Building
 {
 protected:
 public:
@@ -113,9 +112,6 @@ public:
 
   // It would be nice if someone explained the function of each method below at the most abstract level.
   // using doxygen syntax
-
-  // pure virtual
-  virtual void parseValues() = 0;
 
   virtual void setPolyBuilding(WINDSGeneralData *WGD)
   {
