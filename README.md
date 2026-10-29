@@ -553,6 +553,18 @@ any external verification still pending.
 The [final audit](docs/milestone1-audit.md) maps all seven steps to evidence and
 lists the remaining external checks.
 
+## Check native refactors
+
+`tools/compare_native_builds.py` builds the extension from a baseline revision
+and from the working tree with identical settings, runs a fixed case matrix
+against both (public `wind.run` paths, every parameterization flag combination,
+runner reuse across directions and turbulence) and requires bitwise-identical
+outputs. `--binaries` also requires byte-identical objects, for pure moves.
+
+```sh
+uv run --frozen python tools/compare_native_builds.py --baseline HEAD --backends openmp serial
+```
+
 ## Regenerate executable references
 
 Only reference tooling needs GDAL, NetCDF C/C++, compiled Boost.ProgramOptions
