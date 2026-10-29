@@ -192,14 +192,20 @@ def check_sdist(path):
                     require(name in members, f"Source distribution omits {name}")
         control = json.loads(archive.extractfile(members["docs/data/turbulence-domain/control.json"]).read())
         require(control["passed"], "Turbulence domain control did not pass")
+        # Evidence is checked against the source snapshots archived with it,
+        # so later refactors of the live sources do not invalidate it.
         for name, expected in control["source_sha256"].items():
-            actual = hashlib.sha256(archive.extractfile(members[name]).read()).hexdigest()
-            require(actual == expected, f"Turbulence domain control is stale for {name}")
+            snapshot = "docs/data/turbulence-domain/sources/" + name
+            require(snapshot in members, f"Source distribution omits {snapshot}")
+            actual = hashlib.sha256(archive.extractfile(members[snapshot]).read()).hexdigest()
+            require(actual == expected, f"Turbulence domain control snapshot differs for {name}")
         benchmark = json.loads(archive.extractfile(members["docs/data/turbulence-benchmark/benchmark.json"]).read())
         require(benchmark["benchmark_passed"], "Turbulence benchmark did not pass")
         for name, expected in benchmark["source_sha256"].items():
-            actual = hashlib.sha256(archive.extractfile(members[name]).read()).hexdigest()
-            require(actual == expected, f"Turbulence benchmark is stale for {name}")
+            snapshot = "docs/data/turbulence-benchmark/sources/" + name
+            require(snapshot in members, f"Source distribution omits {snapshot}")
+            actual = hashlib.sha256(archive.extractfile(members[snapshot]).read()).hexdigest()
+            require(actual == expected, f"Turbulence benchmark snapshot differs for {name}")
         raw = "docs/data/turbulence-benchmark/" + benchmark["raw_runs"]["file"]
         require(hashlib.sha256(archive.extractfile(members[raw]).read()).hexdigest() ==
                 benchmark["raw_runs"]["sha256"], "Turbulence benchmark raw evidence checksum differs")

@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 import platform
 import resource
+import shutil
 import subprocess
 import sys
 import time
@@ -46,6 +47,15 @@ def write_json(destination, value):
     destination = Path(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(clean(value), indent=2, allow_nan=False) + "\n")
+
+
+def archive_sources(files, root):
+    """Snapshot the hashed sources beside the record; artifact checks verify these copies."""
+    shutil.rmtree(root, ignore_errors=True)
+    for source in files:
+        target = root/Path(source).relative_to(ROOT)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
 
 
 def quantiles(values):
@@ -632,6 +642,7 @@ def main():
         benchmark_passed=all(accepted(r) for r in runs) and summed["flat_refinement_passed"] and
                          all(v["passed"] for v in scaling_checks.values()))
     write_json(args.output, output)
+    archive_sources(files, args.output.parent/"sources")
     if not output["benchmark_passed"]:
         raise SystemExit("Numerical benchmark failed; inspect archived evidence before downstream work")
 

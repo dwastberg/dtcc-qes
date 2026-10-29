@@ -320,15 +320,15 @@ def test_extension_uses_native_operand_instead_of_rounded_face_difference():
     np.testing.assert_array_equal(after,expected)
 
 
-def test_regeneration_control_has_current_sources_and_converged_runs():
+def test_regeneration_control_has_archived_sources_and_converged_runs():
     import hashlib
     from pathlib import Path
-    root = Path(__file__).resolve().parents[1]
-    record = json.loads((root/"docs/data/turbulence-domain/control.json").read_text())
+    study = Path(__file__).resolve().parents[1]/"docs/data/turbulence-domain"
+    record = json.loads((study/"control.json").read_text())
     assert record["passed"] and record["fine_band_operands_identical"]
     assert record["preserved_control_prefix_identical"]
     for name,digest in record["source_sha256"].items():
-        assert hashlib.sha256((root/name).read_bytes()).hexdigest() == digest
+        assert hashlib.sha256((study/"sources"/name).read_bytes()).hexdigest() == digest
     assert all(run["converged"] for run in record["runs"].values())
     for comparison in record["comparisons"]:
         assert comparison["fluid_points"] > 1000

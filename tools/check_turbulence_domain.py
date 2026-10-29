@@ -11,6 +11,7 @@ import hashlib
 import json
 from pathlib import Path
 import platform
+import shutil
 
 import numpy as np
 from dtcc_qes import _qes, wind
@@ -92,6 +93,12 @@ def main():
         passed=all(c["passed"] for c in comparisons))
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(output,indent=2,allow_nan=False)+"\n")
+    # Artifact checks verify the record against these snapshots, not live files.
+    sources = args.output.parent/"sources"
+    shutil.rmtree(sources,ignore_errors=True)
+    for name in files:
+        (sources/name).parent.mkdir(parents=True,exist_ok=True)
+        shutil.copyfile(ROOT/name,sources/name)
     print(json.dumps({k:output[k] for k in ("runs","comparisons","passed")},indent=2))
     if not output["passed"]:
         raise SystemExit(1)
