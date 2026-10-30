@@ -1,5 +1,6 @@
 """Urban morphology, frozen geometry, strict sampling and comparison semantics."""
 import importlib.util
+import argparse
 import json
 from pathlib import Path
 import sys
@@ -110,3 +111,13 @@ def test_failed_shard_prints_failures_without_suggesting_success(tmp_path,capsys
     assert 'timeout=1' in report and 'failed=1' in report and 'budget_exhausted_zero_work=1' in report
     assert 'API/base' not in report and 'Equal fields' not in report
     assert json.loads((tmp_path/'comparisons.json').read_text())['comparisons']==[]
+
+
+@pytest.mark.parametrize('value',['0','-1','nan','inf'])
+def test_invalid_solve_budgets_are_rejected(value):
+    with pytest.raises(argparse.ArgumentTypeError): benchmark.positive_seconds(value)
+
+
+@pytest.mark.parametrize('value',['0','-1'])
+def test_nonpositive_iteration_caps_are_rejected(value):
+    with pytest.raises(argparse.ArgumentTypeError): benchmark.positive_iterations(value)

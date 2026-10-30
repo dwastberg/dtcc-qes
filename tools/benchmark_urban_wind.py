@@ -40,6 +40,19 @@ def package_index(package):
             if p.is_file() and (p.suffix in (".py", ".so", ".pyd") or p.name == "_qes_revision.txt")}
 
 
+def positive_iterations(value):
+    value=int(value)
+    if value<=0: raise argparse.ArgumentTypeError('Iterations must be positive')
+    return value
+
+
+def positive_seconds(value):
+    value=float(value)
+    if not np.isfinite(value) or value<=0:
+        raise argparse.ArgumentTypeError('Solve seconds must be finite and positive')
+    return value
+
+
 def fixtures(args):
     from dtcc_qes import wind
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False)
@@ -79,8 +92,9 @@ def fixtures(args):
                 for variant in ("baseline", "disabled", "bounded"):
                     rows.append(dict(case=name,direction=direction,repeat=repeat,variant=variant,
                         precision="float32",threads=2 if args.tier=="smoke" else 4,
-                        iterations=8 if args.tier=="smoke" else 500,speed=5.,reference_height=10.,roughness_length=.1,
-                        max_solve_seconds=5.,checkpoint_interval=25,residual_interval=0))
+                        iterations=args.iterations if args.iterations is not None else (8 if args.tier=="smoke" else 500),
+                        speed=5.,reference_height=10.,roughness_length=.1,
+                        max_solve_seconds=args.solve_seconds,checkpoint_interval=25,residual_interval=0))
     # Six workers per shard means the declared worst-case subprocess limits fit
     # the three-minute matrix envelope. There is no automatic next-shard loop.
     for i,row in enumerate(rows): row.update(id=f"{i:04d}",shard=i//6)
@@ -406,6 +420,8 @@ def aggregate(args):
 def main():
     parser=argparse.ArgumentParser(description=__doc__);sub=parser.add_subparsers(dest='action',required=True)
     p=sub.add_parser('fixtures');p.add_argument('--output',type=Path,required=True);p.add_argument('--tier',choices=('smoke','pilot','core','scale'),default='pilot');p.add_argument('--city-case',type=Path,action='append',default=[])
+    p.add_argument('--iterations',type=positive_iterations,help='Override the tier iteration cap')
+    p.add_argument('--solve-seconds',type=positive_seconds,default=5.,help='Monitored solve budget (default: 5 seconds)')
     p=sub.add_parser('builds');p.add_argument('--output',type=Path,required=True);p.add_argument('--baseline-archive',type=Path,required=True);p.add_argument('--candidate-archive',type=Path,required=True);p.add_argument('--backend',choices=('openmp','serial'),default='openmp')
     p=sub.add_parser('run');p.add_argument('--fixtures',type=Path,required=True);p.add_argument('--builds',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--shard',type=int,required=True)
     p=sub.add_parser('worker');p.add_argument('--fixtures',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--row',required=True);p.add_argument('--package',type=Path,required=True)

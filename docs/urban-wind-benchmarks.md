@@ -97,7 +97,17 @@ corrected S1a with frozen S4. Other complete campaigns use:
 
 # Isolate S4 controller overhead against S3.
 .venv/bin/python tools/run_urban_benchmarks.py --comparison controls
+
+# Longer equal-work comparison; allow monitored solves to reach 2,000 sweeps.
+.venv/bin/python tools/run_urban_benchmarks.py --tier core \
+  --iterations 2000 --solve-seconds 20
 ```
+
+`--iterations` overrides the tier's iteration cap for all variants, while legacy
+tolerance stopping remains active. `--solve-seconds` overrides only the bounded
+variant's native solve budget. Both settings are frozen in every protocol row;
+the external 30-second worker and 180-second shard limits stay unchanged. Check
+actual completed sweeps before interpreting the result as equal work.
 
 Each invocation creates a fresh directory under `build/urban-benchmarks/`, prints
 that path, and saves `results.txt`, `results.json`, `campaign.json`, frozen

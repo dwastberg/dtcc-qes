@@ -209,6 +209,7 @@ def campaign(args):
     baseline = (args.baseline_archive or ROOT / f"docs/data/solver-control-{BASELINES[args.comparison]}/sources.tar.gz").resolve()
     candidate = args.candidate_archive.resolve()
     state = dict(schema="urban-campaign-v1", status="running", tier=args.tier, backend=args.backend,
+                 iterations=args.iterations, max_solve_seconds=args.solve_seconds,
                  started_utc=datetime.now(timezone.utc).isoformat(), output=str(output),
                  command=sys.argv, runner_sha256=benchmark.digest(__file__), shards=[])
     started = time.monotonic()
@@ -228,7 +229,9 @@ def campaign(args):
 
             fixtures = output / "fixtures"
             command = [sys.executable, str(Path(benchmark.__file__).resolve()), "fixtures",
-                       "--tier", args.tier, "--output", str(fixtures)]
+                       "--tier", args.tier, "--output", str(fixtures), "--solve-seconds", str(args.solve_seconds)]
+            if args.iterations is not None:
+                command.extend(["--iterations", str(args.iterations)])
             for path in args.city_case:
                 command.extend(["--city-case", str(path.resolve())])
             print(f"Preparing fresh {args.tier} fixtures...", flush=True)
@@ -273,6 +276,9 @@ def campaign(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tier", choices=("smoke", "pilot", "core", "scale"), default="pilot")
+    parser.add_argument("--iterations", type=benchmark.positive_iterations, help="Override the tier iteration cap")
+    parser.add_argument("--solve-seconds", type=benchmark.positive_seconds, default=5.,
+                        help="Monitored solve budget (default: 5 seconds)")
     parser.add_argument("--comparison", choices=tuple(BASELINES), default="overall",
                         help="overall: S1a to S4; controls: S3 to S4 (default: overall)")
     parser.add_argument("--baseline-archive", type=Path, help="Override the comparison baseline")

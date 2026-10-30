@@ -1,13 +1,21 @@
 # Native solver-control refactor
 
-**Status: S4 complete 2026-10-30; urban benchmark suite designed and smoke-tested.**
+**Status, reviewed 2026-10-30: S0–S4 complete; repeated 500- and 2,000-iteration
+urban performance campaigns complete; numerical acceptance and task closure
+remain open.** The remaining implementation sequence is S5b diagnostic/reference
+qualification, S5a cadence/resource follow-up, S6 method decision, S7 opt-in
+policy, S8 measured multi-direction integration, and S9 release/closure. S5a's
+existing measurements are evidence to preserve, not work to repeat wholesale.
+
 The [S4 implementation](docs/solver-control-s4.md) exposes bounded native
 execution through Python and datasets. The [urban benchmark suite](docs/urban-wind-benchmarks.md)
 freezes four neighbourhood layouts with 42–160 buildings, realistic-resolution
 grids, multiple directions and bounded baseline/candidate comparison shards.
 The [S3 implementation and handoff](docs/solver-control-s3.md) records compiled
 slab/receptor monitoring, bounded histories, regional mass and optional
-algebraic trends. Acceptance and public Python controls remain deferred.
+algebraic trends. Bounded public controls are implemented; automatic numerical
+acceptance remains unimplemented. The current benchmark candidate is the frozen
+S4 archive `b2d4cd6e8708a4058187a8284195a67805f78b226e156a3f13981b903a8d63fe`.
 The [S2 implementation and review](docs/solver-control-s2.md) records norm
 fusion, owned compact coefficients, conditional allocation and unified ordering.
 Output-copy removal is deferred to preserve the existing ownership contract. The
@@ -26,8 +34,9 @@ to `bbfd200`). Every one of those steps kept all outputs bitwise identical, so
 the evidence below still describes the current numerics. The vertical-grid task
 is closed under its restricted scope (see the
 [closure decision](DYNAMIC_VERTICAL_GRID.md#numerical-review-closed-experimental-automatic-scope)).
-The native phase interface is implemented; public controls and acceptance
-policies described here remain unimplemented.
+The native phase interface, monitoring, bounded Python API and datasets are
+implemented. The acceptance policies and later integration described below are
+planned work. Updating this plan closes the planning review, not those stages.
 
 ## What the merge changes in this plan
 
@@ -60,20 +69,26 @@ default**, and let a single native solve continue in blocks while observing wind
 at 1.5 and 1.75 m, important receptors, and mass consistency. Return an explicit
 reason for stopping and distinguish numerical acceptance from legacy convergence.
 
-Stopping control alone cannot make the solver fast: it only avoids sweeps that
-would otherwise be wasted. Sweeps dominate the measured wind-only runtime, the
-float32 default costs more per sweep than float64, and the fixed relaxation
-converges slowly (see [performance implications](#performance-implications)).
-The plan therefore also reduces per-sweep memory traffic and memory footprint
-without changing arithmetic, and decides the iteration method before
-calibrating any stopping policy against that method's convergence behavior.
+The storage/traffic work has delivered substantial speed and memory gains at
+equal completed work. The original float32/float64 cost comparison below
+predates S2 and must not be presented as a current performance result. The next
+question is cost to a declared, measured numerical target. Audit coherent
+residuals and persistent mass hotspots, qualify affordable references, and
+decide the iteration method before calibrating its stopping policy.
 
-The first deliverable is **native continuation, checkpoint diagnostics and
+The first deliverable, now implemented, is **native continuation, checkpoint diagnostics and
 bounded execution, with automatic accuracy acceptance disabled**, running on an
 owned solver package whose per-sweep memory traffic has been reduced with
 bitwise-unchanged results. Decide the iteration method next, then calibrate an
 opt-in stopping policy for that method. Promotion to a default operating policy
 is a separate decision requiring validation across the supported scope.
+
+Closure requires the explicit gates in S9. A useful bounded result is already
+available; it does not make S7 complete. If a reference or calibrated policy
+cannot be qualified within its declared envelope, retain the bounded-only
+behavior, record the missing qualification and a named follow-up. Closing that
+restricted milestone must be an explicit scope decision, never an automatic
+substitute for completing the acceptance roadmap.
 
 Preserve uniform x/y spacing, explicit and automatic vertical grids, and the
 pedestrian-height support established by the grid work. Monitoring cannot fix
@@ -82,7 +97,93 @@ construction stays geometry-only, with its roughly 0.1 s planning objective.
 This refactor must not reopen the vertical-grid task: do not resume the stopped
 hours-long finest-grid reference or turn its missing result into a pass.
 
+## Current urban evidence and consequences
+
+The five completed campaigns below contain **324 completed workers and 216
+candidate/baseline comparisons**. All comparisons have matching grids, completed
+work and bitwise-equal full velocity/flag fields. All workers used float32,
+Release/AppleClang 17, `fp_contract=on`, and an actual four-thread OpenMP team.
+Each case/direction/variant has three process repetitions. These are local
+measurements on deterministic synthetic urban morphology, not physical
+validation or a portable timing guarantee.
+
+| Campaign | Completed workers | Main observation |
+| --- | ---: | --- |
+| [4 m, S1a → S4, 500 iterations](build/urban-benchmarks/20261030T113311Z-44150a27/results.json) | 36 | Controls disabled: 1.66–1.76× API speedup, approximately 10–14% lower peak RSS. |
+| [2 m, S1a → S4, 500 iterations](build/urban-benchmarks/20261030T113701Z-fb78576f/results.json) | 108 | 1.74–1.99× speedup and approximately 26–30% lower peak RSS across four neighbourhoods and three directions. |
+| [4 m, S3 → S4, 500 iterations](build/urban-benchmarks/20261030T114345Z-c5e93cfb/results.json) | 36 | Disabled-controller API cost within approximately 2% of S3. |
+| [2 m, S1a → S4, 2,000 iterations](build/urban-benchmarks/core-2000-20261030-clean/long-run-comparison.json) | 108 | 1.80–2.16× speedup; RSS reduction 10.8–30.0%, median 27.0% across case/direction medians. |
+| [4 m, S3 → S4, 2,000 iterations](build/urban-benchmarks/controls-2000-20261030/long-run-comparison.json) | 36 | Disabled-controller API change −0.9% to +1.1% using ratios of variant medians. |
+
+The corrected S1a archive is the baseline for combined storage/traffic/control
+gains. S3 isolates S4's controller overhead. They do not isolate S2 from S3;
+use the stage reports for that attribution. S0 retains its historical adapter,
+condition-state defects and serial-ordering qualifications; a new S0 adapter is
+not required to finish S5.
+
+The 2 m grids contain 3.6–6.3 million cells, 42–160 buildings, and winds FROM
+225°, 270° and 315°. Reuse verified source builds with the
+[single-command runner](tools/run_urban_benchmarks.py); generate fresh fixtures
+and results for each protocol. The long-run command is:
+
+```sh
+.venv/bin/python tools/run_urban_benchmarks.py --tier core \
+  --iterations 2000 --solve-seconds 20
+```
+
+The 2,000-iteration runs deliberately used a **20 s native solve budget**, not
+the original 5 s. External limits remained 30 s per worker and 180 s per
+six-worker shard; all 144 long-run workers completed exactly 2,000 iterations.
+The initial attempt at `build/urban-benchmarks/core-2000-20261030` overlapped an
+independent pytest process and is explicitly interrupted/excluded. Only the
+`-clean` campaign above contributes timing evidence.
+
+Consequences for the remaining work:
+
+- **The architectural performance case is established locally.** Preserve the
+  measured gains and strict legacy trajectory gates. More equal-work timing
+  alone will not answer the remaining accuracy question. Peak RSS is variable
+  between repetitions, especially in the longer baseline runs; report ranges
+  and allocation bytes separately. Do not promise a universal 26–30% saving.
+- **Cadence is not closed.** Enabled-monitor API overhead is 3.2–16.0% on the
+  2,000-iteration core and 10.3–17.1% on its control pilot. The 10% review target
+  is not uniformly met. Continuous residual collection was already expensive
+  in S3; coherent residual checks will have their own measured cost.
+- **Legacy convergence is not numerical acceptance.** None of the 324 workers
+  satisfied `tolerance=1e-5`. At 2,000 core iterations, maximum multiplier
+  changes remain approximately 66–626 times that threshold. Do not attribute
+  all failures to a float32 floor or relax the threshold to obtain passes.
+- **Small recent changes can hide substantial remaining motion.** Downtown at
+  225° changed by approximately 0.4% of Uref at pedestrian vector p95 over
+  iterations 475–500, yet by 5.5% at p95 and 14.6% at maximum between 500 and
+  2,000. These are iterate differences, not errors against a qualified reference.
+- **Persistent mass hotspots need diagnosis first.** At 2,000 iterations,
+  interior maximum divergence remains about 3.58 and 3.92 s^-1 for downtown
+  225°/315°, and 3.30 s^-1 for courtyard 225°, despite improved RMS values.
+  Baseline/candidate field equality makes this inherited behavior, not a newly
+  demonstrated S4 regression. Locate and classify the cells before deciding
+  whether they represent iterative error, mask/operator inconsistency or a
+  documented model/boundary limitation. Do not discard them to pass a gate.
+- **Real deadline behavior still needs its own experiment.** Long-run native
+  solve times were approximately 4.20–6.84 s under the 20 s budget. These runs
+  validate long equal-work execution, not time-limited quality or overshoot.
+
+The [courtyard tolerance-scaling study](build/legacy-tolerance-investigation-20261030/results.json)
+adds six fixed-cap numerical runs. At 4 m, an illustrative absolute multiplier
+tolerance of `0.01` stops after 584/797/970 iterations at Uref 2/5/10 m/s.
+Equal-2,000-work normalized fields are nearly identical (p95 vector difference
+about 3.2e-6 for 2 versus 5 m/s). This supports nondimensional observable
+criteria, not a new `0.01` default. It is one case and one direction, not a
+universal inflow-linearity qualification.
+
+The records above currently live under `build/`. S5a must publish a portable,
+hashed evidence bundle before they count as release evidence; changing these
+links or the plan must not rewrite the frozen S0–S4 archives.
+
 ## Evidence motivating the work
+
+This section preserves the historical pre-S2 measurements and their original
+qualifications. Use the current urban evidence above for present cost claims.
 
 The bounded local benchmarks use a tower, a 270-degree wind, Uref = 5 m/s,
 0.5 m horizontal spacing, the actual 92-layer automatic grid, and 9,420,800
@@ -205,16 +306,18 @@ observations are not hardware-independent guarantees.
 
 | Location | Current behavior | Consequence for the refactor |
 | --- | --- | --- |
-| [`dtcc/api/wind_config.h`](src/qes_core/dtcc/api/wind_config.h) | QES-free contract seen by the bindings. `SolverOptions` holds tolerance, maximum iterations and precision; defaults 1e-5, 500, float32. | New control and result types go here. Add controls without silently replacing the defaults. |
+| [`dtcc/api/wind_config.h`](src/qes_core/dtcc/api/wind_config.h), [`control_types.h`](src/qes_core/dtcc/api/control_types.h) | QES-free solver and bounded-control/result contracts; legacy defaults remain 1e-5, 500, float32. | Extend opt-in policy evidence without silently replacing defaults or exporting QES internals. |
 | [`dtcc/wind_runner.cpp`](src/qes_core/dtcc/wind_runner.cpp) | S1 prepares one operator and routes each condition through initialization, `begin`, `advance` and `finalize`, then turbulence. Failed solves discard workspaces and return to prepared state. S1a resets rooftop state and validates wake dependencies. | Repeated Python calls remain independent zero starts; retain S1a's reuse and failure-recovery checks. |
-| [`solver/`](src/qes_core/solver/solver.h) | Shared phase driver and precision-specific CPU kernels. S2 uses red/black defaults in both builds, with explicit lexicographic controls. Both precisions retain RHS, lambda and small relaxation tables; no old-iterate array. | S3 monitoring uses the phase interface without changing the S2 trajectory. |
+| [`solver/`](src/qes_core/solver/solver.h) | Shared phase driver and precision-specific CPU kernels. S2 uses red/black defaults in both builds, with explicit lexicographic controls. Both precisions retain RHS, lambda and small relaxation tables; no old-iterate array. | Monitoring preserves the trajectory; S5b adds pure completed-iterate diagnostics. |
 | [`solver/solver.cpp`](src/qes_core/solver/solver.cpp) | Operator coefficients are checked once per preparation; condition fields once per `begin`. Pure slab observations and streamed mass diagnostics share reconstruction with finalization. | Preserve original face arithmetic, condition flags and borrowed-input lifetime in later backends. |
 | [`winds/WINDSGeneralData`](src/qes_core/winds/WINDSGeneralData.h), [`Wall.cpp`](src/qes_core/winds/Wall.cpp) | Owns geometry, flags and face velocities. `Wall` builds coefficients once; production transfers/releases them into the immutable compact/explicit operator. Optional cut-cell and mixing-length arrays allocate on use. | Current condition flags remain independent of operator masks. |
 | [`winds/LogProfile.cpp`](src/qes_core/winds/LogProfile.cpp), parameterization files | Per condition: zero-fill `u0/v0/w0`, single-sensor log profile, reset condition-dependent building state, empirical models in height order. S1a audited the supported pipeline. | Initialization happens once per condition; current post-parameterization flags remain separate from the geometry operator. |
-| [`dtcc/divergence.cpp`](src/qes_core/dtcc/divergence.cpp) | Conservative six-face flux/volume diagnostic reads the passed prepared operator; excludes lateral cells and the highest physical layer; reports the last solved band separately. | Keep the definitions and add named regions in S3. |
+| [`dtcc/divergence.cpp`](src/qes_core/dtcc/divergence.cpp), [`mass_diagnostics.h`](src/qes_core/solver/mass_diagnostics.h) | Shared conservative six-face diagnostics and S3 named regions; exclude lateral cells/highest physical layer and report the last solved band separately. | Preserve eligibility and classify persistent interior hotspots before calibrating acceptance. |
+| [`dtcc/monitor.cpp`](src/qes_core/dtcc/monitor.cpp), [`solver_control.cpp`](src/qes_core/dtcc/solver_control.cpp) | Compiled ROI/receptor observations, bounded short/long histories, regional mass and optional update-time trends; S4 controls time/iteration stops with quality unassessed. | Add coherent checks and policy decisions while retaining clock, purity and memory contracts. |
 | [`src/cpp/bindings.cpp`](src/cpp/bindings.cpp) | Inputs copied before releasing the GIL; one process-wide mutex (required because the `qes::log` handler is global); output vectors copied once more into NumPy. | Keep continuation inside one native call; no Python callbacks or full-volume output per checkpoint. |
 | [`tools/compare_native_builds.py`](tools/compare_native_builds.py) | Baseline/candidate revisions or source archives; strict 429-case array/diagnostic comparisons, team and backend pairs. S2 adds an explicit serial migration policy that requires the unchanged OpenMP oracle and the exact old-serial change set. Valid wake-free inputs remain separate S1a tests. | The parity oracle for every stage; strict revision comparison remains the default. |
-| Native tests and study tools | Use `SolverState`, fixed sweeps, prepared operators and copied current state. Diagnostic studies own a pre-final-sweep snapshot. Precision probes follow the selected order; historical drivers explicitly request their archived order. | Keep the study target/source names and historical evidence; S3 must not reintroduce full-volume checkpoint copies. |
+| [`tools/run_urban_benchmarks.py`](tools/run_urban_benchmarks.py), [`benchmark_urban_wind.py`](tools/benchmark_urban_wind.py) | One-command frozen-source build/cache checks, fresh fixtures, sequential shards and terminal/JSON reports; explicit iteration/native-budget overrides preserve external deadlines. | Reproduce and audit the accepted local cost baseline; add only finite, declared study protocols. |
+| Native tests and study tools | Use `SolverState`, fixed sweeps, prepared operators and copied current state. Diagnostic studies own a pre-final-sweep snapshot. Precision probes follow the selected order; historical drivers explicitly request their archived order. | Keep source identities and avoid full-volume production checkpoint copies. |
 | [`result.py`](src/dtcc_qes/result.py), [`wind.py`](src/dtcc_qes/wind.py), [`comfort.py`](src/dtcc_qes/comfort.py) | `converged` describes multiplier change; height sampling interpolates collocated float32 components in float64 with strict validity. Each `wind.run` creates a runner and prepares the geometry again; comfort assesses fields the caller solved one direction at a time. | Monitoring must reproduce the sampled observable. Multi-direction reuse is a later stage (S8), measured first. |
 
 ## Target architecture
@@ -487,11 +590,24 @@ against a partly updated iterate, so treat it as a trend, not an acceptance
 quantity. Derive and test its conversion to s^-1 against the six-face divergence
 on interior fluid cells of a final iterate before reporting it in those units.
 
-Any future acceptance decision must still use a fresh global check from the
-**same iterate**, together with current local checks: either an exact
-end-of-sweep residual pass or the six-face divergence. Compute global checks
-without an extra persistent velocity volume, or materialize into the existing
-output buffers only when needed. Measure their cost.
+Any future acceptance decision must use fresh checks from the **same completed
+iterate**, including its ground mirror, condition flags and prescribed faces.
+S5b adds a coherent equation-residual pass and tests its relationship to the
+reconstructed six-face flux diagnostics. The existing update-time trend must
+never be relabeled as that residual or used directly for acceptance. Residual
+reduction does not replace an independently calibrated mass safeguard when
+operator eligibility and final face masking differ. Evaluate both global and
+required regional checks without another persistent velocity volume; measure
+their cadence and final-check costs.
+
+Study a normalized true-residual criterion with relative reduction and an
+absolute floor, such as `norm(r_k) <= max(atol, rtol*norm(b))`. Specify the
+operator sign, row/volume scaling, assessed cells, norm, RHS/initial-residual
+normalization and calm-flow handling. A copied `rtol=1e-5` is not the legacy
+test and is not a pedestrian accuracy guarantee. Componentwise/backward-error
+checks are an optional diagnostic for severe row scaling, not another required
+solver project. See [PETSc's convergence definition](https://petsc.org/main/manualpages/KSP/KSPConvergedDefault/)
+and [NASA's residual/observable guidance](https://www.grc.nasa.gov/WWW/wind/valid/tutorial/iterconv.html).
 
 No universal production residual cutoff has yet been established. Set it through
 reference calibration in S7. Do not interpret a divergence value in s^-1 as a
@@ -516,6 +632,7 @@ criterion. Add a structured control record rather than overloading that boolean:
 | `termination_reason` | `legacy_tolerance`, `iteration_limit`, `time_limit`, `fixed_budget`, `stagnation`, or, after calibration, `target_reached`. |
 | `accuracy_status` | `not_assessed`, `target_not_met`, or `accepted`; bounded diagnostic mode can never return `accepted`. |
 | `policy_id` / version | Identifies the calibrated contract, scope, normalization and threshold definitions; absent in unqualified mode. |
+| `assessment_scope` / numerical checks | For a future policy: the specific ROI/heights/receptors and outputs assessed, true-residual and flux evidence, predictor availability and failed criteria. Pedestrian acceptance does not qualify every returned 3D or turbulence quantity. |
 | `iterations` | Total completed sweeps across all blocks, not the last block size. |
 | `checkpoint_history` | Bounded records of iteration, elapsed time, changes, validity, mass diagnostics and decision evidence. |
 | `timings` | Separately measured preparation, lock wait, initialization, RHS, sweeps, observations, finalization and output transfer where measurable. |
@@ -582,11 +699,11 @@ calibration, and the evidence suggests fixed ω = 1.78 converges far more slowly
 than SOR can on these grids. Decide the method in S6, after monitoring and the
 bounded controller exist and before S7 calibration:
 
-1. Expose the relaxation factor as an internal kernel option, default `1.78f`,
-   available only to tests and studies. Red/black ordering of this seven-point
-   stencil is consistently ordered, so standard SOR theory applies; the optimum
-   depends on the slowest error mode, which domain size, anisotropy, vertical
-   stretching and buildings all affect.
+1. Reuse the existing internal `SolverState` relaxation option, default `1.78f`,
+   available to tests and studies. No new public omega parameter is required.
+   The useful factor depends on domain size, anisotropy, stretching, buildings
+   and the slowest error modes. Verify the actual operator and boundary
+   properties rather than inferring optimality from an ideal uniform stencil.
 2. Run a bounded fixed-work experiment, for example ω in {1.78, 1.85, 1.90,
    1.95}, on the tower fixture and at least one canyon case. Measure pedestrian
    error against accepted same-grid references, mass diagnostics and cost. Watch
@@ -668,8 +785,45 @@ before any new reuse API. Python still builds a new runner per call. See the
   because its traffic is then small compared with the multiplier fields.
 
 The other known defects (StreetCanyon can relabel solid cells as fluid; the
-exposed `street_intersection_flag` has no model) are model questions, not
-solver-control prerequisites. Track them separately.
+exposed `street_intersection_flag` has no model) remain tracked model questions.
+S5b must determine whether the flag discrepancy contributes to the observed
+mass hotspots. Keep any resulting model correction separate from diagnostic
+changes, with declared numerical differences; do not treat a known model issue
+as irrelevant to a proposed acceptance safeguard.
+
+### 10. Match acceptance to the requested output
+
+The product needs more than one operating contract:
+
+| Use case | Contract to implement or retain |
+| --- | --- |
+| Interactive preview | Existing bounded execution with explicit resource stop, work count and `not_assessed` quality unless a named policy actually qualifies it. |
+| Pedestrian screening | Opt-in, calibrated vector and K error predictors at declared ROI/heights/receptors, plus fresh residual/mass safeguards. |
+| Full 3D or turbulence output | A separate volume/derived-output assessment scope. A stable pedestrian slice cannot qualify velocities elsewhere, gradients, stresses or gust estimates. |
+| Comfort/climate aggregation | Use qualified directional numerical-error estimates to assess sensitivity of classifications to those estimates; retain model/climate/gust limitations. |
+| Numerical verification | Fixed-work studies, precision controls, coherent normalized residuals, actual flux checks and independently qualified references. |
+
+Keep the legacy absolute multiplier criterion as a compatibility diagnostic.
+Relative or Uref/length-scaled multiplier updates are useful comparative
+diagnostics but remain dependent on method, grid and multiplier scale. They
+are not the primary user-facing accuracy target. Public defaults, the meaning
+of `SolveDiagnostics.converged`, and old reference gates do not change here.
+
+The proposed production policy is a conjunction of observable remaining-error
+predictors, individual critical-point/hotspot limits, valid support and fresh
+mass/numerical checks. Use both vector and speed-factor quantities so a correct
+speed with an incorrect direction cannot pass. Global signed balance alone
+cannot detect canceling local sources/sinks. Residual tolerances and low-flow
+normalization must be independently calibrated, including a separate calm-wind
+contract; a budget stop or numerical stagnation is never accuracy acceptance.
+
+For comfort, evaluate lower/upper directional K scenarios through the existing
+climate/classification calculation. Equal classes under credible bounds support
+robustness to those numerical errors only. A borderline class needs more work
+or an uncertainty label. Use actual contributions to threshold exceedance;
+low-frequency directions can still control safety tails. This requires S7
+directional bounds and is a conditional S8 integration, not a shortcut to
+physical validation or a statistical confidence interval.
 
 ## Proposed interfaces and compatibility
 
@@ -685,12 +839,12 @@ Native, all names finalized in S1:
 - `src/qes_core/dtcc/api/`: plain `SolverControl` settings and `ControlRecord`
   results, extending `wind_config.h` or a sibling header. No QES types.
 
-Python: add an optional `solver_control` object to `wind.run`, with `None`
-preserving the current API behavior. Put the value types in a small new
-`src/dtcc_qes/solver_control.py`. Validate in Python and at the native entry
-point; copy monitor inputs before releasing the GIL.
+Python: S4 implements optional `solver_control` in `wind.run`, with `None`
+preserving legacy behavior and value types in `src/dtcc_qes/solver_control.py`.
+Retain validation in Python and at the native entry point; copy monitor inputs
+before releasing the GIL when extending these types.
 
-The first opt-in mode is `bounded`: legacy tolerance stopping plus a required
+The implemented first opt-in mode is `bounded`: legacy tolerance stopping plus a required
 positive finite native time budget, checkpoint interval, explicit monitor
 specification and history bound. `max_iterations`, `tolerance` and
 `solver_precision` remain the existing arguments and the single source for those
@@ -748,10 +902,9 @@ empirical-model and climate uncertainty separate.
 | Each such location when reference K < 0.1 | <= 0.01 absolute K error | <= 0.005 absolute K error |
 | Required support | Valid, with no validity transitions | Valid, with no validity transitions |
 
-The preview low-speed threshold above is an initial design proposal. Vector
-error must also be measured; a candidate matching p95 budget on
-`|U - U_reference| / Uref` should be tested before accepting a policy, since speed
-alone misses direction error. Record maximum errors and failure locations even
+All table entries remain hypotheses, not selected defaults. Freeze an explicit
+vector-error budget on `|U - U_reference| / Uref` alongside the speed budgets
+before calibration; matching speed alone misses direction error. Record maximum errors and failure locations even
 where p95 is the aggregate acceptance statistic. Percentiles must declare their
 point set, weighting and calculation method; use the fixed common physical
 lattice for existing comparisons and do not silently change it to favor a grid.
@@ -775,8 +928,10 @@ successive-checkpoint differences.
 Start from a geometric remaining-error estimate. For a norm of the checkpoint
 change in a tracked quantity, such as the p95 or maximum change in K, take the
 two latest changes d_(n-1) and d_n, estimate the decay ratio q = d_n / d_(n-1),
-and estimate the remaining error as d_n·q/(1 − q). Calibration then sets a
-safety factor and the conditions under which the estimate is trusted: q stable
+and estimate the remaining error as d_n·q/(1 − q). This is a heuristic under
+stable geometric decay, not a proven bound for changing modes or percentile
+supports. Calibration then sets a safety factor and the conditions under which
+the estimate is trusted: q stable
 over several intervals and clearly below 1, never rising or near 1. On the tower
 evidence, raw 100-sweep differences understate the remaining error about four to
 five times.
@@ -786,14 +941,19 @@ and two consecutive stability intervals, an explicit minimum interval in
 sweeps, and a minimum work requirement selected during calibration. Compare
 short and longer windows to catch slow drift. Stable support, fixed receptors,
 moving hotspots and fresh mass checks must all pass. Initial candidate
-checkpoint spacings of 100 and 250 sweeps are reasonable bounded experiments;
-the 500/1000/2000 observations do not establish a universal schedule. Stagnation
+checkpoint spacings of 100 and 250 sweeps remain possible policy experiments;
+S5a first screens 25/50/100 for observation cost. Freeze the actual sweep spans
+of short/long windows and calibrate for the selected cadence; a threshold on a
+25-sweep difference cannot be reused unchanged for a 250-sweep difference.
+The 500/1000/2000 observations do not establish a universal schedule. Stagnation
 without acceptance stops as `stagnation`, never `target_reached`.
 
 K was independent of Uref to about 2e-6 in an earlier three-building check
-(Uref = 2, 5 and 12 m/s), so calibrate all policy quantities in K and treat Uref
-as a scale. One linearity check per policy replaces a wind-speed sweep. Repeat
-it if stability-dependent profiles or turbulence models are bridged.
+(Uref = 2, 5 and 12 m/s); the new courtyard study confirms near-invariance at
+equal work but exposes the speed dependence of absolute-tolerance stopping.
+Calibrate positive-inflow policies in normalized vectors/K. Check scaling on
+at least one urban case per claimed model/profile scope; branch changes,
+precision and future stability-dependent models can invalidate extrapolation.
 
 Explicitly handle Uref = 0: normalized K metrics are undefined. Initially reject
 adaptive acceptance for zero reference speed and support legacy/bounded
@@ -815,6 +975,8 @@ output change, each commit passes `tools/compare_native_builds.py` bitwise
 against the previous commit in OpenMP and serial builds, plus CTest (OpenMP,
 serial, sanitizers), the symbol audit, pytest in both backends and the
 sdist/wheel artifact check.
+These are implementation/behavior gates. Documentation-only reviews check
+consistency, links and evidence identities without rerunning compute matrices.
 
 ### S0 — Baseline, profile and prerequisites (complete)
 
@@ -905,7 +1067,7 @@ baseline is the SHA-256-identified
 revision for this uncommitted workspace. S0/S1 evidence stays unchanged.
 That review preceded S2 below.
 
-### S2 — Per-sweep traffic and memory
+### S2 — Per-sweep traffic and memory (complete)
 
 **Review 2026-10-29:** still relevant and ready to implement in the sequence
 below. S1/S1a satisfy the phase and condition-state prerequisites. The review
@@ -998,10 +1160,10 @@ artifact checks pass. Five bounded profiling matrices completed with paired
 numerical parity. At four threads, the local float32 sweep is 2.12× faster and
 peak RSS is 29.8% lower than S1a; short matched-work measurements do not establish
 an accuracy or timing guarantee. NumPy ownership/copying remains unchanged.
-The reviewed next step is S3 monitoring against the frozen S2 source identity;
-implementation stops here.
+The stage's reviewed next step was S3 monitoring against the frozen S2 source
+identity; S3 and S4 have since completed without rewriting this evidence.
 
-### S3 — Pedestrian and mass monitoring
+### S3 — Pedestrian and mass monitoring (complete)
 
 1. Implement the compiled monitor specification and slab observation through
    `observe`, with pure observations of the current iterate.
@@ -1028,11 +1190,13 @@ comparison passes without differences. Bounded native, Python, sanitizer,
 packaging and symbol checks pass. The sequential 60-worker cost matrix retains
 8.32 MiB of fixed monitor buffers; slab checkpoints add about 3.4% to the local
 four-thread float32 native total. Continuous residual collection adds about
-93%, so cadence must remain explicit and optional. S5 still needs to qualify
-public API overhead, including the observed disabled-path timing variation.
-No automatic accuracy acceptance or S4 controller is implemented here.
+93%, so cadence must remain explicit and optional. Public API overhead and
+disabled-path variation were still open at this freeze; the urban evidence now
+addresses four-thread execution, with the remaining S5 follow-up defined below.
+At the S3 freeze, automatic accuracy acceptance and the S4 controller were not
+implemented. S4 subsequently added bounded controls; acceptance remains open.
 
-### S4 — Bounded controller and Python API
+### S4 — Bounded controller and Python API (complete)
 
 1. Add the controller, cooperative deadlines, iteration accounting and the
    structured termination and history record. Thread the optional
@@ -1059,94 +1223,278 @@ boundary and zero-work errors; Python/dataset histories and metadata serialize.
 The first usable bounded API is available. Twelve eight-sweep urban smoke
 workers completed, with identical baseline/candidate fields at equal work.
 The 2 m core suite is frozen at 3.6–6.3 million cells per case; its 108 rows are
-split into eighteen explicitly selected, six-worker shards. The realistic
-resolution performance campaign is the next S5 milestone.
+split into eighteen six-worker shards. The five completed 500/2,000-iteration
+campaigns and their qualifications are recorded in the current-evidence section;
+S5's remaining diagnostics, publication and cadence gates are below.
 
-### S5 — Overhead and cadence
+### S5 — Qualify numerical evidence and close the performance follow-up
 
-Execute S5 in two parts. S5a runs repeated public API runtime/memory and
-equal-completed-work comparisons with the urban suite. S5b adds time versus
-measured error where a compatible same-grid reference is already qualified.
-Unavailable references must not block S5a or be replaced by unqualified
-baseline differences. S6 uses these cost/error observations for the method
-decision; S7/S8 do not delay the first end-to-end benchmark campaign.
+**Status:** the five public-API campaigns above are complete and locally
+audited. Four-thread equal-work speed/trajectory preservation is demonstrated.
+Portable evidence publication, cadence/resource studies and same-grid numerical
+qualification are open. Start S5b's diagnostic implementation next; do not
+repeat the completed matrices merely to begin it. S5a follow-up and S5b studies
+can then run sequentially without competing timing work.
 
-1. Compare the S0 baseline, the refactored path with controls disabled, and
-   bounded execution with monitoring. Compare equal sweep counts and,
-   separately, equal measured error; label the distinction. Report the S2 gain
-   separately from monitoring overhead.
-2. Use warm, repeated measurements on a declared machine, recording actual teams
-   (1/2/4 and a bounded 8-thread check), phase timings and peak RSS. Avoid
-   concurrent timing workers and host-sleep-contaminated timing claims.
-3. Review targets, not guarantees: no more than 5% median API regression with
-   controls disabled, and no more than 10% overhead for useful monitoring at the
-   same sweep count on the representative case.
+#### S5a — Publish measured costs, select cadence and exercise resource stops
 
-**Exit:** a documented cadence and runtime envelope. If monitoring dominates,
-reduce duplicate work or its frequency while keeping the required checks; do
-not drop difficult receptors to meet the target.
+1. Publish the five existing campaigns and the tolerance-scaling study under a
+   new `docs/data/solver-control-s5/` evidence identity. Include source archives
+   and build recipe/environment, fixture/driver hashes, original protocols,
+   outcomes, comparisons, compact planes, logs, failed/excluded attempts and an
+   independent audit. Do not edit S0–S4 evidence. Preserve S1a→S4 and S3→S4
+   attribution, ratios of medians versus medians of paired ratios, three-repeat
+   limitations, actual four-thread scope and the wider long-run RSS range.
+2. Screen checkpoint intervals 25/50/100 on courtyard 225° and downtown 225°
+   using one fixed-work repetition each: six workers. Confirm the selected
+   cadence against controls disabled with three paired repetitions per case:
+   twelve workers. Retain both heights, all required receptors, hotspot tracking
+   and bounded history. Do not reduce coverage to meet an overhead target.
+   Account for S5b's fresh residual/final-check cost when S7 is integrated.
+3. On one representative case, check actual teams 1/2/4 with controls off/on
+   (six workers), plus a separately bounded 8-thread off/on check if hardware
+   and memory permit. Use affordable fixed work, not a 2,000-iteration serial
+   S1a case that the measured cost predicts will exceed the worker deadline.
+   Keep this a sensitivity study, not another full Cartesian product.
+4. Exercise real native budgets 0.25/0.5/1/2/5 s on two urban cases with a
+   sufficiently high iteration cap: ten initial workers. Verify actual resource
+   stops, zero-work failure where applicable, completed whole sweeps, overshoot,
+   finalization/output cost and honest quality status. Repeat only selected
+   boundary cases when new failures or material variance justify it. Expensive
+   observation cadence must not coarsen per-sweep CPU deadline checks.
+5. Freeze each matrix before running it. Preserve 30 s process limits, six-worker
+   shards and 180 s shard limits; explicitly select the finite campaign size.
+   Build outside clocks, reuse only verified cache entries and isolate tests,
+   builds and host-sleep-contaminated attempts from accepted timing. Archive
+   source/ABI/toolchain/package-integrity cache decisions. Budget failures are
+   outcomes, never permission for automatic retries with larger limits.
 
-### S6 — Decide the iteration method
+**Exit:** portable audited evidence; a documented cadence and measured runtime,
+RSS/allocation and resource-stop envelope. Review targets remain <=5% median
+API regression against S3 with controls disabled and <=10% monitoring overhead
+on the declared representative scope. For any missed performance target,
+publish the measured tradeoff and disposition; do not label it met or turn a
+performance target into an accuracy exemption.
 
-1. Run the bounded relaxation experiment from decision 7 with the S3 monitors
-   and S4 budgets.
-2. Plot cost against pedestrian error and mass diagnostics for each candidate
-   on the tower fixture and at least one canyon case.
-3. Keep the current method, adopt a new relaxation default, or open a separate
-   solver task for acceleration, Krylov or multigrid methods as new kernels
-   behind the phase contract.
+#### S5b — Coherent diagnostics, hotspot classification and reference qualification
 
-**Exit:** a recorded method decision with its evidence. If the method changes,
-that task, with its own parity and validation evidence, completes before S7.
+1. Add pure completed-iterate equation-residual diagnostics to the native phase
+   API, alongside the existing update-time trend. Specify A, b, sign, row
+   scaling, norm, fluid eligibility and boundary convention. Report maximum
+   and volume-weighted RMS, initial/RHS normalization, normalization floors and
+   assessed counts. Declare any physical reference length before measuring;
+   do not choose a domain-dependent scale after seeing difficult residuals.
+   Verify against an independently assembled small-stencil
+   oracle on uniform/stretched grids, ground mirrors, prescribed boundaries,
+   solids, calm flow and nonfinite failures. Observation must not mutate the
+   trajectory, allocate another persistent full velocity volume, or change
+   legacy outputs. Measure checkpoint/global-check costs.
+2. Reproduce and locate the downtown 225°/315° and courtyard 225° mass maxima
+   at 500 and 2,000 iterations. Map coordinates, layer/height, flags before and
+   after parameterization, neighboring faces/coefficients and diagnostic
+   eligibility. Compare true equation residual, corrected-face divergence and
+   regional signed/absolute flux on exactly the same iterate. Include a 270°
+   control and separate top-band/domain-boundary behavior from assessed interior.
+   The known StreetCanyon flag relabeling is a hypothesis to test, not a diagnosis.
+3. Classify each persistent discrepancy as iterative error, precision floor,
+   an operator/mask/reconstruction defect, or a documented model/boundary
+   limitation. A small float64 control on the same inputs helps isolate the
+   first two; it does not change the default precision or make output arrays
+   float64. Do not assume the current 66–626× tolerance misses are roundoff.
+   Keep any necessary numerical correction in a separately frozen change with
+   exact expected differences, affected-case tests, repeatability and provenance.
+   Do not silently exclude difficult cells, loosen old reference gates, smooth
+   empirical branches or change boundaries as part of diagnostic code.
+4. Inventory compatible references before generating new ones. Require matching
+   geometry, grid/faces, initial fields, condition flags, model options,
+   coordinate frame, source/numerics identity and sampling definition. The old
+   tower reference applies only after that compatibility check; it is not a
+   reference for the new neighbourhoods. Public tolerance stopping is not an
+   exact-work study protocol: use the existing internal `FixedSweeps` option
+   and record actual completed work.
+5. Predeclare a finite per-case N/2N/4N independent-zero-start protocol that fits
+   the measured 30 s worker envelope. Start on affordable compatible tower and
+   urban canyon/passage inputs; include the hotspot cases in diagnostics even
+   if they remain unqualified. Preserve the original reference gates and any
+   failures. Continuation histories can inform cost/decay, but cannot replace
+   the independent reference protocol. If large-grid references are unaffordable,
+   use a separately declared smaller calibration scope and retain the large
+   case as unqualified. Never call 2,000 iterations the truth or repeatedly
+   double work until a reference passes.
+6. Archive field/receptor error, residual and mass versus work/time, using only
+   qualified same-grid references for error labels. Collect bounded histories
+   long enough for the predeclared replay study: the existing 16-summary ring
+   omits early checkpoints and cannot recover an entire acceptance trajectory.
+   Keep production history bounded and label truncated studies insufficient.
+   Separate solver error from grid/domain sensitivity, empirical model error,
+   climate uncertainty and physical validation.
 
-### S7 — Calibrate and validate an opt-in adaptive policy
+**Exit:** tested coherent diagnostics, an evidence-backed hotspot disposition,
+and an explicit reference-qualification inventory and cost/error dataset. Missing
+qualification remains visible. An unresolved assessed-interior inconsistency
+blocks acceptance for the affected scope; it does not block publishing S5a or
+justify silently weakening the numerical target.
 
-1. Freeze candidate error contracts, diagnostics, checkpoint rules, scope and
-   matrix limits for the method chosen in S6. Separate calibration cases from
-   held-out validation cases.
-2. Cover uniform, explicit and automatic grids within the supported scope;
-   different aspect ratios; tower, canyon, passage and sheltered geometries;
-   oblique winds; one wind-speed linearity check; both pedestrian heights;
-   domain-height and lateral controls; and the known upwind-cavity and sidewall
-   branch sensitivity. Include float32 plateaus, slow drift, invalid support and
-   moving hotspots.
-3. Prefer accepted same-grid references to isolate iterative error. Treat grid
-   sensitivity and physical model validation separately. If a case lacks an
-   affordable qualified reference, mark it unqualified and restrict the policy
-   scope; do not infer correctness from a final small residual alone.
-4. Replay recorded checkpoint histories to design the predictor, starting from
-   the geometric remaining-error estimate, then run it online on held-out cases.
-   Report every false acceptance, failure to accept, timeout, achieved reference
-   error and cost. A finite validation matrix gives empirical evidence, not a
-   universal mathematical error bound.
-5. Enable `adaptive` only after the declared held-out cases satisfy the frozen
-   contract without false acceptance. Cases outside validated scope remain
-   unqualified. Publish policy identity, limitations and measured tradeoffs.
+### S6 — Freeze the iteration-method decision before policy calibration
 
-**Exit:** an opt-in, versioned policy with separate acceptance status, accurate
-warning/exception behavior, reproducible evidence and a rollback to legacy mode.
-Default promotion requires a later explicit review.
+1. Reuse the existing internal relaxation option; screen omega
+   {1.78,1.85,1.90,1.95} on an affordable compatible tower and urban canyon case
+   under fixed work and explicit budgets. Use the S5b diagnostics/references,
+   both pedestrian heights and critical/hotspot locations. Check transient
+   growth, slowly decaying modes, precision plateaus and mass behavior.
+2. Confirm the promising option against 1.78 with paired repetitions and at
+   least one held-out morphology/direction. Select by total cost to the frozen
+   observable-plus-mass target. Equal sweeps, a lower multiplier update or one
+   residual scalar are not enough to establish an improvement.
+3. Record one finite outcome: retain 1.78; select a documented opt-in factor;
+   or open a separately scoped acceleration task. Verify symmetry/definiteness
+   of the actual stretched-grid, ground and solid-boundary operator before
+   choosing conjugate gradients. Chebyshev, vertical-line preconditioning and
+   multigrid are candidates, not mandatory implementations in this refactor.
+   State their setup/reuse costs if evaluated.
+4. Preserve the legacy default trajectory unless a deliberate numerical change
+   is separately recorded. Freeze the selected method/kernel version for the
+   policy; intentional trajectory changes require new reference compatibility
+   checks and validation. Changing the method after S7 invalidates calibration.
 
-### S8 — Multi-direction runs and comfort orchestration
+**Exit:** a recorded, reproducible method decision. Keeping the current method
+is a valid outcome. If adequate cost/quality requires a different solver, define
+that separate task and the restricted bounded-only disposition explicitly;
+opening it does not make the adaptive-policy stage complete.
 
-1. With decision 9's fixes in place and S0's profile showing a worthwhile
-   preparation share, add execution of several conditions on one prepared
-   model and operator, exposed through a reusable Python model object or a
-   multi-direction call. Keep `wind.run` unchanged.
-2. Evaluate multi-right-hand-side sweeps on the compact operator and, if S6
-   chose a preconditioned method, preconditioner reuse across directions.
-   Warm starts between directions remain a separate, measured question.
-3. After the native policy is validated, carry estimated numerical uncertainty
-   in directional speed factors into the comfort calculation. Reassess
-   classifications using the uncertainty range; mark classifications sensitive
-   to that range as borderline and refine only contributing directions under an
-   overall time budget. Do not call empirical numerical-error estimates
-   statistical confidence intervals. Mean-field accuracy does not supply missing
-   gust/GEM information.
+### S7 — Implement and validate a policy tied to requested outputs
 
-Items 1 and 2 can start after S2 and S4 independently of S6 and S7. Item 3
-needs S7. None of this substitutes for physical validation of QES for the
-intended use.
+1. Freeze versioned contracts and supported scope before calibration. Distinguish
+   latency-bounded preview (`not_assessed` unless a policy qualifies it),
+   pedestrian screening, and numerical/full-volume verification. Keep the
+   candidate K table provisional until vector, critical-point and independent
+   mass/residual limits and their normalizations are selected. A pedestrian
+   policy does not qualify turbulence, full-volume derivatives or gust/GEM.
+   Reject adaptive acceptance for Uref=0 initially; retain calm legacy/bounded
+   output. Include a scoped inflow-scaling check.
+2. Separate calibration from held-out geometries/directions. Cover both heights,
+   fixed required receptors and moving/current/previous hotspots; uniform and
+   supported stretched grids; passages/shelter; oblique winds; domain controls;
+   branch-sensitive cases; slow drift, float32 stagnation and invalid support.
+   Unsupported or reference-unqualified configurations remain bounded/unaccepted.
+   Freeze a finite matrix and budgets instead of expanding until it passes.
+3. Replay sufficient checkpoint histories. Require multiple post-initialization
+   checkpoints, short/long windows, a calibrated minimum work interval and
+   stable support. Start with the geometric-tail estimate and a calibrated
+   safety factor. Treat unstable decay ratios, q near/above one, changing
+   modes/support and plateaued diagnostics as unavailable evidence, never as
+   zero error. Track maxima and every required point even when p95 is the ROI
+   target. A generic small-change threshold alone is not acceptance.
+4. Implement native controller decisions without Python callbacks in the mutex
+   or OpenMP workers. Adaptive execution may continue after legacy tolerance;
+   use explicit stop rules rather than corrupting the tolerance to force work.
+   Accept only when observable predictors, every required point/support check,
+   and fresh global/regional numerical/mass safeguards pass on one current
+   iterate before the deadline. Retain per-sweep budget checks. Time/iteration
+   limits, stagnation and numerical failure remain separate outcomes; no work
+   yields the existing budget-exhausted error.
+5. Validate online on the held-out matrix against qualified references. Report
+   every false acceptance, missed acceptance, invalid receptor, timeout,
+   stagnation, achieved error and total API cost, including final checks/output.
+   Declare maximum allowed false acceptances as zero for release on that matrix;
+   the result is empirical qualification, not a universal error bound. A failed
+   case requires a scope restriction or a new policy version and new held-out
+   validation, not post-hoc threshold changes on the same validation set.
+6. Expose only a qualified opt-in policy. Preserve `diagnostics.converged` as the
+   legacy multiplier test; record policy/version/method, assessment scope,
+   numerical evidence, acceptance and failure reasons separately. Implement
+   acceptance-specific warning/exception behavior and dataset health/cache
+   provenance. An accepted adaptive result with legacy `converged=False` must
+   not emit the old failure warning; a legacy-converged but unaccepted result
+   must not be presented as accepted. Test serialization, deadline precedence,
+   stale/initial evidence, cache identity, unsupported modes, GIL/mutex safety,
+   owned outputs and bounded history/memory.
+
+**Exit:** a documented opt-in policy with a frozen method and supported scope,
+zero false acceptances on the declared held-out matrix, accurate API/dataset
+status and a rollback to legacy/bounded mode. Defaults remain unchanged. If no
+useful scope passes, keep adaptive disabled and record S7 as unqualified/open
+pending an explicit restricted-closure decision; do not claim it completed.
+
+### S8 — Measure and integrate repeated directions without expanding the physics scope
+
+#### S8a — Prepared-model reuse
+
+1. Measure repeated-condition preparation, geometry extraction, operator setup,
+   sampling and output cost separately on one affordable neighbourhood. The
+   original S0 preparation share does not establish current user-level savings.
+   Predeclare four/eight-direction pilot sequences that fit the worker limit;
+   do not put an over-budget core sequence inside one worker.
+2. If reuse gives a worthwhile measured benefit, expose a reusable prepared
+   Python model or multi-direction call around the existing native runner. Keep
+   `wind.run` unchanged. Snapshot geometry/options, reuse the immutable operator,
+   and start every condition from zero; no warm starts or new numerical kernel.
+   Validate reprepare/precision/model changes, direction ordering, failure then
+   success, both turbulence methods, geometry mutation, output ownership,
+   concurrent-call locking and fresh-versus-reused parity. Count preparation
+   once in series totals and keep requested multi-direction output memory guarded.
+3. Publish repeated-series end-to-end time, allocation/RSS and field/diagnostic
+   parity against independent fresh calls. If the benefit is negligible, record
+   the decision and defer a public reuse API explicitly rather than introducing
+   an unmeasured convenience abstraction.
+
+**Exit:** a measured reuse decision and, when adopted, a tested minimal API with
+fresh-call parity. It can proceed independently of S7 only in legacy/bounded
+mode; policy state and monitoring identity must reset between conditions.
+
+#### S8b — Conditional comfort sensitivity and separately scoped optimization
+
+After S7 provides qualified directional uncertainty estimates, propagate lower/
+upper K scenarios through the existing climate/comfort calculation. Report
+borderline classifications and refine only directions that can change the
+decision, including rare directions affecting safety tails, under a total
+budget. Preserve missing-direction/support rules, mean/GEM distinctions and
+model/climate qualifications. Use synthetic climate fixtures for numerical
+tests; obtaining or validating a real climate is a separate input task.
+
+Comfort refinement is not available while directional estimates are unqualified.
+Multi-right-hand-side kernels, preconditioner reuse, warm starts, GPU backends
+and physical comfort/gust validation are named follow-ups when justified, not
+implicit requirements for closing the control refactor. The S9 scope ledger
+must state whether comfort sensitivity was implemented or remains conditional;
+do not mark the entire S8 product roadmap complete by completing S8a alone.
+
+### S9 — Release evidence and explicit closure
+
+1. Publish an implementation/closure report mapping S0–S8 to completed work,
+   measured decisions, conditional/deferred integrations and unresolved numerical
+   limitations. Include the original restricted vertical-grid closure and all
+   reference/hotspot failures. Full acceptance-roadmap completion requires S7's
+   validated scope. A bounded-only closure is a different, explicitly named
+   scope decision, with the unqualified policy tracked as unfinished follow-up.
+2. Freeze the final sources and numerical/policy identities. Audit portable
+   evidence, source members, inputs, outputs, build/compiler/ABI/team metadata,
+   excluded attempts and qualifications. Never regenerate old evidence under
+   an unchanged identity. Stage isolated reviewable sources so unrelated live
+   workspace edits do not enter the release or invalidate attribution.
+3. Run the applicable OpenMP/serial native and full Python suites, focused
+   ASan/UBSan lifecycle/monitor/controller/new-diagnostic checks, symbol audits,
+   wheel runtime and sdist/wheel content checks. Preserve the strict 429-case
+   default/disabled trajectory gate with teams 1/2/4 and bounded 8, plus serial
+   parity. Test new policy/method paths against their declared accuracy and
+   repeatability contracts. Scope any intentional numerical differences exactly;
+   do not add a broad tolerance exception to the legacy parity gate.
+4. Verify one-command campaign reproduction, same-input build reuse, rebuild on
+   changed source/toolchain/ABI or damaged packages, fresh fixtures and immutable
+   prior outcomes. Add new sources, tests and the high-level runner to packaging
+   and provenance checks. Recheck history/allocation limits and worker deadlines.
+5. Update README, API/dataset docs, stage reports and benchmark instructions.
+   Publish defaults, supported grids/frames/precisions/outputs, status and error
+   meanings, measured cadence/cost envelope and calibrated policy limitations.
+   Numerical acceptance cannot be advertised as grid independence, physical
+   validation or regulatory comfort qualification. Default promotion, model/
+   boundary corrections and acceleration remain explicit separate decisions.
+
+**Task closure:** the scoped mandatory exits above are satisfied, evidence is
+portable and audited, release checks pass with unrelated failures separated,
+and the closure report names every remaining conditional/follow-up item. Neither
+a completed benchmark nor an exhausted research budget is task completion.
+
 
 ## Verification, file ownership and deferred work
 
@@ -1179,12 +1527,25 @@ If fast acceptable fields remain unattainable within the declared scope, use the
 new diagnostics to justify a separate solver acceleration task rather than
 silently expanding iteration budgets.
 
-## Start checklist
+## Remaining execution checklist
 
-- S0 complete: baseline revision, archived evidence, phase/pass timings and array
-  allocation inventory recorded in [the report](docs/solver-control-s0.md).
-- Implement the phase-based solver package, delete the old solver classes, and
-  prove bitwise parity with the harness (S1); then stop for review.
-- Reduce traffic and memory with bitwise checks (S2) before adding monitoring.
-- Fix per-condition model state before any reuse across conditions (decision 9).
-- Decide the iteration method (S6) before calibrating any stopping policy (S7).
+- [x] S0–S4: baseline, phase extraction, S1a condition-state fixes, storage/traffic
+  reduction, monitoring and bounded Python/dataset controls, with frozen evidence.
+- [x] Run and audit the five 500/2,000-iteration urban campaigns: 324 workers,
+  216 bitwise-equal candidate/baseline comparisons, no legacy-tolerance passes.
+- [x] Investigate tolerance semantics and run the inflow-scaling check; retain
+  absolute multiplier stopping as a compatibility diagnostic.
+- [ ] **Next implementation: S5b completed-iterate residual diagnostics and
+  persistent hotspot classification**, preserving the legacy trajectory.
+- [ ] S5a: portable evidence bundle, measured cadence/thread sensitivity and
+  actual budget-stop/overshoot studies; dispose of missed performance targets.
+- [ ] S5b: qualify affordable same-grid references and produce honest cost/error
+  curves; keep incompatible, failed or unaffordable cases unqualified.
+- [ ] S6: freeze the iteration-method decision before calibrating a policy.
+- [ ] S7: implement and validate a scoped opt-in policy and its independent
+  acceptance/warning/cache semantics; keep defaults and old reference gates.
+- [ ] S8a: measure prepared reuse, then implement the minimal API if justified
+  or publish its explicit deferral. S8b remains conditional on qualified bounds.
+- [ ] S9: final source/evidence freeze, release checks, docs and a recorded scope
+  ledger that distinguishes full-roadmap completion from bounded-only closure.
+  The current plan review itself does not complete these stages.

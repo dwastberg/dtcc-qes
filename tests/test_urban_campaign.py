@@ -119,10 +119,11 @@ def test_cache_lock_rejects_concurrent_campaigns_and_releases_after_failure(tmp_
 def test_campaign_runs_all_shards_and_reports_incomplete_work(tmp_path, monkeypatch, failed):
     args = SimpleNamespace(output=tmp_path / "campaign", cache_dir=tmp_path / "cache",
         baseline_archive=tmp_path / "baseline", candidate_archive=tmp_path / "candidate", comparison="overall",
-        backend="openmp", tier="pilot", rebuild=False, city_case=[])
+        backend="openmp", tier="pilot", rebuild=False, city_case=[], iterations=2000, solve_seconds=20.)
     monkeypatch.setattr(runner, "build_context", lambda: {})
     monkeypatch.setattr(runner, "cached_build", lambda *a, **kw: ({"package": str(tmp_path)}, {"reused": True}))
-    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **kw: None)
+    commands=[]
+    monkeypatch.setattr(runner.subprocess, "run", lambda command, **kw: commands.append(command))
     monkeypatch.setattr(runner.benchmark, "check_inputs", lambda folder:
         dict(rows=list(range(12)), shards=2, total_shard_seconds=180))
     shards = []
@@ -138,6 +139,8 @@ def test_campaign_runs_all_shards_and_reports_incomplete_work(tmp_path, monkeypa
     monkeypatch.setattr(runner.benchmark, "aggregate", aggregate)
     assert runner.campaign(args) == (1 if failed else 0)
     assert shards == [0, 1]
+    assert commands[0][commands[0].index('--iterations')+1]=='2000'
+    assert commands[0][commands[0].index('--solve-seconds')+1]=='20.0'
     state = json.loads((args.output / "campaign.json").read_text())
     assert state["status"] == ("incomplete" if failed else "completed")
     assert (args.output / "results.txt").read_text().strip() == "Final benchmark results"
