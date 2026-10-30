@@ -39,7 +39,7 @@ def check_wheel(path):
                 "Wheel omits native extension")
         for name in ("wind.py", "result.py", "_city.py", "vertical_grid.py", "_auto_grid.py",
                      "_turbulence_domain.py", "turbulence.py", "comfort.py", "datasets.py",
-                     "_dataset_city.py", "solver_control.py", "_qes_revision.txt"):
+                     "_dataset_city.py", "solver_control.py", "profiles.py", "_qes_revision.txt"):
             require("dtcc_qes/" + name in names, f"Wheel omits {name}")
         require(len(archive.read("dtcc_qes/_qes_revision.txt").strip()) == 40, "Missing source revision")
 
@@ -59,6 +59,10 @@ def check_sdist(path):
             "src/qes_core/solver/mass_diagnostics.h", "tests/native/check_solver_phases.cpp",
             "src/qes_core/qes/Domain.cpp",
             "src/qes_core/winds/WindModelInputs.h", "src/qes_core/winds/LogProfile.cpp",
+            "src/qes_core/winds/LayerProfile.cpp", "src/qes_core/winds/LayerProfile.h",
+            "src/qes_core/dtcc/api/profile_types.h", "src/dtcc_qes/profiles.py",
+            "WIND_PROFILES.md", "docs/wind-profiles.md", "tests/test_profiles.py",
+            "tests/native/check_profiles.cpp", "tools/verify_wind_profiles.py", "examples/wind_profiles.py",
             "src/cpp/bindings.cpp", "src/qes_core/dtcc/wind_runner.cpp", "src/qes_core/dtcc/model_inputs.cpp",
             "src/dtcc_qes/datasets.py", "src/dtcc_qes/_dataset_city.py", "tests/test_datasets.py",
             "tests/test_dataset_vertical_grid.py", "examples/city_dataset.py",

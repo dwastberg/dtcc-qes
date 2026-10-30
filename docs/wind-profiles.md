@@ -20,7 +20,9 @@ Heights are metres above flat ground, speeds are m/s, directions are
 meteorological FROM clockwise from north, and `w=0`. Each profile accepts
 `metadata={...}` for explicit source, location, timestamp, averaging period,
 scalar/vector-mean provenance or other JSON information. Missing provenance
-remains absent. Input arrays and nested metadata are copied and frozen.
+remains absent. Input arrays and nested metadata are copied and frozen. Requested speed/direction
+measurements retain their original representation separately from caller metadata;
+scaling updates those values without overwriting provenance.
 
 ## Interpolation, tails and native supports
 
@@ -87,8 +89,8 @@ default legacy field set.
 datum, interpolation/tail policies, float64 layer vectors, effective float32
 layer vectors, the reference, lower/upper tail layer counts and
 `max_turning_deg`. Existing legacy metadata keys remain available. The log
-profile's float64 preview is a reference evaluator; actual legacy arithmetic
-and its rounding stay native and unchanged.
+profile uses a scalar metadata record and no Python-generated native table;
+actual legacy arithmetic and its rounding stay native and unchanged.
 
 ## Datasets
 
@@ -102,7 +104,8 @@ slice_result = datasets.qes_wind(
 ```
 
 `QESWindArgs.profile` is a JSON payload discriminated by `kind`: `log`,
-`measured`, `power_law` or `uniform`, with `schema_version=1`. Validation occurs
+`measured`, `power_law` or `uniform`, with a strict integer `schema_version=1`. The dataset JSON schema exposes all
+four variants through a real `kind` discriminator. Validation occurs
 before fetching city data; coverage is rechecked after final grid preparation.
 Explicit `wind_speed`, `wind_direction` and `reference_height` conflict with a
 profile. Explicit roughness conflicts only with a log profile. Canonical request

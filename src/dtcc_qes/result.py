@@ -210,7 +210,7 @@ class WindResult:
     @property
     def reference_speed(self):
         """Speed used to normalize this background shape, or None if unavailable."""
-        reference = self.metadata.get("profile", {}).get("reference")
+        reference = (self.metadata.get("profile") or {}).get("reference")
         if reference is not None:
             return reference["speed"]
         return self.metadata.get("condition", {}).get("speed")

@@ -308,18 +308,17 @@ void WINDSGeneralData::applyWindProfile(const InflowCondition &inflow)
   else applyLayerProfile(inflow, this);
 
   max_velmag = 0.0;
-  for (auto i = 0; i < domain.nx(); i++) {
-    for (auto j = 0; j < domain.ny(); j++) {
-      // int icell_face = i + j * nx + (nz - 2) * nx * ny;
-      long icell_face = domain.face(i, j, domain.nz() - 2);
-      max_velmag = MAX_S(max_velmag, sqrt(pow(u0[icell_face], 2.0) + pow(v0[icell_face], 2.0)));
+  if (inflow.profile_kind == dtcc_qes::ProfileKind::Log) {
+    // Keep the legacy top-layer expressions, order and operand types.
+    for (auto i = 0; i < domain.nx(); i++) {
+      for (auto j = 0; j < domain.ny(); j++) {
+        long icell_face = domain.face(i, j, domain.nz() - 2);
+        max_velmag = MAX_S(max_velmag, sqrt(pow(u0[icell_face], 2.0) + pow(v0[icell_face], 2.0)));
+      }
     }
-  }
-  if (inflow.profile_kind == dtcc_qes::ProfileKind::LayerTable) {
-    for (int k = 1; k < domain.nz()-1; ++k) {
-      const auto index = domain.face(0,0,k);
-      max_velmag = std::max(max_velmag, static_cast<float>(std::hypot(double(u0[index]), double(v0[index]))));
-    }
+  } else {
+    for (std::size_t k = 0; k < inflow.layer_u.size(); ++k)
+      max_velmag = std::max(max_velmag, static_cast<float>(std::hypot(double(inflow.layer_u[k]), double(inflow.layer_v[k]))));
   }
   max_velmag *= 1.2;
 
@@ -460,6 +459,9 @@ void WINDSGeneralData::mergeSort(std::vector<float> &effective_height, std::vect
 
 void WINDSGeneralData::validateInflow(const InflowCondition &inflow) const
 {
+  if (inflow.profile_kind != dtcc_qes::ProfileKind::Log
+      && inflow.profile_kind != dtcc_qes::ProfileKind::LayerTable)
+    throw qes::InputError("Unsupported profile kind");
   const float x = inflow.site_xcoord, y = inflow.site_ycoord;
   if (!std::isfinite(x) || !std::isfinite(y) || x < 0 || y < 0
       || x >= (domain.nx() - 1) * domain.dx()

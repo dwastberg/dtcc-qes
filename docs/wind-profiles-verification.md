@@ -30,8 +30,8 @@ no prescribed top-face velocity has been added. `LogProfile.cpp` is unchanged.
 
 ## Test gates
 
-The full serial Python suite passes **1,062 tests, 50 skipped**; focused
-OpenMP checks pass **491 tests, 10 skipped**. Outputs are archived with the
+The full serial Python suite passes **1,083 tests, 50 skipped**; focused
+OpenMP checks pass **512 tests, 10 skipped**. Outputs are archived with the
 [verification data](data/wind-profiles/).
 Native suites pass **43 serial and 46 OpenMP** checks. AddressSanitizer and
 UndefinedBehaviorSanitizer pass the profile, runner-lifecycle and staggered-flux
@@ -55,7 +55,10 @@ Focused coverage includes:
   table ownership and atomic validation; repeated/fresh runner equality and
   legacy-log/table family switching after failures.
 - Bitwise explicit-log/legacy results, including direction rounding near 360
-  degrees; tabulated log controls within float32 rounding.
+  degrees; tabulated log controls within float32 rounding. A separate comparison
+  against the original checkout's installed extension confirms bitwise velocity
+  and cell-flag equality for 24 empty/building, uniform/nonuniform, direction and
+  precision combinations.
 - Turning through buildings, a calm-at-roof case, more-than-45-degree warning,
   height and wall-distance turbulence for every new family, and metadata caveats.
 - Monitor reference normalization, zero-reference solves/NaN speedup,
@@ -66,7 +69,12 @@ An existing archive test depends on ignored `.log` files in the source checkout'
 urban-benchmark evidence. Those original logs were copied into this worktree
 unchanged. No archive fixtures/assertions were altered. They remain ignored;
 a fresh checkout of the frozen baseline may need the same optional archived
-logs to run that unrelated test.
+logs to run that unrelated test. The source-distribution audit also exposed 32
+manifest-listed S0 archived inputs omitted from the worktree by the old global
+`build/` ignore. They were copied from the original checkout with SHA256 checks
+against the frozen manifest. The source-distribution exclusion now targets only
+root `/build/**`, retaining historical build evidence under `docs/data/`. No
+reference inputs were regenerated or modified.
 
 ## Fixed numerical campaign
 
@@ -76,22 +84,69 @@ logs to run that unrelated test.
 implementation SHA256, compiler/runtime/backend, geometry, grid, reference,
 solver settings, numerical errors and costs.
 
-The synthetic case is a 10 x 10 x 8 m block at `(30,25)` in an 80 x 60 x 40 m
-flat domain. Horizontal spacing is 2 m; vertical coordinates use either 20
-uniform layers or faces `[0,1,2,3,5,8,12,18,26,40]`. Both multiplier precisions
-use tolerance `1e-5` and at most 2,000 sweeps. Every fluid cell vector is compared;
-maximum conservative divergence is also retained.
+The campaign includes both an empty domain and a synthetic 10 x 10 x 8 m
+block at `(30,25)` in an 80 x 60 x 40 m flat domain. Horizontal spacing is 2 m;
+vertical coordinates use either 20 uniform layers or faces
+`[0,1,2,3,5,8,12,18,26,40]`. It covers both multiplier precisions and at most
+2,000 sweeps. Every fluid cell vector is compared; maximum conservative
+divergence is retained. Each comparison now records convergence and mask
+agreement, and the overall gate requires **every** baseline, amplitude,
+legacy-control and tabulated comparison to converge.
 
 Before execution the script fixes absolute normalized-vector scaling and dense
 power-law-tabulation tolerances to **2e-3 m/s** at the 5 m/s baseline. For four
-families, two grids and both precisions, amplitude factors `.5`, `2` and `3`
-are compared with baseline fields. Dense power-law tabulation retains the
-reference and physical supports. These are numerical equivalence criteria,
-not physical accuracy thresholds. All 16 cases pass in both backends. Maximum
-amplitude-normalized error is approximately **4.3e-6 m/s**; analytic and dense
-tabulation results agree exactly on the retained supports in the recorded run.
-Legacy log controls remain bitwise equal. This does not qualify arbitrary
-geometry, shear or turning against physical observations.
+families, two geometries, two grids and both precisions, amplitude factors `.5`,
+`2` and `3` are compared with baseline fields. Dense power-law tabulation has
+2,001 evenly spaced heights plus the declared reference. It deliberately does
+**not** insert solver supports, so interpolation error is exercised. Requested
+profile inputs, all comparison stop results and source/configuration hashes are
+included in the reports.
+
+The review found that the original campaign checked convergence only for the
+baseline. It could report success when higher-amplitude float32 comparisons
+stopped at their precision floor. Corrected runs at the default `1e-5` tolerance
+are retained in [serial-default-tolerance.json](data/wind-profiles/serial-default-tolerance.json)
+and [openmp-default-tolerance.json](data/wind-profiles/openmp-default-tolerance.json).
+Numerical comparison tolerances pass, but these reports correctly have
+`all_comparisons_converged=false` and `passed=false`. The failed stops include
+legacy log controls: this is an existing absolute-tolerance/float32 limitation,
+not a newly introduced profile path. No production solver default was changed.
+
+A separate follow-up protocol uses explicit tolerance **1e-4**, with the
+numerical comparison criteria unchanged. All 32 cases and their comparisons
+converge and pass in each backend. The maximum normalized scaling error is about
+**2.9e-5 m/s** and dense-tabulation error about **5.7e-6 m/s**. Legacy controls are
+bitwise equal. These are numerical equivalence results, not physical accuracy
+thresholds or qualification for arbitrary geometry, shear or turning.
+
+## End-to-end review fixes
+
+The follow-up review against the revised plan corrected these issues:
+
+- Log-transforming knots could collapse distinct neighbouring float64 heights
+  and return the wrong value at a knot. Brackets now use physical height and
+  stable relative logarithms, including extreme height spans.
+- Invalid metadata mappings could be accepted and caller `measurements`
+  provenance overwritten. Requested input representations and scaling now
+  preserve caller metadata separately and validate it consistently.
+- The dataset accepted a generic dictionary but advertised no schema
+  discriminator. Its schema now exposes the four validated payload variants,
+  strict schema versions and forbidden unknown fields.
+- Explicit-log dataset slices used a narrowed reference while direct results
+  and monitors used the declared value. They now share the declared reference.
+- Preparation repeatedly evaluated and serialized the same physical table.
+  It now builds one validated table for preview, native input and metadata.
+  Obsolete record/coverage/turning helpers, a redundant native top-plane scan
+  on the table path, and an unreachable log metadata branch were removed.
+- Signed calm zeros could give a roof direction of minus pi instead of the
+  documented `atan2(+0,+0)=0`; Python evaluation now normalizes exact zeros.
+- Verification now exercises independent dense interpolation on empty and
+  building domains, checks every comparison stop/mask, and retains failed runs.
+
+The compiled feature still has exactly two native kinds: `log` and `layer_table`.
+There are no native measured/power-law evaluators, profile knots, sector-transfer
+implementations, turning opt-in controls or non-log turbulence rejections.
+Historical archived source snapshots are evidence and remain unchanged.
 
 ## Measured cost
 
@@ -100,7 +155,9 @@ profile-evaluator calls made by the public run; native timings cover the field
 copy/application before building models, excluding allocation. Reports retain
 both medians and the fraction of total public call time. On this arm64 machine,
 new-profile native table copying takes about 8 microseconds; Python evaluation
-across all preparation/metadata checks takes about 0.1–0.2 milliseconds. The
+across preparation/metadata checks takes tens of microseconds to about 0.1 ms.
+Each run and preview performs one bulk physical-layer evaluation, with scalar
+reference evaluation separately. The
 combined contribution is a few percent or less of the small synthetic public
 call. These machine/case measurements are not a general performance guarantee.
 
@@ -127,10 +184,13 @@ dependencies without its editable import hook, the serial extension is under
 .venv/bin/python -m pytest -q
 OMP_NUM_THREADS=2 OMP_DYNAMIC=FALSE PYTHONPATH=build/profiles-openmp-package \
   .venv/bin/python -m pytest tests/test_profiles.py -q
-.venv/bin/python tools/verify_wind_profiles.py --output /tmp/profile-serial.json
+.venv/bin/python tools/verify_wind_profiles.py --tolerance 1e-4 --output /tmp/profile-serial.json
 OMP_NUM_THREADS=2 OMP_DYNAMIC=FALSE PYTHONPATH=build/profiles-openmp-package \
-  .venv/bin/python tools/verify_wind_profiles.py --output /tmp/profile-openmp.json
+  .venv/bin/python tools/verify_wind_profiles.py --tolerance 1e-4 --output /tmp/profile-openmp.json
 ```
+
+Omit `--tolerance 1e-4` to reproduce the retained default-tolerance reports;
+they return a failure exit status for unconverged comparisons.
 
 Configure a separate Debug tree with `-DDTCC_QES_ENABLE_SANITIZERS=ON`, build
 `check_profiles check_runner check_physics`, then run:

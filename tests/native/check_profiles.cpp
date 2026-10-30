@@ -32,6 +32,21 @@ int main() {
     require(field.w0[index]==0,"Wrong w");
   }
   require(std::abs(field.max_velmag-10.8f)<1e-5,"Interior maximum omitted");
+  const auto saved_u = field.u0;
+  auto invalid_inflow = inputs.inflow;
+  invalid_inflow.profile_kind = static_cast<ProfileKind>(99);
+  rejects([&]{field.applyWindProfile(invalid_inflow);});
+  require(field.u0 == saved_u, "Invalid core kind cleared the active field");
+  auto uniform_grid = g;
+  uniform_grid.dz_layers.clear();
+  ModelInputs uniform_inputs(uniform_grid, m, empty);
+  uniform_inputs.set_condition(p);
+  WINDSGeneralData uniform_field(make_domain(uniform_inputs), uniform_inputs.buildings,
+                                uniform_inputs.parameterizations, uniform_inputs.inflow.site_z0);
+  uniform_field.applyWindProfile(uniform_inputs.inflow);
+  require(uniform_field.u0 == field.u0 && uniform_field.v0 == field.v0 && uniform_field.w0 == field.w0,
+          "Uniform/nonuniform raw layer and ghost copying differs");
+
   const auto before=inputs.inflow;
   auto bad=p; bad.layer_u.pop_back(); rejects([&]{inputs.set_condition(bad);});
   bad=p; bad.layer_v[1]=std::numeric_limits<double>::infinity(); rejects([&]{inputs.set_condition(bad);});

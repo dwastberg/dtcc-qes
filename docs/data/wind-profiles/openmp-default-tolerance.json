@@ -1,0 +1,2222 @@
+{
+  "implementation_sha256": "71ea07ea54ae647806517b281d48f4e3aca43ce2be0ef129aeb000dd8b3d6261",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+  "numpy": "2.5.4",
+  "schema_version": 1,
+  "scope": "numerical verification; independent physical validation pending",
+  "source_revision": "11f9022974a1faa845f8749eb7752cdfa59c5160",
+  "openmp_enabled": true,
+  "backend": "OpenMP CPU",
+  "compiler": {
+    "id": "AppleClang",
+    "version": "17.0.0.17000404"
+  },
+  "acceptance": {
+    "scaling_normalized_vector_atol": 0.002,
+    "tabulation_vector_atol": 0.002,
+    "unit": "m/s at baseline amplitude",
+    "physical_validation": "not assessed"
+  },
+  "cases": [
+    {
+      "kind": "log",
+      "profile": {
+        "schema_version": 1,
+        "kind": "log",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "roughness_length": 0.1,
+        "metadata": {}
+      },
+      "geometry": "empty",
+      "precision": "float32",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        4.76837158203125e-07
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 4.76837158203125e-07,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0,
+      "legacy_bitwise_equal": true,
+      "legacy_converged": true
+    },
+    {
+      "kind": "uniform",
+      "profile": {
+        "schema_version": 1,
+        "kind": "uniform",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "metadata": {}
+      },
+      "geometry": "empty",
+      "precision": "float32",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        1.0587911840678754e-22
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 1.0587911840678754e-22,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0
+    },
+    {
+      "kind": "power_law",
+      "profile": {
+        "schema_version": 1,
+        "kind": "power_law",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "exponent": 0.22,
+        "metadata": {}
+      },
+      "geometry": "empty",
+      "precision": "float32",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        4.76837158203125e-07
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 4.76837158203125e-07,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0,
+      "tabulation_error": 3.0994415283203125e-06,
+      "tabulation_pass": true,
+      "tabulation_converged": true,
+      "tabulation_masks_equal": true,
+      "tabulation_knots": 2002
+    },
+    {
+      "kind": "measured",
+      "profile": {
+        "schema_version": 1,
+        "kind": "measured",
+        "heights": [
+          1.0,
+          5.0,
+          10.0,
+          20.0,
+          40.0
+        ],
+        "reference_height": 10.0,
+        "below": "log",
+        "above": "constant",
+        "interpolation": "log_height",
+        "metadata": {},
+        "speeds": [
+          1.5,
+          3.5,
+          5.0,
+          6.0,
+          7.0
+        ],
+        "direction": 270.0
+      },
+      "geometry": "empty",
+      "precision": "float32",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        4.76837158203125e-07
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 4.76837158203125e-07,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0
+    },
+    {
+      "kind": "log",
+      "profile": {
+        "schema_version": 1,
+        "kind": "log",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "roughness_length": 0.1,
+        "metadata": {}
+      },
+      "geometry": "empty",
+      "precision": "float32",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        4.76837158203125e-07
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 4.76837158203125e-07,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0,
+      "legacy_bitwise_equal": true,
+      "legacy_converged": true
+    },
+    {
+      "kind": "uniform",
+      "profile": {
+        "schema_version": 1,
+        "kind": "uniform",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "metadata": {}
+      },
+      "geometry": "empty",
+      "precision": "float32",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        1.0587911840678754e-22
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 1.0587911840678754e-22,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0
+    },
+    {
+      "kind": "power_law",
+      "profile": {
+        "schema_version": 1,
+        "kind": "power_law",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "exponent": 0.22,
+        "metadata": {}
+      },
+      "geometry": "empty",
+      "precision": "float32",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        4.76837158203125e-07
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 4.76837158203125e-07,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0,
+      "tabulation_error": 4.5299530029296875e-06,
+      "tabulation_pass": true,
+      "tabulation_converged": true,
+      "tabulation_masks_equal": true,
+      "tabulation_knots": 2002
+    },
+    {
+      "kind": "measured",
+      "profile": {
+        "schema_version": 1,
+        "kind": "measured",
+        "heights": [
+          1.0,
+          5.0,
+          10.0,
+          20.0,
+          40.0
+        ],
+        "reference_height": 10.0,
+        "below": "log",
+        "above": "constant",
+        "interpolation": "log_height",
+        "metadata": {},
+        "speeds": [
+          1.5,
+          3.5,
+          5.0,
+          6.0,
+          7.0
+        ],
+        "direction": 270.0
+      },
+      "geometry": "empty",
+      "precision": "float32",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        4.76837158203125e-07
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 4.76837158203125e-07,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0
+    },
+    {
+      "kind": "log",
+      "profile": {
+        "schema_version": 1,
+        "kind": "log",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "roughness_length": 0.1,
+        "metadata": {}
+      },
+      "geometry": "empty",
+      "precision": "float64",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        4.76837158203125e-07
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 4.76837158203125e-07,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0,
+      "legacy_bitwise_equal": true,
+      "legacy_converged": true
+    },
+    {
+      "kind": "uniform",
+      "profile": {
+        "schema_version": 1,
+        "kind": "uniform",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "metadata": {}
+      },
+      "geometry": "empty",
+      "precision": "float64",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        1.0587911840678754e-22
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 1.0587911840678754e-22,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0
+    },
+    {
+      "kind": "power_law",
+      "profile": {
+        "schema_version": 1,
+        "kind": "power_law",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "exponent": 0.22,
+        "metadata": {}
+      },
+      "geometry": "empty",
+      "precision": "float64",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        4.76837158203125e-07
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 4.76837158203125e-07,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0,
+      "tabulation_error": 3.0994415283203125e-06,
+      "tabulation_pass": true,
+      "tabulation_converged": true,
+      "tabulation_masks_equal": true,
+      "tabulation_knots": 2002
+    },
+    {
+      "kind": "measured",
+      "profile": {
+        "schema_version": 1,
+        "kind": "measured",
+        "heights": [
+          1.0,
+          5.0,
+          10.0,
+          20.0,
+          40.0
+        ],
+        "reference_height": 10.0,
+        "below": "log",
+        "above": "constant",
+        "interpolation": "log_height",
+        "metadata": {},
+        "speeds": [
+          1.5,
+          3.5,
+          5.0,
+          6.0,
+          7.0
+        ],
+        "direction": 270.0
+      },
+      "geometry": "empty",
+      "precision": "float64",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        4.76837158203125e-07
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 4.76837158203125e-07,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0
+    },
+    {
+      "kind": "log",
+      "profile": {
+        "schema_version": 1,
+        "kind": "log",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "roughness_length": 0.1,
+        "metadata": {}
+      },
+      "geometry": "empty",
+      "precision": "float64",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        4.76837158203125e-07
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 4.76837158203125e-07,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0,
+      "legacy_bitwise_equal": true,
+      "legacy_converged": true
+    },
+    {
+      "kind": "uniform",
+      "profile": {
+        "schema_version": 1,
+        "kind": "uniform",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "metadata": {}
+      },
+      "geometry": "empty",
+      "precision": "float64",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        1.0587911840678754e-22
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 1.0587911840678754e-22,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0
+    },
+    {
+      "kind": "power_law",
+      "profile": {
+        "schema_version": 1,
+        "kind": "power_law",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "exponent": 0.22,
+        "metadata": {}
+      },
+      "geometry": "empty",
+      "precision": "float64",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        4.76837158203125e-07
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 4.76837158203125e-07,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0,
+      "tabulation_error": 4.5299530029296875e-06,
+      "tabulation_pass": true,
+      "tabulation_converged": true,
+      "tabulation_masks_equal": true,
+      "tabulation_knots": 2002
+    },
+    {
+      "kind": "measured",
+      "profile": {
+        "schema_version": 1,
+        "kind": "measured",
+        "heights": [
+          1.0,
+          5.0,
+          10.0,
+          20.0,
+          40.0
+        ],
+        "reference_height": 10.0,
+        "below": "log",
+        "above": "constant",
+        "interpolation": "log_height",
+        "metadata": {},
+        "speeds": [
+          1.5,
+          3.5,
+          5.0,
+          6.0,
+          7.0
+        ],
+        "direction": 270.0
+      },
+      "geometry": "empty",
+      "precision": "float64",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        0.0,
+        0.0,
+        4.76837158203125e-07
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 0.0,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 4.76837158203125e-07,
+          "converged": true,
+          "iterations": 1,
+          "multiplier_change": 0.0,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 0.0
+    },
+    {
+      "kind": "log",
+      "profile": {
+        "schema_version": 1,
+        "kind": "log",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "roughness_length": 0.1,
+        "metadata": {}
+      },
+      "geometry": "block",
+      "precision": "float32",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.559274435043335e-06,
+        2.1457672119140625e-06,
+        1.9073486328125e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 2.559274435043335e-06,
+          "converged": true,
+          "iterations": 92,
+          "multiplier_change": 9.5367431640625e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 2.1457672119140625e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 3.0517578125e-05,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 1.9073486328125e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 2.288818359375e-05,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 4.0531158447265625e-06,
+      "legacy_bitwise_equal": true,
+      "legacy_converged": true
+    },
+    {
+      "kind": "uniform",
+      "profile": {
+        "schema_version": 1,
+        "kind": "uniform",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "metadata": {}
+      },
+      "geometry": "block",
+      "precision": "float32",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        3.948807716369629e-06,
+        1.9073486328125e-06,
+        2.562999725341797e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 3.948807716369629e-06,
+          "converged": true,
+          "iterations": 92,
+          "multiplier_change": 9.5367431640625e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 1.9073486328125e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 3.0517578125e-05,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 2.562999725341797e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 3.4332275390625e-05,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 5.0067901611328125e-06
+    },
+    {
+      "kind": "power_law",
+      "profile": {
+        "schema_version": 1,
+        "kind": "power_law",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "exponent": 0.22,
+        "metadata": {}
+      },
+      "geometry": "block",
+      "precision": "float32",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.421438694000244e-06,
+        1.430511474609375e-06,
+        1.9073486328125e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 2.421438694000244e-06,
+          "converged": true,
+          "iterations": 93,
+          "multiplier_change": 9.5367431640625e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 1.430511474609375e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 2.288818359375e-05,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 1.9073486328125e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 3.0517578125e-05,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 4.410743713378906e-06,
+      "tabulation_error": 4.291534423828125e-06,
+      "tabulation_pass": true,
+      "tabulation_converged": true,
+      "tabulation_masks_equal": true,
+      "tabulation_knots": 2002
+    },
+    {
+      "kind": "measured",
+      "profile": {
+        "schema_version": 1,
+        "kind": "measured",
+        "heights": [
+          1.0,
+          5.0,
+          10.0,
+          20.0,
+          40.0
+        ],
+        "reference_height": 10.0,
+        "below": "log",
+        "above": "constant",
+        "interpolation": "log_height",
+        "metadata": {},
+        "speeds": [
+          1.5,
+          3.5,
+          5.0,
+          6.0,
+          7.0
+        ],
+        "direction": 270.0
+      },
+      "geometry": "block",
+      "precision": "float32",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.2277235984802246e-06,
+        1.9073486328125e-06,
+        1.9073486328125e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 2.2277235984802246e-06,
+          "converged": true,
+          "iterations": 90,
+          "multiplier_change": 8.58306884765625e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 1.9073486328125e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 2.288818359375e-05,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 1.9073486328125e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 2.288818359375e-05,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 3.874301910400391e-06
+    },
+    {
+      "kind": "log",
+      "profile": {
+        "schema_version": 1,
+        "kind": "log",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "roughness_length": 0.1,
+        "metadata": {}
+      },
+      "geometry": "block",
+      "precision": "float32",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.8796494007110596e-06,
+        2.682209014892578e-06,
+        3.2335519790649414e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 2.8796494007110596e-06,
+          "converged": true,
+          "iterations": 88,
+          "multiplier_change": 9.5367431640625e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 2.682209014892578e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 2.6702880859375e-05,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 3.2335519790649414e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 3.0517578125e-05,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 7.3015689849853516e-06,
+      "legacy_bitwise_equal": true,
+      "legacy_converged": true
+    },
+    {
+      "kind": "uniform",
+      "profile": {
+        "schema_version": 1,
+        "kind": "uniform",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "metadata": {}
+      },
+      "geometry": "block",
+      "precision": "float32",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        3.635883331298828e-06,
+        4.291534423828125e-06,
+        3.814697265625e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 3.635883331298828e-06,
+          "converged": true,
+          "iterations": 94,
+          "multiplier_change": 9.5367431640625e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 4.291534423828125e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 2.288818359375e-05,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 3.814697265625e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 4.57763671875e-05,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 1.0632417418499074e-05
+    },
+    {
+      "kind": "power_law",
+      "profile": {
+        "schema_version": 1,
+        "kind": "power_law",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "exponent": 0.22,
+        "metadata": {}
+      },
+      "geometry": "block",
+      "precision": "float32",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        3.203749656677246e-06,
+        2.86102294921875e-06,
+        3.0249357223510742e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 3.203749656677246e-06,
+          "converged": true,
+          "iterations": 87,
+          "multiplier_change": 9.5367431640625e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 2.86102294921875e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 3.0517578125e-05,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 3.0249357223510742e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 3.0517578125e-05,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 6.67572021484375e-06,
+      "tabulation_error": 5.7220458984375e-06,
+      "tabulation_pass": true,
+      "tabulation_converged": true,
+      "tabulation_masks_equal": true,
+      "tabulation_knots": 2002
+    },
+    {
+      "kind": "measured",
+      "profile": {
+        "schema_version": 1,
+        "kind": "measured",
+        "heights": [
+          1.0,
+          5.0,
+          10.0,
+          20.0,
+          40.0
+        ],
+        "reference_height": 10.0,
+        "below": "log",
+        "above": "constant",
+        "interpolation": "log_height",
+        "metadata": {},
+        "speeds": [
+          1.5,
+          3.5,
+          5.0,
+          6.0,
+          7.0
+        ],
+        "direction": 270.0
+      },
+      "geometry": "block",
+      "precision": "float32",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        3.3918768167495728e-06,
+        2.384185791015625e-06,
+        2.384185791015625e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 3.3918768167495728e-06,
+          "converged": true,
+          "iterations": 84,
+          "multiplier_change": 9.5367431640625e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 2.384185791015625e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 1.9073486328125e-05,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 2.384185791015625e-06,
+          "converged": false,
+          "iterations": 2000,
+          "multiplier_change": 3.4332275390625e-05,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 4.976987838745117e-06
+    },
+    {
+      "kind": "log",
+      "profile": {
+        "schema_version": 1,
+        "kind": "log",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "roughness_length": 0.1,
+        "metadata": {}
+      },
+      "geometry": "block",
+      "precision": "float64",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.8703361749649048e-06,
+        1.4621764421463013e-06,
+        1.9855797290802e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 2.8703361749649048e-06,
+          "converged": true,
+          "iterations": 86,
+          "multiplier_change": 9.500273374984936e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 1.4621764421463013e-06,
+          "converged": true,
+          "iterations": 102,
+          "multiplier_change": 9.847155578945888e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 1.9855797290802e-06,
+          "converged": true,
+          "iterations": 107,
+          "multiplier_change": 9.687725883278375e-06,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 3.7029385566711426e-06,
+      "legacy_bitwise_equal": true,
+      "legacy_converged": true
+    },
+    {
+      "kind": "uniform",
+      "profile": {
+        "schema_version": 1,
+        "kind": "uniform",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "metadata": {}
+      },
+      "geometry": "block",
+      "precision": "float64",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.950429916381836e-06,
+        1.9073486328125e-06,
+        2.034008502960205e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 2.950429916381836e-06,
+          "converged": true,
+          "iterations": 87,
+          "multiplier_change": 9.753516962585085e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 1.9073486328125e-06,
+          "converged": true,
+          "iterations": 104,
+          "multiplier_change": 9.291303872061007e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 2.034008502960205e-06,
+          "converged": true,
+          "iterations": 108,
+          "multiplier_change": 9.945396636901194e-06,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 3.829598426818848e-06
+    },
+    {
+      "kind": "power_law",
+      "profile": {
+        "schema_version": 1,
+        "kind": "power_law",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "exponent": 0.22,
+        "metadata": {}
+      },
+      "geometry": "block",
+      "precision": "float64",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.8796494007110596e-06,
+        1.9073486328125e-06,
+        2.384185791015625e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 2.8796494007110596e-06,
+          "converged": true,
+          "iterations": 86,
+          "multiplier_change": 9.527611996462682e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 1.9073486328125e-06,
+          "converged": true,
+          "iterations": 102,
+          "multiplier_change": 9.875149516780368e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 2.384185791015625e-06,
+          "converged": true,
+          "iterations": 107,
+          "multiplier_change": 9.715238491914135e-06,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 3.702007234096527e-06,
+      "tabulation_error": 3.814697265625e-06,
+      "tabulation_pass": true,
+      "tabulation_converged": true,
+      "tabulation_masks_equal": true,
+      "tabulation_knots": 2002
+    },
+    {
+      "kind": "measured",
+      "profile": {
+        "schema_version": 1,
+        "kind": "measured",
+        "heights": [
+          1.0,
+          5.0,
+          10.0,
+          20.0,
+          40.0
+        ],
+        "reference_height": 10.0,
+        "below": "log",
+        "above": "constant",
+        "interpolation": "log_height",
+        "metadata": {},
+        "speeds": [
+          1.5,
+          3.5,
+          5.0,
+          6.0,
+          7.0
+        ],
+        "direction": 270.0
+      },
+      "geometry": "block",
+      "precision": "float64",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        3.246590495109558e-06,
+        1.430511474609375e-06,
+        1.9073486328125e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 3.246590495109558e-06,
+          "converged": true,
+          "iterations": 84,
+          "multiplier_change": 9.910080066344307e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 1.430511474609375e-06,
+          "converged": true,
+          "iterations": 101,
+          "multiplier_change": 9.438117235305299e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 1.9073486328125e-06,
+          "converged": true,
+          "iterations": 106,
+          "multiplier_change": 9.285271014292107e-06,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 3.546476364135742e-06
+    },
+    {
+      "kind": "log",
+      "profile": {
+        "schema_version": 1,
+        "kind": "log",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "roughness_length": 0.1,
+        "metadata": {}
+      },
+      "geometry": "block",
+      "precision": "float64",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.3506581783294678e-06,
+        1.171603798866272e-06,
+        1.6689300537109375e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 2.3506581783294678e-06,
+          "converged": true,
+          "iterations": 84,
+          "multiplier_change": 9.729416759474141e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 1.171603798866272e-06,
+          "converged": true,
+          "iterations": 98,
+          "multiplier_change": 9.659856401889044e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 1.6689300537109375e-06,
+          "converged": true,
+          "iterations": 102,
+          "multiplier_change": 9.729541110559126e-06,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 6.705522537231445e-06,
+      "legacy_bitwise_equal": true,
+      "legacy_converged": true
+    },
+    {
+      "kind": "uniform",
+      "profile": {
+        "schema_version": 1,
+        "kind": "uniform",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "metadata": {}
+      },
+      "geometry": "block",
+      "precision": "float64",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.305954694747925e-06,
+        1.1511147022247314e-06,
+        1.5236437320709229e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 2.305954694747925e-06,
+          "converged": true,
+          "iterations": 86,
+          "multiplier_change": 9.543885886365011e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 1.1511147022247314e-06,
+          "converged": true,
+          "iterations": 100,
+          "multiplier_change": 9.475627432364853e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 1.5236437320709229e-06,
+          "converged": true,
+          "iterations": 104,
+          "multiplier_change": 9.54387872287299e-06,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 6.538815796375275e-06
+    },
+    {
+      "kind": "power_law",
+      "profile": {
+        "schema_version": 1,
+        "kind": "power_law",
+        "speed": 5.0,
+        "direction": 270.0,
+        "reference_height": 10.0,
+        "exponent": 0.22,
+        "metadata": {}
+      },
+      "geometry": "block",
+      "precision": "float64",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.391636371612549e-06,
+        1.1920928955078125e-06,
+        1.9073486328125e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 2.391636371612549e-06,
+          "converged": true,
+          "iterations": 84,
+          "multiplier_change": 9.895532517956163e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 1.1920928955078125e-06,
+          "converged": true,
+          "iterations": 98,
+          "multiplier_change": 9.824973013827787e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 1.9073486328125e-06,
+          "converged": true,
+          "iterations": 102,
+          "multiplier_change": 9.895861440512022e-06,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 6.809830665588379e-06,
+      "tabulation_error": 5.245208740234375e-06,
+      "tabulation_pass": true,
+      "tabulation_converged": true,
+      "tabulation_masks_equal": true,
+      "tabulation_knots": 2002
+    },
+    {
+      "kind": "measured",
+      "profile": {
+        "schema_version": 1,
+        "kind": "measured",
+        "heights": [
+          1.0,
+          5.0,
+          10.0,
+          20.0,
+          40.0
+        ],
+        "reference_height": 10.0,
+        "below": "log",
+        "above": "constant",
+        "interpolation": "log_height",
+        "metadata": {},
+        "speeds": [
+          1.5,
+          3.5,
+          5.0,
+          6.0,
+          7.0
+        ],
+        "direction": 270.0
+      },
+      "geometry": "block",
+      "precision": "float64",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.2202730178833008e-06,
+        1.1026859283447266e-06,
+        1.4640390872955322e-06
+      ],
+      "scaling_comparisons": [
+        {
+          "scale": 0.5,
+          "max_vector_component_error": 2.2202730178833008e-06,
+          "converged": true,
+          "iterations": 83,
+          "multiplier_change": 9.180496369776137e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 2.0,
+          "max_vector_component_error": 1.1026859283447266e-06,
+          "converged": true,
+          "iterations": 97,
+          "multiplier_change": 9.115830636119426e-06,
+          "masks_equal": true
+        },
+        {
+          "scale": 3.0,
+          "max_vector_component_error": 1.4640390872955322e-06,
+          "converged": true,
+          "iterations": 101,
+          "multiplier_change": 9.181630213461744e-06,
+          "masks_equal": true
+        }
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 6.323680281639099e-06
+    }
+  ],
+  "costs": [
+    {
+      "kind": "log",
+      "repeats": 5,
+      "public_call_median_seconds": 0.006137832999229431,
+      "native_field_copy_median_seconds": 2.5625e-05,
+      "python_evaluation_median_seconds": 2.050003968179226e-05,
+      "profile_fraction_of_public_call": 0.007514873683852751
+    },
+    {
+      "kind": "uniform",
+      "repeats": 5,
+      "public_call_median_seconds": 0.039052249980159104,
+      "native_field_copy_median_seconds": 5.125e-06,
+      "python_evaluation_median_seconds": 6.916705751791596e-05,
+      "profile_fraction_of_public_call": 0.0019023758568497541
+    },
+    {
+      "kind": "power_law",
+      "repeats": 5,
+      "public_call_median_seconds": 0.006255124986637384,
+      "native_field_copy_median_seconds": 5.041e-06,
+      "python_evaluation_median_seconds": 4.0917948354035616e-05,
+      "profile_fraction_of_public_call": 0.007347406878714046
+    },
+    {
+      "kind": "measured",
+      "repeats": 5,
+      "public_call_median_seconds": 0.006154583010356873,
+      "native_field_copy_median_seconds": 5.125e-06,
+      "python_evaluation_median_seconds": 0.00010962493252009153,
+      "profile_fraction_of_public_call": 0.0186446315415669
+    }
+  ],
+  "grid": {
+    "resolution": 2.0,
+    "bounds": [
+      0,
+      0,
+      0,
+      80,
+      60,
+      40
+    ],
+    "tolerance": 1e-05,
+    "max_iterations": 2000,
+    "uniform_shape": [
+      20,
+      30,
+      40
+    ],
+    "nonuniform_faces": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      8,
+      12,
+      18,
+      26,
+      40
+    ]
+  },
+  "geometry": {
+    "block_bounds": [
+      30,
+      25,
+      0,
+      40,
+      35,
+      8
+    ],
+    "ground": "flat",
+    "sampling": "all fluid cell centres"
+  },
+  "numerical_comparisons_passed": true,
+  "all_comparisons_converged": false,
+  "passed": false
+}

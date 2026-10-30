@@ -2,7 +2,7 @@
 
 from dataclasses import asdict
 from datetime import datetime, timezone
-from typing import Literal
+from typing import Annotated, Any, Literal, NotRequired, TypedDict
 
 import numpy as np
 from pydantic import ConfigDict, Field as Argument, model_validator, model_serializer
@@ -18,12 +18,58 @@ from .solver_control import SolverControl
 __all__ = ["QESWindArgs", "QESWindDataset"]
 
 
+class _ProfilePayload(TypedDict):
+    __pydantic_config__ = ConfigDict(extra="forbid", strict=True, allow_inf_nan=False)
+    schema_version: NotRequired[Annotated[int, Argument(strict=True, ge=1, le=1)]]
+    metadata: NotRequired[dict[str, Any] | None]
+
+
+class _AnalyticPayload(_ProfilePayload):
+    speed: float
+    direction: float
+
+
+class _LogPayload(_AnalyticPayload):
+    kind: Literal["log"]
+    reference_height: NotRequired[float]
+    roughness_length: NotRequired[float]
+
+
+class _UniformPayload(_AnalyticPayload):
+    kind: Literal["uniform"]
+    reference_height: NotRequired[float]
+
+
+class _PowerPayload(_AnalyticPayload):
+    kind: Literal["power_law"]
+    reference_height: float
+    exponent: float
+
+
+class _MeasuredPayload(_ProfilePayload):
+    kind: Literal["measured"]
+    heights: list[float]
+    reference_height: float
+    speeds: NotRequired[list[float]]
+    direction: NotRequired[float]
+    directions: NotRequired[list[float]]
+    u: NotRequired[list[float]]
+    v: NotRequired[list[float]]
+    below: NotRequired[Literal["error", "log"]]
+    above: NotRequired[Literal["constant", "error"]]
+    interpolation: NotRequired[Literal["log_height", "linear"]]
+
+
+_ProfileRequest = Annotated[_LogPayload | _UniformPayload | _PowerPayload | _MeasuredPayload,
+                            Argument(discriminator="kind")]
+
+
 class QESWindArgs(DatasetBaseArgs):
     """A city selection in EPSG:3006 and one steady wind condition."""
 
     model_config = ConfigDict(extra="forbid", strict=True, allow_inf_nan=False)
 
-    profile: dict | None = Argument(None, description="Versioned horizontal profile: kind plus analytic parameters or measured arrays and tails.")
+    profile: _ProfileRequest | None = Argument(None, description="Versioned horizontal profile: kind plus analytic parameters or measured arrays and tails.")
     source: Literal["LM", "OSM"] = "LM"
     smallest_building_size: float = Argument(15.0, ge=0, description="Source area filter in square metres.")
     min_building_detail: float = Argument(0.5, gt=0, description="Core footprint cleaning/merging scale in metres.")
@@ -78,7 +124,6 @@ class QESWindArgs(DatasetBaseArgs):
             conflicts = self.model_fields_set & names
             if conflicts:
                 raise ValueError(f"profile conflicts with explicit scalar condition fields: {sorted(conflicts)}")
-            profile = wind.profile_from_dict(self.profile)
             wind._resolve_condition(None, None, wind._UNSET,
                 wind._UNSET if isinstance(profile, wind.LogProfile) else self.roughness_length, profile)
             object.__setattr__(self, "profile", profile.to_dict())
@@ -137,7 +182,7 @@ class QESWindDataset(DatasetDescriptor):
 
     name = "qes_wind"
     title = "QES Urban Wind"
-    description = "Steady neutral wind over conditioned building footprints on flat ground using QES-Winds."
+    description = "Steady background wind over conditioned building footprints on flat ground using QES-Winds."
     ArgsModel = QESWindArgs
     data_category = "simulation"
     result_kind = "vector_field"
@@ -271,8 +316,7 @@ def _field_slice(result, args):
         velocity[~valid] = np.nan
     speed = np.linalg.norm(velocity.astype(np.float64), axis=1)
     # Speed-up is undefined for calm inflow; keep NaN rather than divide by zero.
-    reference = result.metadata.get("effective_condition", {})
-    reference_speed = reference["speed"] if args.profile is not None else args.wind_speed
+    reference_speed = result.reference_speed if args.profile is not None else args.wind_speed
     speedup = speed / reference_speed if reference_speed > 0 else np.full_like(speed, np.nan)
     points += np.asarray(result.origin)
     physical_bounds = result.metadata["domain"]["effective_bounds"]

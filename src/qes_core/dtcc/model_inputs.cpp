@@ -208,7 +208,8 @@ void ModelInputs::set_condition(const WindCondition &condition)
     candidate.layer_u.reserve(nz); candidate.layer_v.reserve(nz);
     for (int k = 0; k < nz; ++k) {
       const float u = narrow(condition.layer_u[k], "Layer u"), v = narrow(condition.layer_v[k], "Layer v");
-      narrow(1.2 * std::hypot(double(u), double(v)), "Layer velocity limit");
+      const float speed = narrow(std::hypot(double(u), double(v)), "Layer speed");
+      narrow(1.2 * speed, "Layer velocity limit");
       candidate.layer_u.push_back(u); candidate.layer_v.push_back(v);
     }
   } else {
