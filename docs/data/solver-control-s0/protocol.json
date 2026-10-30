@@ -1,0 +1,190 @@
+{
+  "utc": "2026-10-29T09:17:51.267060+00:00",
+  "baseline_revision": "bbfd20005e0bd7d7e648438a1bc8d5a9a4358a71",
+  "source_revision": "bbfd20005e0bd7d7e648438a1bc8d5a9a4358a71",
+  "dirty_paths": [
+    " M CMakeLists.txt",
+    " M DYNAMIC_VERTICAL_GRID.md",
+    " M README.md",
+    " M docs/near-wall-validation.md",
+    " M docs/validation.md",
+    " M examples/city_dataset.py",
+    " M src/cpp/bindings.cpp",
+    " M src/dtcc_qes/wind.py",
+    " M src/qes_core/dtcc/api/build_info.h",
+    " M src/qes_core/dtcc/build_info.cpp",
+    " M tests/test_build.py",
+    " M tests/test_compare_native_builds.py",
+    " M tools/check_artifacts.py",
+    " M tools/compare_native_builds.py",
+    "?? SOLVER_CONTROL_REFACTOR.md",
+    "?? docs/data/finest-reference/",
+    "?? docs/data/generated-grid-pilot/",
+    "?? docs/data/near-wall-validation/",
+    "?? docs/data/practical-vertical-grid/",
+    "?? docs/data/solver-control-s0/",
+    "?? docs/data/vertical-refinement/",
+    "?? docs/finest-reference.md",
+    "?? docs/generated-grid-pilot.md",
+    "?? docs/solver-control-contract.md",
+    "?? docs/vertical-refinement.md",
+    "?? tests/test_dataset_vertical_grid.py",
+    "?? tests/test_finest_reference.py",
+    "?? tests/test_finest_reference_audit.py",
+    "?? tests/test_generated_grid_audit.py",
+    "?? tests/test_generated_grid_pilot.py",
+    "?? tests/test_near_wall_audit.py",
+    "?? tests/test_near_wall_validation.py",
+    "?? tests/test_openmp_benchmark.py",
+    "?? tests/test_openmp_configuration.py",
+    "?? tests/test_practical_vertical_grid.py",
+    "?? tests/test_practical_vertical_grid_audit.py",
+    "?? tests/test_solver_baseline_profile.py",
+    "?? tests/test_vertical_refinement.py",
+    "?? tests/test_vertical_refinement_audit.py",
+    "?? tools/audit_finest_reference.py",
+    "?? tools/audit_generated_grid_pilot.py",
+    "?? tools/audit_near_wall_validation.py",
+    "?? tools/audit_vertical_refinement.py",
+    "?? tools/benchmark_fast_wind.py",
+    "?? tools/benchmark_grid_planning.py",
+    "?? tools/benchmark_openmp.py",
+    "?? tools/build_near_wall_probe.py",
+    "?? tools/diagnose_sidewall_transition.py",
+    "?? tools/diagnose_vertical_initialization.py",
+    "?? tools/near_wall_sampling.py",
+    "?? tools/plot_generated_grid_pilot.py",
+    "?? tools/plot_near_wall_validation.py",
+    "?? tools/plot_vertical_refinement.py",
+    "?? tools/profile_solver_baseline.py",
+    "?? tools/run_finest_reference.py",
+    "?? tools/run_generated_grid_pilot.py",
+    "?? tools/run_near_wall_validation.py",
+    "?? tools/run_practical_vertical_grid.py",
+    "?? tools/run_vertical_refinement.py",
+    "?? tools/solver_profile_hooks.h"
+  ],
+  "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+  "machine": "Apple M4 Pro",
+  "cpu_count": 14,
+  "matrix": [
+    [
+      "plain",
+      "float32",
+      4,
+      500,
+      false
+    ],
+    [
+      "plain",
+      "float32",
+      4,
+      500,
+      false
+    ],
+    [
+      "plain",
+      "float64",
+      4,
+      500,
+      false
+    ],
+    [
+      "plain",
+      "float64",
+      4,
+      500,
+      false
+    ],
+    [
+      "profile",
+      "float32",
+      4,
+      500,
+      false
+    ],
+    [
+      "profile",
+      "float32",
+      4,
+      500,
+      false
+    ],
+    [
+      "profile",
+      "float64",
+      4,
+      500,
+      false
+    ],
+    [
+      "profile",
+      "float64",
+      4,
+      500,
+      false
+    ],
+    [
+      "profile",
+      "float32",
+      1,
+      200,
+      false
+    ],
+    [
+      "profile",
+      "float32",
+      2,
+      200,
+      false
+    ],
+    [
+      "profile",
+      "float32",
+      8,
+      200,
+      false
+    ],
+    [
+      "profile",
+      "float64",
+      1,
+      200,
+      false
+    ],
+    [
+      "profile",
+      "float64",
+      2,
+      200,
+      false
+    ],
+    [
+      "profile",
+      "float64",
+      8,
+      200,
+      false
+    ],
+    [
+      "profile",
+      "float32",
+      4,
+      100,
+      true
+    ],
+    [
+      "profile",
+      "float64",
+      4,
+      100,
+      true
+    ]
+  ],
+  "per_worker_seconds": 30,
+  "total_matrix_seconds": 180,
+  "exclusions": "API excludes imports, runtime warmup, City creation and sampling. Matrix cap excludes builds. RSS is process high-water, not attributed live RSS.",
+  "instrumentation": "Snapshot only; master-thread clocks use existing OpenMP barriers; pass times include barrier/scheduling costs. Output/diagnostic parity required against plain build.",
+  "bandwidth": "Logical load/store estimate per updated cell: float32 76 B; float64 96 B. Effective GB/s is not a hardware DRAM counter or proof of a bandwidth bottleneck.",
+  "automatic_grid_scope": "Experimental; no new accuracy, grid or comfort qualification."
+}

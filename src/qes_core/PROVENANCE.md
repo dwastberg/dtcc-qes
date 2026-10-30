@@ -32,7 +32,7 @@ into the extension as `_qes.qes_revision`.
 
 ## Contents
 
-`qes/`, `util/` and `winds/` hold the QES-derived core; `dtcc/` holds the
+`qes/`, `util/`, `winds/` and `solver/` hold the QES-derived core; `dtcc/` holds the
 dtcc-qes layer that drives it (moved from `src/cpp`), with the QES-free headers
 used by the Python bindings in `dtcc/api/`. `LICENSE` is the QES license and
 `CMakeLists.txt` builds the `qesutil`, `qeswindscore` and `qesbridge` targets.
@@ -54,7 +54,7 @@ To see what a file looked like in the fork, compare it with the submodule
 (reference-only, see the main README):
 
 ```sh
-git -C QES-Public show dce15d7e:src/winds/Solver_CPU.cpp | diff - src/qes_core/winds/Solver_CPU.cpp
+git -C QES-Public show dce15d7e:src/winds/Solver_CPU.cpp | diff - src/qes_core/solver/cpu_float32.cpp
 ```
 
 ## Changes since vendoring
@@ -85,6 +85,56 @@ it says otherwise.
   wall index lists that only it read. The arrays `terrain_volume_frac`,
   `ti/tj/tk`, `terrain_id` and the write-only `icellflag_footprint` are no
   longer allocated. The core no longer needs Boost.
+- **Phase-based CPU solver (S1).** `solver/solver.{h,cpp}` owns per-condition
+  workspace and exposes begin, advance, pure slab observation, conservative
+  diagnostics and finalization. `cpu_float32.cpp` extracts the expressions and
+  boundaries of `Solver_CPU` and `Solver_CPU_RB`, retaining the contributor
+  notices above. `cpu_float64.cpp` extracts `dtcc/precision_solver.cpp`, itself
+  derived from those QES stencils, retaining the same notices and wider
+  arithmetic. An immutable `PoissonOperator` initially borrows existing model
+  arrays without a second coefficient volume. Shared conservative flux arithmetic
+  lives in `solver/mass_diagnostics.h`. The old `Solver*`, factory and precision
+  solver files, including obsolete GPU hooks, were replaced. Fixed work is an
+  explicit stop rule rather than a negative-tolerance subclass. No relaxation,
+  ordering, allocation optimization or per-condition building-state correction
+  is included; the S0 baseline is the numerical oracle.
+- **Condition-state correction (S1a).** Building initialization now clears
+  `PolyBuilding::rooftop_flag` before each condition's parameterizations, so
+  an ineligible wind direction cannot inherit the preceding rooftop-vortex
+  decision. Wake-free settings reject enabled rooftop, street-canyon or
+  sidewall models, which require wake-derived dimensions. Validation occurs
+  before native geometry allocation and at direct core entry points. Upwind
+  cavity remains independent. These deliberate changes are archived separately
+  from S0/S1; the solver arithmetic and ordering are unchanged.
 - **Kept for their own decisions:** cut cells (`CutCell`, `CutBuilding` and the
   arrays they share with `Wall`), `StreetCanyonModified`, OptiX mixing lengths
-  (`LocalMixingOptix` with the util mesh classes) and the `HAS_CUDA` hooks.
+  (`LocalMixingOptix` with the util mesh classes). The new solver phase contract
+  replaces the old `HAS_CUDA` factory hooks for a separate device-backend task.
+- **Traffic and storage (S2).** Float32 measures its rounded update change in
+  the update pass, with no old-iterate array. The operator owns either exact
+  per-cell face masks and per-layer float tables or a checked explicit fallback;
+  precision-specific relaxation factors retain the original sums/division.
+  Production transfers and releases geometry's setup coefficients; mass and
+  study diagnostics use the same operator. Cut-cell fields and mixing lengths
+  allocate on use. Default CPU ordering is red/black in serial and OpenMP;
+  explicit lexicographic order remains available internally. Historical study
+  drivers request their archived order through `DTCC_QES_STUDY_ORDER=legacy`.
+  S2 evidence records the intended serial trajectory change separately from
+  bitwise-preserving traffic/storage changes. NumPy outputs retain their owned
+  allocation/copy contract.
+- **Read-only monitoring (S3).** A compiled internal monitor reconstructs only
+  the union of requested vertical supports, rounds/collocates like finalization,
+  and interpolates requested heights and receptors in double precision. Fixed
+  rings retain samples, window summaries, validity transitions and moving peaks.
+  Regional six-face flux diagnostics share the solver's rounded reconstruction;
+  optional residual accumulation specializes the existing update loops without
+  changing their arithmetic. The in-sweep algebraic trend has native RHS units,
+  not physical divergence units or an accuracy interpretation. No controller,
+  Python controls, stopping policy or tolerance default changes are included.
+- **Bounded execution (S4).** The runner optionally checks a monotonic deadline
+  around initialization, RHS, every whole sweep and monitor capture. Native
+  entry includes mutex wait; necessary finalization/turbulence and NumPy output
+  are timed separately. Zero completed work raises BudgetExhausted with its
+  control record. Bounded records retain the legacy convergence boolean and
+  always report accuracy not assessed. Input snapshots, buffered logging,
+  precision/default stopping semantics and owned output arrays are retained.

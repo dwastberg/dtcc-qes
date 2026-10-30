@@ -60,7 +60,7 @@ def test_matrix_preserves_both_extents_and_fixed_vertical_operands_above_soft_ta
         assert tokens[9:137] == [.5]*128
         estimate = study.resource_estimate(task, configs)
         assert estimate["physical_cells"] == (task["extent"]/.5)**2*128
-        assert estimate["solver_workspace_bytes"] == (task["extent"]/.5)**2*129*16
+        assert estimate["solver_workspace_bytes"] == (task["extent"]/.5)**2*129*16+64*129*8
     assert estimate["physical_cells"] == 29491200 > 20000000
 
 
@@ -224,6 +224,7 @@ def test_budget_escalation_reuses_independent_checkpoints_and_saves_rejection(tm
 
 
 def test_native_checkpoint_matches_triple_and_configurable_allocation_guard(tmp_path, monkeypatch):
+    monkeypatch.setenv("DTCC_QES_STUDY_ORDER", "legacy")
     executable = Path(os.environ.get("DTCC_QES_STUDY_EXECUTABLE", "build/extension/vertical_grid_study"))
     if not executable.exists():
         pytest.skip("Native study executable not built")

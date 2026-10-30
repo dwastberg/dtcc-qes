@@ -6,5 +6,7 @@ const char *qes_version();
 const char *qes_revision();
 bool openmp_enabled();
 const char *cpu_backend();
+const char *cpu_sweep_order();
+const char *fp_contract();
 std::array<int, 3> core_grid_shape(int nx, int ny, int nz);
 }

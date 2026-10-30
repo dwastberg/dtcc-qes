@@ -3,6 +3,8 @@ from dataclasses import replace
 import gzip
 import json
 from pathlib import Path
+import os
+import subprocess
 import tracemalloc
 
 import numpy as np
@@ -168,16 +170,27 @@ def test_sampling_memory_scales_with_planes_not_volume():
 
 
 @pytest.mark.usefixtures("dtcc_logger")
-@pytest.mark.skipif(_qes.openmp_enabled, reason="Archived study fields use the serial node ordering")
 @pytest.mark.parametrize("spacing", ["0.5", "stretched"])
-def test_public_sampler_matches_archived_native_study(spacing):
+def test_public_sampler_matches_current_native_study(spacing):
     from dtcc_core.model import Building, City, GeometryType, Surface
 
     archive = Path(__file__).parents[1] / "docs/data/vertical-grid-gate/raw.json.gz"
     runs = json.loads(gzip.decompress(archive.read_bytes()))["runs"]
     reference = next(r for r in runs if r["geometry"] == "tower" and r["direction"] == 270
                      and r["grid"] == spacing)
-    checkpoint = reference["checkpoints"][0]
+    root = Path(__file__).parents[1]
+    executable = Path(os.environ.get("DTCC_QES_STUDY_EXECUTABLE",
+        root/"build"/("openmp" if _qes.openmp_enabled else "serial")/"vertical_grid_study"))
+    if not executable.exists():
+        pytest.skip("Build the native vertical_grid_study target for sampler parity")
+    # Sampling parity needs the same finite iterate, not a converged reference.
+    # Compare the current red/black trajectory in both builds; retain archived
+    # grid operands without claiming its old lexicographic field is unchanged.
+    current = json.loads(subprocess.check_output([str(executable),"tower",spacing,"270","8"],
+        env=os.environ | {"DTCC_QES_STUDY_ORDER": "red_black"}, text=True, timeout=30))
+    assert current["backend"] == ("openmp_red_black" if _qes.openmp_enabled else "serial_red_black")
+    np.testing.assert_array_equal(current["z_faces"],reference["z_faces"])
+    checkpoint = current["checkpoints"][0]
     city = City()
     for y in (22, 42):
         for x in (22, 42):

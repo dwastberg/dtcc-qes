@@ -113,6 +113,9 @@ public:
   // It would be nice if someone explained the function of each method below at the most abstract level.
   // using doxygen syntax
 
+  /** Clear decisions that are specific to the next wind condition. */
+  virtual void resetConditionState() {}
+
   virtual void setPolyBuilding(WINDSGeneralData *WGD)
   {
   }

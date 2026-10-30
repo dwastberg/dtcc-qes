@@ -1,0 +1,39 @@
+{
+  "precision": "float64",
+  "requested_threads": 8,
+  "repeat": 0,
+  "revision": "s2",
+  "mode": "disabled",
+  "team": 8,
+  "iterations": 40,
+  "shape": [
+    92,
+    320,
+    320
+  ],
+  "seconds": {
+    "prepare": 0.262174708,
+    "initialize": 0.082389417,
+    "monitor_compile_and_initial": 1.25e-07,
+    "sweeps": 0.13390475,
+    "checkpoints": 4.2e-08,
+    "finalize": 0.104763416,
+    "total": 0.583232708
+  },
+  "peak_rss_bytes": 871481344,
+  "monitor_planned_bytes": 0,
+  "monitor_allocated_bytes": 0,
+  "checkpoints": 0,
+  "slab_layers": 0,
+  "max_change": 0.31061855283424933,
+  "mass": [
+    2.0227800933644176,
+    0.10200174358183797,
+    7.949242694261566e-11
+  ],
+  "fingerprints_fnv1a64": [
+    "9421054008072715723",
+    "2291434283323420686"
+  ],
+  "status": "completed"
+}

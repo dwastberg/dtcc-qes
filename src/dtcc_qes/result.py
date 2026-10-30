@@ -117,11 +117,13 @@ class SolveDiagnostics:
 
 
 class ConvergenceError(RuntimeError):
-    def __init__(self, diagnostics):
+    def __init__(self, diagnostics, control=None):
         self.diagnostics = diagnostics
+        self.control = control
         super().__init__(f"Wind solve did not converge after {diagnostics.iterations} iterations: "
                          f"maximum Lagrange multiplier change {diagnostics.max_lagrange_multiplier_change:g} "
-                         f"> tolerance {diagnostics.tolerance:g}")
+                         f"> tolerance {diagnostics.tolerance:g}"
+                         + (f" (termination: {control['termination_reason']})" if control else ""))
 
 
 @dataclass(frozen=True)
@@ -194,6 +196,11 @@ class WindResult:
     metadata: dict
     z_faces: np.ndarray | None = None
     turbulence: TurbulenceFields | None = None
+
+    @property
+    def control(self):
+        """Bounded execution record, or None for a legacy solve."""
+        return self.metadata.get("solver_control")
 
     @property
     def speed(self):

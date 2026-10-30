@@ -5,6 +5,7 @@ checkpoint and failed budget, including native planes before collocation.
 """
 from __future__ import annotations
 
+import os
 import argparse
 import copy
 import gzip
@@ -352,7 +353,7 @@ def main():
             print(f"{index+1}/{len(tasks)} {key} repeat={repeat} N={n}", flush=True)
             policy_seconds, extension_seconds = timed_policy(plan, rectangles(name))
             proc = subprocess.run([str(executable), name, "--layers", str(direction), str(n)],
-                                  input=worker_input(plan, rectangles(name)), capture_output=True,
+                                  env=os.environ | {"DTCC_QES_STUDY_ORDER": "legacy"}, input=worker_input(plan, rectangles(name)), capture_output=True,
                                   text=True, check=True, timeout=1200)
             if proc.stderr:
                 raise RuntimeError(proc.stderr)

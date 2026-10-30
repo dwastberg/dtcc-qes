@@ -109,20 +109,24 @@ def resource_estimate(task, configs):
     nx = int(task["extent"]/task["resolution"])
     nz = len(configs[task["family"]]["layers_input"])
     # Domain uses nx+1 horizontal faces, nz+2 vertical faces, one lower
-    # ghost-cell layer. WINDSGeneralData allocates 15 floats, four ints and a
-    # double per native centre; PrecisionSolver adds two doubles. Also include
-    # six float face arrays and the main terrain/roughness horizontal arrays.
+    # ghost-cell layer. S2 retains 3 int flags/IDs, one compact mask byte and
+    # two double workspace arrays per centre. Coefficient/factor tables use
+    # 64*(6 floats + one double) per layer. Include transient setup coefficients
+    # (24 B/centre, before workspace allocation), faces and horizontal arrays.
     centres = nx*nx*(nz+1)
     faces = (nx+1)**2*(nz+2)
-    arrays = 100*centres+24*faces+24*nx*nx
+    tables = 64*(nz+1)*(6*4+8)
+    retained = 29*centres+24*faces+24*nx*nx+tables
+    arrays = retained+8*centres  # setup: 24 coefficient bytes replace 16 workspace bytes
     return dict(physical_cells=nx*nx*nz, native_cell_centres=centres,
-                native_faces=faces, solver_workspace_bytes=16*centres,
+                native_faces=faces, solver_workspace_bytes=16*centres+64*(nz+1)*8,
+                estimated_retained_array_bytes=retained,
                 estimated_array_bytes=arrays,
                 estimated_process_bytes=int(arrays*1.25+64*1024**2),
                 estimate_scope="array-based estimate plus 25% and 64 MiB overhead; not a peak-RSS guarantee")
 
 
-def validate_checkpoint(run, task, configs, backend, sweeps):
+def validate_checkpoint(run, task, configs, backend, sweeps, *, workspace_layout="s2"):
     if (run["backend"] != backend or run["start"] != "zero"
             or run["precision"] != "float64" or run.get("disabled_mask") != 0
             or run["direction"] != task["direction"] or run["resolution"] != task["resolution"]
@@ -134,8 +138,12 @@ def validate_checkpoint(run, task, configs, backend, sweeps):
     if run["horizontal_bounds"] != [origin, origin, origin+task["extent"], origin+task["extent"]]:
         raise ValueError("Checkpoint world bounds mismatch")
     resource = resource_estimate(task, configs)
+    if workspace_layout not in ("s2", "legacy"):
+        raise ValueError("Unknown checkpoint workspace layout")
+    expected_workspace = (16*resource["native_cell_centres"] if workspace_layout == "legacy"
+                          else resource["solver_workspace_bytes"])
     if (run["cells"] != resource["physical_cells"]
-            or run["solver_workspace_bytes"] != resource["solver_workspace_bytes"]):
+            or run["solver_workspace_bytes"] != expected_workspace):
         raise ValueError("Checkpoint allocation mismatch")
     # Reusing the one checkpoint three times is only a schema/residual check;
     # acceptance is always evaluated later on three DISTINCT sweep budgets.
@@ -164,7 +172,7 @@ def obtain_checkpoint(task, configs, executable, backend, sweeps, ceiling, outpu
         print(task["id"], "zero-start sweeps", sweeps, flush=True)
         command = [str(executable), "tower", "--horizontal", str(task["direction"]), str(sweeps),
                    "--float64", "--checkpoint", "--max-cells", str(ceiling)]
-        proc = subprocess.run(command, input=input_text(task, configs), text=True,
+        proc = subprocess.run(command, env=os.environ | {"DTCC_QES_STUDY_ORDER": "legacy"}, input=input_text(task, configs), text=True,
                               capture_output=True, check=True, timeout=86400)
         if proc.stderr:
             raise ValueError(proc.stderr)
@@ -329,6 +337,7 @@ def main():
         Path("tools/run_horizontal_sensitivity.py"), Path("tools/run_auto_grid_controls.py"),
         Path("tools/run_vertical_grid_study.py"), Path("CMakeLists.txt")]
     sources += sorted(Path("src/cpp").glob("*.cpp"))+sorted(Path("src/qes_core/dtcc").rglob("*.cpp"))+sorted(Path("src/qes_core/dtcc").rglob("*.h"))
+    sources += [p for p in sorted(Path("src/qes_core").rglob("*")) if p.suffix in (".cpp", ".h", ".txt")]
     metadata = dict(phase="joint", backend=BACKENDS[args.backend], executable=str(executable),
         executable_sha256=digest(executable), source_sha256={str(p): digest(p) for p in sources},
         references_sha256=archive_hashes, baseline_worker_sha256=digest(BASELINE/"tools/vertical_grid_study.cpp"),

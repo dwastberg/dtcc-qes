@@ -73,6 +73,8 @@ int main(int argc,char **argv) try {
 #endif
   const std::lock_guard<std::mutex> lock(native_mutex());
   Messages messages; const BufferedLogSink sink(messages);
+  const auto order = study_order();
+  const auto *backend = backend_name(order);
   GridConfig grid; BuildingArrays buildings; std::vector<double> heights;
   const auto control=read_horizontal(grid,buildings,heights);
   grid.max_cells=std::stoll(argv[3]);
@@ -98,8 +100,9 @@ int main(int argc,char **argv) try {
   const double preparation=elapsed(start);
   DivergenceStats residual; double solve_time=0;
   if(sweeps) {
-    PrecisionSolver solver(data.domain,1e-12); start=Clock::now();
-    solver.solve(&data,sweeps,true); solve_time=elapsed(start); residual=divergence_stats(data);
+    const solver::PoissonOperator poisson(data,solver::CoefficientOwnership::Take);
+    solver::SolverState<double> solver(poisson,1e-12,order); start=Clock::now();
+    solver::solve_wind(solver,data,sweeps,solver::StopRule::FixedSweeps); solve_time=elapsed(start); residual=divergence_stats(data,poisson);
     out << ",\"final\":"; write_stage(out,data,control,heights,false);
   }
   struct rusage usage; getrusage(RUSAGE_SELF,&usage);

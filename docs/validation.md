@@ -1,5 +1,12 @@
 # Milestone 1 validation
 
+**Current release scope (2026-10-28):** the numerical review is closed with
+explicit limitations and B2 dataset integration supports experimental automatic
+slices. Explicit grids and physical-height sampling retain their verified API
+contracts. Automatic settings have no qualified comfort preset. The earlier
+B2 gating statements below record historical decisions; the restricted closure
+and dataset checks described later supersede them for this release.
+
 The later [vertical-grid Stage 0 report](stage0-validation.md) documents the
 vertical RHS correction, public conservative-divergence diagnostics, injection
 and canyon regression tests, and plan reassessment. The original flat and
@@ -59,7 +66,105 @@ tests. Timing measurements retain the qualification for host sleep/wake
 interruptions.
 The completed matrices accept all 16 new cases and agree on all 64 comparison
 decisions across backends. Finer-grid lateral controls pass; added near-wall
-checks fail 13/16 horizontal planes per backend, so C2c remains gated.
+checks fail 13/16 horizontal planes per backend, so preset selection remains gated.
+
+The subsequent [near-wall diagnosis](near-wall-validation.md) completes 40
+diagnostic cases and independently checks 189,000 raw component averages.
+Both sampling methods retain the near-wall failure; source reconstruction
+identifies a sidewall initialization discontinuity at one affected point.
+The sampler remains unchanged. A bounded C2c vertical-discretization pilot
+can proceed with an explicit horizontal-sensitivity limitation; full comfort
+qualification remains pending. The focused suite passes 93 tests, and the
+saved-data audit reproduces without solver binaries or a build tree.
+
+The [C2c generated-grid pilot](generated-grid-pilot.md) is complete. It uses
+the actual 92-layer policy at x/y=0.5 m, retaining both heights and all fixed
+checks. All four CPU cases and six full-region comparisons per backend pass,
+including the generated-grid lateral control, with 28.125% fewer cells than
+uniform 0.5 m layers. Maximum mandatory local vertical change is 0.902% and
+maximum CPU vector difference is 2.39e-8 of Uref. The focused checks total 103
+passes, and the complete saved-data audit reproduces without worker binaries.
+Repeated host sleep is recorded and disqualifies runtime-ratio claims. Bounded
+vertical-refinement/centre-alignment validation follows below; preset selection
+and full comfort qualification remain pending.
+
+The [bounded refinement/alignment assessment](vertical-refinement.md) is complete:
+three new solves pass, while the 368-layer grid exhausts its certification cap.
+Accepted base-to-184 comparisons fail added local checks by 13.2–18.3%, despite
+passing aggregate and original near-wall checks. These points are 7 m from walls,
+so the diagnostic setback retains the failure. A source reconstruction matches
+16 initialized checks and identifies a 0.4-to-1 profile-factor jump at an upwind
+ellipse boundary. Initial responses are non-monotonic; centre alignment alone
+does not resolve the sensitivity. The alignment control agrees exactly across
+CPU backends on the final lattice. Fifteen unique executions and all failures
+are audited; 115 focused tests pass. The proposed higher-budget
+reference was subsequently [stopped for runtime review](finest-reference.md).
+No new accepted finest result exists. Hours-long fixed-sweep escalation conflicts
+with fast wind approximations; the next step is bounded production-backend
+runtime/accuracy assessment. Grid planning takes milliseconds; two ordinary
+500-iteration serial API diagnostics take 26–28 s for 9.42 million cells but
+remain nonconverged. These timing diagnostics do not qualify comfort accuracy.
+
+The subsequent [bounded practical-grid comparison](data/practical-vertical-grid/summary.json)
+uses the default float32 arithmetic with OpenMP and four requested threads.
+At fixed 0.5 m x/y, the automatic 92-layer and uniform 128-layer grids finish
+2000-iteration API calls in 20.92 and 27.05 s, respectively. Both pass predeclared
+candidate sampled iterative-error checks against accepted same-grid references:
+p95 speed error below 0.00763 m/s and all five mandatory relative errors below
+0.42% at both heights. Their 1000-iteration cases fail a 2% local check despite
+passing percentile checks. All four finish within 30 s worker deadlines.
+These observations cover one tower/wind and have one timing repetition per case.
+
+The expanded automatic-versus-uniform spatial checks still fail at two mandatory
+locations by 20.9–29.7% (about 0.193–0.202 m/s), including in the accepted
+reference fields. All cheap runs remain nonconverged by the legacy tolerance
+and fail the old residual bounds. Sampled iterative agreement therefore does
+not qualify comfort accuracy or select an automatic preset. The
+[frozen protocol](data/practical-vertical-grid/protocol.json) and
+[data-only audit](data/practical-vertical-grid/audit.json) retain source and
+reference identities, raw samples, all failures, memory and timing scopes.
+The numerical-scope review is now closed under the user's restricted release
+scope: explicit grids and physical-height sampling are supported as implemented,
+and automatic generation stays experimental. Broader geometry/wind/roof studies,
+automatic comfort presets and physical/grid-independence qualification are
+follow-ups. Existing failed references, spatial checks and stopped attempts
+retain their original decisions; no new reference is inferred from closure.
+
+### Dataset integration under the experimental scope
+
+The B2 adapter accepts serializable grid mode, pedestrian target, growth rate,
+solver precision and slice sampling options. Uniform fields remain the default.
+Automatic grids are opt-in slice products and carry an experimental marker in
+discovery, health, warnings and provenance, retaining
+`policy_status="prototype_unvalidated"`. Full automatic `VolumeGrid` output,
+linear field products and linear x/y slices fail before fetching a city.
+An explicit `slice_height` applies the existing z-axis override first.
+
+Linear horizontal slices use `WindResult.sample` to interpolate components at
+the requested physical height, followed by nearest x/y display sampling.
+Coordinates stay at that height; samples outside the native centre support
+remain invalid without extrapolation. Every slice now includes boolean `valid`;
+invalid vectors and speeds are NaN. Nearest categorical flags are retained
+independently, including when a different interpolation contributor is solid.
+Context health includes conservative residuals, precision and sample counts;
+request parameters retain every new option for identity and provenance.
+
+Tests cover nonuniform manufactured fields, exact-centre behavior, opposite
+components, solid/nonfinite contributors, both centre-range endpoints, global
+coordinates, all nearest slice axes, unsupported requests before fetch,
+serialized identity, and real dataset/direct-solver parity at 1.5 and 1.75 m.
+Float64 dispatch and existing default uniform output are also exercised. The
+existing user change registering the dataset on package import is preserved;
+the old explicit-import-only test now follows that behavior.
+
+Final release checks on 2026-10-28 pass **713 Python tests, with 2 skipped**, using
+the rebuilt installed OpenMP wheel, and **all 14 native CTest checks**. Dataset
+tests fetch fixture cities through a mocked provider and execute real native
+solves; live city-provider networking was not exercised. The wheel and source
+distribution pass artifact checks, including the dataset modules, integration
+tests, examples, closure documentation and saved numerical evidence. Default
+pytest discovery is restricted to `tests/` so frozen historical test copies
+remain audit inputs rather than duplicate executable suites.
 
 The canonical flat and one-building cases live in `tests/fixtures/cases.py`.
 Committed NumPy arrays and JSON provenance were produced by pristine QES 2.3.1
@@ -114,9 +219,11 @@ build/native/check_physics --report
 
 ## OpenMP validation
 
-Configure with `-DDTCC_QES_OPENMP=ON -DDTCC_QES_BUILD_TESTS=ON` to run the
-native safety, lifecycle and flux checks with OpenMP. On macOS, provide
-`-DOpenMP_ROOT="$(brew --prefix libomp)"` after installing `libomp`.
+Fresh builds require OpenMP by default. Configure with
+`-DDTCC_QES_BUILD_TESTS=ON` to run the native safety, lifecycle and flux checks
+with OpenMP; override a previously cached mode with `-DDTCC_QES_OPENMP=ON`.
+On macOS, install `libomp`; standard Homebrew locations are discovered
+automatically. Custom locations can use `-DOpenMP_ROOT="$(brew --prefix libomp)"`.
 The existing native tests use two threads. Additional `openmp_1_threads`,
 `openmp_2_threads` and `openmp_4_threads` tests verify real team creation,
 factory selection, exact repeatability of velocities and convergence across
@@ -125,11 +232,26 @@ They include a tall building spanning thread slabs and check all faces adjoining
 solid cells. Non-finite iteration failures are reported after leaving the
 parallel region, so they remain catchable native/Python exceptions.
 
-CI builds both serial and OpenMP variants on Linux and macOS, including wheels,
-the full Python suite, native symbol audits and ASan/UBSan checks. `AUTO` can be
-checked without an OpenMP installation by configuring with
+Explicit serial builds remain supported with `-DDTCC_QES_OPENMP=OFF`. Since S2,
+their default order is red/black too. Cross-build bitwise checks now compare the
+same trajectory; explicit lexicographic native controls and historical study
+ordering remain available. The [S2 report](solver-control-s2.md) records the
+deliberate serial change separately from arithmetic-preserving storage changes.
+`tests/test_openmp_configuration.py` checks the default requirement and explicit
+fallback modes. `AUTO` can be checked without an OpenMP installation by configuring with
 `-DDTCC_QES_OPENMP=AUTO -DCMAKE_DISABLE_FIND_PACKAGE_OpenMP=ON`; the same missing
-dependency must fail configuration when `DTCC_QES_OPENMP=ON`.
+dependency must fail configuration with the default mode or explicit `ON`.
+
+Local default-build verification on macOS arm64 / Apple Clang 17: a fresh
+Release configuration and wheel build, with no OpenMP option or package-root
+override, discover Homebrew `libomp` and select the OpenMP solver. The installed
+wheel reports `openmp_enabled=True` and `cpu_backend="OpenMP CPU"`, and its
+extension links `libomp.dylib`. All 14 native checks pass, including actual
+1/2/4-thread teams; the focused build, runner, safety, physics, precision,
+vertical-grid, preview, automatic-grid, wind and sampling Python checks pass
+374 tests with two platform-specific reference skips. The native symbol audit
+also passes. This verifies backend selection and correctness checks; it does
+not establish a runtime speedup.
 
 ## Geometry and result ordering
 

@@ -126,16 +126,21 @@ def test_cleaning_uses_core_block_height_and_records_courtyards(source_city, mon
     assert len(source_city.buildings[1].lod0.holes) == 1
 
 
-@pytest.mark.parametrize("axis", ["x", "y", "z"])
-@pytest.mark.parametrize("position", [0.0, 0.5, 1.0])
-def test_slice_sampling_on_unequal_axes(axis, position):
+def coded_result():
     z, y, x = np.indices((2, 4, 3))
     codes = (100*z + 10*y + x).astype(np.float32)
     velocity = np.stack([codes, codes+1000, codes+2000], axis=-1)
-    result = wind.WindResult(velocity, np.arange(3)+0.5, np.arange(4)+0.5, np.arange(2)+0.5,
-                             codes.astype(np.int32)+3, (300000, 6400000, 50), "EPSG:3006", 1.0,
-                             wind.SolveDiagnostics(1, 0, 1e-5, True),
-                             {"domain": {"effective_bounds": (300000,6400000,50,300003,6400004,52)}})
+    return wind.WindResult(velocity, np.arange(3)+0.5, np.arange(4)+0.5, np.arange(2)+0.5,
+                           codes.astype(np.int32)+3, (300000, 6400000, 50), "EPSG:3006", 1.0,
+                           wind.SolveDiagnostics(1, 0, 1e-5, True),
+                           {"domain": {"effective_bounds": (300000,6400000,50,300003,6400004,52)}})
+
+
+@pytest.mark.parametrize("axis", ["x", "y", "z"])
+@pytest.mark.parametrize("position", [0.0, 0.5, 1.0])
+def test_slice_sampling_on_unequal_axes(axis, position):
+    result = coded_result()
+    velocity = result.velocity
     args = QESWindArgs(**request(product="slice", slice_axis=axis, slice_position=position, slice_resolution=5))
     obj = _field_slice(result, args)
     assert type(obj) is FieldSlice
@@ -150,11 +155,19 @@ def test_slice_sampling_on_unequal_axes(axis, position):
     np.testing.assert_array_equal(obj.field("cell_flags").values, expected[:,0]+3)
     assert obj.field("valid").values.all()
     np.testing.assert_allclose(obj.field("speed").values, np.linalg.norm(expected.astype(float), axis=1))
+    np.testing.assert_allclose(obj.field("speedup").values, obj.field("speed").values / args.wind_speed)
+    assert obj.metadata_payload["speedup_reference"] == {"speed": 5.0, "height": 10.0}
     assert all(f.association == "sample" for f in obj.fields)
     assert not np.shares_memory(obj.field("velocity").values, result.velocity)
     normal = "xyz".index(axis)
     assert len(np.unique(obj.points[:, normal])) == 1
     assert obj.metadata_payload["slice_coordinate"] == obj.points[0, normal]
+
+
+def test_slice_speedup_is_nan_for_calm_inflow():
+    obj = _field_slice(coded_result(), QESWindArgs(**request(product="slice", wind_speed=0.0, slice_resolution=3)))
+    assert np.isfinite(obj.field("speed").values).all()
+    assert np.isnan(obj.field("speedup").values).all()
 
 
 def test_dataset_slice_solves_once_and_context_is_per_request(fetched, monkeypatch):

@@ -1,5 +1,6 @@
 """Reproduce the bounded tower diagnosis; this is not a preset validation gate."""
 
+import os
 import argparse
 from datetime import datetime, timezone
 import gzip
@@ -73,7 +74,7 @@ def main():
             "tools/vertical_grid_study.cpp", "tools/vertical_grid_diagnostics.cpp",
             "tools/vertical_grid_diagnostics.h", "tools/run_vertical_grid_diagnosis.py",
             "tools/run_vertical_grid_study.py", "src/qes_core/dtcc/divergence.cpp",
-            "src/qes_core/winds/Solver_CPU.cpp", "src/qes_core/winds/Solver_CPU_RB.cpp",
+            *[str(p) for p in [p for p in sorted(Path("src/qes_core").rglob("*")) if p.suffix in (".cpp", ".h", ".txt")]],
             "src/qes_core/winds/Wall.cpp", "src/qes_core/qes/Domain.cpp",
             "src/qes_core/dtcc/model_inputs.cpp", "CMakeLists.txt",
         ]
@@ -91,7 +92,7 @@ def main():
             for spacing, n in [("0.5", 2000), ("0.25", 8000)]:
                 command = [str(worker.resolve()), "tower", spacing, "270", str(n), "--diagnose"]
                 print("Running:", " ".join(command), flush=True)
-                run = json.loads(subprocess.check_output(command, cwd=ROOT))
+                run = json.loads(subprocess.check_output(command, env=os.environ | {"DTCC_QES_STUDY_ORDER": "legacy"}, cwd=ROOT))
                 run["command"] = command
                 raw["runs"].append(run)
                 # Retain completed work if a later backend/process fails.

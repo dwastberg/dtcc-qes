@@ -55,6 +55,39 @@ find_package(nanobind CONFIG REQUIRED)
 
 # Vendored QES no-I/O CPU core (qesbuild, qesutil, qeswindscore).
 add_subdirectory(src/qes_core)
+# Pin the compiler's existing contraction mode, including caller-supplied flags.
+# Do not impose a new cross-compiler numerical trajectory during the refactor.
+set(DTCC_QES_FP_CONTRACT "compiler-default-unverified")
+if(CMAKE_CXX_COMPILER_ID MATCHES "^(AppleClang|Clang|GNU)$")
+  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/fp_contract_probe.cpp" "// compiler option probe\n")
+  string(TOUPPER "${CMAKE_BUILD_TYPE}" DTCC_QES_CONFIG)
+  separate_arguments(DTCC_QES_PROBE_FLAGS NATIVE_COMMAND
+    "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${DTCC_QES_CONFIG}}")
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(DTCC_QES_PROBE_OPTIONS -Q --help=optimizers)
+  else()
+    set(DTCC_QES_PROBE_OPTIONS "-###")
+  endif()
+  execute_process(COMMAND "${CMAKE_CXX_COMPILER}" ${DTCC_QES_PROBE_FLAGS}
+    -std=c++17 ${DTCC_QES_PROBE_OPTIONS} -c "${CMAKE_CURRENT_BINARY_DIR}/fp_contract_probe.cpp"
+    -o "${CMAKE_CURRENT_BINARY_DIR}/fp_contract_probe.o"
+    OUTPUT_VARIABLE DTCC_QES_FP_OUT ERROR_VARIABLE DTCC_QES_FP_ERR
+    RESULT_VARIABLE DTCC_QES_FP_STATUS)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    string(REGEX MATCH "-ffp-contract=[^ \r\n]*[ \t]+(fast|on|off)"
+      DTCC_QES_FP_MATCH "${DTCC_QES_FP_OUT}${DTCC_QES_FP_ERR}")
+  else()
+    string(REGEX MATCH "-ffp-contract=(fast|on|off)"
+      DTCC_QES_FP_MATCH "${DTCC_QES_FP_OUT}${DTCC_QES_FP_ERR}")
+  endif()
+  if(NOT DTCC_QES_FP_STATUS EQUAL 0 OR NOT DTCC_QES_FP_MATCH)
+    message(FATAL_ERROR "Cannot determine the compiler's current floating-point contraction mode")
+  endif()
+  set(DTCC_QES_FP_CONTRACT "${CMAKE_MATCH_1}")
+  target_compile_options(qesbuild INTERFACE "-ffp-contract=${DTCC_QES_FP_CONTRACT}")
+endif()
+target_compile_definitions(qesbridge PRIVATE DTCC_QES_FP_CONTRACT="${DTCC_QES_FP_CONTRACT}")
+message(STATUS "dtcc-qes floating-point contraction: ${DTCC_QES_FP_CONTRACT}")
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT DTCC_QES_ENABLE_SANITIZERS)
   target_compile_definitions(qesbuild INTERFACE NDEBUG)
 endif()
@@ -158,6 +191,20 @@ if(DTCC_QES_BUILD_TESTS)
   add_executable(check_precision tests/native/check_precision.cpp $<TARGET_OBJECTS:qesbridge>)
   target_link_libraries(check_precision PRIVATE dtcc_qes_internal)
   add_test(NAME precision_solver COMMAND check_precision)
+  add_executable(check_solver_phases tests/native/check_solver_phases.cpp $<TARGET_OBJECTS:qesbridge>)
+  target_link_libraries(check_solver_phases PRIVATE dtcc_qes_internal)
+  add_test(NAME solver_phases COMMAND check_solver_phases)
+  add_executable(check_monitor tests/native/check_monitor.cpp $<TARGET_OBJECTS:qesbridge>)
+  target_link_libraries(check_monitor PRIVATE dtcc_qes_internal)
+  add_test(NAME solver_monitor COMMAND check_monitor)
+  set_tests_properties(solver_monitor PROPERTIES TIMEOUT 60)
+  add_executable(check_solver_control tests/native/check_solver_control.cpp $<TARGET_OBJECTS:qesbridge>)
+  target_link_libraries(check_solver_control PRIVATE dtcc_qes_internal)
+  add_test(NAME solver_control COMMAND check_solver_control)
+  set_tests_properties(solver_control PROPERTIES TIMEOUT 60 ENVIRONMENT "OMP_NUM_THREADS=2;OMP_DYNAMIC=FALSE")
+  add_executable(solver_monitor_probe tools/solver_monitor_probe.cpp $<TARGET_OBJECTS:qesbridge>)
+  target_link_libraries(solver_monitor_probe PRIVATE dtcc_qes_internal)
+  set_tests_properties(solver_phases PROPERTIES TIMEOUT 60)
   # Opt-in numerical study; deliberately excluded from routine CTest workloads.
   add_executable(vertical_grid_study tools/vertical_grid_study.cpp
     tools/vertical_grid_diagnostics.cpp $<TARGET_OBJECTS:qesbridge>)

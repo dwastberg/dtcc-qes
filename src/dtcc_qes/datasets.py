@@ -13,6 +13,7 @@ from dtcc_core.model import Bounds, City, Field, FieldSlice, Transform
 
 from . import __version__, wind
 from ._dataset_city import prepare_city
+from .solver_control import SolverControl
 
 __all__ = ["QESWindArgs", "QESWindDataset"]
 
@@ -42,6 +43,7 @@ class QESWindArgs(DatasetBaseArgs):
     tolerance: float = Argument(1e-4, gt=0)
     max_iterations: int = Argument(1000, ge=1)
     raise_on_nonconvergence: bool = False
+    solver_control: dict | None = Argument(None, description="Bounded native control settings and explicit monitor; accuracy remains unassessed.")
     product: Literal["field", "slice"] = "field"
     slice_axis: Literal["x", "y", "z"] = "z"
     slice_sampling: Literal["nearest", "linear"] = Argument(
@@ -73,6 +75,8 @@ class QESWindArgs(DatasetBaseArgs):
                             self.vertical_clearance, self.max_cells, vertical_grid=self.vertical_grid_spec())
         wind._validate_solver(self.tolerance, self.max_iterations, self.raise_on_nonconvergence,
                               self.solver_precision)
+        if self.solver_control is not None:
+            SolverControl.from_dict(self.solver_control)
         return self
 
     def vertical_grid_spec(self):
@@ -81,13 +85,16 @@ class QESWindArgs(DatasetBaseArgs):
         return None
 
     def wind_options(self):
-        return dict(speed=self.wind_speed, direction=self.wind_direction,
+        options = dict(speed=self.wind_speed, direction=self.wind_direction,
                     reference_height=self.reference_height, roughness_length=self.roughness_length,
                     resolution=self.resolution, horizontal_padding=self.horizontal_padding,
                     vertical_clearance=self.vertical_clearance, max_cells=self.max_cells,
                     tolerance=self.tolerance, max_iterations=self.max_iterations,
                     raise_on_nonconvergence=self.raise_on_nonconvergence,
                     vertical_grid=self.vertical_grid_spec(), solver_precision=self.solver_precision)
+        if self.solver_control is not None:
+            options["solver_control"] = SolverControl.from_dict(self.solver_control)
+        return options
 
 
 class QESWindDataset(DatasetDescriptor):
@@ -123,9 +130,9 @@ class QESWindDataset(DatasetDescriptor):
              "vertical_grids": ["uniform"], "field_names": ["velocity", "speed", "cell_flags"]},
             {"name": "slice", "python_return_type": "dtcc_core.model.FieldSlice", "formats": [],
              "vertical_grids": ["uniform", "auto"], "experimental_vertical_grids": ["auto"],
-             "field_names": ["velocity", "speed", "cell_flags", "valid"]},
+             "field_names": ["velocity", "speed", "speedup", "cell_flags", "valid"]},
         ]
-        metadata["field_names"] = ["velocity", "speed", "cell_flags", "valid"]
+        metadata["field_names"] = ["velocity", "speed", "speedup", "cell_flags", "valid"]
         return metadata
 
     def __call__(self, **kwargs):
@@ -171,6 +178,10 @@ class QESWindDataset(DatasetDescriptor):
             step["sampling"] = obj.metadata_payload.copy()
         context.provenance.processing_steps.append(step)
         context.health = asdict(solved.diagnostics)
+        if solved.control is not None:
+            context.health["solver_control"] = solved.control
+            context.health["execution_deterministic"] = False
+            context.warnings.append("Time-budgeted QES output records actual completed work; accuracy is not assessed.")
         context.health["automatic_grid_experimental"] = args.vertical_grid == "auto"
         if args.vertical_grid == "auto":
             context.warnings.append("Automatic vertical generation is experimental; local grid sensitivity "
@@ -222,6 +233,9 @@ def _field_slice(result, args):
         velocity = result.velocity[indices[2], indices[1], indices[0]].astype(np.float64, copy=True)
         valid = (flags != 0) & (flags != 2) & np.isfinite(velocity).all(axis=-1)
         velocity[~valid] = np.nan
+    speed = np.linalg.norm(velocity.astype(np.float64), axis=1)
+    # Speed-up is undefined for calm inflow; keep NaN rather than divide by zero.
+    speedup = speed / args.wind_speed if args.wind_speed > 0 else np.full_like(speed, np.nan)
     points += np.asarray(result.origin)
     physical_bounds = result.metadata["domain"]["effective_bounds"]
     field_slice = FieldSlice(
@@ -239,13 +253,15 @@ def _field_slice(result, args):
                           "sampled_height": sample.sampled_height if sample is not None else None,
                           "solid_cell_flags": [0, 2], "cell_flags_sampling": "nearest_cell_categorical",
                           "validity": "All contributing cells must be fluid with finite velocity; invalid vectors are NaN.",
+                          "speedup_reference": {"speed": args.wind_speed, "height": args.reference_height},
                           "vertical_grid": result.metadata["domain"].get("vertical_grid", {"mode": "uniform"}),
                           "solver_precision": result.diagnostics.precision,
                           "automatic_grid_experimental": args.vertical_grid == "auto"},
     )
     for name, values, dim, unit in (
         ("velocity", velocity, 3, "m/s"),
-        ("speed", np.linalg.norm(velocity.astype(np.float64), axis=1), 1, "m/s"),
+        ("speed", speed, 1, "m/s"),
+        ("speedup", speedup, 1, "1"),
         ("cell_flags", flags, 1, "1"),
         ("valid", valid, 1, "1"),
     ):

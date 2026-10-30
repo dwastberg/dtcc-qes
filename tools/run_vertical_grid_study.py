@@ -6,6 +6,7 @@ The summary contains timing comparisons only when both solves pass accuracy.
 """
 from __future__ import annotations
 
+import os
 import argparse
 import gzip
 import hashlib
@@ -211,7 +212,7 @@ def main():
         while True:
             print(f"{i+1}/{len(tasks)} {case} {grid} {direction:g} repeat {repeat}: N={n}", flush=True)
             process = subprocess.run([str(executable), case, grid, str(direction), str(n)],
-                                     check=True, capture_output=True, text=True, timeout=600)
+                                     env=os.environ | {"DTCC_QES_STUDY_ORDER": "legacy"}, check=True, capture_output=True, text=True, timeout=600)
             run = json.loads(process.stdout)
             if process.stderr:
                 raise RuntimeError(process.stderr)

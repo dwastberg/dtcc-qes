@@ -17,7 +17,9 @@ def test_extension_links_core():
 
     assert _qes.io_enabled is False
     assert _qes.compiler_id and _qes.compiler_version and _qes.build_type
+    assert _qes.fp_contract in ("on", "off", "fast", "compiler-default-unverified")
     assert isinstance(_qes.openmp_enabled, bool)
+    assert _qes.cpu_sweep_order == "red_black"
     assert _qes.cpu_backend == ("OpenMP CPU" if _qes.openmp_enabled else "serial CPU")
     assert _qes.qes_version == "v2.3.1"
     assert len(_qes.qes_revision) == 40

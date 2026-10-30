@@ -1,7 +1,7 @@
+#include "solver/solver.h"
+#include "winds/WINDSGeneralData.h"
 #include "model_inputs.h"
 #include "divergence.h"
-#include "winds/SolverFactory.h"
-#include "winds/Solver_CPU.h"
 #include "util/QESException.h"
 #include <algorithm>
 #include <cmath>
@@ -13,6 +13,8 @@
 #endif
 
 using namespace dtcc_qes;
+
+using namespace dtcc_qes::solver;
 
 static void require(bool value, const char *message)
 {
@@ -64,8 +66,10 @@ static void guard_checks()
   auto data = std::make_unique<WINDSGeneralData>(d, inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
   data->applyWindProfile(inputs.inflow);
   data->applyParametrizations();
-  Solver_CPU wrong(qes::Domain(8, 8, 4, 2, 2, 2), 1e-5f);
-  rejects([&] { static_cast<Solver &>(wrong).solve(data.get(), 1); });
+  WINDSGeneralData wrong_geometry(qes::Domain(8,8,4,2,2,2));
+  const PoissonOperator wrong_operator(wrong_geometry);
+  SolverState<float> wrong(wrong_operator);
+  rejects([&] { solve_wind(wrong,*data,1); });
   g.dz_layers = {1, 2};
   rejects<std::invalid_argument>([&] { ModelInputs bad(g, model, BuildingArrays{{}, {0}, {}, {}, {}}); });
 }
@@ -82,11 +86,10 @@ static std::vector<float> injection(const std::vector<double> &layers, bool seri
   data.applyWindProfile(inputs.inflow);
   data.applyParametrizations();
   data.w0[data.domain.face(12, 12, 6)] = 0.1f;
-  std::unique_ptr<Solver> solver;
-  if (serial) solver = std::make_unique<Solver_CPU>(data.domain, 2e-7f);
-  else solver.reset(SolverFactory::create(CPU_Type, data.domain, 2e-7f));
-  solver->solve(&data, 20000);
-  require(divergence_stats(data).interior_max < 1e-6, "Explicit grid failed the vertical injection bound");
+  const PoissonOperator op(data);
+  SolverState<float> solver(op, 2e-7f, serial ? SweepOrder::Lexicographic : default_order());
+  solve_wind(solver, data, 20000);
+  require(divergence_stats(data, op).interior_max < 1e-6, "Explicit grid failed the vertical injection bound");
   return data.w;
 }
 
@@ -141,9 +144,10 @@ static void stretched_canyon(bool report)
   WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
   data.applyWindProfile(inputs.inflow);
   data.applyParametrizations();
-  std::unique_ptr<Solver> solver(SolverFactory::create(CPU_Type, data.domain, std::numeric_limits<float>::epsilon()));
-  const auto diagnostics = solver->solve(&data, 2000);
-  const auto stats = divergence_stats(data);
+  const PoissonOperator op(data);
+  SolverState<float> solver(op, std::numeric_limits<float>::epsilon());
+  const auto diagnostics = solve_wind(solver, data, 2000);
+  const auto stats = divergence_stats(data, op);
   require(stats.interior_max * 3 < 1e-3 && stats.interior_rms * 3 < 1e-4,
           "Stretched canyon fails the conservative residual bounds");
   if (report)

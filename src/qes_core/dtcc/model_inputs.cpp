@@ -132,6 +132,7 @@ ModelInputs::ModelInputs(const GridConfig &grid, const ModelSettings &model, con
   parameterizations.wakeFlag = model.wake_flag;
   parameterizations.highRiseFlag = model.high_rise_flag;
   parameterizations.sidewallFlag = model.sidewall_flag;
+  parameterizations.validateWakeDependencies();
 
   const auto count = arrays.heights.size();
   if (arrays.vertices.size() % 2 || arrays.offsets.size() != count + 1

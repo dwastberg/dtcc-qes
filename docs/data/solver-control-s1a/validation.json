@@ -1,0 +1,84 @@
+{
+  "stage": "S1a",
+  "date": "2026-10-29",
+  "baseline_source_id": "sha256:6fcdfab1abe30e254721495d2fe453f9e4c7eb89be89421df29eb44663e08d76",
+  "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+  "cpu": "Apple M4 Pro, 14 cores",
+  "python": "3.13.11 (main, Dec  5 2025, 21:16:49) [Clang 21.1.4 ]",
+  "compiler": {
+    "id": "AppleClang",
+    "version": "17.0.0.17000404",
+    "fp_contract": "on"
+  },
+  "tests": {
+    "reproduction-tests.xml": {
+      "tests": 3,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ctest-openmp.xml": {
+      "tests": 43,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ctest-serial.xml": {
+      "tests": 40,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ctest-sanitizers.xml": {
+      "tests": 43,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "pytest-condition-state.xml": {
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "pytest-openmp.xml": {
+      "tests": 997,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 18
+    },
+    "pytest-serial.xml": {
+      "tests": 997,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "pytest-wheel.xml": {
+      "tests": 46,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "reproduction_expected_failures": 3,
+  "changes_verified": true,
+  "changed_cases": 7,
+  "changed_records": 21,
+  "unchanged_cases": 422,
+  "unchanged_records": 3851,
+  "baseline_parity_passed": true,
+  "native_symbol_audits": [
+    "openmp",
+    "serial",
+    "openmp-sanitizers"
+  ],
+  "sanitizer_environment": {
+    "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1"
+  },
+  "limitations": [
+    "Same compiler and machine, no cross-compiler bitwise claim.",
+    "No new accuracy references or performance claims.",
+    "S2 has not started."
+  ]
+}

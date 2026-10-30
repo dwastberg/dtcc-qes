@@ -1,19 +1,17 @@
 // Synthetic sensitivity/cost study, not an experimental validation or public API.
 #include "model_inputs.h"
 #include "divergence.h"
-#include "precision_solver.h"
+#include "solver/solver.h"
 #include "log_sink.h"
 #include "winds/WINDSGeneralData.h"
-#include "winds/Solver_CPU.h"
-#include "winds/SolverFactory.h"
 #include "vertical_grid_diagnostics.h"
 #ifdef _OPENMP
-#include "winds/Solver_CPU_RB.h"
 #include <omp.h>
 #endif
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <cstdlib>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -26,24 +24,30 @@
 using namespace dtcc_qes;
 using Clock = std::chrono::steady_clock;
 using Vector = std::array<double, 3>;
+// Historical study drivers explicitly request their archived ordering through
+// this environment variable; older frozen workers safely ignore it.
+static solver::SweepOrder study_order() {
+  const char *value = std::getenv("DTCC_QES_STUDY_ORDER");
+  if (!value) return solver::default_order();
+  const std::string name(value);
+  if (name == "lexicographic") return solver::SweepOrder::Lexicographic;
+  if (name == "red_black") return solver::SweepOrder::RedBlack;
+  if (name == "legacy") {
 #ifdef _OPENMP
-using Backend = Solver_CPU_RB;
-constexpr const char *backend = "openmp_red_black";
+    return solver::SweepOrder::RedBlack;
 #else
-using Backend = Solver_CPU;
-constexpr const char *backend = "serial_lexicographic";
+    return solver::SweepOrder::Lexicographic;
 #endif
-
-// Negative tolerance is ONLY a study control: force all requested sweeps even
-// after float32 stagnation. Public constructors/stopping rules are unchanged.
-class FixedSweeps : public Backend {
-public:
-  explicit FixedSweeps(const qes::Domain &d)
-    : Backend(d, std::numeric_limits<float>::epsilon()) { tol = -1; }
-  const auto &multipliers() const { return lambda; }
-  const auto &previous_multipliers() const { return lambda_old; }
-  const auto &rhs() const { return R; }
-};
+  }
+  throw std::invalid_argument("Unknown DTCC_QES_STUDY_ORDER");
+}
+static const char *backend_name(solver::SweepOrder order) {
+#ifdef _OPENMP
+  return order == solver::SweepOrder::RedBlack ? "openmp_red_black" : "openmp_lexicographic";
+#else
+  return order == solver::SweepOrder::RedBlack ? "serial_red_black" : "serial_lexicographic";
+#endif
+}
 
 static void rectangle(BuildingArrays &b, double x, double y, double w, double l, double h)
 {
@@ -331,10 +335,13 @@ try {
     return 0;
   }
   bool diagnose = false, double_precision = false, single_checkpoint = false;
+  auto order = study_order();
   std::int64_t allocation_ceiling = 0;
   for (int arg = 5; arg < argc; ++arg) {
     const std::string flag = argv[arg];
     if (flag == "--diagnose") diagnose = true;
+    else if (flag == "--lexicographic") order = solver::SweepOrder::Lexicographic;
+    else if (flag == "--red-black") order = solver::SweepOrder::RedBlack;
     else if (flag == "--float64") double_precision = true;
     else if (flag == "--checkpoint") single_checkpoint = true;
     else if (flag == "--max-cells" && arg + 1 < argc) {
@@ -348,6 +355,7 @@ try {
   }
   if (argc < 5 || (diagnose && double_precision))
     throw std::invalid_argument("Usage: vertical_grid_study geometry spacing direction N [--diagnose | --float64] [--checkpoint] [--max-cells COUNT]");
+  const auto *backend = backend_name(order);
   const std::string name = argv[1], spacing = argv[2];
   const double direction = std::stod(argv[3]);
   const int n = std::stoi(argv[4]);
@@ -395,11 +403,12 @@ try {
     write_planes(profile, data, heights, ii, jj, true);
   }
   data.applyParametrizations();
-  std::unique_ptr<FixedSweeps> solver;
-  std::unique_ptr<PrecisionSolver> precision_solver;
+  const solver::PoissonOperator poisson(data,solver::CoefficientOwnership::Take);
+  std::unique_ptr<solver::SolverState<float>> solver;
+  std::unique_ptr<solver::SolverState<double>> precision_solver;
   if (n) {
-    if (double_precision) precision_solver = std::make_unique<PrecisionSolver>(data.domain, 1e-12);
-    else solver = std::make_unique<FixedSweeps>(data.domain);
+    if (double_precision) precision_solver = std::make_unique<solver::SolverState<double>>(poisson,1e-12,order);
+    else solver = std::make_unique<solver::SolverState<float>>(poisson,std::numeric_limits<float>::epsilon(),order);
   }
   const double prep = elapsed(start);
   const double hmax = *std::max_element(b.heights.begin(), b.heights.end());
@@ -418,7 +427,7 @@ try {
       << ",\"precision\":\"" << (double_precision ? "float64" : "float32")
       << "\",\"start\":\"zero\",\"solver_workspace_bytes\":"
       << (precision_solver ? precision_solver->workspace_bytes()
-                          : n ? 3*sizeof(float)*data.domain.numCellCentered() : 0)
+                          : solver ? solver->workspace_bytes() : 0)
       << ",\"sample_x\":[";
   if (ii.empty()) for (int i = 1; i < data.domain.nx() - 2; ++i) ii.push_back(i);
   if (jj.empty()) for (int j = 1; j < data.domain.ny() - 2; ++j) jj.push_back(j);
@@ -447,17 +456,24 @@ try {
   if (n)
   for (int multiplier : single_checkpoint ? std::vector<int>{1} : std::vector<int>{1, 2, 4}) {
     auto t = Clock::now();
-    PrecisionDiagnostics diag;
-    if (precision_solver) diag = precision_solver->solve(&data, n * multiplier, true);
+    // Each archived N/2N/4N checkpoint remains an independent zero start.
+    solver::SolveDiagnostics diag;
+    std::vector<float> previous;
+    if (precision_solver) diag = solver::solve_wind(*precision_solver,data,n*multiplier,solver::StopRule::FixedSweeps);
     else {
-      solver->resetLambda(); // Every checkpoint restarts from the same initial field.
-      const auto legacy = static_cast<Solver &>(*solver).solve(&data, n * multiplier);
-      diag = {legacy.iterations, legacy.max_lagrange_multiplier_change, legacy.tolerance, legacy.converged};
+      solver->begin(solver::ConditionInputs(data),n*multiplier,solver::StopRule::FixedSweeps);
+      if (diagnose) {
+        solver->advance(n*multiplier-1);
+        previous = solver->copy_state_for_study().multipliers;
+        solver->advance(1);
+      } else solver->advance(n*multiplier);
+      solver->finalize(solver::FaceDestination(data));
+      diag = solver->diagnostics();
     }
     const double solve_seconds = elapsed(t);
     if (diag.iterations != n * multiplier) throw std::runtime_error("Incomplete sweep budget");
     t = Clock::now();
-    const auto residual = divergence_stats(data);
+    const auto residual = divergence_stats(data,poisson);
     const double residual_seconds = elapsed(t);
     if (!residual.cells) throw std::runtime_error("No assessed interior cells");
     t = Clock::now();
@@ -489,11 +505,12 @@ try {
     out << ']';
     if (diagnose) {
       out << ",\"solver_diagnostics\":";
-      study::write_solver_diagnostics(out, data, solver->multipliers(),
-                                      solver->previous_multipliers(), solver->rhs());
+      const auto inspected = solver->copy_state_for_study();
+      study::write_solver_diagnostics(out,data,poisson,inspected.multipliers,
+                                     previous,inspected.rhs);
       if (multiplier == 4) {
         out << ",\"precision_probe\":";
-        study::write_precision_probe(out, data, solver->multipliers());
+        study::write_precision_probe(out,data,poisson,inspected.multipliers,order);
       }
     }
     out << '}';

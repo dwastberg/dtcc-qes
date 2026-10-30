@@ -95,7 +95,9 @@ void Wall::defineWalls(WINDSGeneralData *WGD)
     for (auto i = 0; i < nx - 1; i++) {
       for (auto j = 0; j < ny - 1; j++) {
         long icell_cent = WGD->domain.cell(i, j, k);
-        if ((WGD->icellflag[icell_cent] == 7 || WGD->icellflag[icell_cent] == 0) && WGD->building_volume_frac[icell_cent] <= 0.1) {
+        // Absent cut-cell storage means the stair-step default volume fraction 1.
+        if ((WGD->icellflag[icell_cent] == 7 || WGD->icellflag[icell_cent] == 0)
+            && !WGD->building_volume_frac.empty() && WGD->building_volume_frac[icell_cent] <= 0.1) {
           WGD->icellflag[icell_cent] = 0;
           WGD->e[icell_cent] = 1.0;
           WGD->f[icell_cent] = 1.0;

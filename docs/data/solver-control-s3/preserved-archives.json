@@ -1,0 +1,22 @@
+{
+  "s0": {
+    "manifest_sha256": "106d6faafb35031466820df104e3d797e22e90a924b1eb067cf5e7d31ac31593",
+    "evidence_files": 59,
+    "passed": true
+  },
+  "s1": {
+    "manifest_sha256": "5e3d941e4efbaac2612438ed82afc8cbbd222652f96721f7241a263daa0f17af",
+    "evidence_files": 12,
+    "passed": true
+  },
+  "s1a": {
+    "manifest_sha256": "6f5dae06001c56f6a5d30db25bee93e1cfa59f0ea6096d34bf99ff1465487824",
+    "evidence_files": 13,
+    "passed": true
+  },
+  "s2": {
+    "manifest_sha256": "4b0dcea58fc55d4c835953f30decd0e7ee02790dd3db73379fbe1884515f6674",
+    "evidence_files": 236,
+    "passed": true
+  }
+}

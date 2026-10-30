@@ -5,6 +5,7 @@ Initial-only probes never count as accepted wind solutions or accuracy reference
 """
 from __future__ import annotations
 
+import os
 import argparse
 import gzip
 import hashlib
@@ -267,7 +268,8 @@ def main():
         executable_sha256=digest(executable), reference=str(args.reference), reference_sha256=digest(args.reference),
         source_sha256={str(p): digest(p) for p in (Path(__file__), Path("tools/run_auto_grid_controls.py"),
             Path("tools/run_vertical_grid_study.py"), Path("tools/vertical_grid_study.cpp"),
-            Path("src/qes_core/dtcc/divergence.cpp"), Path("src/qes_core/dtcc/model_inputs.cpp"))},
+            Path("src/qes_core/dtcc/divergence.cpp"), Path("src/qes_core/dtcc/model_inputs.cpp"),
+            *[p for p in sorted(Path("src/qes_core").rglob("*")) if p.suffix in (".cpp", ".h", ".txt")])},
         initial_n=args.n, max_n=args.max_n, qes_revision=Path("src/dtcc_qes/_qes_revision.txt").read_text().strip(),
         frozen_critical_indices=frozen_locations(refs), heights=list(HEIGHTS), comparison_points=POINTS.tolist(),
         away_region_distance_m=4, error_targets=dict(p95_abs_delta_K=.05, peak_relative=.05,
@@ -290,7 +292,7 @@ def main():
         while True:
             print(task["id"], "N=", n, flush=True)
             proc = subprocess.run([str(executable), "tower", "--horizontal", str(task["direction"]), str(n)],
-                input=input_text(configs[task["family"]], task), text=True, capture_output=True, check=True, timeout=1800)
+                env=os.environ | {"DTCC_QES_STUDY_ORDER": "legacy"}, input=input_text(configs[task["family"]], task), text=True, capture_output=True, check=True, timeout=1800)
             if proc.stderr:
                 raise RuntimeError(proc.stderr)
             run = json.loads(proc.stdout)

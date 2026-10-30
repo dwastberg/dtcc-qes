@@ -1,4 +1,4 @@
-"""Run a steady wind simulation for a 200 m city area (requires network)."""
+"""Run a steady wind simulation for a 500 m city area (requires network)."""
 
 from dtcc_core import datasets, Bounds
 import dtcc_qes
@@ -11,6 +11,7 @@ y_min = 6397660
 bounds = Bounds(x_min, y_min, x_min + h, y_min + h)
 
 start_time = time.time()
-result = datasets.qes_wind(bounds=bounds, wind_speed=5.0, wind_direction=270.0, resolution=1.0, product="slice", slice_height=2)
+result = datasets.qes_wind(bounds=bounds, wind_speed=5.0, wind_direction=45, resolution=0.5, product="slice", slice_height=1.75)
 print(f"{time.time() - start_time} seconds")
-result.plot(presentation=False)
+print(result)
+result.plot(field_name="speedup", presentation=False)

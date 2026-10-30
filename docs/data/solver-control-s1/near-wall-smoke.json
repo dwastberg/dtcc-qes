@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "iterations": 2,
+  "cells": 51200,
+  "backend": "openmp_red_black",
+  "seconds": 0.15531683299923316,
+  "assessed_cells": 43070
+}

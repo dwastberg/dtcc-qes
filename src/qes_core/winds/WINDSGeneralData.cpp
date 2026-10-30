@@ -74,6 +74,7 @@ WINDSGeneralData::WINDSGeneralData(qes::Domain domain_in, const std::vector<Buil
   // former XML-driven setup reduces to the statements below, in their order.
   if (!std::isfinite(site_z0) || site_z0 <= 0)
     throw qes::InputError("Sensor roughness must be positive and stability must be finite");
+  parameterizations.validateWakeDependencies();
 
   qes::log::info() << "-------------------------------------------------------------------" << std::endl;
   qes::log::info() << "[QES-WINDS]\t Initialization of wind model...\n";
@@ -252,19 +253,10 @@ void WINDSGeneralData::allocateMemory()
   m.resize(numcell_cent, 1.0);
   n.resize(numcell_cent, 1.0);
 
-  building_volume_frac.resize(numcell_cent, 1.0);
-  ni.resize(numcell_cent, 0.0);
-  nj.resize(numcell_cent, 0.0);
-  nk.resize(numcell_cent, 0.0);
-  center_id.resize(numcell_cent, 1);
-  wall_distance.resize(numcell_cent, 0.0);
-
   icellflag.resize(numcell_cent, 1);
   icellflag_initial.resize(numcell_cent, 1);
 
   ibuilding_flag.resize(numcell_cent, -1);
-
-  mixingLengths.resize(numcell_cent, 0.0);
 
   terrain.resize(numcell_cout_2d, 0.0);
   terrain_face_id.resize(domain.nx() * domain.ny(), 1);
@@ -279,6 +271,19 @@ void WINDSGeneralData::allocateMemory()
   v.resize(numcell_face, 0.0);
   w.resize(numcell_face, 0.0);
 
+}
+
+void WINDSGeneralData::ensureCutCellStorage()
+{
+  const auto count = domain.numCellCentered();
+  building_volume_frac.resize(count, 1.0f);
+  ni.resize(count, 0.0f); nj.resize(count, 0.0f); nk.resize(count, 0.0f);
+  center_id.resize(count, 1); wall_distance.resize(count, 0.0f);
+}
+
+void WINDSGeneralData::ensureMixingLengthStorage()
+{
+  mixingLengths.resize(domain.numCellCentered(), 0.0);
 }
 
 
@@ -319,6 +324,8 @@ void WINDSGeneralData::applyWindProfile(const InflowCondition &inflow)
 
 void WINDSGeneralData::applyParametrizations()
 {
+  parameterizations.validateWakeDependencies();
+  for (auto *building : allBuildingsV) building->resetConditionState();
 
   auto start_param = std::chrono::high_resolution_clock::now();// Start recording execution time
   qes::log::info() << "[QES-WINDS]\t Applying parameterizations...\n";

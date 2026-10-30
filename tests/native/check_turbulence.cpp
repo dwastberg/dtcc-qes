@@ -6,7 +6,7 @@
 #include "winds/TURBGeneralData.h"
 #include "winds/LocalMixingDefault.h"
 #include "winds/LocalMixingSerial.h"
-#include "winds/SolverFactory.h"
+#include "solver/solver.h"
 #include <algorithm>
 #include <array>
 #include <cfenv>
@@ -432,9 +432,9 @@ void building_validity()
   data.resetICellFlag();
   data.applyWindProfile(fixture.inputs->inflow);
   data.applyParametrizations();
-  std::unique_ptr<Solver> solver(SolverFactory::create(CPU_Type, data.domain, 1e-5f));
-  solver->resetLambda();
-  require(solver->solve(&data, 20000).converged, "Building validity case did not converge");
+  const solver::PoissonOperator op(data);
+  solver::SolverState<float> solver(op,1e-5f);
+  require(solver::solve_wind(solver,data,20000).converged, "Building validity case did not converge");
   turb->run();
   std::vector<Stress> original;
   std::vector<bool> valid;
@@ -603,7 +603,7 @@ void wall_box_oracle(WallCase &fixture, LocalMixingSerial &method)
       for (int i = 1; i < d.nx() - 2; ++i) {
         const auto cell = d.cell(i,j,k);
         if (fixture.data->icellflag[cell] == 0 || fixture.data->icellflag[cell] == 2) {
-          require(fixture.data->mixingLengths[cell] == before[cell], "Wall update wrote into a solid cell");
+          require(fixture.data->mixingLengths[cell] == (before.empty() ? 0.0 : before[cell]), "Wall update wrote into a solid cell");
           continue;
         }
         const std::array<double,3> point{d.x[i], d.y[j], d.z[k]};

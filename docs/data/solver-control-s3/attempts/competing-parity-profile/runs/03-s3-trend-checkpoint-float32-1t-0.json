@@ -1,0 +1,39 @@
+{
+  "precision": "float32",
+  "requested_threads": 1,
+  "repeat": 0,
+  "revision": "s3",
+  "mode": "trend-checkpoint",
+  "team": 1,
+  "iterations": 40,
+  "shape": [
+    92,
+    320,
+    320
+  ],
+  "seconds": {
+    "prepare": 0.229899625,
+    "initialize": 0.077858708,
+    "monitor_compile_and_initial": 0.006339625,
+    "sweeps": 0.878143542,
+    "checkpoints": 0.027477375000000002,
+    "finalize": 0.17405,
+    "total": 1.393769125
+  },
+  "peak_rss_bytes": 728825856,
+  "monitor_planned_bytes": 8719574,
+  "monitor_allocated_bytes": 8719574,
+  "checkpoints": 5,
+  "slab_layers": 2,
+  "max_change": 0.3106117248535156,
+  "mass": [
+    2.0228195190429688,
+    0.10199946677570608,
+    7.949186114952516e-11
+  ],
+  "fingerprints_fnv1a64": [
+    "8954057812195348206",
+    "2291434283323420686"
+  ],
+  "status": "completed"
+}

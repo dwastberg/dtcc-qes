@@ -1,0 +1,7 @@
+{
+  "supervisor_pid": 50867,
+  "launched_utc": "2026-10-28T14:09:42.693485+00:00",
+  "start_new_session": true,
+  "log": "build/finest-reference/retry.log",
+  "numerical_identity": "Existing manifest and worker; unchanged full 40k/80k/160k triple"
+}
