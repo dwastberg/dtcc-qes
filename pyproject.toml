@@ -24,7 +24,7 @@ build-dir = "build/{wheel_tag}"
 # Negated cache includes let the corresponding exclusions take effect.
 sdist.include = [
     "/src/**", "/tests/**", "/tools/**", "/examples/**", "/demo/**", "/docs/**", "/CMakeLists.txt",
-    "/README.md", "/DYNAMIC_VERTICAL_GRID.md", "/SOLVER_CONTROL_REFACTOR.md", "/LICENSE", "/NOTICE",
+    "/README.md", "/DYNAMIC_VERTICAL_GRID.md", "/SOLVER_CONTROL_REFACTOR.md", "/WIND_PROFILES.md", "/LICENSE", "/NOTICE",
     "!**/__pycache__/**", "!**/*.pyc",
 ]
 # The QES-Public submodule is reference-only; the build uses src/qes_core.

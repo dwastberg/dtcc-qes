@@ -99,7 +99,7 @@ def prepare_city(source, args):
     padding = max(args.horizontal_padding, 3 * spacing)
     lower, upper = lower - padding, upper + padding
     top = (float(args.bounds[5]) if len(args.bounds) == 6 else ground + default_domain_top(
-        geometry.heights, args.reference_height, args.vertical_clearance, spacing))
+        geometry.heights, args.reference_condition()["height"], args.vertical_clearance, spacing))
     bounds = (float(lower[0]), float(lower[1]), ground, float(upper[0]), float(upper[1]), top)
     return city, bounds, {
         "crs": "EPSG:3006", "ground_elevation": ground,

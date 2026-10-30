@@ -177,3 +177,32 @@ source. It can be defined as a `comfort.Criterion`.
   [Groningen wind study](https://gemeenteraad.groningen.nl/Documenten/Document/Bijlage-2-windstudie-2.pdf)
   and [Commissie m.e.r. wind climate report](https://commissiemer.nl/docs/mer/p20/p2034/2034-043f_windklimaat.pdf)
 - [Janssen, Blocken & van Hooff (2013), comparison of wind comfort criteria](https://research.tue.nl/en/publications/pedestrian-wind-comfort-around-buildings-comparison-of-wind-comfo/)
+
+
+## Profile reference normalization
+
+Experimental measured, uniform and power-law approaches can supply the existing
+per-direction comfort workflow. Use each result's `reference_speed` (the vector
+speed evaluated at its declared reference height), rather than the highest
+measurement or an unrelated station speed. `result.speedup` supplies normalized
+mean speeds; `result.to_dtcc(include_speedup=True)` optionally exports them.
+A calm reference vector permits a mean-flow solve but yields NaN speedup and
+cannot normalize comfort fields or identify a direction.
+
+Changing only a positive amplitude preserves profile shape and turning; use
+`profile.scaled(factor)`. Different shear/turning regimes require separate solves
+and explicit climate assignment. Hourly speeds must already describe the same
+reference height and upstream exposure as the simulated profile. No sector
+profile selector or new exposure transfer is added by this change; those remain
+separate follow-up work. The existing `log_law_transfer` is unchanged.
+
+Turning profiles initialize all background layers. Building wakes follow each
+building's roof-level direction even where lower layers turn; a calm roof vector
+has deterministic `atan2(0,0)=0` orientation and zero sampled magnitude. Turning
+above 45 degrees across physical layers produces a warning. New-profile
+`turbulence=True` remains available, but QES-Turb converts a sampled solved speed
+at its morphometric reference height into friction velocity with a log law.
+That conversion can be inconsistent with jets or strongly sheared profiles;
+metadata records the caveat. Neither these inputs nor algebraic turbulence
+provide new independent physical or gust validation. See the
+[profile guide](wind-profiles.md) and [verification report](wind-profiles-verification.md).

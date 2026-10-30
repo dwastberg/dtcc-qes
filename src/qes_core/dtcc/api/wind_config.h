@@ -6,6 +6,7 @@
 #include <string>
 #include <optional>
 #include "control_types.h"
+#include "profile_types.h"
 
 namespace dtcc_qes {
 // Private numerical contract. Coordinates are metres in a local, flat frame.
@@ -27,6 +28,10 @@ struct ModelSettings {
 
 struct WindCondition {
   double speed = 5.0, direction = 270.0, reference_height = 10.0;
+  ProfileKind profile_kind = ProfileKind::Log;
+  // Python evaluates all new profile families at physical cell centres. Owned
+  // float64 boundary arrays are validated/narrowed atomically by ModelInputs.
+  std::vector<double> layer_u, layer_v;
 };
 
 struct SolverOptions {

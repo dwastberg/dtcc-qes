@@ -208,6 +208,21 @@ class WindResult:
         return _velocity_magnitude(self.velocity)
 
     @property
+    def reference_speed(self):
+        """Speed used to normalize this background shape, or None if unavailable."""
+        reference = self.metadata.get("profile", {}).get("reference")
+        if reference is not None:
+            return reference["speed"]
+        return self.metadata.get("condition", {}).get("speed")
+
+    @property
+    def speedup(self):
+        """Mean speed / declared reference speed; NaN for calm/missing reference."""
+        reference = self.reference_speed
+        speed = self.speed
+        return speed / reference if reference is not None and reference > 0 else np.full_like(speed, np.nan)
+
+    @property
     def streamwise_std(self):
         if self.turbulence is None:
             raise ValueError("Result has no turbulence; run with turbulence=True")
@@ -340,7 +355,7 @@ class WindResult:
                           requested, sampled, method, self.origin, self.crs,stress,stress_valid,
                           _stress_contributors_valid=contributors)
 
-    def to_dtcc(self):
+    def to_dtcc(self, *, include_speedup=False):
         """Return independent cell fields in DTCC's y, x, z-fastest order.
 
         This matches VolumeGrid.coordinates()'s current meshgrid ``xy`` order.
@@ -370,6 +385,9 @@ class WindResult:
                              association="cell", description="Wind speed magnitude"))
         grid.add_field(Field(name="cell_flags", unit="1", values=flags, association="cell",
                              description="QES cell classification; 0 building, 2 terrain"))
+        if include_speedup:
+            grid.add_field(Field(name="speedup", unit="1", values=self.speedup.transpose(1, 2, 0).reshape(-1).copy(),
+                                 association="cell", description="Mean speed / declared profile reference; undefined for calm reference"))
         if self.turbulence is not None:
             fields = self.turbulence
             computed = fields.computed

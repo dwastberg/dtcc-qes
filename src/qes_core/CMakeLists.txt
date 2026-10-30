@@ -23,7 +23,7 @@ add_library(qeswindscore STATIC
   winds/PolyBuilding.cpp
   solver/solver.cpp solver/cpu_float32.cpp solver/cpu_float64.cpp
   winds/TURBGeneralData.cpp winds/TURBWall.cpp winds/TURBWallBuilding.cpp winds/TURBWallTerrain.cpp
-  winds/LogProfile.cpp
+  winds/LogProfile.cpp winds/LayerProfile.cpp
   winds/WINDSGeneralData.cpp winds/Wall.cpp winds/UpwindCavity.cpp winds/NonLocalMixing.cpp
   winds/PolygonWake.cpp winds/StreetCanyon.cpp winds/StreetCanyonModified.cpp winds/Sidewall.cpp
   winds/Rooftop.cpp)

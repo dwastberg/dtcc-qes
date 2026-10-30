@@ -1,13 +1,41 @@
 # dtcc-qes
 
 Run QES-Winds' CPU solver on a DTCC city and receive georeferenced
-NumPy arrays in memory. The solver supports one steady neutral logarithmic
-wind profile, uniform horizontal spacing, uniform or explicit vertical layers,
+NumPy arrays in memory. The default approach is a steady neutral logarithmic
+profile; experimental measured, power-law and uniform horizontal profiles are
+also available. The solver supports uniform horizontal spacing, uniform or explicit vertical layers,
 flat ground and simple LOD0 building extrusions.
 Python supplies geometry and wind inputs; the native core performs no file I/O.
 
 Version `0.1.0b1` is the initial beta. The Python API may change before a stable
 release; supported inputs and solver limitations are documented below.
+
+## Wind profiles
+
+Legacy calls such as `wind.run(city, 5.0, 270.0)` retain their numerical path.
+Alternatively, supply an immutable profile:
+
+```python
+from dtcc_qes import wind
+
+profile = wind.MeasuredProfile(
+    heights=[2, 5, 10, 20, 40], speeds=[2.1, 3.0, 4.2, 5.6, 7.0],
+    direction=270.0, reference_height=10.0,
+    below="log", above="constant",
+)
+result = wind.run(city, profile=profile, resolution=2.0, roughness_length=0.1)
+```
+
+`LogProfile`, `PowerLawProfile` and `UniformProfile` use the same reference
+convention. Measured data can supply `directions=[...]` or
+`MeasuredProfile.from_components(heights, u, v, ...)`. Measured vectors
+interpolate in log height by default; `interpolation="linear"` selects physical
+height. The upper default holds the last vector; the lower default raises.
+For non-log profiles, `roughness_length` stays a run argument and supplies the
+lower log tail and ground roughness. Turning and `turbulence=True` are supported,
+with documented roof-direction and morphometric-friction-velocity limitations.
+See the [API guide](docs/wind-profiles.md), [verification report](docs/wind-profiles-verification.md),
+and runnable [measured/power-law example](examples/wind_profiles.py).
 
 ## Build and install
 

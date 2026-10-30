@@ -37,6 +37,7 @@
 #include "util/QESLog.h"
 #include "WINDSGeneralData.h"
 #include "LogProfile.h"
+#include "LayerProfile.h"
 #include "PolyBuilding.h"
 
 #include <chrono>
@@ -303,7 +304,8 @@ void WINDSGeneralData::applyWindProfile(const InflowCondition &inflow)
 
   auto start_InputWindProfile = std::chrono::high_resolution_clock::now();// Finish recording execution time
 
-  applyLogProfile(inflow, this);
+  if (inflow.profile_kind == dtcc_qes::ProfileKind::Log) applyLogProfile(inflow, this);
+  else applyLayerProfile(inflow, this);
 
   max_velmag = 0.0;
   for (auto i = 0; i < domain.nx(); i++) {
@@ -311,6 +313,12 @@ void WINDSGeneralData::applyWindProfile(const InflowCondition &inflow)
       // int icell_face = i + j * nx + (nz - 2) * nx * ny;
       long icell_face = domain.face(i, j, domain.nz() - 2);
       max_velmag = MAX_S(max_velmag, sqrt(pow(u0[icell_face], 2.0) + pow(v0[icell_face], 2.0)));
+    }
+  }
+  if (inflow.profile_kind == dtcc_qes::ProfileKind::LayerTable) {
+    for (int k = 1; k < domain.nz()-1; ++k) {
+      const auto index = domain.face(0,0,k);
+      max_velmag = std::max(max_velmag, static_cast<float>(std::hypot(double(u0[index]), double(v0[index]))));
     }
   }
   max_velmag *= 1.2;

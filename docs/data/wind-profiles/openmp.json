@@ -1,0 +1,512 @@
+{
+  "implementation_sha256": "466dc35730695737d865df08ec4c8ba0d8b8c84e9b0f81206d208dd682e56b17",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+  "numpy": "2.5.4",
+  "schema_version": 1,
+  "scope": "numerical verification; independent physical validation pending",
+  "source_revision": "325b3b104ebf67b0c53487550930566cc6ad0837",
+  "openmp_enabled": true,
+  "backend": "OpenMP CPU",
+  "compiler": {
+    "id": "AppleClang",
+    "version": "17.0.0.17000404"
+  },
+  "acceptance": {
+    "scaling_normalized_vector_atol": 0.002,
+    "tabulation_vector_atol": 0.002,
+    "unit": "m/s at baseline amplitude",
+    "physical_validation": "not assessed"
+  },
+  "cases": [
+    {
+      "kind": "log",
+      "precision": "float32",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.559274435043335e-06,
+        2.1457672119140625e-06,
+        1.9073486328125e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 4.0531158447265625e-06,
+      "legacy_bitwise_equal": true
+    },
+    {
+      "kind": "uniform",
+      "precision": "float32",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        3.948807716369629e-06,
+        1.9073486328125e-06,
+        2.562999725341797e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 5.0067901611328125e-06
+    },
+    {
+      "kind": "power_law",
+      "precision": "float32",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.421438694000244e-06,
+        1.430511474609375e-06,
+        1.9073486328125e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 4.410743713378906e-06,
+      "tabulation_error": 0.0,
+      "tabulation_pass": true
+    },
+    {
+      "kind": "measured",
+      "precision": "float32",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.2277235984802246e-06,
+        1.9073486328125e-06,
+        1.9073486328125e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 3.874301910400391e-06
+    },
+    {
+      "kind": "log",
+      "precision": "float32",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.8796494007110596e-06,
+        2.682209014892578e-06,
+        3.2335519790649414e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 7.3015689849853516e-06,
+      "legacy_bitwise_equal": true
+    },
+    {
+      "kind": "uniform",
+      "precision": "float32",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        3.635883331298828e-06,
+        4.291534423828125e-06,
+        3.814697265625e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 1.0632417418499074e-05
+    },
+    {
+      "kind": "power_law",
+      "precision": "float32",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        3.203749656677246e-06,
+        2.86102294921875e-06,
+        3.0249357223510742e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 6.67572021484375e-06,
+      "tabulation_error": 0.0,
+      "tabulation_pass": true
+    },
+    {
+      "kind": "measured",
+      "precision": "float32",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        3.3918768167495728e-06,
+        2.384185791015625e-06,
+        2.384185791015625e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 4.976987838745117e-06
+    },
+    {
+      "kind": "log",
+      "precision": "float64",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.8703361749649048e-06,
+        1.4621764421463013e-06,
+        1.9855797290802e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 3.7029385566711426e-06,
+      "legacy_bitwise_equal": true
+    },
+    {
+      "kind": "uniform",
+      "precision": "float64",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.950429916381836e-06,
+        1.9073486328125e-06,
+        2.034008502960205e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 3.829598426818848e-06
+    },
+    {
+      "kind": "power_law",
+      "precision": "float64",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.8796494007110596e-06,
+        1.9073486328125e-06,
+        2.384185791015625e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 3.702007234096527e-06,
+      "tabulation_error": 0.0,
+      "tabulation_pass": true
+    },
+    {
+      "kind": "measured",
+      "precision": "float64",
+      "nonuniform": false,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        3.246590495109558e-06,
+        1.430511474609375e-06,
+        1.9073486328125e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 3.546476364135742e-06
+    },
+    {
+      "kind": "log",
+      "precision": "float64",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.3506581783294678e-06,
+        1.171603798866272e-06,
+        1.6689300537109375e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 6.705522537231445e-06,
+      "legacy_bitwise_equal": true
+    },
+    {
+      "kind": "uniform",
+      "precision": "float64",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.305954694747925e-06,
+        1.1511147022247314e-06,
+        1.5236437320709229e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 6.538815796375275e-06
+    },
+    {
+      "kind": "power_law",
+      "precision": "float64",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.391636371612549e-06,
+        1.1920928955078125e-06,
+        1.9073486328125e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 6.809830665588379e-06,
+      "tabulation_error": 0.0,
+      "tabulation_pass": true
+    },
+    {
+      "kind": "measured",
+      "precision": "float64",
+      "nonuniform": true,
+      "reference": {
+        "height": 10.0,
+        "u": 5.0,
+        "v": 9.184850993605148e-16,
+        "speed": 5.0,
+        "direction": 270.0
+      },
+      "scales": [
+        0.5,
+        2,
+        3
+      ],
+      "scaling_errors": [
+        2.2202730178833008e-06,
+        1.1026859283447266e-06,
+        1.4640390872955322e-06
+      ],
+      "scaling_pass": true,
+      "converged": true,
+      "conservative_divergence": 6.323680281639099e-06
+    }
+  ],
+  "costs": [
+    {
+      "kind": "log",
+      "repeats": 5,
+      "public_call_median_seconds": 0.0070306669804267585,
+      "native_field_copy_median_seconds": 3.0042e-05,
+      "python_evaluation_median_seconds": 3.4374999813735485e-05,
+      "profile_fraction_of_public_call": 0.009162288584151572
+    },
+    {
+      "kind": "uniform",
+      "repeats": 5,
+      "public_call_median_seconds": 0.04230116697726771,
+      "native_field_copy_median_seconds": 8.417e-06,
+      "python_evaluation_median_seconds": 0.00011766701936721802,
+      "profile_fraction_of_public_call": 0.002980627447818981
+    },
+    {
+      "kind": "power_law",
+      "repeats": 5,
+      "public_call_median_seconds": 0.007120208989363164,
+      "native_field_copy_median_seconds": 8.167e-06,
+      "python_evaluation_median_seconds": 0.00011004001135006547,
+      "profile_fraction_of_public_call": 0.016601621037620414
+    },
+    {
+      "kind": "measured",
+      "repeats": 5,
+      "public_call_median_seconds": 0.006660082959569991,
+      "native_field_copy_median_seconds": 8.125e-06,
+      "python_evaluation_median_seconds": 0.00016158301150426269,
+      "profile_fraction_of_public_call": 0.02548136600316761
+    }
+  ],
+  "grid": {
+    "resolution": 2.0,
+    "bounds": [
+      0,
+      0,
+      0,
+      80,
+      60,
+      40
+    ],
+    "tolerance": 1e-05,
+    "max_iterations": 2000,
+    "uniform_shape": [
+      20,
+      30,
+      40
+    ],
+    "nonuniform_faces": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      8,
+      12,
+      18,
+      26,
+      40
+    ]
+  },
+  "geometry": {
+    "block_bounds": [
+      30,
+      25,
+      0,
+      40,
+      35,
+      8
+    ],
+    "ground": "flat",
+    "sampling": "all fluid cell centres"
+  },
+  "passed": true
+}

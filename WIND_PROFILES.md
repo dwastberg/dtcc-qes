@@ -1,10 +1,16 @@
 # Wind profiles: findings and implementation plan
 
-**Status:** implementation plan, revised 2026-10-30 after a review against the
-working tree. The features described below are not implemented. Source
-inspection covers the current working tree and the reference QES fork at
-`dce15d7e` (upstream base v2.3.1). Research findings draw on established
-guidance and publications through October 2026.
+**Status:** implemented as experimental mean-profile inputs, 2026-10-30.
+Measured (default log-height component interpolation), power-law and uniform
+profiles are evaluated in Python and passed as owned native layer tables.
+Legacy neutral-log arithmetic is retained. Turning and QES-Turb combinations
+are supported with explicit metadata caveats. Independent physical validation
+and sector/exposure transfer remain follow-up work.
+
+See the [implemented API](docs/wind-profiles.md), [numerical verification](docs/wind-profiles-verification.md)
+and [examples](examples/wind_profiles.py). The original design and baseline
+source review are retained below; descriptions of the prior implementation
+refer to the pre-feature working tree and QES reference fork `dce15d7e`.
 
 ## 1. Decision and purpose
 

@@ -138,3 +138,14 @@ it says otherwise.
   control record. Bounded records retain the legacy convergence boolean and
   always report accuracy not assessed. Input snapshots, buffered logging,
   precision/default stopping semantics and owned output arrays are retained.
+- **Horizontal background profiles.** New analytic/tabulated profiles are
+  evaluated in Python in float64. The QES-free `WindCondition` owns one u/v
+  value per physical layer and reference scalars. `ModelInputs` atomically
+  validates/narrows a complete table. `LayerProfile.cpp` copies it to exactly
+  the physical staggered bands written by `LogProfile.cpp`; cleared lower
+  ghost and upper-face bands stay zero. The table velocity limit considers
+  interior maxima. Legacy log expressions and native scalar construction are
+  unchanged. Turning follows each building's existing roof-level rotation;
+  QES-Turb remains enabled with an explicit morphometric log-conversion caveat.
+  Measured-tail roughness comes from preparation-time model roughness. See
+  `docs/wind-profiles.md` and `docs/wind-profiles-verification.md`.

@@ -187,16 +187,33 @@ ModelInputs::ModelInputs(const GridConfig &grid, const ModelSettings &model, con
 
 void ModelInputs::set_condition(const WindCondition &condition)
 {
-  const float speed = narrow(condition.speed, "Wind speed");
-  const float direction = narrow(condition.direction, "Wind direction");
-  const float height = positive(condition.reference_height, "Reference height");
+  // Validate and narrow the complete condition before replacing active inputs.
+  InflowCondition candidate = inflow;
+  candidate.profile_kind = condition.profile_kind;
+  candidate.layer_u.clear(); candidate.layer_v.clear();
+  candidate.site_U_ref = narrow(condition.speed, "Wind speed");
+  candidate.site_wind_dir = narrow(condition.direction, "Wind direction");
+  candidate.site_z_ref = positive(condition.reference_height, "Reference height");
   if (condition.speed < 0 || condition.direction < 0 || condition.direction >= 360)
     throw std::invalid_argument("Wind speed must be nonnegative and direction must be in [0, 360)");
-  const float ratio = (height + inflow.site_z0) / inflow.site_z0;
-  if (!std::isfinite(ratio) || ratio <= 1)
-    throw std::invalid_argument("Reference height and roughness cannot form a finite float32 log profile");
-  inflow.site_U_ref = speed;
-  inflow.site_wind_dir = direction;
-  inflow.site_z_ref = height;
+  if (condition.profile_kind == ProfileKind::Log) {
+    if (!condition.layer_u.empty() || !condition.layer_v.empty())
+      throw std::invalid_argument("Log conditions cannot contain a layer table");
+    const float ratio = (candidate.site_z_ref + candidate.site_z0) / candidate.site_z0;
+    if (!std::isfinite(ratio) || ratio <= 1)
+      throw std::invalid_argument("Reference height and roughness cannot form a finite float32 log profile");
+  } else if (condition.profile_kind == ProfileKind::LayerTable) {
+    if (condition.layer_u.size() != static_cast<std::size_t>(nz) || condition.layer_v.size() != condition.layer_u.size())
+      throw std::invalid_argument("Layer table must have one u/v value per physical layer");
+    candidate.layer_u.reserve(nz); candidate.layer_v.reserve(nz);
+    for (int k = 0; k < nz; ++k) {
+      const float u = narrow(condition.layer_u[k], "Layer u"), v = narrow(condition.layer_v[k], "Layer v");
+      narrow(1.2 * std::hypot(double(u), double(v)), "Layer velocity limit");
+      candidate.layer_u.push_back(u); candidate.layer_v.push_back(v);
+    }
+  } else {
+    throw std::invalid_argument("Unsupported profile kind");
+  }
+  inflow = std::move(candidate);
 }
 }

@@ -9,6 +9,7 @@
  */
 
 #include "util/PolygonVertex.h"
+#include "dtcc/api/profile_types.h"
 #include "util/Vector3Float.h"
 #include <optional>
 #include <stdexcept>
@@ -50,6 +51,8 @@ struct InflowCondition
   float site_z_ref = 10; /**< reference height (m) */
   float site_wind_dir = 270; /**< direction the wind comes from (degrees clockwise from north) */
   float site_z0 = 0.1; /**< roughness length (m) */
+  dtcc_qes::ProfileKind profile_kind = dtcc_qes::ProfileKind::Log;
+  std::vector<float> layer_u, layer_v;
   float site_one_overL = 0; /**< inverse Obukhov length (1/m); zero is neutral */
 };
 

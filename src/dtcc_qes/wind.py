@@ -15,10 +15,15 @@ from .result import ConvergenceError, SolveDiagnostics, TurbulenceFields, WindRe
 from .turbulence import Turbulence, _resolve_turbulence, _turbulence_metadata
 from .vertical_grid import GridPreview, VerticalGrid
 from .solver_control import SolverControl, MonitorSpec, Receptor, MassRegion, BudgetExhaustedError
+from .profiles import (LogProfile, MeasuredProfile, PowerLawProfile, UniformProfile,
+                       PROFILE_TYPES, profile_from_dict, evaluate)
+
+_UNSET = object()
 
 __all__ = ["run", "preview_grid", "WindResult", "WindSample", "GridPreview",
            "SolveDiagnostics", "ConvergenceError", "VerticalGrid", "Turbulence", "TurbulenceFields",
-           "SolverControl", "MonitorSpec", "Receptor", "MassRegion", "BudgetExhaustedError"]
+           "SolverControl", "MonitorSpec", "Receptor", "MassRegion", "BudgetExhaustedError",
+           "LogProfile", "MeasuredProfile", "PowerLawProfile", "UniformProfile", "profile_from_dict", "evaluate"]
 
 
 def _dtcc_version():
@@ -28,14 +33,23 @@ def _dtcc_version():
     return dict(version=installed.version, revision=details.get("vcs_info", {}).get("commit_id"))
 
 
-def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
-        roughness_length: float = 0.1, resolution: float = 2.0, bounds=None,
+def run(city, speed=None, direction=None, *, reference_height=_UNSET,
+        roughness_length=_UNSET, profile=None,
+        resolution: float = 2.0, bounds=None,
         horizontal_padding: float = 20.0, vertical_clearance: float = 20.0,
         max_cells: int = 20_000_000, tolerance: float = 1e-5, max_iterations: int = 500,
         raise_on_nonconvergence: bool = False, terrain=None, height_policy="measured",
         vertical_grid: VerticalGrid | None = None, solver_precision: str = "float32",
         turbulence: bool | Turbulence = False, solver_control: SolverControl | None = None) -> WindResult:
     """Solve one explicit wind condition without modifying the source city.
+
+    Supply either legacy speed/direction scalars or an immutable ``profile=``.
+    Scalar speed/direction/reference height cannot be combined with a profile.
+    Non-log profiles use the run's roughness_length for ground and lower tails.
+    Measured vectors interpolate linearly in height; out-of-range evaluation
+    requires an explicit lower tail; the upper default holds the last vector.
+    New profiles are experimental. Turning and turbulence are supported. Profiles
+    initialize the entire background field before building models and correction.
 
     Speed is in m/s. Direction is clockwise from north and denotes where the
     wind comes from. Reference height, roughness and cell resolution are metres.
@@ -92,15 +106,19 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
     turbulence_spec = _resolve_turbulence(turbulence)
     if solver_control is not None and not isinstance(solver_control, SolverControl):
         raise TypeError("solver_control must be SolverControl or None")
-    condition = _validate_condition(speed, direction, reference_height, roughness_length)
+    condition, profile_spec = _resolve_condition(speed, direction, reference_height, roughness_length, profile)
     grid = _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, max_cells,
                           vertical_grid=vertical_grid)
     solver = _validate_solver(tolerance, max_iterations, raise_on_nonconvergence, solver_precision)
     geometry, prepared = _prepare_city(city, condition, grid, terrain, height_policy,
-                                        turbulence=turbulence_spec is not None)
-    native_condition = _qes.WindCondition()
-    for name in ("speed", "direction", "reference_height"):
-        setattr(native_condition, name, condition[name])
+                                        turbulence=turbulence_spec is not None, profile=profile_spec)
+    native_condition = _native_condition(condition, profile_spec, _layer_heights(prepared))
+    profile_record = (profile_spec or LogProfile(**condition)).record(_layer_heights(prepared), condition["roughness_length"])
+    if profile_record["max_turning_deg"] > 45:
+        get_python_logger("dtcc-qes").warning(
+            "Background profile turns %.1f degrees across physical layers (>45 degrees); "
+            "building wakes follow each roof-level direction, including where lower layers turn.",
+            profile_record["max_turning_deg"])
     native_solver = _qes.SolverOptions()
     native_solver.tolerance, native_solver.max_iterations = solver["tolerance"], solver["max_iterations"]
     native_solver.precision = solver["precision"]
@@ -154,6 +172,15 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
         coordinates="local metres; add origin to recover the input global frame",
         dtcc_cell_order="y, x, z fastest (VolumeGrid.coordinates meshgrid xy)",
     )
+    metadata["profile"] = profile_record
+    metadata["profile"]["native_reference_scalars"] = {
+        name: float(np.float32(condition[name])) for name in ("speed", "direction", "reference_height")}
+    if profile_spec is not None and profile_spec.kind != "log":
+        metadata["effective_condition"] = dict(metadata["effective_condition"],
+            speed=profile_record["reference"]["speed"],
+            direction=profile_record["reference"]["direction"])
+        metadata["model"]["boundary_layer"] = (
+            "neutral logarithmic" if profile_spec.kind == "log" else f"experimental {profile_spec.kind} horizontal profile")
     turbulence_fields = None
     if "control" in native:
         metadata["solver_control"] = native["control"]
@@ -169,12 +196,15 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
             roughness_length=fields["roughness_length"],displacement_height=fields["displacement_height"])
         metadata["turbulence"] = _turbulence_metadata(turbulence_spec,fields,prepared.domain["turbulence"],
                                                     native["velocity"],bool(geometry.heights))
+        if profile_spec is not None and profile_spec.kind != "log":
+            metadata["turbulence"]["profile_caveat"] = profile_record["turbulence_caveat"]
     return WindResult(native["velocity"], native["x"], native["y"], native["z"], native["cell_flags"],
                       prepared.origin, geometry.crs, prepared.resolution, diagnostics, metadata,
                       z_faces=native["z_faces"],turbulence=turbulence_fields)
 
 
-def preview_grid(city, *, reference_height: float = 10.0, roughness_length: float = 0.1,
+def preview_grid(city, *, reference_height=_UNSET, roughness_length=_UNSET,
+                 profile=None,
                  resolution: float = 2.0, bounds=None, horizontal_padding: float = 20.0,
                  vertical_clearance: float = 20.0, max_cells: int = 20_000_000,
                  terrain=None, height_policy="measured",
@@ -193,11 +223,13 @@ def preview_grid(city, *, reference_height: float = 10.0, roughness_length: floa
     are recorded in ``domain['turbulence']``.
     """
     turbulence_spec = _resolve_turbulence(turbulence)
-    condition = _validate_condition(0, 0, reference_height, roughness_length)
+    condition, profile_spec = _resolve_condition(
+        0 if profile is None else None, 0 if profile is None else None,
+        reference_height, roughness_length, profile)
     grid = _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, max_cells,
                           vertical_grid=vertical_grid)
     geometry, prepared = _prepare_city(city, condition, grid, terrain, height_policy,
-                                        turbulence=turbulence_spec is not None)
+                                        turbulence=turbulence_spec is not None, profile=profile_spec)
     nz, ny, nx = prepared.domain["shape"]
     spacing = np.float32(prepared.resolution)
     faces = np.asarray(prepared.domain["vertical_grid"]["effective_faces"], dtype=np.float32)
@@ -209,7 +241,7 @@ def preview_grid(city, *, reference_height: float = 10.0, roughness_length: floa
                        prepared.origin, geometry.crs, prepared.resolution, prepared.domain, prepared.terrain)
 
 
-def _prepare_city(city, condition, grid, terrain, height_policy, *, turbulence=False):
+def _prepare_city(city, condition, grid, terrain, height_policy, *, turbulence=False, profile=None):
     """Shared geometry and domain preparation for solving and grid preview."""
     if not isinstance(turbulence, bool):
         raise ValueError("turbulence must be a bool")
@@ -219,7 +251,56 @@ def _prepare_city(city, condition, grid, terrain, height_policy, *, turbulence=F
     prepared = prepare_domain(geometry, reference_height=condition["reference_height"],
                               roughness_length=condition["roughness_length"], **grid, terrain=terrain,
                               turbulence=turbulence)
+    if profile is not None and profile.kind != "log":
+        centres = _layer_heights(prepared)
+        profile.check_coverage(np.r_[centres, profile.reference_height], condition["roughness_length"])
+        prepared.domain["profile"] = profile.record(centres, condition["roughness_length"])
     return geometry, prepared
+
+
+
+def _resolve_condition(speed, direction, reference_height, roughness_length, profile):
+    if profile is not None:
+        if not isinstance(profile, PROFILE_TYPES):
+            raise TypeError("profile must be LogProfile, MeasuredProfile, PowerLawProfile or UniformProfile")
+        if speed is not None or direction is not None or reference_height is not _UNSET:
+            raise ValueError("profile is mutually exclusive with speed, direction and reference_height")
+        if isinstance(profile, LogProfile):
+            if roughness_length is not _UNSET:
+                raise ValueError("LogProfile carries roughness_length; do not also supply it to run")
+            return _validate_condition(profile.speed, profile.direction, profile.reference_height,
+                                       profile.roughness_length), profile
+        roughness = number(.1 if roughness_length is _UNSET else roughness_length, "roughness_length", positive=True)
+        if not np.isfinite(np.float32(roughness)) or np.float32(roughness) <= 0:
+            raise ValueError("roughness_length must remain positive and finite in float32")
+        reference = profile.reference_at(roughness)
+        if reference["speed"] > float(np.finfo(np.float32).max):
+            raise ValueError("Reference speed must remain finite in float32")
+        return dict(speed=reference["speed"], direction=reference["direction"] or 0.0,
+                    reference_height=profile.reference_height, roughness_length=roughness), profile
+    if speed is None or direction is None:
+        raise TypeError("run requires speed and direction, or profile=")
+    return _validate_condition(speed, direction,
+                               10.0 if reference_height is _UNSET else reference_height,
+                               .1 if roughness_length is _UNSET else roughness_length), None
+
+
+def _layer_heights(prepared):
+    faces = np.asarray(prepared.domain["vertical_grid"]["effective_faces"], dtype=np.float32)
+    return (np.float32(.5) * (faces[:-1] + faces[1:])).astype(np.float64)
+
+
+def _native_condition(condition, profile=None, heights=None):
+    native = _qes.WindCondition()
+    for name in ("speed", "direction", "reference_height"):
+        setattr(native, name, condition[name])
+    if profile is not None and profile.kind != "log":
+        if heights is None:
+            raise ValueError("New profiles require final physical layer heights")
+        uv = profile.evaluate(heights, condition["roughness_length"])
+        native.profile_kind = _qes.ProfileKind.layer_table
+        native.layer_u, native.layer_v = uv[:, 0].tolist(), uv[:, 1].tolist()
+    return native
 
 
 def _validate_condition(speed, direction, reference_height, roughness_length):

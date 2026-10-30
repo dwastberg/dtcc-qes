@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import Literal
 
 import numpy as np
-from pydantic import ConfigDict, Field as Argument, model_validator
+from pydantic import ConfigDict, Field as Argument, model_validator, model_serializer
 
 from dtcc_core import datasets as core_datasets
 from dtcc_core.datasets import DatasetBaseArgs, DatasetDescriptor
@@ -23,6 +23,7 @@ class QESWindArgs(DatasetBaseArgs):
 
     model_config = ConfigDict(extra="forbid", strict=True, allow_inf_nan=False)
 
+    profile: dict | None = Argument(None, description="Versioned horizontal profile: kind plus analytic parameters or measured arrays and tails.")
     source: Literal["LM", "OSM"] = "LM"
     smallest_building_size: float = Argument(15.0, ge=0, description="Source area filter in square metres.")
     min_building_detail: float = Argument(0.5, gt=0, description="Core footprint cleaning/merging scale in metres.")
@@ -69,8 +70,21 @@ class QESWindArgs(DatasetBaseArgs):
             if self.slice_height > self.bounds[5] - self.bounds[2]:
                 raise ValueError("slice_height must be within the simulation domain")
         # Reuse the solver's float32 and integer limits before fetching data.
-        wind._validate_condition(self.wind_speed, self.wind_direction,
-                                 self.reference_height, self.roughness_length)
+        if self.profile is not None:
+            profile = wind.profile_from_dict(self.profile)
+            names = {"wind_speed", "wind_direction", "reference_height"}
+            if isinstance(profile, wind.LogProfile):
+                names.add("roughness_length")
+            conflicts = self.model_fields_set & names
+            if conflicts:
+                raise ValueError(f"profile conflicts with explicit scalar condition fields: {sorted(conflicts)}")
+            profile = wind.profile_from_dict(self.profile)
+            wind._resolve_condition(None, None, wind._UNSET,
+                wind._UNSET if isinstance(profile, wind.LogProfile) else self.roughness_length, profile)
+            object.__setattr__(self, "profile", profile.to_dict())
+        else:
+            wind._validate_condition(self.wind_speed, self.wind_direction,
+                                     self.reference_height, self.roughness_length)
         wind._validate_grid(self.resolution, None, self.horizontal_padding,
                             self.vertical_clearance, self.max_cells, vertical_grid=self.vertical_grid_spec())
         wind._validate_solver(self.tolerance, self.max_iterations, self.raise_on_nonconvergence,
@@ -84,6 +98,21 @@ class QESWindArgs(DatasetBaseArgs):
             return wind.VerticalGrid.auto(pedestrian_height=self.pedestrian_height, growth_rate=self.growth_rate)
         return None
 
+    @model_serializer(mode="wrap")
+    def serialize_request(self, handler):
+        result = handler(self)
+        if self.profile is not None:
+            for name in ("wind_speed", "wind_direction", "reference_height"):
+                result.pop(name, None)
+            if self.profile["kind"] == "log":
+                result.pop("roughness_length", None)
+        return result
+
+    def reference_condition(self):
+        if self.profile is not None:
+            return wind.profile_from_dict(self.profile).reference_at(self.roughness_length)
+        return dict(speed=self.wind_speed, height=self.reference_height, direction=self.wind_direction)
+
     def wind_options(self):
         options = dict(speed=self.wind_speed, direction=self.wind_direction,
                     reference_height=self.reference_height, roughness_length=self.roughness_length,
@@ -92,6 +121,12 @@ class QESWindArgs(DatasetBaseArgs):
                     tolerance=self.tolerance, max_iterations=self.max_iterations,
                     raise_on_nonconvergence=self.raise_on_nonconvergence,
                     vertical_grid=self.vertical_grid_spec(), solver_precision=self.solver_precision)
+        if self.profile is not None:
+            for name in ("speed", "direction", "reference_height"):
+                options.pop(name)
+            if self.profile["kind"] == "log":
+                options.pop("roughness_length")
+            options["profile"] = wind.profile_from_dict(self.profile)
         if self.solver_control is not None:
             options["solver_control"] = SolverControl.from_dict(self.solver_control)
         return options
@@ -127,7 +162,8 @@ class QESWindDataset(DatasetDescriptor):
         metadata = super().describe()
         metadata["products"] = [
             {"name": "field", "python_return_type": "dtcc_core.model.VolumeGrid", "formats": [],
-             "vertical_grids": ["uniform"], "field_names": ["velocity", "speed", "cell_flags"]},
+             "vertical_grids": ["uniform"], "field_names": ["velocity", "speed", "cell_flags"],
+             "profile_field_names": ["velocity", "speed", "speedup", "cell_flags"]},
             {"name": "slice", "python_return_type": "dtcc_core.model.FieldSlice", "formats": [],
              "vertical_grids": ["uniform", "auto"], "experimental_vertical_grids": ["auto"],
              "field_names": ["velocity", "speed", "speedup", "cell_flags", "valid"]},
@@ -163,7 +199,7 @@ class QESWindDataset(DatasetDescriptor):
         city, bounds, preparation = prepare_city(source_city, args)
         solved = wind.run(city, **args.wind_options(), bounds=bounds,
                           terrain=bounds[2], height_policy="allow_estimated")
-        obj = solved.to_dtcc() if args.product == "field" else _field_slice(solved, args)
+        obj = solved.to_dtcc(include_speedup=args.profile is not None) if args.product == "field" else _field_slice(solved, args)
         context = self.create_context(args)
         context.metadata.python_return_type = f"dtcc_core.model.{type(obj).__name__}"
         context.provenance.generated_at = datetime.now(timezone.utc).isoformat()
@@ -235,7 +271,9 @@ def _field_slice(result, args):
         velocity[~valid] = np.nan
     speed = np.linalg.norm(velocity.astype(np.float64), axis=1)
     # Speed-up is undefined for calm inflow; keep NaN rather than divide by zero.
-    speedup = speed / args.wind_speed if args.wind_speed > 0 else np.full_like(speed, np.nan)
+    reference = result.metadata.get("effective_condition", {})
+    reference_speed = reference["speed"] if args.profile is not None else args.wind_speed
+    speedup = speed / reference_speed if reference_speed > 0 else np.full_like(speed, np.nan)
     points += np.asarray(result.origin)
     physical_bounds = result.metadata["domain"]["effective_bounds"]
     field_slice = FieldSlice(
@@ -253,7 +291,8 @@ def _field_slice(result, args):
                           "sampled_height": sample.sampled_height if sample is not None else None,
                           "solid_cell_flags": [0, 2], "cell_flags_sampling": "nearest_cell_categorical",
                           "validity": "All contributing cells must be fluid with finite velocity; invalid vectors are NaN.",
-                          "speedup_reference": {"speed": args.wind_speed, "height": args.reference_height},
+                          "speedup_reference": {"speed": reference_speed, "height": args.reference_condition()["height"]},
+                          "profile": result.metadata.get("profile"),
                           "vertical_grid": result.metadata["domain"].get("vertical_grid", {"mode": "uniform"}),
                           "solver_precision": result.diagnostics.precision,
                           "automatic_grid_experimental": args.vertical_grid == "auto"},

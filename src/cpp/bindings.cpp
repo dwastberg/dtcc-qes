@@ -2,6 +2,7 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/array.h>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/vector.h>
 #include "build_info.h"
 #include "wind_runner.h"
 #include "control_bindings.h"
@@ -160,9 +161,13 @@ NB_MODULE(_qes, m)
     .def_rw("wake_flag", &ModelSettings::wake_flag)
     .def_rw("high_rise_flag", &ModelSettings::high_rise_flag)
     .def_rw("sidewall_flag", &ModelSettings::sidewall_flag);
+  nb::enum_<ProfileKind>(m, "ProfileKind")
+    .value("log", ProfileKind::Log).value("layer_table", ProfileKind::LayerTable);
   nb::class_<WindCondition>(m, "WindCondition")
     .def(nb::init<>()).def_rw("speed", &WindCondition::speed)
-    .def_rw("direction", &WindCondition::direction).def_rw("reference_height", &WindCondition::reference_height);
+    .def_rw("direction", &WindCondition::direction).def_rw("reference_height", &WindCondition::reference_height)
+    .def_rw("profile_kind", &WindCondition::profile_kind)
+    .def_rw("layer_u", &WindCondition::layer_u).def_rw("layer_v", &WindCondition::layer_v);
   nb::class_<SolverOptions>(m, "SolverOptions")
     .def(nb::init<>()).def_rw("tolerance", &SolverOptions::tolerance)
     .def_rw("max_iterations", &SolverOptions::max_iterations)
