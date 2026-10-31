@@ -1,0 +1,17 @@
+[1/43] adaptive val_staggered_240 rep=0 team=4 budget=5.0
+Traceback (most recent call last):
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/validate_solver_policy.py", line 160, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/validate_solver_policy.py", line 158, in main
+    elif a.study:run(a.study.resolve())
+                 ~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/validate_solver_policy.py", line 145, in run
+    if r.returncode:raise RuntimeError(f"Worker failed: {req['id']}\n{r.stderr[-3000:]}")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Worker failed: online-00
+Traceback (most recent call last):
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s7/validate_solver_policy.py", line 19, in <module>
+    from compare_native_builds import stage_package
+ModuleNotFoundError: No module named 'compare_native_builds'
+

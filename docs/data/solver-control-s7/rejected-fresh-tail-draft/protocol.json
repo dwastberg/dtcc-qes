@@ -1,0 +1,169 @@
+{
+  "stage": "S7",
+  "policy": "pedestrian-v1",
+  "method": "s5c-rb-sor-float-omega-v1-omega-1.90",
+  "parent_source_sha256": "3fd915c91de4dda94c56fa44c1c81f3b961e5fdf7f4f297fea1b1984615d5f63",
+  "target": {
+    "vector_p95": 0.0005,
+    "vector_maximum": 0.001,
+    "speed_p95": 0.0005,
+    "speed_maximum": 0.001,
+    "scaled_mass_maximum": 0.001,
+    "scaled_mass_rms": 0.0001,
+    "relative_residual_maximum": 0.001,
+    "relative_residual_rms": 0.0001,
+    "length_m": 23.7
+  },
+  "calibration_parameters": [
+    {
+      "safety_factor": 2.0,
+      "minimum_iterations": 150,
+      "maximum_ratio": 0.8
+    },
+    {
+      "safety_factor": 2.0,
+      "minimum_iterations": 150,
+      "maximum_ratio": 0.9
+    },
+    {
+      "safety_factor": 2.0,
+      "minimum_iterations": 200,
+      "maximum_ratio": 0.8
+    },
+    {
+      "safety_factor": 2.0,
+      "minimum_iterations": 200,
+      "maximum_ratio": 0.9
+    },
+    {
+      "safety_factor": 4.0,
+      "minimum_iterations": 150,
+      "maximum_ratio": 0.8
+    },
+    {
+      "safety_factor": 4.0,
+      "minimum_iterations": 150,
+      "maximum_ratio": 0.9
+    },
+    {
+      "safety_factor": 4.0,
+      "minimum_iterations": 200,
+      "maximum_ratio": 0.8
+    },
+    {
+      "safety_factor": 4.0,
+      "minimum_iterations": 200,
+      "maximum_ratio": 0.9
+    },
+    {
+      "safety_factor": 8.0,
+      "minimum_iterations": 150,
+      "maximum_ratio": 0.8
+    },
+    {
+      "safety_factor": 8.0,
+      "minimum_iterations": 150,
+      "maximum_ratio": 0.9
+    },
+    {
+      "safety_factor": 8.0,
+      "minimum_iterations": 200,
+      "maximum_ratio": 0.8
+    },
+    {
+      "safety_factor": 8.0,
+      "minimum_iterations": 200,
+      "maximum_ratio": 0.9
+    }
+  ],
+  "calibration_selection": "Zero false acceptances over all calibration histories; all qualified calibration cases must accept. Minimize mean first-accept iteration, ties prefer larger safety, larger minimum work, smaller ratio cap. No selection after looking at validation.",
+  "calibration": [
+    "tower_2m",
+    "passages_2m",
+    "cal_passages_graded"
+  ],
+  "validation": [
+    "val_staggered_240",
+    "val_courtyards_315",
+    "val_mixed_195",
+    "val_staggered_graded_150",
+    "val_mixed_graded_domain_300",
+    "val_courtyards_210_u2",
+    "val_courtyards_210_u10"
+  ],
+  "reference": {
+    "precision": "float64",
+    "omega": 1.78,
+    "budgets": [
+      500,
+      1000,
+      2000
+    ],
+    "gates": {
+      "scaled_mass_maximum": 0.001,
+      "scaled_mass_rms": 0.0001,
+      "vector_maximum": 0.001,
+      "vector_p95": 0.0005
+    },
+    "independent_zero_starts": true,
+    "require_both_successive_pairs": true
+  },
+  "scope": {
+    "horizontal_spacing": 2.0,
+    "horizontal_cells": [
+      80,
+      96
+    ],
+    "vertical_cells": 32,
+    "layers": "uniform 2m or graded 1.2*1.03^k (k=0..31)",
+    "precision": "float32",
+    "reference_height": 10.0,
+    "roughness_length": 0.1,
+    "speed": [
+      2.0,
+      10.0
+    ],
+    "buildings": [
+      4,
+      32
+    ],
+    "building_heights": [
+      4.0,
+      24.0
+    ],
+    "geometry": "flat-base axis-aligned rectangles, footprint sides 8..16m, at least 12m domain margin",
+    "models": "default flags only; wind without turbulence",
+    "heights": [
+      1.5,
+      1.75
+    ],
+    "receptors": "1..16 receptors, at least one required receptor at each height",
+    "arithmetic": "AppleClang 17 arm64, fp_contract=on; serial or OpenMP teams 1..4"
+  },
+  "predictor": "Positive finite short/long vector and speed p95/max ratios (25/100 sweeps), 0.02<=q<cap, ratios within factor two; safety*max(delta25*q/(1-q),delta100*q^4/(1-q^4)). Every required receptor and both moving peaks checked. Three consecutive candidate checkpoints after warm-up.",
+  "safeguards": "Fresh global and each compiled region: L/Uref scaled interior mass max<=1e-3,RMS<=1e-4; completed-iterate residual max<=1e-3,RMS<=1e-4 using global RHS normalization. Preserve separately reported top band/highest-shell limitations.",
+  "failures": "Zero allowed false acceptances in the declared held-out release scope; unsupported/unqualified configurations bounded and unaccepted. Failed held-out scope requires explicit restriction or a new policy with new unseen validation; no threshold tuning on these cases.",
+  "bounded": {
+    "worker_seconds": 30,
+    "shard_seconds": 180,
+    "total_worker_limit": 100,
+    "total_seconds": 600
+  },
+  "online": {
+    "repetitions": 3,
+    "max_iterations": 2000,
+    "seconds": 5.0,
+    "checkpoint_interval": 25
+  },
+  "followups": [
+    "Full API cost and output transfer",
+    "50/150ms budget misses",
+    "invalid receptor/empty support",
+    "scope rejection: grids/models/turbulence/precision/size/builds",
+    "deadline precedence injected clock",
+    "plateau and slow/unstable decay",
+    "method cache/reuse/reset",
+    "serial/team parity"
+  ],
+  "qualification": "Numerical empirical pedestrian ROI/receptor scope only. Not full-volume, turbulence, grid independence, physical comfort or gust validation."
+}

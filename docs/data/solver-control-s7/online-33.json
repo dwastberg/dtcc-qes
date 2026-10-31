@@ -1,0 +1,171 @@
+{
+  "request": {
+    "case": "val_courtyards_315",
+    "variant": "adaptive",
+    "rep": 0,
+    "threads": 4,
+    "budget": 1e-12,
+    "iterations": 2000,
+    "id": "online-33"
+  },
+  "status": "budget_exhausted",
+  "api_seconds": 0.006777542002964765,
+  "control": {
+    "mode": "adaptive",
+    "termination_reason": "time_limit",
+    "accuracy_status": "unaccepted",
+    "phase": "mutex_wait",
+    "iterations": 0,
+    "actual_threads": 1,
+    "policy": "pedestrian-v1",
+    "method": "s5c-rb-sor-float-omega-v1-omega-1.90",
+    "assessment_scope": "pedestrian_roi_and_required_receptors",
+    "assessment_reason": "deadline_before_acceptance",
+    "accepted": false,
+    "assessment_count": 0,
+    "assessment": null,
+    "assessment_history": [],
+    "policy_parameters": {
+      "safety_factor": 8.0,
+      "minimum_iterations": 150,
+      "maximum_ratio": 0.8,
+      "anchor_maximum_sweeps": 100,
+      "consecutive_checkpoints": 3,
+      "vector_p95": 0.0005,
+      "vector_maximum": 0.001,
+      "speed_p95": 0.0005,
+      "speed_maximum": 0.001,
+      "mass_length_m": 23.7,
+      "scaled_mass_maximum": 0.001,
+      "scaled_mass_rms": 0.0001,
+      "relative_residual_maximum": 0.001,
+      "relative_residual_rms": 0.0001
+    },
+    "legacy_tolerance_satisfied": false,
+    "history_truncated": false,
+    "checkpoint_count": 0,
+    "monitor_bytes": 0,
+    "regions": [],
+    "checkpoint_history": [],
+    "monitor": {
+      "region": [
+        8.0,
+        152.0,
+        8.0,
+        152.0
+      ],
+      "heights": [
+        1.5,
+        1.75
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "crs": "",
+      "reference_speed": 5.0,
+      "short_window": 1,
+      "long_window": 2,
+      "history_limit": 16,
+      "memory_limit_bytes": 67108864,
+      "global_mass": false,
+      "low_flow_fraction": null,
+      "frame": "local",
+      "receptors": [
+        {
+          "x": 46.0,
+          "y": 46.0,
+          "height_agl": 1.5,
+          "id": "r0-h1.5",
+          "required": true
+        },
+        {
+          "x": 46.0,
+          "y": 46.0,
+          "height_agl": 1.75,
+          "id": "r0-h1.75",
+          "required": true
+        },
+        {
+          "x": 114.0,
+          "y": 46.0,
+          "height_agl": 1.5,
+          "id": "r1-h1.5",
+          "required": true
+        },
+        {
+          "x": 114.0,
+          "y": 46.0,
+          "height_agl": 1.75,
+          "id": "r1-h1.75",
+          "required": true
+        },
+        {
+          "x": 80.0,
+          "y": 114.0,
+          "height_agl": 1.5,
+          "id": "r2-h1.5",
+          "required": true
+        },
+        {
+          "x": 80.0,
+          "y": 114.0,
+          "height_agl": 1.75,
+          "id": "r2-h1.75",
+          "required": true
+        },
+        {
+          "x": 19.0,
+          "y": 83.0,
+          "height_agl": 1.5,
+          "id": "r3-h1.5",
+          "required": true
+        },
+        {
+          "x": 19.0,
+          "y": 83.0,
+          "height_agl": 1.75,
+          "id": "r3-h1.75",
+          "required": true
+        },
+        {
+          "x": 135.0,
+          "y": 83.0,
+          "height_agl": 1.5,
+          "id": "r4-h1.5",
+          "required": true
+        },
+        {
+          "x": 135.0,
+          "y": 83.0,
+          "height_agl": 1.75,
+          "id": "r4-h1.75",
+          "required": true
+        }
+      ],
+      "mass_regions": []
+    },
+    "requested": {
+      "max_solve_seconds": 1e-12,
+      "checkpoint_interval": 25,
+      "residual_interval": 0,
+      "policy": "pedestrian-v1"
+    },
+    "timings": {
+      "preparation_seconds": 0.003527625,
+      "mutex_wait_seconds": 1.375097781419754e-06,
+      "initialization_seconds": 0.0,
+      "workspace_seconds": 0.0,
+      "rhs_seconds": 0.0,
+      "sweeps_seconds": 0.0,
+      "monitoring_seconds": 0.0,
+      "finalization_seconds": 0.0,
+      "postprocessing_seconds": 0.0,
+      "output_transfer_seconds": 0.0,
+      "solve_seconds": 1.500011421740055e-06,
+      "native_total_seconds": 1.500011421740055e-06,
+      "deadline_overshoot_seconds": 1.500010421740055e-06
+    }
+  }
+}

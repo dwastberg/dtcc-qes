@@ -1,0 +1,4 @@
+{
+  "measured_archive": "release-sources.tar.gz",
+  "live_package_changes": "usage docstrings only; AST excluding docstrings identical for wind.py, solver_control.py, datasets.py"
+}

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s7/validate_solver_policy.py", line 19, in <module>
+    from compare_native_builds import stage_package
+ModuleNotFoundError: No module named 'compare_native_builds'

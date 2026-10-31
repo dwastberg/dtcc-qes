@@ -1,0 +1,1052 @@
+[1/43] adaptive val_staggered_240 rep=0 team=4 budget=5.0
+[2/43] adaptive val_courtyards_315 rep=0 team=4 budget=5.0
+[3/43] adaptive val_mixed_195 rep=0 team=4 budget=5.0
+[4/43] adaptive val_staggered_graded_150 rep=0 team=4 budget=5.0
+[5/43] adaptive val_mixed_graded_domain_300 rep=0 team=4 budget=5.0
+[6/43] adaptive val_courtyards_210_u2 rep=0 team=4 budget=5.0
+[7/43] adaptive val_courtyards_210_u10 rep=0 team=4 budget=5.0
+[8/43] adaptive val_staggered_240 rep=1 team=4 budget=5.0
+[9/43] adaptive val_courtyards_315 rep=1 team=4 budget=5.0
+[10/43] adaptive val_mixed_195 rep=1 team=4 budget=5.0
+[11/43] adaptive val_staggered_graded_150 rep=1 team=4 budget=5.0
+[12/43] adaptive val_mixed_graded_domain_300 rep=1 team=4 budget=5.0
+[13/43] adaptive val_courtyards_210_u2 rep=1 team=4 budget=5.0
+[14/43] adaptive val_courtyards_210_u10 rep=1 team=4 budget=5.0
+[15/43] adaptive val_staggered_240 rep=2 team=4 budget=5.0
+[16/43] adaptive val_courtyards_315 rep=2 team=4 budget=5.0
+[17/43] adaptive val_mixed_195 rep=2 team=4 budget=5.0
+[18/43] adaptive val_staggered_graded_150 rep=2 team=4 budget=5.0
+[19/43] adaptive val_mixed_graded_domain_300 rep=2 team=4 budget=5.0
+[20/43] adaptive val_courtyards_210_u2 rep=2 team=4 budget=5.0
+[21/43] adaptive val_courtyards_210_u10 rep=2 team=4 budget=5.0
+[22/43] legacy val_staggered_240 rep=0 team=4 budget=5.0
+[23/43] legacy val_courtyards_315 rep=0 team=4 budget=5.0
+[24/43] legacy val_mixed_195 rep=0 team=4 budget=5.0
+[25/43] legacy val_staggered_graded_150 rep=0 team=4 budget=5.0
+[26/43] legacy val_mixed_graded_domain_300 rep=0 team=4 budget=5.0
+[27/43] legacy val_courtyards_210_u2 rep=0 team=4 budget=5.0
+[28/43] legacy val_courtyards_210_u10 rep=0 team=4 budget=5.0
+[29/43] adaptive val_staggered_240 rep=0 team=4 budget=0.05
+[30/43] adaptive val_courtyards_315 rep=0 team=4 budget=0.05
+[31/43] adaptive val_staggered_240 rep=0 team=4 budget=0.15
+[32/43] adaptive val_courtyards_315 rep=0 team=4 budget=0.15
+[33/43] adaptive val_staggered_240 rep=0 team=4 budget=1e-12
+[34/43] adaptive val_courtyards_315 rep=0 team=4 budget=1e-12
+[35/43] invalid_receptor val_staggered_240 rep=0 team=4 budget=5.0
+[36/43] unqualified_profile val_staggered_240 rep=0 team=4 budget=5.0
+[37/43] unqualified_precision val_staggered_240 rep=0 team=4 budget=5.0
+[38/43] early_limit val_staggered_240 rep=0 team=4 budget=5.0
+[39/43] legacy_converged_unaccepted val_staggered_240 rep=0 team=4 budget=5.0
+[40/43] adaptive val_staggered_240 rep=0 team=1 budget=5.0
+[41/43] adaptive val_staggered_graded_150 rep=0 team=1 budget=5.0
+[42/43] adaptive val_staggered_240 rep=0 team=2 budget=5.0
+[43/43] adaptive val_staggered_graded_150 rep=0 team=2 budget=5.0
+{
+  "policy": "pedestrian-v1",
+  "workers": 43,
+  "false_acceptances": 0,
+  "missed_acceptances": 0,
+  "records": [
+    {
+      "id": "online-00",
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.547352877523287e-07,
+          "maximum": 1.3078830013763393e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.360790834404005e-07,
+          "maximum": 1.3304124840934817e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-01",
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.909670329215022e-07,
+          "maximum": 1.2738150683193672e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.749859411340246e-07,
+          "maximum": 1.1964417482336828e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-02",
+      "case": "val_mixed_195",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.234512887564246e-07,
+          "maximum": 1.1344380769026768e-06
+        },
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.029230123661643e-07,
+          "maximum": 1.1116214833561744e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-03",
+      "case": "val_staggered_graded_150",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 7.617226145985613e-07,
+          "maximum": 1.4379263441400748e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 8.262580601258176e-07,
+          "maximum": 1.5165091863538913e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-04",
+      "case": "val_mixed_graded_domain_300",
+      "variant": "adaptive",
+      "accepted": false,
+      "reference_qualified": false,
+      "false_acceptance": false,
+      "missed_acceptance": false
+    },
+    {
+      "id": "online-05",
+      "case": "val_courtyards_210_u2",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.658746169247564e-07,
+          "maximum": 1.1236942747001031e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.463979479263334e-07,
+          "maximum": 1.0577631349340975e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-06",
+      "case": "val_courtyards_210_u10",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.597395779208893e-07,
+          "maximum": 1.2332358459106564e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.455589269523064e-07,
+          "maximum": 1.1402833686151502e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-07",
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.547352877523287e-07,
+          "maximum": 1.3078830013763393e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.360790834404005e-07,
+          "maximum": 1.3304124840934817e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-08",
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.909670329215022e-07,
+          "maximum": 1.2738150683193672e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.749859411340246e-07,
+          "maximum": 1.1964417482336828e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-09",
+      "case": "val_mixed_195",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.234512887564246e-07,
+          "maximum": 1.1344380769026768e-06
+        },
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.029230123661643e-07,
+          "maximum": 1.1116214833561744e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-10",
+      "case": "val_staggered_graded_150",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 7.617226145985613e-07,
+          "maximum": 1.4379263441400748e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 8.262580601258176e-07,
+          "maximum": 1.5165091863538913e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-11",
+      "case": "val_mixed_graded_domain_300",
+      "variant": "adaptive",
+      "accepted": false,
+      "reference_qualified": false,
+      "false_acceptance": false,
+      "missed_acceptance": false
+    },
+    {
+      "id": "online-12",
+      "case": "val_courtyards_210_u2",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.658746169247564e-07,
+          "maximum": 1.1236942747001031e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.463979479263334e-07,
+          "maximum": 1.0577631349340975e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-13",
+      "case": "val_courtyards_210_u10",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.597395779208893e-07,
+          "maximum": 1.2332358459106564e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.455589269523064e-07,
+          "maximum": 1.1402833686151502e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-14",
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.547352877523287e-07,
+          "maximum": 1.3078830013763393e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.360790834404005e-07,
+          "maximum": 1.3304124840934817e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-15",
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.909670329215022e-07,
+          "maximum": 1.2738150683193672e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.749859411340246e-07,
+          "maximum": 1.1964417482336828e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-16",
+      "case": "val_mixed_195",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.234512887564246e-07,
+          "maximum": 1.1344380769026768e-06
+        },
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.029230123661643e-07,
+          "maximum": 1.1116214833561744e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-17",
+      "case": "val_staggered_graded_150",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 7.617226145985613e-07,
+          "maximum": 1.4379263441400748e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 8.262580601258176e-07,
+          "maximum": 1.5165091863538913e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-18",
+      "case": "val_mixed_graded_domain_300",
+      "variant": "adaptive",
+      "accepted": false,
+      "reference_qualified": false,
+      "false_acceptance": false,
+      "missed_acceptance": false
+    },
+    {
+      "id": "online-19",
+      "case": "val_courtyards_210_u2",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.658746169247564e-07,
+          "maximum": 1.1236942747001031e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.463979479263334e-07,
+          "maximum": 1.0577631349340975e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-20",
+      "case": "val_courtyards_210_u10",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.597395779208893e-07,
+          "maximum": 1.2332358459106564e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.455589269523064e-07,
+          "maximum": 1.1402833686151502e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-21",
+      "case": "val_staggered_240",
+      "variant": "legacy",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.3829831513023034e-06,
+          "maximum": 2.7645236738496865e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.3878235545582804e-06,
+          "maximum": 2.760662318799467e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-22",
+      "case": "val_courtyards_315",
+      "variant": "legacy",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.1897006701944897e-06,
+          "maximum": 1.768039730113706e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.1943473746932571e-06,
+          "maximum": 1.7487655844889445e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-23",
+      "case": "val_mixed_195",
+      "variant": "legacy",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.2913254010185133e-06,
+          "maximum": 1.8707855257241745e-06
+        },
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.2963049387501204e-06,
+          "maximum": 1.8758472875615407e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-24",
+      "case": "val_staggered_graded_150",
+      "variant": "legacy",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 4.849763170695473e-07,
+          "maximum": 1.1938746300767484e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.053939288548373e-07,
+          "maximum": 1.2208345408425945e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-25",
+      "case": "val_mixed_graded_domain_300",
+      "variant": "legacy",
+      "accepted": false,
+      "reference_qualified": false,
+      "false_acceptance": false,
+      "missed_acceptance": false
+    },
+    {
+      "id": "online-26",
+      "case": "val_courtyards_210_u2",
+      "variant": "legacy",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.2039258074145489e-06,
+          "maximum": 2.0134360507920946e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.2059508472308881e-06,
+          "maximum": 2.0185505871269055e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-27",
+      "case": "val_courtyards_210_u10",
+      "variant": "legacy",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.2056238678324432e-06,
+          "maximum": 1.969923374094426e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.210722551185248e-06,
+          "maximum": 1.9677730079815393e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-28",
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 4.964299481373052e-05,
+          "maximum": 7.658214157946077e-05
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 4.944464571361278e-05,
+          "maximum": 7.684412135060484e-05
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-29",
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 0.00018665352417183086,
+          "maximum": 0.0002602339820808984
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 0.00018605682245763084,
+          "maximum": 0.0002590609950930011
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-30",
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.547352877523287e-07,
+          "maximum": 1.3078830013763393e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.360790834404005e-07,
+          "maximum": 1.3304124840934817e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-31",
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.909670329215022e-07,
+          "maximum": 1.2738150683193672e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.749859411340246e-07,
+          "maximum": 1.1964417482336828e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-32",
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false
+    },
+    {
+      "id": "online-33",
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false
+    },
+    {
+      "id": "online-34",
+      "case": "val_staggered_240",
+      "variant": "invalid_receptor",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 0.2801780175553898,
+          "maximum": 0.630359236959332
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 0.27654572938011585,
+          "maximum": 0.6230974762564013
+        }
+      ],
+      "actual_observable_target": false
+    },
+    {
+      "id": "online-35",
+      "case": "val_staggered_240",
+      "variant": "unqualified_profile",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false
+    },
+    {
+      "id": "online-36",
+      "case": "val_staggered_240",
+      "variant": "unqualified_precision",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.0693586282217057e-06,
+          "maximum": 1.5673445619955369e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.0681745875173144e-06,
+          "maximum": 1.569809274710292e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-37",
+      "case": "val_staggered_240",
+      "variant": "early_limit",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 0.2801780175553898,
+          "maximum": 0.630359236959332
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 0.27654572938011585,
+          "maximum": 0.6230974762564013
+        }
+      ],
+      "actual_observable_target": false
+    },
+    {
+      "id": "online-38",
+      "case": "val_staggered_240",
+      "variant": "legacy_converged_unaccepted",
+      "accepted": false,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 0.2801780175553898,
+          "maximum": 0.630359236959332
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 0.27654572938011585,
+          "maximum": 0.6230974762564013
+        }
+      ],
+      "actual_observable_target": false
+    },
+    {
+      "id": "online-39",
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.547352877523287e-07,
+          "maximum": 1.3078830013763393e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.360790834404005e-07,
+          "maximum": 1.3304124840934817e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-40",
+      "case": "val_staggered_graded_150",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 7.617226145985613e-07,
+          "maximum": 1.4379263441400748e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 8.262580601258176e-07,
+          "maximum": 1.5165091863538913e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-41",
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.547352877523287e-07,
+          "maximum": 1.3078830013763393e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.360790834404005e-07,
+          "maximum": 1.3304124840934817e-06
+        }
+      ],
+      "actual_observable_target": true
+    },
+    {
+      "id": "online-42",
+      "case": "val_staggered_graded_150",
+      "variant": "adaptive",
+      "accepted": true,
+      "reference_qualified": true,
+      "false_acceptance": false,
+      "missed_acceptance": false,
+      "heights": [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 7.617226145985613e-07,
+          "maximum": 1.4379263441400748e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 8.262580601258176e-07,
+          "maximum": 1.5165091863538913e-06
+        }
+      ],
+      "actual_observable_target": true
+    }
+  ],
+  "release_candidates": 21,
+  "accepted_candidates": 18
+}

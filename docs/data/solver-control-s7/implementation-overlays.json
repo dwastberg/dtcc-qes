@@ -1,0 +1,22 @@
+[
+  "CMakeLists.txt",
+  "src/qes_core/CMakeLists.txt",
+  "src/qes_core/dtcc/api/policy_types.h",
+  "src/qes_core/dtcc/pedestrian_policy.h",
+  "src/qes_core/dtcc/pedestrian_policy.cpp",
+  "src/qes_core/dtcc/api/control_types.h",
+  "src/qes_core/dtcc/solver_control.h",
+  "src/qes_core/dtcc/solver_control.cpp",
+  "src/qes_core/dtcc/wind_runner.cpp",
+  "src/cpp/control_bindings.h",
+  "src/cpp/bindings.cpp",
+  "src/dtcc_qes/solver_control.py",
+  "src/dtcc_qes/wind.py",
+  "src/dtcc_qes/datasets.py",
+  "tools/solver_numerics_probe.cpp",
+  "tools/solver_policy_study_json.h",
+  "tests/native/check_pedestrian_policy.cpp",
+  "src/qes_core/dtcc/api/build_info.h",
+  "src/qes_core/dtcc/build_info.cpp",
+  "src/qes_core/dtcc/pedestrian_qualification.h"
+]

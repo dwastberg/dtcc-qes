@@ -1,0 +1,12 @@
+{
+  "reference_triples": 10,
+  "qualified_references": 9,
+  "workers": 57,
+  "false_acceptances": 0,
+  "missed_acceptances": 0,
+  "final_build_fields_exact": true,
+  "exact_workers": 24,
+  "online_workers": 24,
+  "output": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s7-reproduction",
+  "accuracy": "empirically_qualified_pedestrian_scope_only"
+}

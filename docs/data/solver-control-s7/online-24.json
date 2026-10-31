@@ -1,0 +1,51 @@
+{
+  "request": {
+    "case": "val_staggered_graded_150",
+    "variant": "legacy",
+    "rep": 0,
+    "threads": 4,
+    "budget": 5.0,
+    "iterations": 2000,
+    "id": "online-24"
+  },
+  "status": "completed",
+  "api_seconds": 0.29814341600285843,
+  "diagnostics": {
+    "iterations": 2000,
+    "max_lagrange_multiplier_change": 3.4332275390625e-05,
+    "tolerance": 9.999999747378752e-06,
+    "converged": false,
+    "max_divergence": 2.0268235190715735e-05,
+    "rms_divergence": 1.289102027577239e-06,
+    "top_band_max_divergence": 0.060236907922244516,
+    "divergence_cell_count": 175592,
+    "top_band_cell_count": 6084,
+    "precision": "float32"
+  },
+  "control": null,
+  "shape": [
+    32,
+    80,
+    80
+  ],
+  "plane_points": 5184,
+  "field_hashes": {
+    "velocity": "7d7db2d3f51e49a6f7826c5d430cd5fe7d3e32df2b91d82e636687cb95635a24",
+    "cell_flags": "291764690bc0d07f75dc11031861737fb42205105815fe8ad84815648e3a671f",
+    "x": "59a205543445c79593beb3319df7becfc2572092a937747857a2ff57e4966637",
+    "y": "59a205543445c79593beb3319df7becfc2572092a937747857a2ff57e4966637",
+    "z": "e17d787740862ebf94dee50154cc18c6de04d32be5e9031705d693bbaa2051a1",
+    "z_faces": "81bec84e4440997342d0a8aeb717f58d90929579315f4a3ec42f032dd696be3f"
+  },
+  "peak_rss_bytes": 238436352,
+  "native_build": {
+    "compiler_id": "AppleClang",
+    "compiler_version": "17.0.0.17000404",
+    "build_type": "Release",
+    "openmp_enabled": true,
+    "fp_contract": "on"
+  },
+  "extension_sha256": "67a6b2cc372d6d51c7065ed15478137fe517474edc16850ea462c79944777084",
+  "transfer_included": true,
+  "owned_outputs": true
+}

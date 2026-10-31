@@ -1,0 +1,10 @@
+openmp/1: 429 cases, 3872 records compared, 0 differences
+openmp/2: 429 cases, 3872 records compared, 0 differences
+openmp/4: 429 cases, 3872 records compared, 0 differences
+openmp/8: 429 cases, 3872 records compared, 0 differences
+serial/1: 429 cases, 3872 records compared, 0 differences
+serial/OpenMP/1: 0 differences (required=True)
+serial/OpenMP/2: 0 differences (required=True)
+serial/OpenMP/4: 0 differences (required=True)
+serial/OpenMP/8: 0 differences (required=True)
+Bitwise identical to baseline archive-f138616b7796

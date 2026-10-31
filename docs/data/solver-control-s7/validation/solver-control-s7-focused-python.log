@@ -1,0 +1,55 @@
+.......F.................                                                [100%]
+=================================== FAILURES ===================================
+__________ test_dataset_identity_normalizes_version_and_reports_scope __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x144942d70>
+
+    def test_dataset_identity_normalizes_version_and_reports_scope(monkeypatch):
+        value=city();monkeypatch.setattr(datasets,'city',lambda **kwargs:value)
+        args=dict(bounds=[0,0,0,160,160,64],min_building_detail=.1,max_iterations=600,
+                  solver_control=asdict(settings()),product='field')
+        omitted=json.loads(json.dumps(args));omitted['solver_control'].pop('policy')
+        normalized=QESWindArgs(**omitted)
+        assert normalized.solver_control==args['solver_control']
+        assert normalized.wind_options()['solver_control'].policy=='pedestrian-v1'
+        result=datasets.qes_wind(**args)
+        health=result.dataset_context.health;record=health['solver_control']
+        if qualified_build():
+>           assert record['accepted'] and health['numerically_accepted'] and not health['converged']
+E           assert (False)
+
+tests/test_adaptive_control.py:108: AssertionError
+----------------------------- Captured stderr call -----------------------------
+[21:50:04] [dtcc-core] [info] Footprint cleaning started: inputs=4 
+resolution=0.1
+[21:50:04] [dtcc-core] [info] Footprint cleaning complete: outcome=unchanged 
+outputs=4 seconds=0.003
+[21:50:04] [dtcc-core] [info] Cleaned 4 building footprints at 0.1 m: 4 
+buildings, 0 merged (unison, outcome=unchanged, walls: 0 strict, 0 warning, 0 
+fallback)
+------------------------------ Captured log call -------------------------------
+INFO     dtcc-core:footprints.py:234 Footprint cleaning started: inputs=4 resolution=0.1
+INFO     dtcc-core:footprints.py:338 Footprint cleaning complete: outcome=unchanged outputs=4 seconds=0.003
+INFO     dtcc-core:clean.py:571 Cleaned 4 building footprints at 0.1 m: 4 buildings, 0 merged (unison, outcome=unchanged, walls: 0 strict, 0 warning, 0 fallback)
+DEBUG    dtcc-qes:_logging.py:13 -------------------------------------------------------------------
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Initialization of wind model...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Allocating Memory...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Consolidating building data...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Sorting buildings by height...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 7.916e-06 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Defining solid walls...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 0.00325279 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying Wind Profile...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 0.00038375 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying parameterizations...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying upwind cavity parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying wake behind building parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying street canyon parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying sidewall parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying rooftop parameterization...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 0.000641333 s
+INFO     dtcc-qes:_logging.py:19 Wind grid 100 x 100 x 32, 4 buildings: 482 iterations, converged=True, max_divergence=4.1179358959198e-05 s^-1
+WARNING  dtcc-qes:wind.py:141 Wind result unaccepted by pedestrian-v1: unqualified_grid (termination: legacy_tolerance)
+=========================== short test summary info ============================
+FAILED tests/test_adaptive_control.py::test_dataset_identity_normalizes_version_and_reports_scope
+1 failed, 24 passed in 4.86s
