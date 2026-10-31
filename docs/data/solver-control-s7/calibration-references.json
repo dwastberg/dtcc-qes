@@ -1,0 +1,158 @@
+[
+  {
+    "case": "tower_2m",
+    "qualified": true,
+    "pairs": [
+      [
+        {
+          "common_valid": 1461,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.3799623186667303e-06,
+          "maximum": 4.5411744885379934e-06
+        },
+        {
+          "common_valid": 1461,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.377347056595263e-06,
+          "maximum": 4.545151505847136e-06
+        }
+      ],
+      [
+        {
+          "common_valid": 1461,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 4.470348358154297e-09,
+          "maximum": 3.5767329971958416e-08
+        },
+        {
+          "common_valid": 1461,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.725290298461914e-09,
+          "maximum": 3.576278793104846e-08
+        }
+      ]
+    ],
+    "mass": [
+      {
+        "maximum": 5.710005294531584e-05,
+        "rms": 1.8567699625372762e-05
+      },
+      {
+        "maximum": 2.0709377713501455e-06,
+        "rms": 4.502027242939117e-07
+      },
+      {
+        "maximum": 2.0659714937210085e-06,
+        "rms": 4.5039024346147454e-07
+      }
+    ]
+  },
+  {
+    "case": "passages_2m",
+    "qualified": true,
+    "pairs": [
+      [
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.159662454409822e-07,
+          "maximum": 6.776932779973088e-07
+        },
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.137106979168222e-07,
+          "maximum": 6.758444616516677e-07
+        }
+      ],
+      [
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.492459654808044e-11,
+          "maximum": 2.384185791015625e-08
+        },
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.2014213502407077e-11,
+          "maximum": 3.5762786865234374e-08
+        }
+      ]
+    ],
+    "mass": [
+      {
+        "maximum": 1.0111341252923013e-05,
+        "rms": 2.7216249462402787e-06
+      },
+      {
+        "maximum": 1.2537091970443726e-06,
+        "rms": 4.3689624973412944e-07
+      },
+      {
+        "maximum": 1.2537091970443726e-06,
+        "rms": 4.36946065288309e-07
+      }
+    ]
+  },
+  {
+    "case": "cal_passages_graded",
+    "qualified": true,
+    "pairs": [
+      [
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.4628605546432294e-06,
+          "maximum": 4.703699444939527e-06
+        },
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.4621098498097244e-06,
+          "maximum": 4.698812786684641e-06
+        }
+      ],
+      [
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 6.2247210497190505e-09,
+          "maximum": 3.5371469192167027e-08
+        },
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.630369245703995e-09,
+          "maximum": 4.5044868500673567e-08
+        }
+      ]
+    ],
+    "mass": [
+      {
+        "maximum": 8.960363858718038e-05,
+        "rms": 1.805900933945051e-05
+      },
+      {
+        "maximum": 2.4780375172335133e-06,
+        "rms": 5.606297305205204e-07
+      },
+      {
+        "maximum": 2.26486059448945e-06,
+        "rms": 5.607929589138351e-07
+      }
+    ]
+  }
+]

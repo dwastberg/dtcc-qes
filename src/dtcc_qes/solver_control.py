@@ -1,4 +1,4 @@
-"""Bounded native execution and diagnostic monitoring; accuracy is unassessed."""
+"""Bounded execution and versioned, opt-in pedestrian numerical assessment."""
 from dataclasses import asdict, dataclass
 import math
 from numbers import Integral, Real
@@ -116,19 +116,35 @@ class SolverControl:
     A whole native phase can exceed the cooperative budget. Every sweep checks
     time; checkpoint_interval controls expensive observations independently.
     residual_interval=0 disables algebraic trend collection.
+
+    mode='adaptive' selects the frozen pedestrian-v1 numerical policy. Its
+    qualified scope is documented in docs/solver-control-s7.md. The policy
+    fixes cadence 25 and effective windows 1/4, adds global safeguards, and
+    requires history_limit >= 5. Unsupported configurations remain unaccepted.
+    Public bounded/legacy calls retain relaxation 1.78; qualified adaptive
+    calls use 1.90. Acceptance never qualifies the full volume or turbulence.
     """
     max_solve_seconds: float
     monitor: MonitorSpec
     checkpoint_interval: int = 25
     residual_interval: int = 0
     mode: str = "bounded"
+    policy: str | None = None
 
     def __post_init__(self):
         object.__setattr__(self, "max_solve_seconds", _number(self.max_solve_seconds, "max_solve_seconds", positive=True))
         if not isinstance(self.monitor, MonitorSpec):
             raise TypeError("monitor must be MonitorSpec")
-        if self.mode != "bounded":
-            raise ValueError("Only bounded solver controls are available")
+        if self.mode not in ("bounded", "adaptive"):
+            raise ValueError("Solver mode must be bounded or adaptive")
+        if self.mode == "adaptive":
+            if self.policy not in (None, "pedestrian-v1"):
+                raise ValueError("Unknown adaptive policy; expected pedestrian-v1")
+            object.__setattr__(self, "policy", "pedestrian-v1")
+            if self.checkpoint_interval != 25 or self.monitor.history_limit < 5:
+                raise ValueError("pedestrian-v1 requires cadence 25 and history_limit >= 5")
+        elif self.policy is not None:
+            raise ValueError("Bounded controls have no acceptance policy")
         for name in ("checkpoint_interval", "residual_interval"):
             object.__setattr__(self, name, _integer(getattr(self, name), name, minimum=0 if name.startswith("residual") else 1))
 
@@ -158,3 +174,19 @@ class BudgetExhaustedError(RuntimeError):
     def __init__(self, record):
         self.record = record
         super().__init__(f"Wind solve budget exhausted before any complete sweep ({record['phase']})")
+
+
+class NumericalFailureError(RuntimeError):
+    """Adaptive numerical execution failed; no finite output is fabricated."""
+    def __init__(self, record):
+        self.record = record
+        super().__init__(f"Wind numerical failure: {record['assessment_reason']}")
+
+
+class UnacceptedResultError(RuntimeError):
+    """An adaptive result did not qualify its explicitly requested output scope."""
+    def __init__(self, diagnostics, control):
+        self.diagnostics = diagnostics
+        self.control = control
+        super().__init__(f"Wind result unaccepted by {control['policy']}: "
+                         f"{control['assessment_reason']} (termination: {control['termination_reason']})")

@@ -1,5 +1,5 @@
 """Profile reference evaluator, owned native tables and public integration."""
-from dataclasses import FrozenInstanceError
+from dataclasses import FrozenInstanceError, asdict
 import json
 import numpy as np
 import pytest
@@ -11,6 +11,16 @@ from fixtures.cases import FLAT, ONE_BUILDING
 from runner_cases import prepared
 
 pytestmark = pytest.mark.usefixtures("dtcc_logger")
+
+
+@pytest.mark.parametrize("profile", [wind.LogProfile(0,270), wind.UniformProfile(0,270)])
+def test_adaptive_calm_profile_uses_evaluated_reference_before_geometry(profile):
+    control=wind.SolverControl(1,wind.MonitorSpec((0,24,0,24)),mode="adaptive")
+    with pytest.raises(ValueError,match="calm"):
+        wind.run(None,profile=profile,solver_control=control)
+    with pytest.raises(ValueError,match="calm"):
+        QESWindArgs(bounds=[0,0,24,24],profile=profile.to_dict(),
+                    solver_control=asdict(control))
 
 
 def measured(**kwargs):

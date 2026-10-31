@@ -1,0 +1,9 @@
+{
+  "source_sha256": "9fea55965c617631378047467ec9c449f2cfa978a2d59756a1062b8e19e9360c",
+  "evidence_manifest_sha256": "5b0dc58a4734d098bda840de89df6e8885c566e3087658832f73509b45056521",
+  "worker_cap": 57,
+  "worker_seconds": 30,
+  "total_worker_seconds": 600,
+  "reference_cap": 2000,
+  "no_retries": true
+}

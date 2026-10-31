@@ -1,0 +1,522 @@
+[
+  {
+    "case": "tower_2m",
+    "qualified": true,
+    "pairs": [
+      [
+        {
+          "common_valid": 1461,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.3799623186667303e-06,
+          "maximum": 4.5411744885379934e-06
+        },
+        {
+          "common_valid": 1461,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.377347056595263e-06,
+          "maximum": 4.545151505847136e-06
+        }
+      ],
+      [
+        {
+          "common_valid": 1461,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 4.470348358154297e-09,
+          "maximum": 3.5767329971958416e-08
+        },
+        {
+          "common_valid": 1461,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.725290298461914e-09,
+          "maximum": 3.576278793104846e-08
+        }
+      ]
+    ],
+    "mass": [
+      {
+        "maximum": 5.710005294531584e-05,
+        "rms": 1.8567699625372762e-05
+      },
+      {
+        "maximum": 2.0709377713501455e-06,
+        "rms": 4.502027242939117e-07
+      },
+      {
+        "maximum": 2.0659714937210085e-06,
+        "rms": 4.5039024346147454e-07
+      }
+    ]
+  },
+  {
+    "case": "passages_2m",
+    "qualified": true,
+    "pairs": [
+      [
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.159662454409822e-07,
+          "maximum": 6.776932779973088e-07
+        },
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.137106979168222e-07,
+          "maximum": 6.758444616516677e-07
+        }
+      ],
+      [
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.492459654808044e-11,
+          "maximum": 2.384185791015625e-08
+        },
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.2014213502407077e-11,
+          "maximum": 3.5762786865234374e-08
+        }
+      ]
+    ],
+    "mass": [
+      {
+        "maximum": 1.0111341252923013e-05,
+        "rms": 2.7216249462402787e-06
+      },
+      {
+        "maximum": 1.2537091970443726e-06,
+        "rms": 4.3689624973412944e-07
+      },
+      {
+        "maximum": 1.2537091970443726e-06,
+        "rms": 4.36946065288309e-07
+      }
+    ]
+  },
+  {
+    "case": "cal_passages_graded",
+    "qualified": true,
+    "pairs": [
+      [
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.4628605546432294e-06,
+          "maximum": 4.703699444939527e-06
+        },
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.4621098498097244e-06,
+          "maximum": 4.698812786684641e-06
+        }
+      ],
+      [
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 6.2247210497190505e-09,
+          "maximum": 3.5371469192167027e-08
+        },
+        {
+          "common_valid": 2575,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.630369245703995e-09,
+          "maximum": 4.5044868500673567e-08
+        }
+      ]
+    ],
+    "mass": [
+      {
+        "maximum": 8.960363858718038e-05,
+        "rms": 1.805900933945051e-05
+      },
+      {
+        "maximum": 2.4780375172335133e-06,
+        "rms": 5.606297305205204e-07
+      },
+      {
+        "maximum": 2.26486059448945e-06,
+        "rms": 5.607929589138351e-07
+      }
+    ]
+  },
+  {
+    "case": "val_staggered_240",
+    "qualified": true,
+    "pairs": [
+      [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.1869795091387621e-06,
+          "maximum": 1.7278338164393846e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.1857513315673445e-06,
+          "maximum": 1.7321850006731148e-06
+        }
+      ],
+      [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 2.491287887096363e-10,
+          "maximum": 3.998401124775034e-08
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 2.3283064365386963e-10,
+          "maximum": 3.332000937312528e-08
+        }
+      ]
+    ],
+    "mass": [
+      {
+        "maximum": 2.1701529622077942e-05,
+        "rms": 6.448158604592229e-06
+      },
+      {
+        "maximum": 1.6951560974121095e-06,
+        "rms": 4.831035321165443e-07
+      },
+      {
+        "maximum": 1.6951560974121095e-06,
+        "rms": 4.83034880662096e-07
+      }
+    ]
+  },
+  {
+    "case": "val_courtyards_315",
+    "qualified": true,
+    "pairs": [
+      [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 4.133236744085393e-06,
+          "maximum": 5.807327230194965e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 4.131260988065674e-06,
+          "maximum": 5.7983432568672044e-06
+        }
+      ],
+      [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.960464477539063e-09,
+          "maximum": 3.576581838575314e-08
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 7.450580596923828e-09,
+          "maximum": 3.6010283153040924e-08
+        }
+      ]
+    ],
+    "mass": [
+      {
+        "maximum": 7.295792922377587e-05,
+        "rms": 2.2204455697077254e-05
+      },
+      {
+        "maximum": 2.1366029977798465e-06,
+        "rms": 5.697849323208767e-07
+      },
+      {
+        "maximum": 2.1542608737945556e-06,
+        "rms": 5.697976160032585e-07
+      }
+    ]
+  },
+  {
+    "case": "val_mixed_195",
+    "qualified": true,
+    "pairs": [
+      [
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.91740422215393e-07,
+          "maximum": 8.626138742950681e-07
+        },
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 5.92646890936828e-07,
+          "maximum": 8.654217594745717e-07
+        }
+      ],
+      [
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 6.984919309616089e-11,
+          "maximum": 1.1921292747407888e-08
+        },
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 6.984919309616089e-11,
+          "maximum": 1.7881939121111833e-08
+        }
+      ]
+    ],
+    "mass": [
+      {
+        "maximum": 1.073598861694336e-05,
+        "rms": 3.008985262790032e-06
+      },
+      {
+        "maximum": 1.5538930892944336e-06,
+        "rms": 4.48920987891819e-07
+      },
+      {
+        "maximum": 1.5538930892944336e-06,
+        "rms": 4.488846776617099e-07
+      }
+    ]
+  },
+  {
+    "case": "val_staggered_graded_150",
+    "qualified": true,
+    "pairs": [
+      [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 6.891756369931945e-06,
+          "maximum": 9.9089550497248e-06
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 6.8829085907021825e-06,
+          "maximum": 9.921062801083433e-06
+        }
+      ],
+      [
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.7617501305707117e-08,
+          "maximum": 7.074293838042647e-08
+        },
+        {
+          "common_valid": 4487,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 2.2510824510648615e-08,
+          "maximum": 9.005298230957825e-08
+        }
+      ]
+    ],
+    "mass": [
+      {
+        "maximum": 0.0001665601479234529,
+        "rms": 3.6597916972134416e-05
+      },
+      {
+        "maximum": 1.7967641619208049e-06,
+        "rms": 4.833547902176876e-07
+      },
+      {
+        "maximum": 1.8936516897246648e-06,
+        "rms": 4.824352625260166e-07
+      }
+    ]
+  },
+  {
+    "case": "val_mixed_graded_domain_300",
+    "qualified": false,
+    "pairs": [
+      [
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.955646493183437e-05,
+          "maximum": 3.0480188727954813e-05
+        },
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 1.953694029663104e-05,
+          "maximum": 3.052904807451214e-05
+        }
+      ],
+      [
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.9860602799993695e-08,
+          "maximum": 8.477013706449994e-08
+        },
+        {
+          "common_valid": 4325,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 4.635383586151718e-08,
+          "maximum": 1.018645106350378e-07
+        }
+      ]
+    ],
+    "mass": [
+      {
+        "maximum": 0.0004872348169823587,
+        "rms": 0.00010637411724048695
+      },
+      {
+        "maximum": 2.0284838483635936e-06,
+        "rms": 4.918190352200623e-07
+      },
+      {
+        "maximum": 1.9608618583500983e-06,
+        "rms": 4.782695367244744e-07
+      }
+    ]
+  },
+  {
+    "case": "val_courtyards_210_u2",
+    "qualified": true,
+    "pairs": [
+      [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.1051492640567585e-06,
+          "maximum": 4.315810800414118e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.102952659280968e-06,
+          "maximum": 4.318762897274858e-06
+        }
+      ],
+      [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.725290298461914e-09,
+          "maximum": 4.470348358154297e-08
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 4.6566128730773926e-09,
+          "maximum": 3.725290298461914e-08
+        }
+      ]
+    ],
+    "mass": [
+      {
+        "maximum": 5.438625812530517e-05,
+        "rms": 1.6646194515741208e-05
+      },
+      {
+        "maximum": 2.032703469012631e-06,
+        "rms": 5.625899891981e-07
+      },
+      {
+        "maximum": 2.0748004317283628e-06,
+        "rms": 5.626095823926709e-07
+      }
+    ]
+  },
+  {
+    "case": "val_courtyards_210_u10",
+    "qualified": true,
+    "pairs": [
+      [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.112779546207774e-06,
+          "maximum": 4.357493292901662e-06
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.108642777489411e-06,
+          "maximum": 4.352205494629976e-06
+        }
+      ],
+      [
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 2.9803899014487943e-09,
+          "maximum": 3.625608998714816e-08
+        },
+        {
+          "common_valid": 4589,
+          "validity_changes": 0,
+          "required_valid": true,
+          "p95": 3.725290298461914e-09,
+          "maximum": 3.11145380404906e-08
+        }
+      ]
+    ],
+    "mass": [
+      {
+        "maximum": 5.467761307954788e-05,
+        "rms": 1.664165851789151e-05
+      },
+      {
+        "maximum": 1.6951560974121095e-06,
+        "rms": 4.837329948207802e-07
+      },
+      {
+        "maximum": 1.6951560974121095e-06,
+        "rms": 4.83726894966896e-07
+      }
+    ]
+  }
+]

@@ -104,6 +104,14 @@ def test_failed_build_is_not_promoted_to_reusable_cache(fake_builds, monkeypatch
     assert list(f.cache.rglob("build.log"))
 
 
+def test_python_abi_change_creates_a_new_cache_generation(fake_builds):
+    f=fake_builds
+    first,_=runner.cached_build(f.source,'openmp',f.cache,{'python':{'soabi':'cpython-313'}})
+    second,decision=runner.cached_build(f.source,'openmp',f.cache,{'python':{'soabi':'cpython-314'}})
+    assert not decision['reused'] and first['package']!=second['package']
+    assert Path(first['package']).exists()
+
+
 def test_cache_lock_rejects_concurrent_campaigns_and_releases_after_failure(tmp_path):
     with pytest.raises(ValueError):
         with runner.campaign_lock(tmp_path):

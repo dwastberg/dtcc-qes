@@ -140,6 +140,7 @@ NB_MODULE(_qes, m)
   m.attr("cpu_backend") = dtcc_qes::cpu_backend();
   m.attr("cpu_sweep_order") = dtcc_qes::cpu_sweep_order();
   m.attr("fp_contract") = dtcc_qes::fp_contract();
+  m.attr("solver_policy_revision") = dtcc_qes::solver_policy_revision();
   m.attr("compiler_id") = DTCC_QES_COMPILER_ID;
   m.attr("compiler_version") = DTCC_QES_COMPILER_VERSION;
   m.attr("build_type") = DTCC_QES_BUILD_TYPE;
@@ -204,6 +205,10 @@ NB_MODULE(_qes, m)
         return python_result(native_call([&](Messages &messages) { return runner.solve(wind, solver, messages,settings ? &*settings : nullptr); }));
       } catch (const BudgetExhausted &failure) {
         auto cls=nb::module_::import_("dtcc_qes.solver_control").attr("BudgetExhaustedError");
+        auto error=cls(control_binding::encode(failure.record));
+        PyErr_SetObject(cls.ptr(),error.ptr());throw nb::python_error();
+      } catch (const NumericalFailure &failure) {
+        auto cls=nb::module_::import_("dtcc_qes.solver_control").attr("NumericalFailureError");
         auto error=cls(control_binding::encode(failure.record));
         PyErr_SetObject(cls.ptr(),error.ptr());throw nb::python_error();
       }

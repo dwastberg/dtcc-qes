@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="6"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="18"
+	timestamp="2026-10-30T23:06:46"
+	>
+	<testcase name="runner_lifecycle" classname="runner_lifecycle" time="3.54653" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="solver_phases" classname="solver_phases" time="1.69923" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="equation_residual" classname="equation_residual" time="0.238306" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="solver_monitor" classname="solver_monitor" time="2.99351" status="run">
+		<properties/>
+		<system-out>Monitor sampling, windows, mass, trend and trajectory checks passed
+</system-out>
+	</testcase>
+	<testcase name="solver_control" classname="solver_control" time="0.831153" status="run">
+		<properties/>
+		<system-out>Deadline phase boundaries, precedence, histories, output scope and trajectory checks passed
+</system-out>
+	</testcase>
+	<testcase name="pedestrian_policy" classname="pedestrian_policy" time="9.26096" status="run">
+		<properties/>
+		<system-out>Predictions, nonzero anchors, expiration, support, safeguards, native acceptance, deadlines and method reset passed
+</system-out>
+	</testcase>
+</testsuite>

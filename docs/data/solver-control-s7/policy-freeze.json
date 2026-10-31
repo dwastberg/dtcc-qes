@@ -1,0 +1,83 @@
+{
+  "policy": "pedestrian-v1",
+  "method": "s5c-rb-sor-float-omega-v1-omega-1.90",
+  "parameters": {
+    "safety_factor": 8.0,
+    "minimum_iterations": 150,
+    "maximum_ratio": 0.8
+  },
+  "selection": {
+    "parameters": {
+      "safety_factor": 8.0,
+      "minimum_iterations": 150,
+      "maximum_ratio": 0.8
+    },
+    "records": [
+      {
+        "case": "tower_2m",
+        "false_acceptances": [],
+        "first_accept": 250
+      },
+      {
+        "case": "passages_2m",
+        "false_acceptances": [],
+        "first_accept": 225
+      },
+      {
+        "case": "cal_passages_graded",
+        "false_acceptances": [],
+        "first_accept": 250
+      }
+    ],
+    "eligible": true,
+    "cost": 241.66666666666666
+  },
+  "protocol_sha256": "67f9ff2ad009b65452b6a6abb54f4b0f15ad9700fbca5344c60bbd1404a1781a",
+  "calibration_results_sha256": "8dbaca4214d4d57848055b57194e2f89ac6815915d4f71f8e2d2695d634487f5",
+  "predictor_sha256": "bf059f081391283e517400e1733fc6a733e7022e63a94cac56c3184111d1d470",
+  "validation_started": false,
+  "scope": {
+    "horizontal_spacing": 2.0,
+    "horizontal_cells": [
+      80,
+      96
+    ],
+    "vertical_cells": 32,
+    "layers": "uniform 2m or graded 1.2*1.03^k (k=0..31)",
+    "precision": "float32",
+    "reference_height": 10.0,
+    "roughness_length": 0.1,
+    "speed": [
+      2.0,
+      10.0
+    ],
+    "buildings": [
+      4,
+      32
+    ],
+    "building_heights": [
+      4.0,
+      24.0
+    ],
+    "geometry": "flat-base axis-aligned rectangles, footprint sides 8..16m, at least 12m domain margin",
+    "models": "default flags only; wind without turbulence",
+    "heights": [
+      1.5,
+      1.75
+    ],
+    "receptors": "1..16 receptors, at least one required receptor at each height",
+    "arithmetic": "AppleClang 17 arm64, fp_contract=on; serial or OpenMP teams 1..4"
+  },
+  "target": {
+    "vector_p95": 0.0005,
+    "vector_maximum": 0.001,
+    "speed_p95": 0.0005,
+    "speed_maximum": 0.001,
+    "scaled_mass_maximum": 0.001,
+    "scaled_mass_rms": 0.0001,
+    "relative_residual_maximum": 0.001,
+    "relative_residual_rms": 0.0001,
+    "length_m": 23.7
+  },
+  "freeze_timestamp_utc": "2026-10-30T20:37:36Z"
+}

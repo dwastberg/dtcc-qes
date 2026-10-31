@@ -38,6 +38,6 @@ target_include_directories(dtcc_qes_api INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/d
 add_library(dtcc_qes_internal INTERFACE)
 target_include_directories(dtcc_qes_internal INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/dtcc")
 target_link_libraries(dtcc_qes_internal INTERFACE dtcc_qes_api qeswindscore)
-add_library(qesbridge OBJECT dtcc/build_info.cpp dtcc/model_inputs.cpp dtcc/divergence.cpp dtcc/monitor.cpp dtcc/solver_control.cpp
+add_library(qesbridge OBJECT dtcc/build_info.cpp dtcc/model_inputs.cpp dtcc/divergence.cpp dtcc/monitor.cpp dtcc/solver_control.cpp dtcc/pedestrian_policy.cpp
   dtcc/log_sink.cpp dtcc/wind_runner.cpp dtcc/turbulence.cpp)
 target_link_libraries(qesbridge PRIVATE dtcc_qes_internal)

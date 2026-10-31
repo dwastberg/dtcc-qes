@@ -1,0 +1,30 @@
+{
+  "directions": [
+    270,
+    0,
+    90,
+    180,
+    315,
+    45,
+    135,
+    225
+  ],
+  "repetitions": 3,
+  "modes": [
+    "legacy",
+    "adaptive"
+  ],
+  "counts": [
+    4,
+    8
+  ],
+  "primary_gate": "8-direction median saving >=10% OR >=0.10 seconds, with neither 4-direction mode slower by >5%; exact fields, diagnostics and control decisions required.",
+  "worker_timeout_seconds": 30,
+  "worker_limit": 24,
+  "threads": 4,
+  "dynamic": false,
+  "case": "20 rectangular buildings, staggered heights 10..22m, passages, 160x160x64m at 2m; Uref=5m/s at 10m, z0=0.1m",
+  "end_to_end": "City supplied in memory; include preparation once per series, all solves, owned outputs, linear 1.5/1.75m sampling and one uncompressed full-field NPZ with fsync per direction. Stream/discard outputs. Imports and city construction excluded.",
+  "attribution": "Geometry extraction, Python domain planning, native preparation (including boundary coefficients/operator), native solve plus output transfer, sampling, output; native operator subphase requires a separately instrumented diagnostic build.",
+  "kind": "prototype"
+}

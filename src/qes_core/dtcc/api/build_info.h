@@ -8,5 +8,6 @@ bool openmp_enabled();
 const char *cpu_backend();
 const char *cpu_sweep_order();
 const char *fp_contract();
+const char *solver_policy_revision();
 std::array<int, 3> core_grid_shape(int nx, int ny, int nz);
 }

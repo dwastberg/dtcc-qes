@@ -206,7 +206,7 @@ def campaign(args):
     output = (args.output or ROOT / "build/urban-benchmarks" / stamp()).resolve()
     output.mkdir(parents=True, exist_ok=False)
     cache = args.cache_dir.resolve()
-    baseline = (args.baseline_archive or ROOT / f"docs/data/solver-control-{BASELINES[args.comparison]}/sources.tar.gz").resolve()
+    baseline = (args.baseline_archive or ROOT / f"docs/data/solver-control-s5/{BASELINES[args.comparison]}-matched-mask-sources.tar.gz").resolve()
     candidate = args.candidate_archive.resolve()
     state = dict(schema="urban-campaign-v1", status="running", tier=args.tier, backend=args.backend,
                  iterations=args.iterations, max_solve_seconds=args.solve_seconds,
@@ -280,9 +280,10 @@ def main():
     parser.add_argument("--solve-seconds", type=benchmark.positive_seconds, default=5.,
                         help="Monitored solve budget (default: 5 seconds)")
     parser.add_argument("--comparison", choices=tuple(BASELINES), default="overall",
-                        help="overall: S1a to S4; controls: S3 to S4 (default: overall)")
+                        help="overall: S1a to current; controls: S3 to current; baselines share the current mask correction")
     parser.add_argument("--baseline-archive", type=Path, help="Override the comparison baseline")
-    parser.add_argument("--candidate-archive", type=Path, default=ROOT / "docs/data/solver-control-s4/sources.tar.gz")
+    parser.add_argument("--candidate-archive", type=Path, default=ROOT / "docs/data/solver-control-s9/sources.tar.gz",
+                        help="Frozen S9 release sources; older archives can be selected explicitly")
     parser.add_argument("--backend", choices=("openmp", "serial"), default="openmp")
     parser.add_argument("--cache-dir", type=Path, default=ROOT / "build/urban-benchmark-cache")
     parser.add_argument("--output", type=Path, help="Fresh campaign directory; default: timestamp under build/urban-benchmarks")

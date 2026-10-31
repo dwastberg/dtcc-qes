@@ -1,0 +1,4 @@
+[22:02:58] [dtcc-qes] [info] Wind grid 80 x 80 x 32, 20 buildings: 1 iterations,
+converged=False, max_divergence=7.167710542678833 s^-1
+[22:02:58] [dtcc-qes] [warning] Wind result unaccepted by pedestrian-v1: 
+insufficient_qualifying_evidence (termination: iteration_limit)

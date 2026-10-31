@@ -1,0 +1,32 @@
+
+Benchmark results: 12/12 workers completed
+Statuses: completed=12
+
+Medians by case and variant (RSS is process peak; sweeps show min-max):
+Case / wind FROM                Variant   N  API s  Pipeline s  RSS MiB  Sweeps  Stops            
+industrial_residential 270deg   baseline  1  0.026  0.040       244.2    8       iteration_limit:1
+industrial_residential 270deg   disabled  1  0.023  0.036       229.2    8       iteration_limit:1
+industrial_residential 270deg   bounded   1  0.023  0.036       230.2    8       iteration_limit:1
+mixed_downtown 270deg           baseline  1  0.028  0.042       236.2    8       iteration_limit:1
+mixed_downtown 270deg           disabled  1  0.027  0.041       231.5    8       iteration_limit:1
+mixed_downtown 270deg           bounded   1  0.031  0.046       231.3    8       iteration_limit:1
+perimeter_neighbourhood 270deg  baseline  1  0.027  0.045       234.1    8       iteration_limit:1
+perimeter_neighbourhood 270deg  disabled  1  0.025  0.044       226.1    8       iteration_limit:1
+perimeter_neighbourhood 270deg  bounded   1  0.027  0.044       219.4    8       iteration_limit:1
+slab_estate 270deg              baseline  1  0.023  0.034       243.2    8       iteration_limit:1
+slab_estate 270deg              disabled  1  0.019  0.030       233.7    8       iteration_limit:1
+slab_estate 270deg              bounded   1  0.021  0.032       230.1    8       iteration_limit:1
+
+Paired comparisons with baseline (API/base < 1 is faster; inspect equal-work counts):
+Case / wind FROM                Variant   Pairs  API/base  Same grid  Same work  Equal fields  p95 dU/Uref*  max dU/Uref*  Mask changes*
+industrial_residential 270deg   bounded   1      0.892     1/1        1/1        1/1           0             0             0            
+industrial_residential 270deg   disabled  1      0.862     1/1        1/1        1/1           0             0             0            
+mixed_downtown 270deg           bounded   1      1.106     1/1        1/1        1/1           0             0             0            
+mixed_downtown 270deg           disabled  1      0.963     1/1        1/1        1/1           0             0             0            
+perimeter_neighbourhood 270deg  bounded   1      0.987     1/1        1/1        1/1           0             0             0            
+perimeter_neighbourhood 270deg  disabled  1      0.926     1/1        1/1        1/1           0             0             0            
+slab_estate 270deg              bounded   1      0.898     1/1        1/1        1/1           0             0             0            
+slab_estate 270deg              disabled  1      0.830     1/1        1/1        1/1           0             0             0            
+* Largest value across paired repetitions and sampled heights; n/a means no comparable support.
+Field differences are against baseline; accuracy is not assessed.
+Detailed results: /Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-first/results.json

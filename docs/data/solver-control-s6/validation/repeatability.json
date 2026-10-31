@@ -1,0 +1,68 @@
+[
+  {
+    "case": "tower_2m",
+    "omega": 1.78,
+    "workers": [
+      "11",
+      "18",
+      "23"
+    ],
+    "sample_array_sha256": "c37e0987792b1da0d9fca11d0d698124068e3c34be9a4dcf08b2034898630775",
+    "bitwise_repeatable": true
+  },
+  {
+    "case": "tower_2m",
+    "omega": 1.9,
+    "workers": [
+      "12",
+      "17",
+      "24"
+    ],
+    "sample_array_sha256": "0119a2224e6096a4551a83291de2f7186b523048619e52d65f7f83164ec3f177",
+    "bitwise_repeatable": true
+  },
+  {
+    "case": "passages_2m",
+    "omega": 1.9,
+    "workers": [
+      "13",
+      "20",
+      "25"
+    ],
+    "sample_array_sha256": "7d2e6bfdc9e14d693a07b59487f18b21baf04f648fa970621cf7d26628d7e1e8",
+    "bitwise_repeatable": true
+  },
+  {
+    "case": "passages_2m",
+    "omega": 1.78,
+    "workers": [
+      "14",
+      "19",
+      "26"
+    ],
+    "sample_array_sha256": "94edfb732976daddd3ba0f406f40cbe5dd9084eea6fb7e12e4a61eb202eb7fec",
+    "bitwise_repeatable": true
+  },
+  {
+    "case": "passages_2m_225",
+    "omega": 1.78,
+    "workers": [
+      "15",
+      "22",
+      "27"
+    ],
+    "sample_array_sha256": "5556c28d5ce82e043529f22aadcfca88a9e697381f44d1f16e02a78d1dccf5fe",
+    "bitwise_repeatable": true
+  },
+  {
+    "case": "passages_2m_225",
+    "omega": 1.9,
+    "workers": [
+      "16",
+      "21",
+      "28"
+    ],
+    "sample_array_sha256": "32fbce0235be5108d067abdcced5fc475824a1ff4c6f01d2b78fc3e6e4a2536f",
+    "bitwise_repeatable": true
+  }
+]

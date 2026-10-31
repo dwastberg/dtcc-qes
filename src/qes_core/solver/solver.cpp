@@ -247,6 +247,88 @@ template<class Real> StudyState<Real> SolverState<Real>::copy_state_for_study() 
   return {lambda,R};
 }
 
+template<class Real> double SolverState<Real>::row_residual(std::size_t c, int k) const {
+  const auto a = operator_.stencil(c,k);
+  const double values[] = {double(lambda[c]),double(R[c]),
+    double(lambda[domain.cellAdd(c,1,0,0)]),double(lambda[domain.cellAdd(c,-1,0,0)]),
+    double(lambda[domain.cellAdd(c,0,1,0)]),double(lambda[domain.cellAdd(c,0,-1,0)]),
+    double(lambda[domain.cellAdd(c,0,0,1)]),double(lambda[domain.cellAdd(c,0,0,-1)])};
+  for (double value : values) if (!std::isfinite(value))
+    throw qes::RuntimeError("Non-finite completed-iterate residual operand");
+  const double neighbours = double(a.e)*values[2]+double(a.f)*values[3]
+    +double(a.g)*values[4]+double(a.h)*values[5]+double(a.m)*values[6]+double(a.n)*values[7];
+  const double diagonal = double(a.e)+a.f+a.g+a.h+a.m+a.n;
+  const double r = (neighbours-values[1])-diagonal*values[0];
+  if (!std::isfinite(r)) throw qes::RuntimeError("Non-finite completed-iterate residual");
+  return r;
+}
+template<class Real> EquationResidual SolverState<Real>::equation_residual(
+    MassRegion region, ResidualNormalization floors) const {
+  require_iterate();
+  if (!std::isfinite(floors.maximum_floor) || floors.maximum_floor <= 0
+      || !std::isfinite(floors.rms_floor) || floors.rms_floor <= 0)
+    throw qes::InputError("Residual normalization floors must be finite and positive");
+  const int nx=domain.nx()-1, ny=domain.ny()-1, nz=domain.nz()-2;
+  if (region.i_last == -1) region.i_last=nx-1;
+  if (region.j_last == -1) region.j_last=ny-1;
+  if (region.k_last == -1) region.k_last=nz-1;
+  if (region.i_first < 1 || region.i_last > nx-1 || region.i_last < region.i_first
+      || region.j_first < 1 || region.j_last > ny-1 || region.j_last < region.j_first
+      || region.k_first < 0 || region.k_last > nz-1 || region.k_last < region.k_first)
+    throw qes::InputError("Residual region is outside the solved cells");
+  EquationResidual out; out.iteration=iterations_; out.floors=floors;
+  double square=0, rhs_square=0;
+  // Fixed traversal makes diagnostic reductions reproducible across teams.
+  for (int k=region.k_first+1; k<region.k_last+1; ++k)
+    for (int j=region.j_first; j<region.j_last; ++j)
+      for (int i=region.i_first; i<region.i_last; ++i) {
+        const auto c=domain.cell(i,j,k);
+        if (fields_->icellflag[c] == 0 || fields_->icellflag[c] == 2) {
+          ++out.excluded_solid_cells; continue;
+        }
+        const double r=row_residual(c,k), b=double(R[c]);
+        const double volume=double(domain.dx())*domain.dy()*domain.dz_array[k];
+        out.maximum=std::max(out.maximum,std::abs(r));
+        out.rhs_maximum=std::max(out.rhs_maximum,std::abs(b));
+        square+=volume*r*r; rhs_square+=volume*b*b;
+        out.volume+=volume; ++out.fluid_cells;
+      }
+  if (!std::isfinite(square) || !std::isfinite(rhs_square) || !std::isfinite(out.volume))
+    throw qes::RuntimeError("Non-finite completed-iterate residual norm");
+  if (out.fluid_cells) {
+    out.volume_weighted_rms=std::sqrt(square/out.volume);
+    out.rhs_volume_weighted_rms=std::sqrt(rhs_square/out.volume);
+    out.relative_maximum=out.maximum/std::max(out.rhs_maximum,floors.maximum_floor);
+    out.relative_volume_weighted_rms=out.volume_weighted_rms/std::max(out.rhs_volume_weighted_rms,floors.rms_floor);
+    if (!std::isfinite(*out.relative_maximum) || !std::isfinite(*out.relative_volume_weighted_rms))
+      throw qes::RuntimeError("Non-finite normalized completed-iterate residual");
+  }
+  return out;
+}
+template<class Real> CellDiagnostics SolverState<Real>::diagnose_cell(int i,int j,int k) const {
+  require_iterate();
+  // Neighbour access requires a lateral interior cell and a solved layer.
+  if (i<1 || i>=domain.nx()-2 || j<1 || j>=domain.ny()-2 || k<0 || k>=domain.nz()-3)
+    throw qes::InputError("Cell diagnostic requires an interior solved physical cell");
+  const int sk=k+1;
+  const auto c=domain.cell(i,j,sk);
+  CellDiagnostics out; out.i=i; out.j=j; out.k=k; out.flag=fields_->icellflag[c];
+  out.assessed=out.flag!=0 && out.flag!=2; out.top_band=sk==domain.nz()-3;
+  out.multiplier=double(lambda[c]); out.rhs=double(R[c]); out.coefficients=operator_.stencil(c,sk);
+  // Residual on excluded solid rows is retained as evidence, never assessed.
+  out.equation_residual=row_residual(c,sk);
+  const int di[]={1,-1,0,0,0,0}, dj[]={0,0,1,-1,0,0}, dk[]={0,0,0,0,1,-1};
+  for (int a=0;a<6;++a) out.neighbour_multipliers[a]=double(lambda[domain.cell(i+di[a],j+dj[a],sk+dk[a])]);
+  out.faces={face_value(0,i+1,j,sk),face_value(0,i,j,sk),face_value(1,i,j+1,sk),
+             face_value(1,i,j,sk),face_value(2,i,j,sk+1),face_value(2,i,j,sk)};
+  out.initial_faces={fields_->u0[domain.face(i+1,j,sk)],fields_->u0[domain.face(i,j,sk)],
+    fields_->v0[domain.face(i,j+1,sk)],fields_->v0[domain.face(i,j,sk)],
+    fields_->w0[domain.face(i,j,sk+1)],fields_->w0[domain.face(i,j,sk)]};
+  for (const auto &values : {out.faces,out.initial_faces}) for (double value : values)
+    if (!std::isfinite(value)) throw qes::RuntimeError("Non-finite cell diagnostic face");
+  return out;
+}
+
 template<class Real> void SolverState<Real>::TrendTotals::merge(const TrendTotals &b) {
   maximum = std::max(maximum,b.maximum); weighted_square += b.weighted_square;
   volume += b.volume; cells += b.cells;

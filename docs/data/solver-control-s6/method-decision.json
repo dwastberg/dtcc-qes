@@ -1,0 +1,63 @@
+{
+  "stage": "S6",
+  "public_default_method": "s5c-rb-sor-float-omega-v1-omega-1.78",
+  "public_default_factor": 1.78,
+  "policy_calibration_candidate": "s5c-rb-sor-float-omega-v1-omega-1.90",
+  "policy_calibration_factor": 1.9,
+  "selection": {
+    "outcome": "scoped_internal_opt_in",
+    "factor": 1.9,
+    "method_id": "s5c-rb-sor-float-omega-v1-omega-1.90",
+    "public_default": 1.78,
+    "challenger": 1.9,
+    "pairs": [
+      {
+        "case": "tower_2m",
+        "ratios": [
+          0.5569884859936116,
+          0.5050261654921692,
+          0.49655220843457587
+        ],
+        "median_ratio": 0.5050261654921692,
+        "passed": true
+      },
+      {
+        "case": "passages_2m",
+        "ratios": [
+          0.5985411430816739,
+          0.6028687659969443,
+          0.5709031079518617
+        ],
+        "median_ratio": 0.5985411430816739,
+        "passed": true
+      },
+      {
+        "case": "passages_2m_225",
+        "ratios": [
+          1.2463881964329728,
+          0.5544407974211,
+          0.5254454566759427
+        ],
+        "median_ratio": 0.5544407974211,
+        "passed": true
+      }
+    ],
+    "references_qualified": true,
+    "precision_controls_qualified": true,
+    "scope": [
+      "tower_2m",
+      "passages_2m",
+      "passages_2m_225"
+    ],
+    "online_accuracy": "not_assessed",
+    "acceleration": "Deferred; CG is not selected. Symmetry/SPD of the actual stretched/ground/solid operator is not assumed or established by SOR results.",
+    "disposition": "S7 must qualify its own policy. The large-city reference and top boundary limitations remain. Full API cost is not measured by this slab-output native study."
+  },
+  "early_transient_veto_passed": true,
+  "parent_source_sha256": "f138616b7796f20b3f66e04c2c52f01f6f27c5fcd4122bccc373caf82156adeb",
+  "measured_source_sha256": "3fd915c91de4dda94c56fa44c1c81f3b961e5fdf7f4f297fea1b1984615d5f63",
+  "omega_storage": "float argument, converted to workspace Real in both precisions",
+  "applicability": "Method candidate for S7, not a public online accuracy policy. Only the three measured uniform-2m cases have this evidence. Stretched grids and larger urban cases require qualification.",
+  "setup": "Same SOR/operator setup and memory ownership; no preconditioner, cross-condition iterate, or additional persistent workspace.",
+  "calibration": "Method, compiler arithmetic, condition mask or boundary changes require renewed reference compatibility and S7 calibration. All S6 cases/directions are now method-development data, not unseen S7 validation data."
+}

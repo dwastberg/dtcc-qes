@@ -1,0 +1,434 @@
+FFFFFFFFFFFF                                                             [100%]
+=================================== FAILURES ===================================
+_ test_experimental_dataset_slice_matches_direct_solve_and_keeps_provenance[1.5] _
+
+source_city = <City(id='deb62ef0-3de1-42b6-8eee-c86f2eaf6538', num_children=1, num_geometries=0, num_attributes=0)>
+fetched = [{'bounds': [0.0, 0.0, 30.0, 24.0], 'source': 'LM', 'smallest_building_size': 15.0, 'lod': 'lod1', ...}]
+height = 1.5
+
+    @pytest.mark.parametrize("height",[1.5,1.75])
+    def test_experimental_dataset_slice_matches_direct_solve_and_keeps_provenance(source_city,fetched,height):
+        args=QESWindArgs(**request(product="slice",vertical_grid="auto",slice_sampling="linear",
+                                  slice_height=height,slice_resolution=5))
+        city,bounds,_=prepare_city(source_city,args)
+        direct=wind.run(city,**args.wind_options(),bounds=bounds,terrain=bounds[2],height_policy="allow_estimated")
+        expected=_field_slice(direct,args)
+        actual=datasets.qes_wind(**args.model_dump())
+        for name in ("velocity","speed","speedup","cell_flags","valid"):
+>           np.testing.assert_array_equal(actual.field(name).values,expected.field(name).values)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'NoneType' object has no attribute 'values'
+
+tests/test_dataset_vertical_grid.py:144: AttributeError
+----------------------------- Captured stderr call -----------------------------
+[13:57:44] [dtcc-core] [info] Footprint cleaning started: inputs=1 
+resolution=0.5
+[13:57:44] [dtcc-core] [info] Footprint cleaning complete: outcome=unchanged 
+outputs=1 seconds=0.003
+[13:57:44] [dtcc-core] [info] Cleaned 1 building footprints at 0.5 m: 1 
+buildings, 0 merged (unison, outcome=unchanged, walls: 0 strict, 0 warning, 0 
+fallback)
+[13:57:44] [dtcc-core] [info] Footprint cleaning started: inputs=1 
+resolution=0.5
+[13:57:44] [dtcc-core] [info] Footprint cleaning complete: outcome=unchanged 
+outputs=1 seconds=0.000
+[13:57:44] [dtcc-core] [info] Cleaned 1 building footprints at 0.5 m: 1 
+buildings, 0 merged (unison, outcome=unchanged, walls: 0 strict, 0 warning, 0 
+fallback)
+------------------------------ Captured log call -------------------------------
+INFO     dtcc-core:footprints.py:234 Footprint cleaning started: inputs=1 resolution=0.5
+INFO     dtcc-core:footprints.py:338 Footprint cleaning complete: outcome=unchanged outputs=1 seconds=0.003
+INFO     dtcc-core:clean.py:571 Cleaned 1 building footprints at 0.5 m: 1 buildings, 0 merged (unison, outcome=unchanged, walls: 0 strict, 0 warning, 0 fallback)
+DEBUG    dtcc-qes:_logging.py:13 -------------------------------------------------------------------
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Initialization of wind model...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Allocating Memory...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Consolidating building data...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Sorting buildings by height...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 2.291e-06 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Defining solid walls...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 9.1708e-05 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying Wind Profile...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 1.8958e-05 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying parameterizations...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying upwind cavity parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying wake behind building parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying street canyon parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying sidewall parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying rooftop parameterization...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 8.075e-05 s
+INFO     dtcc-qes:_logging.py:19 Wind grid 21 x 18 x 22, 1 buildings: 88 iterations, converged=True, max_divergence=0.0002660692171849384 s^-1
+INFO     dtcc-core:footprints.py:234 Footprint cleaning started: inputs=1 resolution=0.5
+INFO     dtcc-core:footprints.py:338 Footprint cleaning complete: outcome=unchanged outputs=1 seconds=0.000
+INFO     dtcc-core:clean.py:571 Cleaned 1 building footprints at 0.5 m: 1 buildings, 0 merged (unison, outcome=unchanged, walls: 0 strict, 0 warning, 0 fallback)
+DEBUG    dtcc-qes:_logging.py:13 -------------------------------------------------------------------
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Initialization of wind model...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Allocating Memory...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Consolidating building data...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Sorting buildings by height...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 1.791e-06 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Defining solid walls...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 7.6083e-05 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying Wind Profile...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 9.458e-06 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying parameterizations...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying upwind cavity parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying wake behind building parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying street canyon parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying sidewall parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying rooftop parameterization...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 6.1083e-05 s
+INFO     dtcc-qes:_logging.py:19 Wind grid 21 x 18 x 22, 1 buildings: 88 iterations, converged=True, max_divergence=0.0002660692171849384 s^-1
+_ test_experimental_dataset_slice_matches_direct_solve_and_keeps_provenance[1.75] _
+
+source_city = <City(id='e385eae6-2bdd-44c5-aa31-231a8acfd85d', num_children=1, num_geometries=0, num_attributes=0)>
+fetched = [{'bounds': [0.0, 0.0, 30.0, 24.0], 'source': 'LM', 'smallest_building_size': 15.0, 'lod': 'lod1', ...}]
+height = 1.75
+
+    @pytest.mark.parametrize("height",[1.5,1.75])
+    def test_experimental_dataset_slice_matches_direct_solve_and_keeps_provenance(source_city,fetched,height):
+        args=QESWindArgs(**request(product="slice",vertical_grid="auto",slice_sampling="linear",
+                                  slice_height=height,slice_resolution=5))
+        city,bounds,_=prepare_city(source_city,args)
+        direct=wind.run(city,**args.wind_options(),bounds=bounds,terrain=bounds[2],height_policy="allow_estimated")
+        expected=_field_slice(direct,args)
+        actual=datasets.qes_wind(**args.model_dump())
+        for name in ("velocity","speed","speedup","cell_flags","valid"):
+>           np.testing.assert_array_equal(actual.field(name).values,expected.field(name).values)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'NoneType' object has no attribute 'values'
+
+tests/test_dataset_vertical_grid.py:144: AttributeError
+----------------------------- Captured stderr call -----------------------------
+[13:57:44] [dtcc-core] [info] Footprint cleaning started: inputs=1 
+resolution=0.5
+[13:57:44] [dtcc-core] [info] Footprint cleaning complete: outcome=unchanged 
+outputs=1 seconds=0.000
+[13:57:44] [dtcc-core] [info] Cleaned 1 building footprints at 0.5 m: 1 
+buildings, 0 merged (unison, outcome=unchanged, walls: 0 strict, 0 warning, 0 
+fallback)
+[13:57:44] [dtcc-core] [info] Footprint cleaning started: inputs=1 
+resolution=0.5
+[13:57:44] [dtcc-core] [info] Footprint cleaning complete: outcome=unchanged 
+outputs=1 seconds=0.000
+[13:57:44] [dtcc-core] [info] Cleaned 1 building footprints at 0.5 m: 1 
+buildings, 0 merged (unison, outcome=unchanged, walls: 0 strict, 0 warning, 0 
+fallback)
+------------------------------ Captured log call -------------------------------
+INFO     dtcc-core:footprints.py:234 Footprint cleaning started: inputs=1 resolution=0.5
+INFO     dtcc-core:footprints.py:338 Footprint cleaning complete: outcome=unchanged outputs=1 seconds=0.000
+INFO     dtcc-core:clean.py:571 Cleaned 1 building footprints at 0.5 m: 1 buildings, 0 merged (unison, outcome=unchanged, walls: 0 strict, 0 warning, 0 fallback)
+DEBUG    dtcc-qes:_logging.py:13 -------------------------------------------------------------------
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Initialization of wind model...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Allocating Memory...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Consolidating building data...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Sorting buildings by height...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 3.042e-06 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Defining solid walls...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 7.6125e-05 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying Wind Profile...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 1.0458e-05 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying parameterizations...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying upwind cavity parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying wake behind building parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying street canyon parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying sidewall parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying rooftop parameterization...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 6.2625e-05 s
+INFO     dtcc-qes:_logging.py:19 Wind grid 21 x 18 x 22, 1 buildings: 88 iterations, converged=True, max_divergence=0.0002660692171849384 s^-1
+INFO     dtcc-core:footprints.py:234 Footprint cleaning started: inputs=1 resolution=0.5
+INFO     dtcc-core:footprints.py:338 Footprint cleaning complete: outcome=unchanged outputs=1 seconds=0.000
+INFO     dtcc-core:clean.py:571 Cleaned 1 building footprints at 0.5 m: 1 buildings, 0 merged (unison, outcome=unchanged, walls: 0 strict, 0 warning, 0 fallback)
+DEBUG    dtcc-qes:_logging.py:13 -------------------------------------------------------------------
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Initialization of wind model...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Allocating Memory...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Consolidating building data...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Sorting buildings by height...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 1.75e-06 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Defining solid walls...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 7.3375e-05 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying Wind Profile...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 9.75e-06 s
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying parameterizations...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying upwind cavity parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying wake behind building parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying street canyon parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying sidewall parameterization...
+DEBUG    dtcc-qes:_logging.py:13 [QES-WINDS]	 Applying rooftop parameterization...
+DEBUG    dtcc-qes:_logging.py:13 		 elapsed time: 5.6709e-05 s
+INFO     dtcc-qes:_logging.py:19 Wind grid 21 x 18 x 22, 1 buildings: 88 iterations, converged=True, max_divergence=0.0002660692171849384 s^-1
+__________________ test_slice_sampling_on_unequal_axes[0.0-x] __________________
+
+axis = 'x', position = 0.0
+
+    @pytest.mark.parametrize("axis", ["x", "y", "z"])
+    @pytest.mark.parametrize("position", [0.0, 0.5, 1.0])
+    def test_slice_sampling_on_unequal_axes(axis, position):
+        result = coded_result()
+        velocity = result.velocity
+        args = QESWindArgs(**request(product="slice", slice_axis=axis, slice_position=position, slice_resolution=5))
+        obj = _field_slice(result, args)
+        assert type(obj) is FieldSlice
+        assert obj.points.shape == (25, 3)
+        assert tuple(getattr(obj.domain_bounds, name) for name in
+                     ("xmin", "ymin", "zmin", "xmax", "ymax", "zmax")) == result.metadata["domain"]["effective_bounds"]
+        assert obj.metadata_payload["dataset"] == "qes_wind"
+        local = obj.points - np.asarray(result.origin)
+        indices = [np.abs(local[:, i, None] - a).argmin(axis=1) for i, a in enumerate((result.x,result.y,result.z))]
+        expected = velocity[indices[2],indices[1],indices[0]]
+        np.testing.assert_array_equal(obj.field("velocity").values, expected)
+        np.testing.assert_array_equal(obj.field("cell_flags").values, expected[:,0]+3)
+        assert obj.field("valid").values.all()
+        np.testing.assert_allclose(obj.field("speed").values, np.linalg.norm(expected.astype(float), axis=1))
+>       np.testing.assert_allclose(obj.field("speedup").values, obj.field("speed").values / args.wind_speed)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'values'
+
+tests/test_datasets.py:158: AttributeError
+__________________ test_slice_sampling_on_unequal_axes[0.0-y] __________________
+
+axis = 'y', position = 0.0
+
+    @pytest.mark.parametrize("axis", ["x", "y", "z"])
+    @pytest.mark.parametrize("position", [0.0, 0.5, 1.0])
+    def test_slice_sampling_on_unequal_axes(axis, position):
+        result = coded_result()
+        velocity = result.velocity
+        args = QESWindArgs(**request(product="slice", slice_axis=axis, slice_position=position, slice_resolution=5))
+        obj = _field_slice(result, args)
+        assert type(obj) is FieldSlice
+        assert obj.points.shape == (25, 3)
+        assert tuple(getattr(obj.domain_bounds, name) for name in
+                     ("xmin", "ymin", "zmin", "xmax", "ymax", "zmax")) == result.metadata["domain"]["effective_bounds"]
+        assert obj.metadata_payload["dataset"] == "qes_wind"
+        local = obj.points - np.asarray(result.origin)
+        indices = [np.abs(local[:, i, None] - a).argmin(axis=1) for i, a in enumerate((result.x,result.y,result.z))]
+        expected = velocity[indices[2],indices[1],indices[0]]
+        np.testing.assert_array_equal(obj.field("velocity").values, expected)
+        np.testing.assert_array_equal(obj.field("cell_flags").values, expected[:,0]+3)
+        assert obj.field("valid").values.all()
+        np.testing.assert_allclose(obj.field("speed").values, np.linalg.norm(expected.astype(float), axis=1))
+>       np.testing.assert_allclose(obj.field("speedup").values, obj.field("speed").values / args.wind_speed)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'values'
+
+tests/test_datasets.py:158: AttributeError
+__________________ test_slice_sampling_on_unequal_axes[0.0-z] __________________
+
+axis = 'z', position = 0.0
+
+    @pytest.mark.parametrize("axis", ["x", "y", "z"])
+    @pytest.mark.parametrize("position", [0.0, 0.5, 1.0])
+    def test_slice_sampling_on_unequal_axes(axis, position):
+        result = coded_result()
+        velocity = result.velocity
+        args = QESWindArgs(**request(product="slice", slice_axis=axis, slice_position=position, slice_resolution=5))
+        obj = _field_slice(result, args)
+        assert type(obj) is FieldSlice
+        assert obj.points.shape == (25, 3)
+        assert tuple(getattr(obj.domain_bounds, name) for name in
+                     ("xmin", "ymin", "zmin", "xmax", "ymax", "zmax")) == result.metadata["domain"]["effective_bounds"]
+        assert obj.metadata_payload["dataset"] == "qes_wind"
+        local = obj.points - np.asarray(result.origin)
+        indices = [np.abs(local[:, i, None] - a).argmin(axis=1) for i, a in enumerate((result.x,result.y,result.z))]
+        expected = velocity[indices[2],indices[1],indices[0]]
+        np.testing.assert_array_equal(obj.field("velocity").values, expected)
+        np.testing.assert_array_equal(obj.field("cell_flags").values, expected[:,0]+3)
+        assert obj.field("valid").values.all()
+        np.testing.assert_allclose(obj.field("speed").values, np.linalg.norm(expected.astype(float), axis=1))
+>       np.testing.assert_allclose(obj.field("speedup").values, obj.field("speed").values / args.wind_speed)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'values'
+
+tests/test_datasets.py:158: AttributeError
+__________________ test_slice_sampling_on_unequal_axes[0.5-x] __________________
+
+axis = 'x', position = 0.5
+
+    @pytest.mark.parametrize("axis", ["x", "y", "z"])
+    @pytest.mark.parametrize("position", [0.0, 0.5, 1.0])
+    def test_slice_sampling_on_unequal_axes(axis, position):
+        result = coded_result()
+        velocity = result.velocity
+        args = QESWindArgs(**request(product="slice", slice_axis=axis, slice_position=position, slice_resolution=5))
+        obj = _field_slice(result, args)
+        assert type(obj) is FieldSlice
+        assert obj.points.shape == (25, 3)
+        assert tuple(getattr(obj.domain_bounds, name) for name in
+                     ("xmin", "ymin", "zmin", "xmax", "ymax", "zmax")) == result.metadata["domain"]["effective_bounds"]
+        assert obj.metadata_payload["dataset"] == "qes_wind"
+        local = obj.points - np.asarray(result.origin)
+        indices = [np.abs(local[:, i, None] - a).argmin(axis=1) for i, a in enumerate((result.x,result.y,result.z))]
+        expected = velocity[indices[2],indices[1],indices[0]]
+        np.testing.assert_array_equal(obj.field("velocity").values, expected)
+        np.testing.assert_array_equal(obj.field("cell_flags").values, expected[:,0]+3)
+        assert obj.field("valid").values.all()
+        np.testing.assert_allclose(obj.field("speed").values, np.linalg.norm(expected.astype(float), axis=1))
+>       np.testing.assert_allclose(obj.field("speedup").values, obj.field("speed").values / args.wind_speed)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'values'
+
+tests/test_datasets.py:158: AttributeError
+__________________ test_slice_sampling_on_unequal_axes[0.5-y] __________________
+
+axis = 'y', position = 0.5
+
+    @pytest.mark.parametrize("axis", ["x", "y", "z"])
+    @pytest.mark.parametrize("position", [0.0, 0.5, 1.0])
+    def test_slice_sampling_on_unequal_axes(axis, position):
+        result = coded_result()
+        velocity = result.velocity
+        args = QESWindArgs(**request(product="slice", slice_axis=axis, slice_position=position, slice_resolution=5))
+        obj = _field_slice(result, args)
+        assert type(obj) is FieldSlice
+        assert obj.points.shape == (25, 3)
+        assert tuple(getattr(obj.domain_bounds, name) for name in
+                     ("xmin", "ymin", "zmin", "xmax", "ymax", "zmax")) == result.metadata["domain"]["effective_bounds"]
+        assert obj.metadata_payload["dataset"] == "qes_wind"
+        local = obj.points - np.asarray(result.origin)
+        indices = [np.abs(local[:, i, None] - a).argmin(axis=1) for i, a in enumerate((result.x,result.y,result.z))]
+        expected = velocity[indices[2],indices[1],indices[0]]
+        np.testing.assert_array_equal(obj.field("velocity").values, expected)
+        np.testing.assert_array_equal(obj.field("cell_flags").values, expected[:,0]+3)
+        assert obj.field("valid").values.all()
+        np.testing.assert_allclose(obj.field("speed").values, np.linalg.norm(expected.astype(float), axis=1))
+>       np.testing.assert_allclose(obj.field("speedup").values, obj.field("speed").values / args.wind_speed)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'values'
+
+tests/test_datasets.py:158: AttributeError
+__________________ test_slice_sampling_on_unequal_axes[0.5-z] __________________
+
+axis = 'z', position = 0.5
+
+    @pytest.mark.parametrize("axis", ["x", "y", "z"])
+    @pytest.mark.parametrize("position", [0.0, 0.5, 1.0])
+    def test_slice_sampling_on_unequal_axes(axis, position):
+        result = coded_result()
+        velocity = result.velocity
+        args = QESWindArgs(**request(product="slice", slice_axis=axis, slice_position=position, slice_resolution=5))
+        obj = _field_slice(result, args)
+        assert type(obj) is FieldSlice
+        assert obj.points.shape == (25, 3)
+        assert tuple(getattr(obj.domain_bounds, name) for name in
+                     ("xmin", "ymin", "zmin", "xmax", "ymax", "zmax")) == result.metadata["domain"]["effective_bounds"]
+        assert obj.metadata_payload["dataset"] == "qes_wind"
+        local = obj.points - np.asarray(result.origin)
+        indices = [np.abs(local[:, i, None] - a).argmin(axis=1) for i, a in enumerate((result.x,result.y,result.z))]
+        expected = velocity[indices[2],indices[1],indices[0]]
+        np.testing.assert_array_equal(obj.field("velocity").values, expected)
+        np.testing.assert_array_equal(obj.field("cell_flags").values, expected[:,0]+3)
+        assert obj.field("valid").values.all()
+        np.testing.assert_allclose(obj.field("speed").values, np.linalg.norm(expected.astype(float), axis=1))
+>       np.testing.assert_allclose(obj.field("speedup").values, obj.field("speed").values / args.wind_speed)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'values'
+
+tests/test_datasets.py:158: AttributeError
+__________________ test_slice_sampling_on_unequal_axes[1.0-x] __________________
+
+axis = 'x', position = 1.0
+
+    @pytest.mark.parametrize("axis", ["x", "y", "z"])
+    @pytest.mark.parametrize("position", [0.0, 0.5, 1.0])
+    def test_slice_sampling_on_unequal_axes(axis, position):
+        result = coded_result()
+        velocity = result.velocity
+        args = QESWindArgs(**request(product="slice", slice_axis=axis, slice_position=position, slice_resolution=5))
+        obj = _field_slice(result, args)
+        assert type(obj) is FieldSlice
+        assert obj.points.shape == (25, 3)
+        assert tuple(getattr(obj.domain_bounds, name) for name in
+                     ("xmin", "ymin", "zmin", "xmax", "ymax", "zmax")) == result.metadata["domain"]["effective_bounds"]
+        assert obj.metadata_payload["dataset"] == "qes_wind"
+        local = obj.points - np.asarray(result.origin)
+        indices = [np.abs(local[:, i, None] - a).argmin(axis=1) for i, a in enumerate((result.x,result.y,result.z))]
+        expected = velocity[indices[2],indices[1],indices[0]]
+        np.testing.assert_array_equal(obj.field("velocity").values, expected)
+        np.testing.assert_array_equal(obj.field("cell_flags").values, expected[:,0]+3)
+        assert obj.field("valid").values.all()
+        np.testing.assert_allclose(obj.field("speed").values, np.linalg.norm(expected.astype(float), axis=1))
+>       np.testing.assert_allclose(obj.field("speedup").values, obj.field("speed").values / args.wind_speed)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'values'
+
+tests/test_datasets.py:158: AttributeError
+__________________ test_slice_sampling_on_unequal_axes[1.0-y] __________________
+
+axis = 'y', position = 1.0
+
+    @pytest.mark.parametrize("axis", ["x", "y", "z"])
+    @pytest.mark.parametrize("position", [0.0, 0.5, 1.0])
+    def test_slice_sampling_on_unequal_axes(axis, position):
+        result = coded_result()
+        velocity = result.velocity
+        args = QESWindArgs(**request(product="slice", slice_axis=axis, slice_position=position, slice_resolution=5))
+        obj = _field_slice(result, args)
+        assert type(obj) is FieldSlice
+        assert obj.points.shape == (25, 3)
+        assert tuple(getattr(obj.domain_bounds, name) for name in
+                     ("xmin", "ymin", "zmin", "xmax", "ymax", "zmax")) == result.metadata["domain"]["effective_bounds"]
+        assert obj.metadata_payload["dataset"] == "qes_wind"
+        local = obj.points - np.asarray(result.origin)
+        indices = [np.abs(local[:, i, None] - a).argmin(axis=1) for i, a in enumerate((result.x,result.y,result.z))]
+        expected = velocity[indices[2],indices[1],indices[0]]
+        np.testing.assert_array_equal(obj.field("velocity").values, expected)
+        np.testing.assert_array_equal(obj.field("cell_flags").values, expected[:,0]+3)
+        assert obj.field("valid").values.all()
+        np.testing.assert_allclose(obj.field("speed").values, np.linalg.norm(expected.astype(float), axis=1))
+>       np.testing.assert_allclose(obj.field("speedup").values, obj.field("speed").values / args.wind_speed)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'values'
+
+tests/test_datasets.py:158: AttributeError
+__________________ test_slice_sampling_on_unequal_axes[1.0-z] __________________
+
+axis = 'z', position = 1.0
+
+    @pytest.mark.parametrize("axis", ["x", "y", "z"])
+    @pytest.mark.parametrize("position", [0.0, 0.5, 1.0])
+    def test_slice_sampling_on_unequal_axes(axis, position):
+        result = coded_result()
+        velocity = result.velocity
+        args = QESWindArgs(**request(product="slice", slice_axis=axis, slice_position=position, slice_resolution=5))
+        obj = _field_slice(result, args)
+        assert type(obj) is FieldSlice
+        assert obj.points.shape == (25, 3)
+        assert tuple(getattr(obj.domain_bounds, name) for name in
+                     ("xmin", "ymin", "zmin", "xmax", "ymax", "zmax")) == result.metadata["domain"]["effective_bounds"]
+        assert obj.metadata_payload["dataset"] == "qes_wind"
+        local = obj.points - np.asarray(result.origin)
+        indices = [np.abs(local[:, i, None] - a).argmin(axis=1) for i, a in enumerate((result.x,result.y,result.z))]
+        expected = velocity[indices[2],indices[1],indices[0]]
+        np.testing.assert_array_equal(obj.field("velocity").values, expected)
+        np.testing.assert_array_equal(obj.field("cell_flags").values, expected[:,0]+3)
+        assert obj.field("valid").values.all()
+        np.testing.assert_allclose(obj.field("speed").values, np.linalg.norm(expected.astype(float), axis=1))
+>       np.testing.assert_allclose(obj.field("speedup").values, obj.field("speed").values / args.wind_speed)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'values'
+
+tests/test_datasets.py:158: AttributeError
+__________________ test_slice_speedup_is_nan_for_calm_inflow ___________________
+
+    def test_slice_speedup_is_nan_for_calm_inflow():
+        obj = _field_slice(coded_result(), QESWindArgs(**request(product="slice", wind_speed=0.0, slice_resolution=3)))
+        assert np.isfinite(obj.field("speed").values).all()
+>       assert np.isnan(obj.field("speedup").values).all()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'values'
+
+tests/test_datasets.py:170: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_dataset_vertical_grid.py::test_experimental_dataset_slice_matches_direct_solve_and_keeps_provenance[1.5]
+FAILED tests/test_dataset_vertical_grid.py::test_experimental_dataset_slice_matches_direct_solve_and_keeps_provenance[1.75]
+FAILED tests/test_datasets.py::test_slice_sampling_on_unequal_axes[0.0-x] - A...
+FAILED tests/test_datasets.py::test_slice_sampling_on_unequal_axes[0.0-y] - A...
+FAILED tests/test_datasets.py::test_slice_sampling_on_unequal_axes[0.0-z] - A...
+FAILED tests/test_datasets.py::test_slice_sampling_on_unequal_axes[0.5-x] - A...
+FAILED tests/test_datasets.py::test_slice_sampling_on_unequal_axes[0.5-y] - A...
+FAILED tests/test_datasets.py::test_slice_sampling_on_unequal_axes[0.5-z] - A...
+FAILED tests/test_datasets.py::test_slice_sampling_on_unequal_axes[1.0-x] - A...
+FAILED tests/test_datasets.py::test_slice_sampling_on_unequal_axes[1.0-y] - A...
+FAILED tests/test_datasets.py::test_slice_sampling_on_unequal_axes[1.0-z] - A...
+FAILED tests/test_datasets.py::test_slice_speedup_is_nan_for_calm_inflow - At...
+12 failed in 1.43s

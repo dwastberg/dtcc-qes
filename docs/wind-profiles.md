@@ -131,6 +131,14 @@ shear or jets can be inconsistent with that conversion. Metadata records this
 caveat; no undisclosed log fit to measurements is introduced. New profiles do
 not create independent physical, gust or planning-submission validation.
 
+Adaptive `pedestrian-v1` numerical acceptance remains restricted to the
+qualified neutral log-law inflow. Explicit `LogProfile` calls use that same
+path. Measured, power-law and uniform profiles can use bounded or adaptive
+controls, but adaptive requests return `accepted=False` with
+`assessment_reason="unqualified_inflow_profile"` on an otherwise qualified
+build. They retain the bounded solver method; the policy's log-profile
+qualification does not extend to experimental inflow shapes.
+
 Measured, power-law and uniform inputs ship as experimental. See the
 [numerical evidence](wind-profiles-verification.md),
 [measured/power-law example](../examples/wind_profiles.py) and

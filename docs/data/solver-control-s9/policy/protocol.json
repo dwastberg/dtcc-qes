@@ -1,0 +1,237 @@
+{
+  "policy_freeze_sha256": "594bd60a0a2d20a019c4680163ed3dd1f3ee62830a9bec7b563cd1f27bf21653",
+  "scope_restriction_sha256": "c484138856485f0c42a676ee13a998b4ddecce5c0735ab51a64f4f311d3ba0a5",
+  "sources_sha256": "9fea55965c617631378047467ec9c449f2cfa978a2d59756a1062b8e19e9360c",
+  "extension_sha256": "b3e7dc731efcaf5f839654d813405ae125d6a853192bca2810cebd46fa75f569",
+  "source_archive": "release-sources.tar.gz",
+  "source_index": "release-source-index.json",
+  "zero_false_acceptances_required": true,
+  "worker_seconds": 30,
+  "shard_seconds": 180,
+  "rows": [
+    {
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-00"
+    },
+    {
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-01"
+    },
+    {
+      "case": "val_mixed_195",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-02"
+    },
+    {
+      "case": "val_staggered_graded_150",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-03"
+    },
+    {
+      "case": "val_mixed_graded_domain_300",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-04"
+    },
+    {
+      "case": "val_courtyards_210_u2",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-05"
+    },
+    {
+      "case": "val_courtyards_210_u10",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-06"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-07"
+    },
+    {
+      "case": "val_courtyards_315",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-08"
+    },
+    {
+      "case": "val_mixed_195",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-09"
+    },
+    {
+      "case": "val_staggered_graded_150",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-10"
+    },
+    {
+      "case": "val_mixed_graded_domain_300",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-11"
+    },
+    {
+      "case": "val_courtyards_210_u2",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-12"
+    },
+    {
+      "case": "val_courtyards_210_u10",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-13"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "invalid_receptor",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-14"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "unqualified_precision",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "release-online-15"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "early_limit",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 1,
+      "id": "release-online-16"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "legacy_converged_unaccepted",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 1,
+      "id": "release-online-17"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 1,
+      "budget": 5.0,
+      "iterations": 2000,
+      "backend": "serial",
+      "id": "release-online-18"
+    },
+    {
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 1,
+      "budget": 5.0,
+      "iterations": 2000,
+      "backend": "serial",
+      "id": "release-online-19"
+    },
+    {
+      "case": "val_mixed_195",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 1,
+      "budget": 5.0,
+      "iterations": 2000,
+      "backend": "serial",
+      "id": "release-online-20"
+    },
+    {
+      "case": "val_staggered_graded_150",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 1,
+      "budget": 5.0,
+      "iterations": 2000,
+      "backend": "serial",
+      "id": "release-online-21"
+    },
+    {
+      "case": "val_courtyards_210_u2",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 1,
+      "budget": 5.0,
+      "iterations": 2000,
+      "backend": "serial",
+      "id": "release-online-22"
+    },
+    {
+      "case": "val_courtyards_210_u10",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 1,
+      "budget": 5.0,
+      "iterations": 2000,
+      "backend": "serial",
+      "id": "release-online-23"
+    }
+  ],
+  "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+  "timing": "Full wind.run API including extraction, preparation, solve, finalization and NumPy conversion. Separate City load/sampling/hash; process wall recorded by supervisor. No warm-up solve."
+}

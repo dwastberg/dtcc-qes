@@ -5,6 +5,47 @@ verification covers the implementation below. No independent physical or gust
 validation was performed. Wind-sector selection and new exposure transfer are
 outside this delivery, as required by the revised `WIND_PROFILES.md`.
 
+## Integration with current main, 2026-10-31
+
+The feature incorporates `main` at
+`0f7382d9bd938a4082083ff0ef335e53818e7368`, including the S5c solid-mask
+correction, S7 adaptive controls, S9 release evidence and updated locked
+`dtcc-core` dependency. The historical checks below describe the earlier
+feature baseline; their original reports remain unchanged. Current integration
+outputs are retained in [main-integration evidence](data/wind-profiles/main-integration/).
+
+The merged candidate passes 1,143 Python tests with 50 skipped in each backend,
+46 serial and 49 OpenMP native checks, and the profile/runner/pedestrian-policy
+AddressSanitizer/UndefinedBehaviorSanitizer checks. Both 32-case profile
+comparison campaigns pass with the previously declared `1e-4` comparison solve
+tolerance. Production defaults and numerical comparison thresholds are unchanged.
+
+The native implementation identity changes when adding layer tables. The new
+identity is enabled for the existing log-profile policy only after an exact
+regression against all 24 frozen S7 release workers: velocity/flag/coordinate
+hashes, convergence diagnostics, acceptance decisions, assessment/checkpoint
+histories and monitors match. Only the declared source revision and wall-clock
+values may differ. Serial/OpenMP source/arithmetic identities agree. Reproduce
+that check after building both backends:
+
+```sh
+.venv/bin/python tools/check_wind_profile_policy.py \
+  --serial build/profiles-serial --openmp build/profiles-openmp \
+  --output build/profile-policy-check
+```
+
+Experimental layer tables are explicitly excluded from `pedestrian-v1` with
+`unqualified_inflow_profile`; they cannot inherit log-profile acceptance based
+on reference scalars alone. Native coverage exercises that restriction and
+Python/dataset coverage rejects calm profiles using their evaluated reference.
+There is no new numerical or physical qualification for experimental families.
+
+The first serial suite in the freshly synchronized environment recorded three
+silence-test failures from `pyassimp`'s upstream invalid-escape `SyntaxWarning`
+while bytecode generation was disabled. Its normal dependency import/compilation
+was completed, then both full suites passed. The initial log is retained; no
+product code or assertions were changed to hide the warning.
+
 ## Frozen baseline and consumers
 
 The worktree starts from `bbfd20005e0bd7d7e648438a1bc8d5a9a4358a71` plus the
@@ -30,10 +71,10 @@ no prescribed top-face velocity has been added. `LogProfile.cpp` is unchanged.
 
 ## Test gates
 
-The full serial Python suite passes **1,083 tests, 50 skipped**; focused
-OpenMP checks pass **512 tests, 10 skipped**. Outputs are archived with the
+The original feature review's full serial Python suite passed **1,083 tests, 50 skipped**; focused
+OpenMP checks passed **512 tests, 10 skipped**. Outputs are archived with the
 [verification data](data/wind-profiles/).
-Native suites pass **43 serial and 46 OpenMP** checks. AddressSanitizer and
+Those native suites passed **43 serial and 46 OpenMP** checks. AddressSanitizer and
 UndefinedBehaviorSanitizer pass the profile, runner-lifecycle and staggered-flux
 checks. LeakSanitizer is unsupported by the available macOS runtime, so those
 commands set `ASAN_OPTIONS=detect_leaks=0`. The native termination/console/file-I/O

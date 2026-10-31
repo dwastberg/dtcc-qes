@@ -1,0 +1,8 @@
+{
+  "parent_source_sha256": "9fea55965c617631378047467ec9c449f2cfa978a2d59756a1062b8e19e9360c",
+  "workers": 4,
+  "timeout_seconds": 30,
+  "scope": "Legacy only, 4/8 fresh and reused directions; independently instrumented build for subphase timing and object/array allocation attribution, not primary speed evidence.",
+  "phases": "Boundary classification and stencil coefficients; immutable operator compression/transfer. These two subphases are included in native preparation, not added to it.",
+  "allocation": "Count constructed prepared models, operators, float workspaces; inspect owned flat numeric vectors and operator/workspace bytes. Not malloc event accounting. Python allocation measured separately using tracemalloc."
+}

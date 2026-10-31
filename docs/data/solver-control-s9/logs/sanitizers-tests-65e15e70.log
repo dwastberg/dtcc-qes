@@ -1,0 +1,17 @@
+Test project /Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/sanitizers
+    Start  6: runner_lifecycle
+1/6 Test  #6: runner_lifecycle .................   Passed    3.55 sec
+    Start 38: solver_phases
+2/6 Test #38: solver_phases ....................   Passed    1.70 sec
+    Start 40: equation_residual
+3/6 Test #40: equation_residual ................   Passed    0.24 sec
+    Start 41: solver_monitor
+4/6 Test #41: solver_monitor ...................   Passed    2.99 sec
+    Start 42: solver_control
+5/6 Test #42: solver_control ...................   Passed    0.83 sec
+    Start 43: pedestrian_policy
+6/6 Test #43: pedestrian_policy ................   Passed    9.26 sec
+
+100% tests passed, 0 tests failed out of 6
+
+Total Test time (real) =  18.57 sec

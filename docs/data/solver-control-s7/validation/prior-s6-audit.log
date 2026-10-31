@@ -1,0 +1,297 @@
+{
+  "stage": "S6",
+  "main_workers": 43,
+  "early_workers": 8,
+  "native_tests": 47,
+  "default_full_history_exact": [
+    "tower_2m",
+    "passages_2m"
+  ],
+  "method": "s5c-rb-sor-float-omega-v1-omega-1.90",
+  "kernel_members": {
+    "src/qes_core/solver/cpu_float32.cpp": "72139a530cf84216242407ff4800543bf8fb542d2948e5af87ba8ddd11ace522",
+    "src/qes_core/solver/cpu_float64.cpp": "091e5c159826d308cf3d441ceabba0d04785747766484fe8c269205be498d5e5",
+    "src/qes_core/solver/mass_diagnostics.h": "5709db3e0320fc4c582a6b8fb2afc527afe276fadedd59b59b7b1cea7412602f",
+    "src/qes_core/solver/solver.cpp": "d379a6cd5225ab44d8268bfceb383700cadbf63529cf81823dcb6d0e2c086557",
+    "src/qes_core/solver/solver.h": "645c6f8d670f735282013b7bc8ae2bd169cf9e19cd161be009f26ac6bb327abe",
+    "src/qes_core/winds/StreetCanyon.cpp": "fa473e2d3858030f73f11172a7ec7c2a97f6d060b65a5578bc3bee227e69712d",
+    "src/qes_core/winds/StreetCanyonModified.cpp": "8740c25868cca1abd9e2fb1f1697d4bfaf230540779345e5645391c13ec0bfa8"
+  },
+  "early_transients": [
+    {
+      "request": {
+        "id": "00",
+        "case": "tower_2m",
+        "purpose": "early_transient",
+        "omega": 1.78,
+        "precision": "float32",
+        "iterations": 25,
+        "cadence": 1,
+        "direction": 270
+      },
+      "growth": {
+        "residual_maximum": 2.4218408448610775,
+        "residual_rms": 2.0068161402701747,
+        "mass_maximum": 2.4218408265742943,
+        "mass_rms": 2.006816138557524
+      },
+      "passed": true
+    },
+    {
+      "request": {
+        "id": "01",
+        "case": "tower_2m",
+        "purpose": "early_transient",
+        "omega": 1.85,
+        "precision": "float32",
+        "iterations": 25,
+        "cadence": 1,
+        "direction": 270
+      },
+      "growth": {
+        "residual_maximum": 2.561272170529957,
+        "residual_rms": 2.2579168605165125,
+        "mass_maximum": 2.5612721339563906,
+        "mass_rms": 2.2579168538702037
+      },
+      "passed": true
+    },
+    {
+      "request": {
+        "id": "02",
+        "case": "tower_2m",
+        "purpose": "early_transient",
+        "omega": 1.9,
+        "precision": "float32",
+        "iterations": 25,
+        "cadence": 1,
+        "direction": 270
+      },
+      "growth": {
+        "residual_maximum": 2.7995976322565976,
+        "residual_rms": 2.500343692442811,
+        "mass_maximum": 2.7995975591094657,
+        "mass_rms": 2.500343686385917
+      },
+      "passed": true
+    },
+    {
+      "request": {
+        "id": "03",
+        "case": "tower_2m",
+        "purpose": "early_transient",
+        "omega": 1.95,
+        "precision": "float32",
+        "iterations": 25,
+        "cadence": 1,
+        "direction": 270
+      },
+      "growth": {
+        "residual_maximum": 3.058751264348176,
+        "residual_rms": 2.879007052406589,
+        "mass_maximum": 3.0587513374953077,
+        "mass_rms": 2.879007047258323
+      },
+      "passed": true
+    },
+    {
+      "request": {
+        "id": "04",
+        "case": "passages_2m",
+        "purpose": "early_transient",
+        "omega": 1.78,
+        "precision": "float32",
+        "iterations": 25,
+        "cadence": 1,
+        "direction": 270
+      },
+      "growth": {
+        "residual_maximum": 2.3006165241888197,
+        "residual_rms": 2.0063703543414912,
+        "mass_maximum": 2.30061655974252,
+        "mass_rms": 2.0063703557830244
+      },
+      "passed": true
+    },
+    {
+      "request": {
+        "id": "05",
+        "case": "passages_2m",
+        "purpose": "early_transient",
+        "omega": 1.85,
+        "precision": "float32",
+        "iterations": 25,
+        "cadence": 1,
+        "direction": 270
+      },
+      "growth": {
+        "residual_maximum": 2.429250941234376,
+        "residual_rms": 2.160634858102591,
+        "mass_maximum": 2.4292509803044315,
+        "mass_rms": 2.160634855752261
+      },
+      "passed": true
+    },
+    {
+      "request": {
+        "id": "06",
+        "case": "passages_2m",
+        "purpose": "early_transient",
+        "omega": 1.9,
+        "precision": "float32",
+        "iterations": 25,
+        "cadence": 1,
+        "direction": 270
+      },
+      "growth": {
+        "residual_maximum": 2.913604095185971,
+        "residual_rms": 2.275159645057381,
+        "mass_maximum": 2.9136041748323582,
+        "mass_rms": 2.275159630583807
+      },
+      "passed": true
+    },
+    {
+      "request": {
+        "id": "07",
+        "case": "passages_2m",
+        "purpose": "early_transient",
+        "omega": 1.95,
+        "precision": "float32",
+        "iterations": 25,
+        "cadence": 1,
+        "direction": 270
+      },
+      "growth": {
+        "residual_maximum": 3.5623165752015065,
+        "residual_rms": 2.5811894769481647,
+        "mass_maximum": 3.562316672581122,
+        "mass_rms": 2.5811894779848195
+      },
+      "passed": true
+    }
+  ],
+  "budgets": [
+    {
+      "case": "tower_2m",
+      "omega": 1.78,
+      "budget": 0.05,
+      "iterations": 89,
+      "seconds": 0.056950042,
+      "target_reached": false,
+      "overshoot_seconds": 0.0069500419999999966
+    },
+    {
+      "case": "tower_2m",
+      "omega": 1.9,
+      "budget": 0.05,
+      "iterations": 75,
+      "seconds": 0.050701958,
+      "target_reached": false,
+      "overshoot_seconds": 0.0007019579999999956
+    },
+    {
+      "case": "tower_2m",
+      "omega": 1.78,
+      "budget": 0.15,
+      "iterations": 325,
+      "seconds": 0.153712208,
+      "target_reached": false,
+      "overshoot_seconds": 0.0037122079999999946
+    },
+    {
+      "case": "tower_2m",
+      "omega": 1.9,
+      "budget": 0.15,
+      "iterations": 205,
+      "seconds": 0.157637333,
+      "target_reached": false,
+      "overshoot_seconds": 0.007637332999999996
+    },
+    {
+      "case": "passages_2m",
+      "omega": 1.78,
+      "budget": 0.05,
+      "iterations": 74,
+      "seconds": 0.057511042,
+      "target_reached": false,
+      "overshoot_seconds": 0.0075110419999999956
+    },
+    {
+      "case": "passages_2m",
+      "omega": 1.9,
+      "budget": 0.05,
+      "iterations": 75,
+      "seconds": 0.050772708,
+      "target_reached": false,
+      "overshoot_seconds": 0.000772707999999997
+    },
+    {
+      "case": "passages_2m",
+      "omega": 1.78,
+      "budget": 0.15,
+      "iterations": 300,
+      "seconds": 0.152193208,
+      "target_reached": false,
+      "overshoot_seconds": 0.002193208000000002
+    },
+    {
+      "case": "passages_2m",
+      "omega": 1.9,
+      "budget": 0.15,
+      "iterations": 307,
+      "seconds": 0.157521792,
+      "target_reached": true,
+      "overshoot_seconds": 0.007521791999999999
+    }
+  ],
+  "decision": {
+    "outcome": "scoped_internal_opt_in",
+    "factor": 1.9,
+    "method_id": "s5c-rb-sor-float-omega-v1-omega-1.90",
+    "public_default": 1.78,
+    "challenger": 1.9,
+    "pairs": [
+      {
+        "case": "tower_2m",
+        "ratios": [
+          0.5569884859936116,
+          0.5050261654921692,
+          0.49655220843457587
+        ],
+        "median_ratio": 0.5050261654921692,
+        "passed": true
+      },
+      {
+        "case": "passages_2m",
+        "ratios": [
+          0.5985411430816739,
+          0.6028687659969443,
+          0.5709031079518617
+        ],
+        "median_ratio": 0.5985411430816739,
+        "passed": true
+      },
+      {
+        "case": "passages_2m_225",
+        "ratios": [
+          1.2463881964329728,
+          0.5544407974211,
+          0.5254454566759427
+        ],
+        "median_ratio": 0.5544407974211,
+        "passed": true
+      }
+    ],
+    "references_qualified": true,
+    "precision_controls_qualified": true,
+    "scope": [
+      "tower_2m",
+      "passages_2m",
+      "passages_2m_225"
+    ],
+    "online_accuracy": "not_assessed",
+    "acceleration": "Deferred; CG is not selected. Symmetry/SPD of the actual stretched/ground/solid operator is not assumed or established by SOR results.",
+    "disposition": "S7 must qualify its own policy. The large-city reference and top boundary limitations remain. Full API cost is not measured by this slab-output native study."
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schema": "solver-control-release-scope-v1",
+  "closure": "qualified-pedestrian-solver-control-refactor",
+  "stages": {
+    "S0": "complete: frozen baseline and contract",
+    "S1": "complete: solver phases and ownership",
+    "S1a": "complete: condition reset and model dependencies",
+    "S2": "complete: compact operator, memory traffic and serial red-black ordering",
+    "S3": "complete: bounded compiled monitoring",
+    "S4": "complete: bounded public Python/dataset execution",
+    "S5": "complete: diagnostic/reference studies and separately frozen solid-mask correction; missed performance target explicitly disposed",
+    "S6": "complete: scoped internal relaxation method decision",
+    "S7": "complete: empirical pedestrian-v1 numerical acceptance within frozen envelope",
+    "S8a": "complete: measured public reuse API deferral",
+    "S8b": "deferred explicitly by user on 2026-10-30; not implemented or qualified",
+    "S9": "release evidence and explicit scoped closure"
+  },
+  "defaults": {"precision": "float32", "max_iterations": 500, "tolerance": 0.00001, "solver_control": null, "openmp": "ON", "relaxation": 1.78},
+  "policy": {"id": "pedestrian-v1", "method": "s5c-rb-sor-float-omega-v1-omega-1.90", "native_revision": "d0775583915762bbe2accfcad81d38e21b4c79037ea2dd0fa4c6c7cd5a24fde3", "qualification": "empirical numerical ROI and required-receptor scope, not full-volume or physical accuracy"},
+  "limitations": [
+    "Large urban/core domains remain numerically unqualified; 2000-sweep benchmark outputs are not reference solutions.",
+    "The top solved band has a prescribed upper-face convention; highest physical layer and lateral shell are unassessed.",
+    "S5 disabled-controls API performance target <=5% was missed: measured regression approximately 11-15%; documented non-pass disposition, not a numerical exception.",
+    "Historical horizontal/local near-wall sensitivity failures persist; finest vertical reference certification failed and dependent comparisons remain withheld.",
+    "Automatic vertical grids remain provisional; no general grid-independence or automatic-preset qualification.",
+    "S7 is limited to the matching AppleClang 17 arm64 arithmetic/source build, 80x80x32 cells, prescribed uniform/graded layers, default rectangular-building models, float32 wind without turbulence, and actual teams 1-4 or serial.",
+    "Directional comfort uncertainty, real climate validation, GEM/gust/physical comfort and regulatory qualification are not delivered.",
+    "Public prepared-model reuse, warm starts, GPU, multi-RHS kernels, preconditioners, new boundary/model physics and default policy promotion remain separate work."
+  ],
+  "worker_limits": {"urban_worker_seconds": 30, "urban_workers_per_shard": 6, "urban_shard_seconds": 180, "history_and_allocation": "explicit bounded native histories and monitor memory limit; no unbounded Python callback or full-volume checkpoint history"}
+}

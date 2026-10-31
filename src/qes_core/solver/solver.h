@@ -111,6 +111,34 @@ struct ResidualTrend {
   double maximum = 0, volume_weighted_rms = 0;
   std::size_t fluid_cells = 0;
 };
+// Completed-iterate residual r=b-A*lambda, A=D-sum(neighbour coefficients),
+// b=-R, D=e+f+g+h+m+n. No diagonal/row rescaling; double diagnostic arithmetic
+// on the stored Real iterate/RHS and immutable float coefficients. Native RHS
+// units, not corrected-face divergence. Initial lambda is zero, so ||r0||=||b||.
+struct ResidualNormalization {
+  // Explicit positive absolute floors in native RHS units, independently for
+  // the maximum and volume-weighted RMS. No physical length is inferred.
+  double maximum_floor = 1e-30, rms_floor = 1e-30;
+};
+struct EquationResidual {
+  int iteration = 0;
+  std::size_t fluid_cells = 0, excluded_solid_cells = 0;
+  double volume = 0;
+  double maximum = 0, volume_weighted_rms = 0;
+  double rhs_maximum = 0, rhs_volume_weighted_rms = 0;
+  ResidualNormalization floors;
+  // Empty assessment has no normalized result. Calm, nonempty r=b=0 gives 0.
+  std::optional<double> relative_maximum, relative_volume_weighted_rms;
+};
+struct CellDiagnostics {
+  // i,j are zero-based physical cells; k is physical (ground layer k=0).
+  int i = 0, j = 0, k = 0, flag = 0;
+  bool assessed = false, top_band = false;
+  double multiplier = 0, rhs = 0, equation_residual = 0;
+  Stencil coefficients{};
+  // east, west, north, south, above, below. Ghost/prescribed values retained.
+  std::array<double,6> neighbour_multipliers{}, initial_faces{}, faces{};
+};
 struct SolveDiagnostics {
   int iterations = 0;
   double max_lagrange_multiplier_change = 0, tolerance = 0;
@@ -137,6 +165,10 @@ public:
   Observation observe(LayerRange) const;
   void observe(LayerRange, CenteredDestination) const;
   MassDiagnostics diagnose(MassRegion = {}, FluxOptions = {}) const;
+  // Same physical region and fluid eligibility as diagnose(), including the
+  // separately reported mass top band. Pure, O(1) extra storage, no sweep work.
+  EquationResidual equation_residual(MassRegion = {}, ResidualNormalization = {}) const;
+  CellDiagnostics diagnose_cell(int i, int j, int k) const;
   const PoissonOperator &prepared_operator() const { return operator_; }
   std::uint64_t condition_epoch() const { require_iterate(); return condition_epoch_; }
   std::optional<ResidualTrend> residual_trend() const { require_iterate(); return last_trend_; }
@@ -191,6 +223,7 @@ private:
     out.weighted_square += volume*residual*residual; out.volume += volume; ++out.cells;
   }
   void finish_residual(const TrendTotals &);
+  double row_residual(std::size_t c, int k) const;
   void require_iterate() const;
   void build_rhs();
   Real sweep_lexicographic();

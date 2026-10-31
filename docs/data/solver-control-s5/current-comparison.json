@@ -1,0 +1,9 @@
+{
+  "candidate": "S5c corrected mask, S5b pure diagnostics, S4 controls",
+  "baseline_policy": "Both architecture and control baselines carry the exact same two canyon-mask corrections; original unmodified S1a/S3/S4 archives remain in historical evidence.",
+  "files": {
+    "sources.tar.gz": "f138616b7796f20b3f66e04c2c52f01f6f27c5fcd4122bccc373caf82156adeb",
+    "s1a-matched-mask-sources.tar.gz": "3e06426ca9cbf1d1122fc1d3b752bdd75050d454e53be5a0782952b146e2ea0f",
+    "s3-matched-mask-sources.tar.gz": "deccfc1616b987bbd8b5f610136c3e973398c5f25330f70e6ac4db114fbd72d3"
+  }
+}

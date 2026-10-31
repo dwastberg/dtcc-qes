@@ -1,0 +1,14 @@
+-- The CXX compiler identification is AppleClang 17.0.0.17000404
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- dtcc-qes OpenMP CPU solver: ON (requested ON)
+-- Found Python: /Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python (found suitable version "3.13.11", minimum required is "3.13") found components: Interpreter Development.Module
+-- Found OpenMP_CXX: -Xclang -fopenmp (found version "5.1")
+-- Found OpenMP: TRUE (found version "5.1") found components: CXX
+-- dtcc-qes floating-point contraction: on
+-- Configuring done (1.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s8a-reproduction/native

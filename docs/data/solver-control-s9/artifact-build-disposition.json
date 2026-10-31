@@ -1,0 +1,19 @@
+{
+  "failed_sources_sha256": "caa72558bf7ce14eb3cf8fd9058ddee0e052909c9a0031c1fa216a57fa6b7b2b",
+  "failed_sdist": {
+    "path": "build/solver-control-s9/artifacts/dtcc_qes-0.1.0b1.tar.gz",
+    "sha256": "83f735ad012c1fdc26de69e414ba4e6b749a81286218b2b3031a56d38ebca564"
+  },
+  "reason": "Frontend requires uninstalled Ninja unless an available generator is selected; default release driver to Unix Makefiles, keep explicit user generator authoritative. Fresh output per retry.",
+  "changes": {
+    "tools/validate_solver_release.py": {
+      "before": "665db5c4bed9c0341066dfdd754b803ef1649e725be3e02f500b3786a62a727e",
+      "after": "99da6ec04b76f56bfd8586626d5943ffbc7331a4615131582187c339b1cf049d"
+    },
+    "docs/solver-control-s9.md": {
+      "before": "1a58d68d3b5a2d71fe5637a63da46d7adabf61f975b9781ed57a6216785fa0f2",
+      "after": "766aa945ad4c00221b3dbfeef700e87b8f9bfd5419ed9c8e0b106c14dea1fa90"
+    }
+  },
+  "runtime_changes": []
+}

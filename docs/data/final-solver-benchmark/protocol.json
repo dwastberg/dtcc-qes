@@ -1,0 +1,107 @@
+{
+  "schema": "final-solver-benchmark-v1",
+  "candidate": "docs/data/solver-control-s9/sources.tar.gz",
+  "candidate_sha256": "3be0889f7b728a6c1bc2067dba962df32f2f515adf32177e8bf35d72c6e17a64",
+  "experiments": [
+    {
+      "name": "overall-pilot",
+      "tier": "pilot",
+      "resolution_m": 4,
+      "iterations": 500,
+      "directions": [
+        270
+      ],
+      "cases": 4,
+      "repetitions": 3,
+      "variants": [
+        "S1a-matched-mask",
+        "S9-disabled",
+        "S9-bounded"
+      ],
+      "workers": 36,
+      "output": "build/urban-benchmarks/20261031T093341Z-bba6ac53"
+    },
+    {
+      "name": "overall-core-long",
+      "tier": "core",
+      "resolution_m": 2,
+      "iterations": 2000,
+      "directions": [
+        225,
+        270,
+        315
+      ],
+      "cases": 4,
+      "repetitions": 3,
+      "variants": [
+        "S1a-matched-mask",
+        "S9-disabled",
+        "S9-bounded"
+      ],
+      "workers": 108,
+      "solve_budget_seconds": 20,
+      "output": "build/urban-benchmarks/20261031T093521Z-852fd764"
+    },
+    {
+      "name": "controls-pilot",
+      "tier": "pilot",
+      "resolution_m": 4,
+      "iterations": 500,
+      "directions": [
+        270
+      ],
+      "cases": 4,
+      "repetitions": 3,
+      "variants": [
+        "S3-matched-mask",
+        "S9-disabled",
+        "S9-bounded"
+      ],
+      "workers": 36,
+      "output": "build/urban-benchmarks/20261031T095234Z-90945794"
+    },
+    {
+      "name": "qualified-adaptive",
+      "cases": 6,
+      "repetitions": 3,
+      "variants": [
+        "S9-legacy",
+        "S9-adaptive"
+      ],
+      "workers": 36,
+      "iterations": 2000,
+      "solve_budget_seconds": 5,
+      "source": "S9 installed-wheel contents without diagnostic instrumentation; six S7 qualified held-out case requests; compare against frozen qualified reference fields"
+    }
+  ],
+  "primary_worker_cap": 216,
+  "urban_worker_seconds": 30,
+  "urban_shard_seconds": 180,
+  "adaptive_worker_seconds": 30,
+  "adaptive_total_seconds": 180,
+  "speed_claim": "Per-case medians and paired ratios, three fresh-process repetitions; no pooled extrapolation across resolutions/modes.",
+  "accuracy": "Urban: unassessed; exact equal-work field/grid parity. Adaptive: only frozen qualified pedestrian ROI/receptors; same targets and existing references, no expansion/tuning.",
+  "timing": "Urban API includes preparation, solve, finalization/output transfer; pipeline also includes City load, preview, sampling/hash/serialization. Adaptive full wind.run API incl setup/output, separate process import excluded.",
+  "frozen_prior_evidence": "No prior outcomes or release sources modified",
+  "host": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+  "python": "3.13.11 (main, Dec  5 2025, 21:16:49) [Clang 21.1.4 ]",
+  "cpu_count": 14,
+  "start_load_average": [
+    3.44384765625,
+    5.72509765625,
+    8.986328125
+  ],
+  "dependency": {
+    "dtcc_core_version": "0.9.8dev",
+    "dtcc_core_direct_url": {
+      "url": "https://github.com/dtcc-platform/dtcc-core.git",
+      "vcs_info": {
+        "vcs": "git",
+        "commit_id": "80a4bbae2760e891e2a0be4175d67bf3340a8e67",
+        "requested_revision": "dev/footprint-cleaning-update"
+      }
+    },
+    "numpy": "2.5.4"
+  },
+  "utc": "2026-10-31T09:35:22.429399+00:00"
+}

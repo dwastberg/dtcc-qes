@@ -91,7 +91,7 @@ bounded pedestrian/receptor diagnostic history. See the
 [S4 API and deadline contract](docs/solver-control-s4.md) and the
 [urban benchmark suite](docs/urban-wind-benchmarks.md).
 
-Run the complete urban pilot comparison against S1a with:
+Run the complete urban pilot comparison against S1a with the same numerical mask correction:
 
 ```sh
 .venv/bin/python tools/run_urban_benchmarks.py
@@ -100,7 +100,39 @@ Run the complete urban pilot comparison against S1a with:
 The runner prepares inputs, reuses verified cached builds or rebuilds them,
 runs all cases, and prints timing, memory and field-comparison results. Use
 `--tier core` for the full 2 m matrix or `--comparison controls` to compare S3
-with S4. Every campaign saves a fresh report under `build/urban-benchmarks/`.
+with the frozen S9 release candidate and the same mask correction. Every campaign saves
+a fresh report under `build/urban-benchmarks/`.
+
+Completed-iterate residual diagnostics, bounded hotspot investigation and two
+qualified small same-grid references are documented in the
+[S5 completion report](docs/solver-control-s5.md). The oblique urban solid-mask
+defect is corrected and independently frozen. Large urban accuracy remains
+unqualified, and the disabled-controls performance review target was missed;
+bounded results still report unassessed accuracy.
+
+The [S6 method study](docs/solver-control-s6.md) selects internal SOR relaxation
+`1.90f` for the qualified opt-in policy on its measured small-grid scope.
+Public legacy and bounded calls retain `1.78f`.
+
+[S7's opt-in pedestrian policy](docs/solver-control-s7.md) is now qualified on
+its declared small-domain scope. Use `SolverControl(..., mode="adaptive")`
+with an explicit ROI and required receptors at both 1.5 and 1.75 m. Acceptance
+is separate from legacy convergence and covers only those outputs. Larger or
+unsupported configurations remain unaccepted; full-volume, turbulence and
+physical/model accuracy are not qualified by this policy.
+
+The [S9 closure report](docs/solver-control-s9.md) closes the solver-control
+refactor within that qualified numerical scope and records the release checks,
+defaults, errors, dataset cache identity and remaining limitations. No default
+policy is promoted. [S8a](docs/solver-control-s8a.md) measured modest preparation
+reuse savings and deferred a public reuse API; S8b comfort sensitivity is
+explicitly deferred. Large-domain accuracy, grid independence and physical
+comfort/gust qualification remain separate work.
+
+```sh
+# Build and run the complete release verification in a new directory.
+.venv/bin/python tools/validate_solver_release.py --output build/solver-release-check
+```
 
 On macOS, standard Apple Silicon and Intel Homebrew `libomp` installations are
 discovered automatically. For a custom installation, provide its prefix:

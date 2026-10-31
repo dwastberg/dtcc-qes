@@ -1,0 +1,11 @@
+{
+  "executable_sha256": "6dbeaf9324b89cdb9f6e57ca750695b2ebc267e7c5ddd25f4f703ded798a7fc9",
+  "cache_sha256": "95da65d2edd84f798f56f54690b1dd3e3f93185b1849d47cc9306e59a0bf6f3e",
+  "protocol_sha256": "26e04da632793b7b8c9ffc33a58ae720ec7cbc4bf7ab424ba416e326a3661786",
+  "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+  "python": "3.13.11 (main, Dec  5 2025, 21:16:49) [Clang 21.1.4 ]",
+  "environment": {
+    "OMP_NUM_THREADS": "4",
+    "OMP_DYNAMIC": "FALSE"
+  }
+}

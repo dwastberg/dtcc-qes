@@ -199,7 +199,7 @@ class WindResult:
 
     @property
     def control(self):
-        """Bounded execution record, or None for a legacy solve."""
+        """Bounded/adaptive control record, or None for a legacy solve."""
         return self.metadata.get("solver_control")
 
     @property

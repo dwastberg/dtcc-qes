@@ -1,11 +1,13 @@
 #pragma once
 #include "monitor_types.h"
+#include "policy_types.h"
 #include <stdexcept>
 #include <utility>
 
 namespace dtcc_qes {
 struct SolverControl {
   std::string mode = "bounded";
+  std::string policy; // Explicit version required for adaptive mode.
   double max_solve_seconds = 0;
   int checkpoint_interval = 25;
   int residual_interval = 0; // Zero disables; otherwise collect on these sweeps.
@@ -24,6 +26,11 @@ struct ControlTimings {
 };
 struct ControlRecord {
   std::string mode = "bounded", termination_reason, accuracy_status = "not_assessed", phase;
+  std::string policy, method, policy_revision, assessment_scope, assessment_reason;
+  bool accepted = false;
+  std::optional<PolicyEvidence> assessment;
+  std::vector<PolicyEvidence> assessment_history;
+  std::size_t assessment_count = 0;
   SolverControl requested;
   MonitorSpec effective_monitor;
   ControlTimings timings;
@@ -38,5 +45,11 @@ public:
   ControlRecord record;
   explicit BudgetExhausted(ControlRecord value)
     : std::runtime_error("Native solve budget exhausted before any complete sweep"), record(std::move(value)) {}
+};
+class NumericalFailure : public std::runtime_error {
+public:
+  ControlRecord record;
+  NumericalFailure(ControlRecord value,const std::string &message)
+    : std::runtime_error(message),record(std::move(value)) {}
 };
 }

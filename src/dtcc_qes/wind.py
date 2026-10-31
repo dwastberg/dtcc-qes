@@ -14,7 +14,8 @@ from ._city import extract_city, number, prepare_domain
 from .result import ConvergenceError, SolveDiagnostics, TurbulenceFields, WindResult, WindSample
 from .turbulence import Turbulence, _resolve_turbulence, _turbulence_metadata
 from .vertical_grid import GridPreview, VerticalGrid
-from .solver_control import SolverControl, MonitorSpec, Receptor, MassRegion, BudgetExhaustedError
+from .solver_control import (SolverControl, MonitorSpec, Receptor, MassRegion, BudgetExhaustedError,
+                             NumericalFailureError, UnacceptedResultError)
 from .profiles import (LogProfile, MeasuredProfile, PowerLawProfile, UniformProfile,
                        PROFILE_TYPES, profile_from_dict, evaluate, _layer_record)
 
@@ -23,6 +24,7 @@ _UNSET = object()
 __all__ = ["run", "preview_grid", "WindResult", "WindSample", "GridPreview",
            "SolveDiagnostics", "ConvergenceError", "VerticalGrid", "Turbulence", "TurbulenceFields",
            "SolverControl", "MonitorSpec", "Receptor", "MassRegion", "BudgetExhaustedError",
+           "NumericalFailureError", "UnacceptedResultError",
            "LogProfile", "MeasuredProfile", "PowerLawProfile", "UniformProfile", "profile_from_dict", "evaluate"]
 
 
@@ -40,7 +42,8 @@ def run(city, speed=None, direction=None, *, reference_height=_UNSET,
         max_cells: int = 20_000_000, tolerance: float = 1e-5, max_iterations: int = 500,
         raise_on_nonconvergence: bool = False, terrain=None, height_policy="measured",
         vertical_grid: VerticalGrid | None = None, solver_precision: str = "float32",
-        turbulence: bool | Turbulence = False, solver_control: SolverControl | None = None) -> WindResult:
+        turbulence: bool | Turbulence = False, solver_control: SolverControl | None = None,
+        raise_on_unaccepted: bool = False) -> WindResult:
     """Solve one explicit wind condition without modifying the source city.
 
     Supply either legacy speed/direction scalars or an immutable ``profile=``.
@@ -71,8 +74,18 @@ def run(city, speed=None, direction=None, *, reference_height=_UNSET,
     budget and bounded diagnostic history. It includes mutex wait and checks
     every complete sweep. Preparation and required final output/turbulence are
     timed separately. ``result.control`` records termination and overshoot;
-    accuracy remains ``not_assessed``. No completed sweep raises
+    bounded accuracy remains ``not_assessed``. No completed sweep raises
     ``BudgetExhaustedError`` with phase/timing evidence.
+
+    ``SolverControl(..., mode='adaptive')`` opts into pedestrian-v1 on its
+    qualified small rectangular-building scope. It assesses the declared ROI
+    at 1.5/1.75 m and every required receptor, with independent mass/residual
+    safeguards. ``control['accepted']`` is separate from legacy ``converged``;
+    it does not qualify the full volume, turbulence or physical wind accuracy.
+    Unsupported configurations return bounded, unaccepted outputs. Set
+    ``raise_on_unaccepted=True`` to raise ``UnacceptedResultError`` instead of
+    warning. Adaptive mode rejects ``raise_on_nonconvergence=True`` and calm
+    wind. See docs/solver-control-s7.md for the versioned scope and limits.
 
     ``solver_precision='float64'`` opts into double multiplier storage, RHS,
     updates and face corrections. Geometry, coefficients and returned velocities
@@ -108,6 +121,15 @@ def run(city, speed=None, direction=None, *, reference_height=_UNSET,
     if solver_control is not None and not isinstance(solver_control, SolverControl):
         raise TypeError("solver_control must be SolverControl or None")
     condition, profile_spec = _resolve_condition(speed, direction, reference_height, roughness_length, profile)
+    adaptive = solver_control is not None and solver_control.mode == "adaptive"
+    if not isinstance(raise_on_unaccepted, bool):
+        raise ValueError("raise_on_unaccepted must be boolean")
+    if raise_on_unaccepted and not adaptive:
+        raise ValueError("raise_on_unaccepted requires adaptive solver controls")
+    if adaptive and raise_on_nonconvergence:
+        raise ValueError("Adaptive mode uses raise_on_unaccepted, not raise_on_nonconvergence")
+    if adaptive and condition["speed"] == 0:
+        raise ValueError("Adaptive pedestrian acceptance is unavailable for calm wind")
     grid = _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, max_cells,
                           vertical_grid=vertical_grid)
     solver = _validate_solver(tolerance, max_iterations, raise_on_nonconvergence, solver_precision)
@@ -149,17 +171,26 @@ def run(city, speed=None, direction=None, *, reference_height=_UNSET,
         # traceback must not retain the much larger prepared native domain.
         del runner
     diagnostics = SolveDiagnostics(**native["diagnostics"])
-    if not diagnostics.converged:
+    if adaptive:
+        if not native["control"]["accepted"]:
+            failure = UnacceptedResultError(diagnostics, native["control"])
+            if raise_on_unaccepted:
+                raise failure
+            get_python_logger("dtcc-qes").warning(str(failure))
+    elif not diagnostics.converged:
         if solver["raise_on_nonconvergence"]:
             raise ConvergenceError(diagnostics,native.get("control"))
         get_python_logger("dtcc-qes").warning(str(ConvergenceError(diagnostics,native.get("control"))))
     model_names = ("wall_roughness", "rooftop_flag", "upwind_cavity_flag", "street_canyon_flag",
                    "street_intersection_flag", "wake_flag", "high_rise_flag", "sidewall_flag")
+    solver_metadata = dict(solver)
+    if adaptive:
+        solver_metadata["raise_on_unaccepted"] = raise_on_unaccepted
     metadata = dict(
         divergence_diagnostic=dict(unit="s^-1", norm="volume-weighted RMS and maximum",
             lateral_boundary_cells="excluded", last_solved_band="reported separately",
             highest_physical_layer="unassessed"),
-        domain=prepared.domain, condition=condition, solver=solver, terrain=prepared.terrain,
+        domain=prepared.domain, condition=condition, solver=solver_metadata, terrain=prepared.terrain,
         effective_condition={name: float(np.float32(value)) for name, value in condition.items()},
         height_policy=height_policy, ignored_city_objects=geometry.ignored_objects,
         model=dict(backend=_qes.cpu_backend, log_law_flag=0, mesh_type_flag=0, halo_x=0, halo_y=0,

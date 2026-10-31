@@ -3,6 +3,8 @@
 #include "divergence.h"
 #include "solver/solver.h"
 #include "solver_control.h"
+#include "pedestrian_policy.h"
+#include "util/QESException.h"
 #include "turbulence.h"
 #include "winds/TURBGeneralData.h"
 #include "winds/WINDSGeneralData.h"
@@ -16,6 +18,7 @@ namespace dtcc_qes {
 struct WindRunner::Impl {
   GridConfig grid;
   ModelInputs inputs;
+  ModelSettings model;
   // Reverse destruction frees solvers, then turbulence (which points at the
   // wind data), then the wind data and its buildings.
   std::unique_ptr<WINDSGeneralData> data;
@@ -24,13 +27,14 @@ struct WindRunner::Impl {
   std::unique_ptr<solver::SolverState<float>> solver;
   std::unique_ptr<solver::SolverState<double>> precision_solver;
   double tolerance = 0;
+  float relaxation = 1.78f;
   double preparation_seconds = 0;
   enum class Phase { Prepared, Initialized, Solving, Finalized };
   Phase phase = Phase::Prepared;
 
   Impl(const GridConfig &g, const ModelSettings &m, const BuildingArrays &b,
        const TurbulenceSettings &t)
-    : grid(g), inputs(g, m, b, t),
+    : grid(g), inputs(g, m, b, t),model(m),
       data(std::make_unique<WINDSGeneralData>(make_domain(inputs), inputs.buildings,
         inputs.parameterizations, inputs.inflow.site_z0))
   {
@@ -70,6 +74,8 @@ void WindRunner::prepare(const GridConfig &grid, const ModelSettings &model,
 WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &options, Messages &messages,
                           const SolverControl *control,const std::function<double()> &native_test_clock)
 {
+  if(control && control->mode=="adaptive" && !(condition.speed>0))
+    throw qes::InputError("Adaptive pedestrian acceptance is unavailable for calm wind");
   std::optional<SolverController> controller;
   if (control) controller.emplace(*control,native_test_clock);
   const std::lock_guard<std::mutex> lock(native_mutex());
@@ -103,6 +109,9 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
     controller->check("before_initialization");
   }
   state.inputs.set_condition(condition);
+  if(controller && control->mode=="adaptive")
+    controller->configure_adaptive(pedestrian_scope(state.grid,state.model,state.inputs,options,
+      controller->record.effective_monitor,controller->record.actual_threads));
   auto &data = *state.data;
   data.resetICellFlag();
   data.applyWindProfile(state.inputs.inflow);
@@ -118,7 +127,8 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
     const auto run = [&](auto &workspace) {
       phase_started = controller ? controller->now() : 0;
       if (controller) controller->check("before_rhs");
-      workspace.begin(solver::ConditionInputs(data),options.max_iterations);
+      workspace.begin(solver::ConditionInputs(data),options.max_iterations,
+        controller && controller->adaptive_enabled()?solver::StopRule::FixedSweeps:solver::StopRule::LegacyTolerance);
       state.phase = Impl::Phase::Solving;
       if (controller) {
         controller->record.timings.rhs_seconds = controller->now()-phase_started;
@@ -135,20 +145,26 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
       return workspace.diagnostics();
     };
     const double allocation_started = controller ? controller->now() : 0;
+    const float relaxation=controller && controller->adaptive_enabled()?1.90f:1.78f;
     if (options.precision == "float64") {
       state.solver.reset();
-      if (!state.precision_solver || state.tolerance != tolerance)
-        state.precision_solver = std::make_unique<solver::SolverState<double>>(*state.poisson,tolerance);
+      if (!state.precision_solver || state.tolerance != tolerance || state.relaxation!=relaxation)
+        state.precision_solver = std::make_unique<solver::SolverState<double>>(*state.poisson,tolerance,solver::default_order(),relaxation);
       if (controller) controller->record.timings.workspace_seconds = controller->now()-allocation_started;
       diagnostics = run(*state.precision_solver);
     } else {
       state.precision_solver.reset();
-      if (!state.solver || state.tolerance != tolerance)
-        state.solver = std::make_unique<solver::SolverState<float>>(*state.poisson,tolerance);
+      if (!state.solver || state.tolerance != tolerance || state.relaxation!=relaxation)
+        state.solver = std::make_unique<solver::SolverState<float>>(*state.poisson,tolerance,solver::default_order(),relaxation);
       if (controller) controller->record.timings.workspace_seconds = controller->now()-allocation_started;
       diagnostics = run(*state.solver);
     }
     state.tolerance = tolerance;
+    state.relaxation = relaxation;
+  } catch (const qes::RuntimeError &error) {
+    state.solver.reset();state.precision_solver.reset();state.phase=Impl::Phase::Prepared;
+    if(controller && control->mode=="adaptive")controller->numerical_failure(error.what());
+    throw;
   } catch (...) {
     state.solver.reset(); state.precision_solver.reset();
     state.phase = Impl::Phase::Prepared;

@@ -1,5 +1,8 @@
 # S4: bounded native execution through Python
 
+This records the S4 implementation. The current adaptive/API/dataset status
+and release scope are documented in the [S9 closure](solver-control-s9.md).
+
 S4 adds optional bounded execution to `wind.run`, with a compiled monitor and
 structured timing/termination/history record. Accuracy is always `not_assessed`.
 The existing multiplier-change boolean remains `result.diagnostics.converged`.

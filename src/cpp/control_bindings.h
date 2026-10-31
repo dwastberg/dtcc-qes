@@ -17,9 +17,10 @@ inline void keys(nb::dict d,std::initializer_list<const char *> allowed) {
 }
 template<class T> void read(nb::dict d,const char *name,T &out) {if(d.contains(name)) out=nb::cast<T>(d[name]);}
 inline SolverControl parse(nb::dict d) {
-  keys(d,{"mode","max_solve_seconds","checkpoint_interval","residual_interval","monitor"});
+  keys(d,{"mode","policy","max_solve_seconds","checkpoint_interval","residual_interval","monitor"});
   SolverControl c;read(d,"mode",c.mode);read(d,"max_solve_seconds",c.max_solve_seconds);
   read(d,"checkpoint_interval",c.checkpoint_interval);read(d,"residual_interval",c.residual_interval);
+  if(d.contains("policy") && !d["policy"].is_none())read(d,"policy",c.policy);
   if (!d.contains("monitor")) throw std::invalid_argument("Solver controls require an explicit monitor");
   auto m=nb::cast<nb::dict>(d["monitor"]);
   keys(m,{"region","heights","receptors","frame","origin","crs","short_window","long_window","history_limit",
@@ -61,6 +62,8 @@ inline nb::dict encode(const MonitorMassRecord &v);
 inline nb::dict encode(const MonitorResidualTrend &v);
 inline nb::dict encode(const MonitorCheckpoint &v);
 inline nb::dict encode(const ControlRegion &v);
+inline nb::dict encode(const PolicyPrediction &v);
+inline nb::dict encode(const PolicyEvidence &v);
 template<class T> nb::list records(const T &values) {nb::list out;for(const auto &v:values)out.append(encode(v));return out;}
 #define F(name) d[#name]=scalar(v.name)
 #define E(name) d[#name]=encode(v.name)
@@ -88,6 +91,14 @@ inline nb::dict encode(const MonitorCheckpoint &v) {
   d["residual_trend"]=v.residual_trend ? nb::object(encode(*v.residual_trend)) : nb::none();return d;
 }
 inline nb::dict encode(const ControlRegion &v) {nb::dict d;F(name);F(bounds);F(excluded_lateral_cells);F(excluded_highest_cells);return d;}
+inline nb::dict encode(const PolicyPrediction &v) {
+  nb::dict d;F(available);F(reason);F(current_tail_reason);F(fresh_tail_available);F(anchor_iteration);
+  F(vector_p95);F(vector_maximum);F(speed_p95);F(speed_maximum);F(required_maximum);F(hotspot_maximum);F(q_minimum);F(q_maximum);return d;
+}
+inline nb::dict encode(const PolicyEvidence &v) {
+  nb::dict d;F(iteration);F(consecutive);F(safeguards_passed);F(candidate);F(ready);F(accepted);E(prediction);
+  F(relative_residual_maximum);F(relative_residual_rms);F(scaled_mass_maximum);F(scaled_mass_rms);F(residual_cells);F(mass_regions);return d;
+}
 inline nb::dict encode(const MonitorSpec &v) {
   nb::dict d;d["region"]=nb::make_tuple(v.region.x_first,v.region.x_last,v.region.y_first,v.region.y_last);
   F(heights);F(origin);F(crs);F(reference_speed);F(short_window);F(long_window);F(history_limit);F(memory_limit_bytes);F(global_mass);F(low_flow_fraction);
@@ -102,11 +113,24 @@ inline nb::dict encode(const MonitorSpec &v) {
 }
 inline nb::dict encode(const ControlRecord &v) {
   nb::dict d;F(mode);F(termination_reason);F(accuracy_status);F(phase);F(iterations);F(actual_threads);
+  F(policy);F(method);F(policy_revision);F(assessment_scope);F(assessment_reason);F(accepted);F(assessment_count);
+  d["assessment"]=v.assessment?nb::object(encode(*v.assessment)):nb::none();
+  d["assessment_history"]=records(v.assessment_history);
+  if(!v.policy.empty()) {
+    nb::dict p;p["safety_factor"]=policy_safety_factor;p["minimum_iterations"]=policy_minimum_iterations;
+    p["maximum_ratio"]=policy_maximum_ratio;p["anchor_maximum_sweeps"]=100;p["consecutive_checkpoints"]=3;
+    p["vector_p95"]=policy_vector_p95;p["vector_maximum"]=policy_vector_maximum;
+    p["speed_p95"]=policy_vector_p95;p["speed_maximum"]=policy_vector_maximum;
+    p["mass_length_m"]=policy_mass_length;p["scaled_mass_maximum"]=policy_mass_maximum;p["scaled_mass_rms"]=policy_mass_rms;
+    p["relative_residual_maximum"]=policy_residual_maximum;p["relative_residual_rms"]=policy_residual_rms;
+    d["policy_parameters"]=p;
+  }
   F(legacy_tolerance_satisfied);F(history_truncated);F(checkpoint_count);F(monitor_bytes);
   d["regions"]=records(v.regions);d["checkpoint_history"]=records(v.checkpoint_history);
   d["monitor"]=encode(v.effective_monitor);
   nb::dict requested;requested["max_solve_seconds"]=v.requested.max_solve_seconds;requested["checkpoint_interval"]=v.requested.checkpoint_interval;
   requested["residual_interval"]=v.requested.residual_interval;d["requested"]=requested;
+  requested["policy"]=v.requested.policy.empty()?nb::none():nb::cast(v.requested.policy);
   const auto &t=v.timings;nb::dict timings;
 #define T(name) timings[#name]=t.name
   T(preparation_seconds);T(mutex_wait_seconds);T(initialization_seconds);T(workspace_seconds);T(rhs_seconds);T(sweeps_seconds);T(monitoring_seconds);

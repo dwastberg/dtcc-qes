@@ -1,0 +1,400 @@
+{
+  "policy_freeze_sha256": "594bd60a0a2d20a019c4680163ed3dd1f3ee62830a9bec7b563cd1f27bf21653",
+  "scope_restriction_sha256": "c484138856485f0c42a676ee13a998b4ddecce5c0735ab51a64f4f311d3ba0a5",
+  "sources_sha256": "9f09e014c3150a40e56dc2785d33c614ea4253120539e844d52230b4da6b7c6b",
+  "extension_sha256": "67a6b2cc372d6d51c7065ed15478137fe517474edc16850ea462c79944777084",
+  "zero_false_acceptances_required": true,
+  "worker_seconds": 30,
+  "shard_seconds": 180,
+  "rows": [
+    {
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-00"
+    },
+    {
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-01"
+    },
+    {
+      "case": "val_mixed_195",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-02"
+    },
+    {
+      "case": "val_staggered_graded_150",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-03"
+    },
+    {
+      "case": "val_mixed_graded_domain_300",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-04"
+    },
+    {
+      "case": "val_courtyards_210_u2",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-05"
+    },
+    {
+      "case": "val_courtyards_210_u10",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-06"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "rep": 1,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-07"
+    },
+    {
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "rep": 1,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-08"
+    },
+    {
+      "case": "val_mixed_195",
+      "variant": "adaptive",
+      "rep": 1,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-09"
+    },
+    {
+      "case": "val_staggered_graded_150",
+      "variant": "adaptive",
+      "rep": 1,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-10"
+    },
+    {
+      "case": "val_mixed_graded_domain_300",
+      "variant": "adaptive",
+      "rep": 1,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-11"
+    },
+    {
+      "case": "val_courtyards_210_u2",
+      "variant": "adaptive",
+      "rep": 1,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-12"
+    },
+    {
+      "case": "val_courtyards_210_u10",
+      "variant": "adaptive",
+      "rep": 1,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-13"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "rep": 2,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-14"
+    },
+    {
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "rep": 2,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-15"
+    },
+    {
+      "case": "val_mixed_195",
+      "variant": "adaptive",
+      "rep": 2,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-16"
+    },
+    {
+      "case": "val_staggered_graded_150",
+      "variant": "adaptive",
+      "rep": 2,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-17"
+    },
+    {
+      "case": "val_mixed_graded_domain_300",
+      "variant": "adaptive",
+      "rep": 2,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-18"
+    },
+    {
+      "case": "val_courtyards_210_u2",
+      "variant": "adaptive",
+      "rep": 2,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-19"
+    },
+    {
+      "case": "val_courtyards_210_u10",
+      "variant": "adaptive",
+      "rep": 2,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-20"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-21"
+    },
+    {
+      "case": "val_courtyards_315",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-22"
+    },
+    {
+      "case": "val_mixed_195",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-23"
+    },
+    {
+      "case": "val_staggered_graded_150",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-24"
+    },
+    {
+      "case": "val_mixed_graded_domain_300",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-25"
+    },
+    {
+      "case": "val_courtyards_210_u2",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-26"
+    },
+    {
+      "case": "val_courtyards_210_u10",
+      "variant": "legacy",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-27"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 0.05,
+      "iterations": 2000,
+      "id": "online-28"
+    },
+    {
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 0.05,
+      "iterations": 2000,
+      "id": "online-29"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 0.15,
+      "iterations": 2000,
+      "id": "online-30"
+    },
+    {
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 0.15,
+      "iterations": 2000,
+      "id": "online-31"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 1e-12,
+      "iterations": 2000,
+      "id": "online-32"
+    },
+    {
+      "case": "val_courtyards_315",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 4,
+      "budget": 1e-12,
+      "iterations": 2000,
+      "id": "online-33"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "invalid_receptor",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-34"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "unqualified_profile",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-35"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "unqualified_precision",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-36"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "early_limit",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 1,
+      "id": "online-37"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "legacy_converged_unaccepted",
+      "rep": 0,
+      "threads": 4,
+      "budget": 5.0,
+      "iterations": 1,
+      "id": "online-38"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 1,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-39"
+    },
+    {
+      "case": "val_staggered_graded_150",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 1,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-40"
+    },
+    {
+      "case": "val_staggered_240",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 2,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-41"
+    },
+    {
+      "case": "val_staggered_graded_150",
+      "variant": "adaptive",
+      "rep": 0,
+      "threads": 2,
+      "budget": 5.0,
+      "iterations": 2000,
+      "id": "online-42"
+    }
+  ],
+  "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+  "timing": "Full wind.run API including extraction, preparation, solve, finalization and NumPy conversion. Separate City load/sampling/hash; process wall recorded by supervisor. No warm-up solve."
+}

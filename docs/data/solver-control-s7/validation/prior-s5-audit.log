@@ -1,0 +1,1 @@
+{"passed": true, "files": 1993, "historical_workers": 324, "historical_comparisons": 216, "monitor_target_met": true, "disabled_target_met": false, "historical_unchanged": 429, "targeted_changed": 4, "reference_triples": 4, "strict_team_backend_checks": 14, "current_smoke_campaigns": 2}

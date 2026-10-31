@@ -1,11 +1,35 @@
 # Native solver-control refactor
 
-**Status, reviewed 2026-10-30: S0–S4 complete; repeated 500- and 2,000-iteration
-urban performance campaigns complete; numerical acceptance and task closure
-remain open.** The remaining implementation sequence is S5b diagnostic/reference
-qualification, S5a cadence/resource follow-up, S6 method decision, S7 opt-in
-policy, S8 measured multi-direction integration, and S9 release/closure. S5a's
-existing measurements are evidence to preserve, not work to repeat wholesale.
+**Status, closed 2026-10-31: scoped solver-control refactor complete; S8b explicitly deferred.**
+S5a publishes the five campaigns and tolerance study, completes cadence/thread/
+real-deadline studies and explicitly disposes of the missed disabled-controls
+performance target. S5b provides coherent diagnostics and two qualified small
+same-grid references. S5c separately repairs the diagnosed canyon solid-mask
+inconsistency. The [S5 completion report](docs/solver-control-s5.md) and
+[portable evidence](docs/data/solver-control-s5/manifest.json) record the gates,
+intentional changes and limitations. Broader-domain numerical qualification
+remains separate work. [S6's method study](docs/solver-control-s6.md) selects internal red/black
+SOR with `1.90f` as the scoped S7 calibration candidate; public calls retain
+`1.78f`. Its 43 main workers and eight first-sweep checks are
+[archived and replayable](docs/data/solver-control-s6/manifest.json).
+[S7's opt-in pedestrian policy](docs/solver-control-s7.md) is qualified on its
+declared 80×80×32 uniform/graded scope, with zero false acceptances on the
+held-out matrix. Legacy/bounded defaults remain unchanged; larger domains and
+other unsupported configurations remain unaccepted. [S8a's measured reuse
+pilot](docs/solver-control-s8a.md) defers a public prepared-model API: eight
+directions save 49 ms / 6.9% in legacy and 26 ms / 2.5% in adaptive, below
+the predeclared benefit gate. S8b is deferred at the user's request.
+[S9's release closure](docs/solver-control-s9.md) freezes the qualified
+pedestrian scope, compatibility/release evidence and explicit follow-up ledger.
+
+The corrected urban hotspots no longer contain prepared solids relabeled as
+fluid. Large-core fields remain numerically unqualified and the prescribed
+top-band convention is unchanged. The <=5% disabled API regression review target
+is not met (+11–15% in the new confirmation; +12.3% in one selected follow-up).
+This is a documented non-pass disposition permitted by S5's exit contract,
+not a performance pass or an exemption from numerical safeguards. See the
+[S5b diagnostic report](docs/solver-control-s5b.md) for the preserved pre-fix
+investigation.
 
 The [S4 implementation](docs/solver-control-s4.md) exposes bounded native
 execution through Python and datasets. The [urban benchmark suite](docs/urban-wind-benchmarks.md)
@@ -14,8 +38,11 @@ grids, multiple directions and bounded baseline/candidate comparison shards.
 The [S3 implementation and handoff](docs/solver-control-s3.md) records compiled
 slab/receptor monitoring, bounded histories, regional mass and optional
 algebraic trends. Bounded public controls are implemented; automatic numerical
-acceptance remains unimplemented. The current benchmark candidate is the frozen
-S4 archive `b2d4cd6e8708a4058187a8284195a67805f78b226e156a3f13981b903a8d63fe`.
+acceptance is opt-in only within S7's qualified pedestrian scope. The current legacy benchmark candidate is the frozen S5c archive
+`f138616b7796f20b3f66e04c2c52f01f6f27c5fcd4122bccc373caf82156adeb`;
+the default S1a/S3 comparison baselines carry the same mask correction.
+Historical S4 archive `b2d4cd6e8708a4058187a8284195a67805f78b226e156a3f13981b903a8d63fe`
+remains unchanged in the evidence.
 The [S2 implementation and review](docs/solver-control-s2.md) records norm
 fusion, owned compact coefficients, conditional allocation and unified ordering.
 Output-copy removal is deferred to preserve the existing ownership contract. The
@@ -72,15 +99,16 @@ reason for stopping and distinguish numerical acceptance from legacy convergence
 The storage/traffic work has delivered substantial speed and memory gains at
 equal completed work. The original float32/float64 cost comparison below
 predates S2 and must not be presented as a current performance result. The next
-question is cost to a declared, measured numerical target. Audit coherent
-residuals and persistent mass hotspots, qualify affordable references, and
-decide the iteration method before calibrating its stopping policy.
+question is measured repeated-direction integration and release closure.
+S5/S6 supply coherent diagnostics and a method decision; S7 qualifies a
+versioned pedestrian stopping policy on new held-out data within a restricted
+grid/model envelope. Broader configurations still require their own qualification.
 
 The first deliverable, now implemented, is **native continuation, checkpoint diagnostics and
 bounded execution, with automatic accuracy acceptance disabled**, running on an
 owned solver package whose per-sweep memory traffic has been reduced with
-bitwise-unchanged results. Decide the iteration method next, then calibrate an
-opt-in stopping policy for that method. Promotion to a default operating policy
+bitwise-unchanged results. S6 preserves that default and freezes the internal
+`1.90f` candidate used by S7's qualified opt-in policy. Promotion to a default operating policy
 is a separate decision requiring validation across the supported scope.
 
 Closure requires the explicit gates in S9. A useful bounded result is already
@@ -176,9 +204,10 @@ about 3.2e-6 for 2 versus 5 m/s). This supports nondimensional observable
 criteria, not a new `0.01` default. It is one case and one direction, not a
 universal inflow-linearity qualification.
 
-The records above currently live under `build/`. S5a must publish a portable,
-hashed evidence bundle before they count as release evidence; changing these
-links or the plan must not rewrite the frozen S0–S4 archives.
+The original records above remain at their historical `build/` paths. S5a has
+published their original bytes, source/driver identities and independent replay
+under the [S5 evidence identity](docs/data/solver-control-s5/manifest.json).
+Frozen S0–S5b archives are unchanged. Large-urban accuracy remains unqualified.
 
 ## Evidence motivating the work
 
@@ -696,8 +725,10 @@ resource safety checks.
 A stopping policy is calibrated against one method's convergence behavior.
 Changing the relaxation factor or the method afterwards would invalidate that
 calibration, and the evidence suggests fixed ω = 1.78 converges far more slowly
-than SOR can on these grids. Decide the method in S6, after monitoring and the
-bounded controller exist and before S7 calibration:
+than SOR can on the measured small grids. S6 is complete: `1.90f` is the
+scoped internal calibration candidate, `1.78f` remains the public default, and
+no Krylov/preconditioner implementation is required. The requirements used
+for that decision were:
 
 1. Reuse the existing internal `SolverState` relaxation option, default `1.78f`,
    available to tests and studies. No new public omega parameter is required.
@@ -710,11 +741,12 @@ bounded controller exist and before S7 calibration:
    for transient error growth near the optimum, which affects checkpoint-based
    stopping.
 3. If a fixed or grid-dependent factor gives a large gain, decide whether to
-   adopt it as a new, documented default trajectory or to evaluate adaptive
+   adopt it as a documented opt-in or default trajectory, or to evaluate adaptive
    relaxation or Chebyshev acceleration. If anisotropy limits SOR, evaluate
    conjugate gradients with multigrid or vertical-line preconditioning; the
-   operator appears symmetrizable by scaling each row by its layer thickness,
-   which must be verified including the ground mirror and solid cells. Because
+   actual operator's symmetry/definiteness must first be verified, including
+   stretched layers, the ground mirror and solid cells. S6 establishes no SPD
+   claim. Because
    the operator is a first-class object built once per geometry and independent
    of wind direction, preconditioner setup can live beside it and be reused
    across directions. Any new method is another kernel behind the same phase
@@ -784,12 +816,16 @@ before any new reuse API. Python still builds a new runner per call. See the
   multi-right-hand-side sweeps are an option once the operator is compact,
   because its traffic is then small compared with the multiplier fields.
 
-The other known defects (StreetCanyon can relabel solid cells as fluid; the
-exposed `street_intersection_flag` has no model) remain tracked model questions.
-S5b must determine whether the flag discrepancy contributes to the observed
-mass hotspots. Keep any resulting model correction separate from diagnostic
-changes, with declared numerical differences; do not treat a known model issue
-as irrelevant to a proposed acceptance safeguard.
+S5b confirms that StreetCanyon's solid-to-fluid relabeling causes an inherited
+operator/mask/reconstruction inconsistency at all three persistent oblique core
+mass maxima. The float64 and canyon-off pilot controls support this diagnosis;
+the courtyard pilot without relabeling is a negative control. S5c has repaired
+this in a separately frozen numerical change with declared expected differences.
+The large urban scope still cannot receive adaptive acceptance without its own
+independent observable/residual/mass qualification. The
+exposed `street_intersection_flag` still has no model and remains a separate
+tracked question. Top-band prescribed-face behavior is a separate documented
+boundary limitation; S5b preserves its reporting and boundary convention.
 
 ### 10. Match acceptance to the requested output
 
@@ -866,8 +902,8 @@ with the completed result; streaming progress is outside the initial scope.
 Keep fixed-sweep execution an internal testing/reference capability, with
 normal reset semantics and explicit budgets. It must bypass early stopping
 without bypassing nonfinite checks or a study's external timeout. The relaxation
-factor and lexicographic ordering are internal kernel options of the same kind
-until S6 decides otherwise. Distinguish one continued N/2N/4N trajectory from
+factor and lexicographic ordering remain internal kernel options; S6 introduces
+no public omega parameter. Distinguish one continued N/2N/4N trajectory from
 the historical **independent zero-start** triples; continuation data do not
 retroactively certify those protocols.
 
@@ -1229,14 +1265,29 @@ S5's remaining diagnostics, publication and cadence gates are below.
 
 ### S5 — Qualify numerical evidence and close the performance follow-up
 
-**Status:** the five public-API campaigns above are complete and locally
-audited. Four-thread equal-work speed/trajectory preservation is demonstrated.
-Portable evidence publication, cadence/resource studies and same-grid numerical
-qualification are open. Start S5b's diagnostic implementation next; do not
-repeat the completed matrices merely to begin it. S5a follow-up and S5b studies
-can then run sequentially without competing timing work.
+**Completed 2026-10-30.** See the [completion ledger](docs/solver-control-s5.md)
+and [portable audit](docs/data/solver-control-s5/audit.py). The original 324
+workers/216 comparisons, six-run tolerance study and excluded attempt are
+preserved. Sixteen corrected-numerics workers and 52 finite API follow-up workers
+complete the remaining qualification/cost/resource studies. Source-matched
+baselines are used for new architecture/control comparisons. Large-grid reference
+qualification remains visibly absent, as allowed by the S5b exit contract;
+there is no remaining diagnosed assessed-solid inconsistency on the tested scope.
+The disabled-controls <=5% review target remains explicitly missed and reviewed;
+no accuracy threshold or historical reference gate was loosened to close S5.
 
 #### S5a — Publish measured costs, select cadence and exercise resource stops
+
+**Complete.** All five campaigns and the tolerance study are portable under the
+S5 evidence identity. Cadence 100 is recommended on the measured two-case scope;
+public default 25 is unchanged. Actual teams 1/2/4/8 preserve fields. All ten
+0.25–5 s runs stop on time limits, both tiny-budget checks fail with zero work,
+and both selected same-work replays are exact. The original monitoring review
+target is met on the three-repeat confirmation; its negative downtown overhead
+is variance, not a speedup claim. The disabled-controls target is missed by
+11–15%; a six-worker reversed-order check retains +12.3%. The published
+disposition retains correctness/controls and carries cost into S6. Requirements
+below remain the historical execution/exit contract.
 
 1. Publish the five existing campaigns and the tolerance-scaling study under a
    new `docs/data/solver-control-s5/` evidence identity. Include source archives
@@ -1278,6 +1329,15 @@ performance target into an accuracy exemption.
 
 #### S5b — Coherent diagnostics, hotspot classification and reference qualification
 
+**Completed 2026-10-30 for the declared finite study.** See the
+[S5b report](docs/solver-control-s5b.md) and
+[portable evidence](docs/data/solver-control-s5b/manifest.json). All sixteen
+workers completed; both independent 500/1000/2000 reference triples pass on
+their new 2 m calibration grids. The historical finer tower and large urban
+cases remain outside that qualification. The diagnostic change preserves all
+429-case S4 outputs bitwise in serial and OpenMP teams 1/2/4/8. The requirements
+below are retained as the implementation/review contract.
+
 1. Add pure completed-iterate equation-residual diagnostics to the native phase
    API, alongside the existing update-time trend. Specify A, b, sign, row
    scaling, norm, fluid eligibility and boundary convention. Report maximum
@@ -1295,7 +1355,9 @@ performance target into an accuracy exemption.
    eligibility. Compare true equation residual, corrected-face divergence and
    regional signed/absolute flux on exactly the same iterate. Include a 270°
    control and separate top-band/domain-boundary behavior from assessed interior.
-   The known StreetCanyon flag relabeling is a hypothesis to test, not a diagnosis.
+   S5b has now confirmed the solid relabeling inconsistency at all three
+   oblique core maxima; preserve its raw controls and distinguish the
+   unaffected coarser courtyard pilot.
 3. Classify each persistent discrepancy as iterative error, precision floor,
    an operator/mask/reconstruction defect, or a documented model/boundary
    limitation. A small float64 control on the same inputs helps isolate the
@@ -1335,7 +1397,53 @@ qualification remains visible. An unresolved assessed-interior inconsistency
 blocks acceptance for the affected scope; it does not block publishing S5a or
 justify silently weakening the numerical target.
 
-### S6 — Freeze the iteration-method decision before policy calibration
+#### S5c — Repair solid-mask consistency as a separate numerical change
+
+**Completed 2026-10-30.** Prepared solid/ground flags survive both canyon
+routines; all 384 supported model/direction combinations preserve solids/faces
+in the new small regression. The sixteen-worker corrected study has zero
+relabeled assessed solids, with two requalified small references. All 429
+historical cases remain exact; four of twelve targeted corner cases change with
+recorded guard hits and explicit per-record differences; eight controls stay
+exact. All fourteen candidate team/backend checks pass. See the
+[S5 report](docs/solver-control-s5.md). The requirements below describe the
+separately frozen correction; S6's subsequent method decision is recorded below.
+
+1. Freeze S5b's unmodified numerical behavior as the comparison baseline.
+   Audit StreetCanyon and the other parameterization flag writes against the
+   authoritative prepared stair-step geometry. Prevent initially solid/ground
+   cells from becoming condition-fluid, and ensure parameterized faces, fluid
+   eligibility and the immutable wall operator agree. Preserve legitimate
+   relabeling among fluid model classes. Do not repair this by excluding cells
+   in diagnostics or by disabling the canyon model for callers.
+2. Add a small targeted regression reproducing solid-to-fluid relabeling and
+   the inconsistent coefficient/masked-face pattern. Check flags before/after,
+   face ownership, operator compatibility and repeated prepared solves in
+   both precisions/backends. Audit flag-changing model combinations so the
+   correction is not just a hard-coded patch for one hotspot coordinate.
+3. Predeclare and rerun the finite affected core/pilot/control matrix at
+   500/2000 fixed sweeps with existing 30 s worker/180 s shard caps. Retain
+   both heights, required receptors, regional/global flux, true residual and
+   top-band reporting. The corrected cases may retain ordinary iterative
+   error; do not require fabricated tolerance convergence or qualify them
+   from a small equation residual alone. Keep the prescribed-top-face
+   limitation separate; a boundary change would need its own frozen decision.
+4. Freeze the numerical correction, expected changed cases and exact outputs
+   separately from S5b. Report every difference against the S5b baseline and
+   justify it by geometry/condition consistency; preserve strict unchanged-case
+   gates, repeatability and team/backend parity. Recheck reference compatibility
+   and numerical/method identity before S6/S7. No blanket tolerance relaxation
+   or silent reference replacement is allowed.
+
+**Exit:** solid-mask consistency is tested and the diagnosed defect is removed
+on the affected matrix, with numerical differences explicitly reviewed and
+archived. Large-grid acceptance still requires qualification under its own
+residual/mass/observable gates. S5a's performance/resource studies are now
+complete with the explicit missed-target disposition. S6's method selection
+is recorded below; S7's subsequently qualified pedestrian scope is recorded
+separately, and broader numerical qualification remains open.
+
+### S6 — Freeze the iteration-method decision before policy calibration (complete)
 
 1. Reuse the existing internal relaxation option; screen omega
    {1.78,1.85,1.90,1.95} on an affordable compatible tower and urban canyon case
@@ -1362,7 +1470,31 @@ is a valid outcome. If adequate cost/quality requires a different solver, define
 that separate task and the restricted bounded-only disposition explicitly;
 opening it does not make the adaptive-policy stage complete.
 
-### S7 — Implement and validate a policy tied to requested outputs
+**Recorded result:** [S6 report](docs/solver-control-s6.md),
+[frozen method identity](docs/data/solver-control-s6/method-decision.json) and
+[portable evidence](docs/data/solver-control-s6/manifest.json). The predeclared
+four-factor screen selected `1.90f`; three paired repetitions on the tower,
+20-building passages and held-out 225° passages met the per-case cost rule.
+Median paired cost ratios versus `1.78f` were 0.505, 0.599 and 0.554. One
+held-out pair regressed (1.246); it remains in the result. Costs include native
+preparation, sweeps, all preceding numerical/observable checks and compact
+sample writes, and exclude full-volume API finalization/turbulence.
+
+All three same-grid references qualify. Six float64 controls pass; the two
+original default reference histories are byte-identical. Eight separately
+predeclared first-sweep checks expose approximately 2.8–2.9x initial growth for
+`1.90f`; late float32 residual plateaus near 1e-5 preclude treating small drift
+as zero error. The short-budget probes establish no public numerical acceptance;
+only one of eight meets even this offline three-checkpoint target.
+
+Freeze `s5c-rb-sor-float-omega-v1-omega-1.90` for the scoped S7 candidate and
+retain `1.78f` for every existing public/default/bounded call. The S5 production
+sources are unchanged; only the standalone probe differs in the measured
+snapshot. Neither stretched-grid applicability, large-city numerical accuracy,
+an online policy nor API-wide speedup is established. All S6 cases/directions
+are method-development data and cannot be reused as unseen S7 validation.
+
+### S7 — Implement and validate a policy tied to requested outputs (complete for pedestrian-v1)
 
 1. Freeze versioned contracts and supported scope before calibration. Distinguish
    latency-bounded preview (`not_assessed` unless a policy qualifies it),
@@ -1370,6 +1502,9 @@ opening it does not make the adaptive-policy stage complete.
    candidate K table provisional until vector, critical-point and independent
    mass/residual limits and their normalizations are selected. A pedestrian
    policy does not qualify turbulence, full-volume derivatives or gust/GEM.
+   Bind the candidate policy to S6's recorded `1.90f` method identity; do not
+   change existing `1.78f` public calls. Requalification is required when the
+   method, condition mask, boundaries or compiler arithmetic change.
    Reject adaptive acceptance for Uref=0 initially; retain calm legacy/bounded
    output. Include a scoped inflow-scaling check.
 2. Separate calibration from held-out geometries/directions. Cover both heights,
@@ -1378,10 +1513,13 @@ opening it does not make the adaptive-policy stage complete.
    branch-sensitive cases; slow drift, float32 stagnation and invalid support.
    Unsupported or reference-unqualified configurations remain bounded/unaccepted.
    Freeze a finite matrix and budgets instead of expanding until it passes.
+   All S6 conditions, including its 225° confirmation, are method-development
+   data; reserve new unseen conditions for S7's online validation.
 3. Replay sufficient checkpoint histories. Require multiple post-initialization
    checkpoints, short/long windows, a calibrated minimum work interval and
    stable support. Start with the geometric-tail estimate and a calibrated
-   safety factor. Treat unstable decay ratios, q near/above one, changing
+   safety factor. Account for S6's measured 2.8–2.9x initialization growth and
+   float32 residual plateaus. Treat unstable decay ratios, q near/above one, changing
    modes/support and plateaued diagnostics as unavailable evidence, never as
    zero error. Track maxima and every required point even when p95 is the ROI
    target. A generic small-change threshold alone is not acceptance.
@@ -1416,9 +1554,38 @@ status and a rollback to legacy/bounded mode. Defaults remain unchanged. If no
 useful scope passes, keep adaptive disabled and record S7 as unqualified/open
 pending an explicit restricted-closure decision; do not claim it completed.
 
+**Recorded result:** [S7 report](docs/solver-control-s7.md) and
+[portable evidence](docs/data/solver-control-s7/manifest.json). A failed fresh-tail
+calibration draft is preserved. The separately frozen revised predictor uses
+safety 8, minimum 150 sweeps, ratio cap 0.8 and a nonzero anchor transported by
+measured maximum drift for at most 100 sweeps. All decisions and fresh
+residual/mass guards run natively; deadline precedence, explicit stop rules,
+method-aware workspace reuse, acceptance-specific warnings/errors and dataset
+cache/source identities are implemented.
+
+The finite study has 100 workers: 33 fixed/reference workers and 67 API workers.
+Nine independent same-grid reference triples qualify. The 96×80 graded domain
+control fails its original mass gate and is explicitly excluded without budget
+escalation or relaxed thresholds. Six new held-out conditions cover staggered,
+courtyard and mixed-height districts, oblique winds, a graded grid and Uref
+2/10 scaling. There are zero false/missed acceptances on the qualified matrix
+and zero measured predictor underestimates. Thirty-four full-budget acceptances
+plus two budget acceptances pass their output targets; final serial and
+provenance-only builds preserve the fields and decisions exactly.
+
+Freeze `pedestrian-v1` and method `s5c-rb-sor-float-omega-v1-omega-1.90` only
+for the recorded 80×80×32, 2 m uniform or specified graded, float32 rectangular
+building/default-model envelope on the matching arithmetic/source build.
+Unsupported configurations remain bounded/unaccepted with the 1.78 method.
+Full-volume/turbulence/physical accuracy and large-core qualification remain
+open. Default 429-case revision/team/backend comparisons are exact. Validation:
+48 OpenMP native, 45 serial, five focused ASan/UBSan and 1,076 Python tests pass
+(16 Python skips). This completes S7's useful qualified opt-in exit; it does
+not promote a default, qualify broader configurations or close S8/S9.
+
 ### S8 — Measure and integrate repeated directions without expanding the physics scope
 
-#### S8a — Prepared-model reuse
+#### S8a — Prepared-model reuse (complete: measured public API deferral)
 
 1. Measure repeated-condition preparation, geometry extraction, operator setup,
    sampling and output cost separately on one affordable neighbourhood. The
@@ -1442,7 +1609,28 @@ pending an explicit restricted-closure decision; do not claim it completed.
 fresh-call parity. It can proceed independently of S7 only in legacy/bounded
 mode; policy state and monitoring identity must reset between conditions.
 
-#### S8b — Conditional comfort sensitivity and separately scoped optimization
+**Recorded result:** [S8a report](docs/solver-control-s8a.md) and
+[portable evidence](docs/data/solver-control-s8a/manifest.json) publish a
+predeclared four/eight-direction, 20-building pilot: 24 timing workers plus
+four isolated profiling and eight untimed allocation workers. All 216
+condition solves preserve exact field/diagnostic/control parity against
+fresh calls, excluding checkpoint clocks. Reuse reduces native model,
+operator and workspace construction from eight to one, but eight-direction
+median savings are only 6.9% / 49 ms in legacy and 2.5% / 26 ms in adaptive;
+both miss the required 10% or 100 ms. Preparation, operator subphases,
+sampling/output, owned arrays and RSS are recorded separately. Defer the
+public API under item 3; production/default/policy sources are unchanged.
+The original clock-comparison harness failure is preserved and corrected
+only in the audit. Focused validation: 38 tests pass. This completes S8a's
+measured-decision exit, not S8b or S9.
+
+#### S8b — Conditional comfort sensitivity and separately scoped optimization (deferred)
+
+**Disposition, 2026-10-30:** explicitly deferred at the user's request. No
+comfort sensitivity/refinement implementation or qualification is claimed.
+Directional bounds, real-climate validation and mean/GEM/physical comfort
+qualification remain separate follow-ups. This deferral is recorded in S9's
+scope ledger and does not block closure of the scoped solver-control refactor.
 
 After S7 provides qualified directional uncertainty estimates, propagate lower/
 upper K scenarios through the existing climate/comfort calculation. Report
@@ -1459,7 +1647,7 @@ implicit requirements for closing the control refactor. The S9 scope ledger
 must state whether comfort sensitivity was implemented or remains conditional;
 do not mark the entire S8 product roadmap complete by completing S8a alone.
 
-### S9 — Release evidence and explicit closure
+### S9 — Release evidence and explicit closure (complete for the declared pedestrian scope)
 
 1. Publish an implementation/closure report mapping S0–S8 to completed work,
    measured decisions, conditional/deferred integrations and unresolved numerical
@@ -1495,6 +1683,23 @@ portable and audited, release checks pass with unrelated failures separated,
 and the closure report names every remaining conditional/follow-up item. Neither
 a completed benchmark nor an exhausted research budget is task completion.
 
+**Recorded result:** [S9 closure report](docs/solver-control-s9.md),
+[scope ledger](docs/data/solver-control-s9/scope.json) and
+[portable evidence](docs/data/solver-control-s9/manifest.json). Isolated builds
+retain S7's native revision and pass 48 OpenMP, 45 serial and six ASan/UBSan
+tests. The final full Python run passes 1,095 tests with 16 explicitly historical
+ordering/toolchain skips. All twelve strict revision/team/backend comparisons
+retain the 429-case default matrix exactly; all 24 final-build policy workers
+match the frozen S7 fields/diagnostics/decisions. Three fresh smoke campaigns
+confirm verified build reuse, damaged-package rebuild and immutable earlier
+outcomes. Distribution content and installed-wheel runtime are release gates;
+their final command results and package hashes are recorded in the evidence.
+Prior source/outcome identities, failed attempts and restricted reference/grid
+closures are retained. S8a's cache-only packaging metadata repair has a new
+identity and preserves its original manifest; no measured outcome is replaced.
+S8b is deferred explicitly, and no broader numerical/physical/comfort scope or
+default promotion is claimed.
+
 
 ## Verification, file ownership and deferred work
 
@@ -1521,8 +1726,9 @@ Deferred: the device backend itself (designed for in decision 8, planned for a
 separate release), empirical branch smoothing, new boundary conditions,
 changing the default precision, automatic thread-count tuning, warm starts
 between directions, and per-runner logging to remove the process-wide mutex.
-Relaxation changes, Krylov methods and multigrid are not simply deferred: S6
-decides whether one becomes a separate solver task before policy calibration.
+S6 selected a scoped internal relaxation factor without changing public
+defaults. Krylov methods, Chebyshev, line preconditioning and multigrid remain
+named acceleration candidates; S6 does not require one before S7 calibration.
 If fast acceptable fields remain unattainable within the declared scope, use the
 new diagnostics to justify a separate solver acceleration task rather than
 silently expanding iteration budgets.
@@ -1535,17 +1741,27 @@ silently expanding iteration budgets.
   216 bitwise-equal candidate/baseline comparisons, no legacy-tolerance passes.
 - [x] Investigate tolerance semantics and run the inflow-scaling check; retain
   absolute multiplier stopping as a compatibility diagnostic.
-- [ ] **Next implementation: S5b completed-iterate residual diagnostics and
-  persistent hotspot classification**, preserving the legacy trajectory.
-- [ ] S5a: portable evidence bundle, measured cadence/thread sensitivity and
-  actual budget-stop/overshoot studies; dispose of missed performance targets.
-- [ ] S5b: qualify affordable same-grid references and produce honest cost/error
-  curves; keep incompatible, failed or unaffordable cases unqualified.
-- [ ] S6: freeze the iteration-method decision before calibrating a policy.
-- [ ] S7: implement and validate a scoped opt-in policy and its independent
-  acceptance/warning/cache semantics; keep defaults and old reference gates.
-- [ ] S8a: measure prepared reuse, then implement the minimal API if justified
-  or publish its explicit deferral. S8b remains conditional on qualified bounds.
-- [ ] S9: final source/evidence freeze, release checks, docs and a recorded scope
-  ledger that distinguishes full-roadmap completion from bounded-only closure.
-  The current plan review itself does not complete these stages.
+- [x] S5b: pure completed-iterate residual diagnostics and persistent hotspot
+  classification, with strict legacy trajectory preservation.
+- [x] S5c: solid-mask/operator consistency correction, separately frozen with
+  explicit targeted numerical differences and strict unchanged-case parity.
+- [x] S5a: portable evidence bundle, measured cadence/thread sensitivity and
+  actual budget stops/replays; missed disabled-controls performance target
+  explicitly recorded and reviewed, not claimed as passed.
+- [x] S5b: two affordable same-grid references qualified and cost/error curves
+  published; incompatible historical and large-grid cases remain unqualified.
+- [x] S6: 43 main workers and eight early-transient checks select the internal
+  `1.90f` calibration candidate on three qualified small same-grid conditions;
+  native cost-to-target medians improve, public `1.78f` defaults remain exact,
+  and the frozen method identity, limitations and portable replay are published.
+- [x] S7: qualified native pedestrian-v1, frozen method/source identity,
+  acceptance/warning/cache integration and zero false acceptances on the scoped
+  held-out matrix; unsupported domains remain bounded/unaccepted.
+- [x] S8a: publish four/eight-direction preparation/operator/sampling/output and
+  memory measurements, exact fresh/reused parity and the predeclared measured
+  public API deferral. Frozen-source replay confirms the decision.
+- [x] S8b disposition: explicitly deferred by the user; comfort sensitivity,
+  directional bounds and climate/model qualification remain separate follow-ups.
+- [x] S9: isolated final source/evidence freeze, release validation, package/runtime
+  checks and an explicit qualified-pedestrian closure ledger. S8b is deferred;
+  larger-domain/reference/boundary/physical/comfort work remains separately scoped.

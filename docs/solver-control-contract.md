@@ -130,3 +130,30 @@ Effective bandwidth from modeled logical bytes and measured sweep time is
 reported as an estimate. It does not measure DRAM traffic or establish a memory
 bottleneck by itself. Record array sizes/capacities and process high-water RSS
 separately; do not present summed allocations as measured resident memory.
+
+
+## S5b completed-iterate diagnostics
+
+The native phase API now provides `equation_residual(region, floors)` and
+`diagnose_cell(i,j,k)` as pure observations. The former evaluates `b-A*lambda`
+with `A=D-sum(neighbor coefficients)`, `b=-R`, no row scaling, and double
+reduction arithmetic on the stored iterate. It reports maximum/volume-weighted
+RMS, initial/RHS norms, explicit positive normalization floors and assessed
+counts; empty assessments have absent relative results. Ground ghosts,
+prescribed shell values and the existing fluid mask are retained. No physical
+length or acceptance threshold is inferred. The latter exposes a small cell
+record of row, neighbor and initial/corrected-face evidence. Neither allocates
+another persistent volume or changes sweeps, legacy convergence or controller
+metadata. See the [S5b contract and evidence](solver-control-s5b.md).
+
+
+## S5c condition-mask invariant
+
+Condition parameterizations may classify existing fluid cells but must preserve
+prepared solid/ground flags 0/2. Both canyon routines now respect this invariant;
+solid-owned initial faces remain zero and the immutable wall operator agrees
+with condition eligibility. This is a separately archived numerical correction,
+not a diagnostic exclusion. Historical 429-case outputs remain exact; the
+explicit added corner cases record the intended changes. See the
+[S5 completion ledger](solver-control-s5.md) for the measured performance
+non-pass disposition and the remaining large-grid accuracy limitations.

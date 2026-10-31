@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "primary_workers": 24,
+  "profile_workers": 4,
+  "memory_workers": 8,
+  "condition_solves": 216,
+  "rebuilt_source_replay_workers": 24,
+  "field_diagnostic_and_control_parity": true,
+  "worthwhile": false,
+  "decision": "defer_public_api"
+}

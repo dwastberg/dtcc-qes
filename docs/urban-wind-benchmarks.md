@@ -86,7 +86,14 @@ and a final terminal report, with one command:
 
 The default is the full 4 m pilot: all four neighbourhoods, three repetitions,
 baseline/disabled/bounded variants, float32 and four OpenMP threads. It compares
-corrected S1a with frozen S4. Other complete campaigns use:
+S1a with the frozen S9 release candidate; both carry the same canyon solid-mask
+correction. `--comparison controls` uses S3 with that same correction. The
+[published S5 comparison identities](data/solver-control-s5/current-comparison.json)
+separate these new comparisons from the preserved original S1a/S3→S4 campaigns.
+See the [S5 completion report](solver-control-s5.md) for results, the missed
+performance review target and remaining accuracy limitations. The
+[S9 closure](solver-control-s9.md) records the final candidate, release checks
+and explicit S8b deferral. Other campaigns use:
 
 ```sh
 # Quick integration check: 12 workers, 8 m and eight sweeps.
@@ -95,7 +102,7 @@ corrected S1a with frozen S4. Other complete campaigns use:
 # Realistic-resolution matrix: 108 workers, 2 m and three wind directions.
 .venv/bin/python tools/run_urban_benchmarks.py --tier core
 
-# Isolate S4 controller overhead against S3.
+# Compare current controls against S3 with matched numerical correction.
 .venv/bin/python tools/run_urban_benchmarks.py --comparison controls
 
 # Longer equal-work comparison; allow monitored solves to reach 2,000 sweeps.
@@ -138,9 +145,11 @@ builds its own verified cache rather than trusting an older manual build.
 
 For individual stages and manually selected shards, use the lower-level driver:
 
-Use the frozen S3 archive for the immediate control-overhead baseline. A separate
-campaign against corrected S1a measures the combined storage/traffic/control
-changes. Earlier pre-extraction S0 needs its archived driver/adapter and a
+Use the S5 bundle's matched-mask S3 archive for the immediate control-overhead
+baseline; its matched-mask S1a archive measures combined storage/traffic/control
+changes. The explicit S1a/S3/S4 commands below reproduce the historical campaign
+sources and include any declared numerical differences when mixed with newer
+sources. Earlier pre-extraction S0 needs its archived driver/adapter and a
 review of condition-state/ordering changes; its old measurements are preserved.
 
 ```sh

@@ -1,0 +1,5 @@
+-- dtcc-qes OpenMP CPU solver: ON (requested ON)
+-- dtcc-qes floating-point contraction: on
+-- Configuring done (0.2s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s7/native

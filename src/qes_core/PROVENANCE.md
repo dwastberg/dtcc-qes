@@ -59,6 +59,14 @@ git -C QES-Public show dce15d7e:src/winds/Solver_CPU.cpp | diff - src/qes_core/s
 
 ## Changes since vendoring
 
+The solver-control release closure is recorded in
+[`docs/solver-control-s9.md`](../../docs/solver-control-s9.md). S9 freezes the
+S7-qualified native method/source identity without further QES arithmetic,
+model or boundary changes. S8a's public reuse API and S8b's comfort sensitivity
+are explicitly deferred; neither is a new native feature. The release ledger
+preserves the S5c mask correction, restricted grid/reference results and all
+remaining numerical/physical limitations separately from release validation.
+
 Each change below kept every output of `tools/compare_native_builds.py`
 bitwise identical to the preceding commit, in OpenMP and serial builds, unless
 it says otherwise.
@@ -149,3 +157,25 @@ it says otherwise.
   QES-Turb remains enabled with an explicit morphometric log-conversion caveat.
   Measured-tail roughness comes from preparation-time model roughness. See
   `docs/wind-profiles.md` and `docs/wind-profiles-verification.md`.
+  Integration with S7 preserves exact log-policy outputs over all 24 frozen
+  release workers before updating the qualified source identity. Layer-table
+  inflow remains outside that policy's numerical acceptance scope.
+
+- **Geometry/condition consistency (S5c).** Both canyon routines now preserve
+  prepared solid/ground flags 0/2 instead of relabeling them as condition-fluid.
+  The existing wall operator and solid-owned velocity faces therefore retain
+  the same geometry mask. This intentional numerical correction is frozen
+  separately from S5b's pure completed-iterate diagnostics; source-matched
+  benchmark baselines receive the same correction. Kernels, tolerance,
+  relaxation and prescribed top/lateral boundary conventions are unchanged.
+  See `docs/solver-control-s5.md` and its separate before/after evidence.
+
+- **Scoped numerical acceptance (S7).** `dtcc/pedestrian_policy.*` and the
+  versioned plain API policy types add a native pedestrian predictor and
+  current-iterate global/regional safeguards. Qualified opt-in calls use the
+  existing `1.90f` internal relaxation option with `FixedSweeps`; legacy and
+  bounded calls retain `1.78f` and their original stopping rule. No QES kernel,
+  stencil, mask, correction or boundary expression changes. Source/arithmetic
+  identity gates qualification and dataset cache provenance. The S7 report
+  records the finite calibration/held-out scope, failed draft, domain exclusion
+  and exact default comparison; this is not physical/turbulence validation.

@@ -63,6 +63,7 @@ def check_sdist(path):
             "src/qes_core/dtcc/api/profile_types.h", "src/dtcc_qes/profiles.py",
             "WIND_PROFILES.md", "docs/wind-profiles.md", "tests/test_profiles.py",
             "tests/native/check_profiles.cpp", "tools/verify_wind_profiles.py", "examples/wind_profiles.py",
+            "tools/check_wind_profile_policy.py", "docs/wind-profiles-verification.md",
             "src/cpp/bindings.cpp", "src/qes_core/dtcc/wind_runner.cpp", "src/qes_core/dtcc/model_inputs.cpp",
             "src/dtcc_qes/datasets.py", "src/dtcc_qes/_dataset_city.py", "tests/test_datasets.py",
             "tests/test_dataset_vertical_grid.py", "examples/city_dataset.py",
@@ -421,6 +422,23 @@ def check_sdist(path):
                      "tests/native/check_solver_control.cpp", "tools/benchmark_urban_wind.py", "tools/urban_wind_cases.py",
                      "docs/urban-wind-benchmarks.md", "docs/solver-control-s4.md"):
             require(name in members, f"Source distribution omits S4 source/documentation {name}")
+        for name in (
+            "SOLVER_CONTROL_REFACTOR.md", "docs/solver-control-s5.md", "docs/solver-control-s6.md",
+            "docs/solver-control-s7.md", "docs/solver-control-s8a.md", "docs/solver-control-s9.md",
+            "src/qes_core/dtcc/api/policy_types.h", "src/qes_core/dtcc/pedestrian_policy.h",
+            "src/qes_core/dtcc/pedestrian_policy.cpp", "src/qes_core/dtcc/pedestrian_qualification.h",
+            "tests/native/check_equation_residual.cpp", "tests/native/check_pedestrian_policy.cpp",
+            "tests/test_adaptive_control.py", "tests/test_solver_policy_audit.py",
+            "tests/test_urban_campaign.py", "tests/test_prepared_wind_study.py", "tests/test_solver_release.py",
+            "tools/run_urban_benchmarks.py", "tools/reproduce_solver_policy.py", "tools/audit_solver_policy.py",
+            "tools/benchmark_prepared_wind.py", "tools/reproduce_prepared_wind.py", "tools/audit_prepared_wind.py",
+            "tools/validate_solver_release.py", "tools/audit_solver_release.py", "tools/wheel_runtime_smoke.py",
+            "tools/publish_solver_release.py",
+            "docs/data/solver-control-s9/scope.json",
+        ):
+            require(name in members, f"Source distribution omits final solver-control source/documentation {name}")
+        for stage in ('s5', 's6', 's7', 's8a'):
+            require(f'docs/data/solver-control-{stage}/manifest.json' in members, f"Source distribution omits {stage} evidence")
         require(not any(name.startswith((".idea/", "build/", ".venv/", ".pytest_cache/")) for name in members),
                 "Private build/environment/cache files in sdist")
         require(not any(name.startswith("QES-Public/") for name in members),

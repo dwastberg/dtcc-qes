@@ -1,0 +1,303 @@
+{
+  "passed": true,
+  "native_revision": "916fd3c038c1f55fb540c834d1b650b3eec5ab80bd58f2e04aa251f3e9da7d9b",
+  "previous_revision": "d0775583915762bbe2accfcad81d38e21b4c79037ea2dd0fa4c6c7cd5a24fde3",
+  "frozen_manifest_sha256": "7f973e28ca61d72b72c058fab598e82814c9444b166449322999defac16cc23d",
+  "lock_sha256": "11e58cd561c4f92ccae2569a2370ae8224801e5005c3ebf0ebc877e54213d5f3",
+  "workers": [
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-00"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_315",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-01"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_mixed_195",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-02"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_graded_150",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-03"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_mixed_graded_domain_300",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-04"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_210_u2",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-05"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_210_u10",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-06"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-07"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_315",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-08"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_mixed_195",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-09"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_graded_150",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-10"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_mixed_graded_domain_300",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-11"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_210_u2",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-12"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_210_u10",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-13"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "invalid_receptor",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-14"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "unqualified_precision",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-15"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "early_limit",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 1,
+        "id": "release-online-16"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "legacy_converged_unaccepted",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 1,
+        "id": "release-online-17"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 1,
+        "budget": 5.0,
+        "iterations": 2000,
+        "backend": "serial",
+        "id": "release-online-18"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_315",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 1,
+        "budget": 5.0,
+        "iterations": 2000,
+        "backend": "serial",
+        "id": "release-online-19"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_mixed_195",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 1,
+        "budget": 5.0,
+        "iterations": 2000,
+        "backend": "serial",
+        "id": "release-online-20"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_graded_150",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 1,
+        "budget": 5.0,
+        "iterations": 2000,
+        "backend": "serial",
+        "id": "release-online-21"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_210_u2",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 1,
+        "budget": 5.0,
+        "iterations": 2000,
+        "backend": "serial",
+        "id": "release-online-22"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_210_u10",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 1,
+        "budget": 5.0,
+        "iterations": 2000,
+        "backend": "serial",
+        "id": "release-online-23"
+      },
+      "differences": []
+    }
+  ]
+}
