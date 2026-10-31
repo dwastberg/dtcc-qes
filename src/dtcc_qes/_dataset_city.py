@@ -5,7 +5,6 @@ from copy import deepcopy
 import numpy as np
 from pyproj import CRS
 from shapely.geometry import Polygon
-from shapely.validation import explain_validity
 
 from dtcc_core.model import (
     Building,
@@ -16,8 +15,8 @@ from dtcc_core.model import (
     Transform,
 )
 
-from ._city import _frame, _resolve_frame, default_domain_top
-from ._footprints import prepare_footprints
+from ._city import _frame, _resolve_frame, _validate_city_objects, default_domain_top
+from ._footprints import prepare_footprints, _resolved_surfaces
 from .footprints import Footprints
 
 
@@ -34,47 +33,14 @@ def _record_courtyards(surface, source_id, record):
 
 def _source_city(source, filled):
     """Copy source footprints into the provider's global EPSG:3006 frame."""
-    if not isinstance(source, City):
-        raise TypeError("The city dataset must return a dtcc_core.model.City")
+    _validate_city_objects(source)
     prepared = City(transform=Transform(srs="EPSG:3006"))
     city_frame = _frame(source.transform, "City")
     for building in source.buildings:
-        if building.building_parts:
-            raise ValueError(f"Source building {building.id!r} has unsupported building parts")
-        geometry = building.get_geometry(lod="0")
-        surfaces = geometry.surfaces if isinstance(geometry, MultiSurface) else [geometry]
-        if not surfaces:
-            raise ValueError(f"Source building {building.id!r} has an empty MultiSurface")
         copied = []
-        for surface in surfaces:
-            if not isinstance(surface, Surface):
-                raise ValueError(f"Source building {building.id!r} has no LOD0 footprint")
-            frames = [city_frame, _frame(building.transform, building.id)]
-            if isinstance(geometry, MultiSurface):
-                frames.append(_frame(geometry.transform, building.id))
-            offset, crs = _resolve_frame([*frames, _frame(surface.transform, building.id)], building.id)
+        for rings, crs in _resolved_surfaces(building, city_frame):
             if crs is not None and not crs.equals(CRS.from_epsg(3006)):
                 raise ValueError("Fetched city geometry must use EPSG:3006")
-            rings = []
-            for ring in [surface.vertices, *surface.holes]:
-                values = np.asarray(ring)
-                if (
-                    values.ndim != 2
-                    or values.shape[1] != 3
-                    or len(values) < 3
-                    or values.dtype.kind not in "iuf"
-                    or not np.isfinite(values).all()
-                ):
-                    raise ValueError(
-                        f"Source building {building.id!r}: footprint rings must be finite (N, 3) arrays"
-                    )
-                rings.append(values.astype(np.float64) + offset)
-            anchor = rings[0][0, :2]
-            polygon = Polygon(rings[0][:, :2] - anchor, [ring[:, :2] - anchor for ring in rings[1:]])
-            if not polygon.is_valid or polygon.is_empty or not np.isfinite(polygon.area) or polygon.area <= 0:
-                raise ValueError(
-                    f"Source building {building.id!r}: invalid footprint ({explain_validity(polygon)})"
-                )
             copy = Surface(vertices=rings[0], holes=rings[1:])
             _record_courtyards(copy, building.id, filled)
             copied.append(copy)

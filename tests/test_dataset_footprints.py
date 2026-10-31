@@ -306,3 +306,24 @@ def test_source_hole_elevations_survive_filling_and_define_ground(source_city):
     assert prepared.sources[0].polygon.area == 100
     assert provenance["source_courtyard_filled_area"] == 4
     assert value.lod0.holes[0][0, 2] == 1
+
+
+@pytest.mark.parametrize("location", ["building", "container", "part", "deep"])
+def test_dataset_rejects_nested_buildings_before_cleaning(source_city, monkeypatch, location):
+    from dtcc_core.model import BuildingPart, CityObject
+
+    if location == "building":
+        source_city.buildings[0].add_child(building("nested", box(12, 12, 14, 14), 3))
+    else:
+        child = BuildingPart(id="nested") if location == "part" else CityObject()
+        if location in ("container", "deep"):
+            child.add_child(building("nested", box(12, 12, 14, 14), 3))
+        if location == "deep":
+            source_city.buildings[0].add_child(child)
+        else:
+            source_city.add_child(child)
+    monkeypatch.setattr(
+        builder, "clean_footprints", lambda *a, **k: pytest.fail("Cleaned unsupported children")
+    )
+    with pytest.raises(ValueError, match="unsupported"):
+        prepare_city(source_city, QESWindArgs(**request()))

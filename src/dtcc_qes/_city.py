@@ -104,18 +104,26 @@ def near_contacts(city, resolution):
     return tuple(rows)
 
 
-def extract_city(city, height_policy, *, _allow_contacts=False):
+def _validate_city_objects(city):
+    """Validate source identities and reject buildings hidden in object trees."""
     if not isinstance(city, City):
         raise TypeError("city must be a dtcc_core.model.City")
-    if height_policy not in ("measured", "allow_estimated"):
-        raise ValueError("height_policy must be 'measured' or 'allow_estimated'")
-    city_frame = _frame(city.transform, "City")
     children = [child for group in city.children.values() for child in group]
     parts = [child for child in children if isinstance(child, BuildingPart)]
     if parts:
         raise ValueError(f"BuildingPart {parts[0].id!r} is unsupported; supply complete LOD0 buildings")
     buildings = [child for child in children if isinstance(child, Building)]
     pending = [child for child in children if not isinstance(child, (Building, BuildingPart))]
+    seen_ids = set()
+    for building in buildings:
+        label = f"Building {building.id!r}"
+        if not isinstance(building.id, str) or not building.id or building.id in seen_ids:
+            raise ValueError(f"{label}: source IDs must be unique nonempty strings")
+        seen_ids.add(building.id)
+        descendants = [child for group in building.children.values() for child in group]
+        if any(isinstance(child, (Building, BuildingPart)) for child in descendants):
+            raise ValueError(f"{label}: building parts are unsupported; supply one complete LOD0 footprint")
+        pending.extend(descendants)
     seen = set()
     while pending:
         parent = pending.pop()
@@ -127,16 +135,19 @@ def extract_city(city, height_policy, *, _allow_contacts=False):
                 if isinstance(child, (Building, BuildingPart)):
                     raise ValueError(f"Building {child.id!r}: nested buildings/parts are unsupported; attach complete buildings directly to the City")
                 pending.append(child)
+    return children, buildings
+
+
+def extract_city(city, height_policy, *, _allow_contacts=False):
+    if not isinstance(city, City):
+        raise TypeError("city must be a dtcc_core.model.City")
+    if height_policy not in ("measured", "allow_estimated"):
+        raise ValueError("height_policy must be 'measured' or 'allow_estimated'")
+    city_frame = _frame(city.transform, "City")
+    children, buildings = _validate_city_objects(city)
     rings, heights, ranges, ids, sources, systems, removed = [], [], [], [], [], [], []
-    seen_ids = set()
     for building in buildings:
         label = f"Building {building.id!r}"
-        if not isinstance(building.id, str) or not building.id or building.id in seen_ids:
-            raise ValueError(f"{label}: source IDs must be unique nonempty strings")
-        seen_ids.add(building.id)
-        if any(isinstance(child, (Building, BuildingPart))
-               for group in building.children.values() for child in group):
-            raise ValueError(f"{label}: building parts are unsupported; supply one complete LOD0 footprint")
         try:
             surface = building.get_geometry(lod="0")
         except ValueError as error:

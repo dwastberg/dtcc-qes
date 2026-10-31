@@ -1,4 +1,5 @@
 """Check the synthetic baseline's metrics and contact-check isolation."""
+
 import importlib.util
 import json
 from pathlib import Path
@@ -10,7 +11,9 @@ import pytest
 
 from dtcc_qes import _city, wind
 
-_spec = importlib.util.spec_from_file_location("contact_artifacts", Path(__file__).parents[1] / "tools/contact_artifacts.py")
+_spec = importlib.util.spec_from_file_location(
+    "contact_artifacts", Path(__file__).parents[1] / "tools/contact_artifacts.py"
+)
 contacts = importlib.util.module_from_spec(_spec)
 sys.modules[_spec.name] = contacts
 _spec.loader.exec_module(contacts)
@@ -19,15 +22,30 @@ pytestmark = pytest.mark.usefixtures("dtcc_logger")
 
 
 def args(**overrides):
-    return SimpleNamespace(**(dict(footprints="baseline", exposed_faces="off", min_detail=.5,
-        resolution=4., iterations=3, height=2., case=["split", "separated_order"]) | overrides))
+    return SimpleNamespace(
+        **(
+            dict(
+                footprints="baseline",
+                exposed_faces="off",
+                min_detail=0.5,
+                resolution=4.0,
+                iterations=3,
+                height=2.0,
+                case=["split", "separated_order"],
+            )
+            | overrides
+        )
+    )
 
 
 def snapshot(plane, flags, valid=None, iterations=10):
     plane = np.asarray(plane, dtype=np.float64)
-    return dict(plane=plane, flags=np.asarray(flags),
+    return dict(
+        plane=plane,
+        flags=np.asarray(flags),
         valid=np.ones(plane.shape[:-1], dtype=bool) if valid is None else np.asarray(valid),
-        metadata=dict(diagnostics=dict(iterations=iterations), velocity_sha256=contacts.digest(plane)))
+        metadata=dict(diagnostics=dict(iterations=iterations), velocity_sha256=contacts.digest(plane)),
+    )
 
 
 def test_metric_is_speed_difference_on_common_fluid_samples():
@@ -37,7 +55,7 @@ def test_metric_is_speed_difference_on_common_fluid_samples():
     b = snapshot([[[-3, -4, 0], [0, 0, 0], [0, 0, 0]]], [[[4, 1, 2]]], [[True, True, False]])
     row = contacts.compare(a, b)
     assert row["max_speed_difference_over_reference"] == 1
-    assert row["rms_speed_difference_over_reference"] == pytest.approx(np.sqrt(.5))
+    assert row["rms_speed_difference_over_reference"] == pytest.approx(np.sqrt(0.5))
     assert row["common_fluid_samples"] == 2
     assert row["same_solid_mask"]
     assert row["changed_fluid_flags"] == 1
@@ -62,7 +80,7 @@ def test_empty_common_sample_is_an_error():
 def test_baseline_solves_contacts_and_restores_public_contract():
     original = _city.reject_intersections
     # Resolve the 3 m gap with fluid cells; at 4 m this is another subcell case.
-    document = contacts.run(args(resolution=1.))
+    document = contacts.run(args(resolution=1.0))
     assert _city.reject_intersections is original
     assert document["settings"]["contact_check_bypassed"]
     assert len(document["comparisons"]) == 2
@@ -79,9 +97,11 @@ def test_baseline_solves_contacts_and_restores_public_contract():
 
 def test_contact_bypass_restored_after_solve_failure(monkeypatch):
     original = _city.reject_intersections
+
     def fail(*a, **kw):
         assert _city.reject_intersections is not original
         raise RuntimeError("deliberate solve failure")
+
     monkeypatch.setattr(wind, "run", fail)
     with pytest.raises(RuntimeError, match="deliberate"):
         contacts.solve(contacts.fixtures()["split"], args())
@@ -95,9 +115,12 @@ def test_strict_mode_reports_contact_rejections_and_solves_disjoint_inputs():
     assert document["comparisons"][1]["status"] == "compared"
 
 
-@pytest.mark.parametrize("overrides, message", [
-    ({"exposed_faces": "on"}, "Exposure on requires resolve"),
-])
+@pytest.mark.parametrize(
+    "overrides, message",
+    [
+        ({"exposed_faces": "on"}, "Exposure on requires resolve"),
+    ],
+)
 def test_unimplemented_modes_are_not_silently_ignored(overrides, message):
     with pytest.raises(ValueError, match=message):
         contacts.run(args(**overrides))
@@ -105,8 +128,10 @@ def test_unimplemented_modes_are_not_silently_ignored(overrides, message):
 
 def test_cli_writes_json_and_terminal_table(tmp_path, capsys):
     output = tmp_path / "baseline.json"
-    assert contacts.main(["--case", "split", "--iterations", "2", "--resolution", "4",
-                          "--output", str(output)]) == 0
+    assert (
+        contacts.main(["--case", "split", "--iterations", "2", "--resolution", "4", "--output", str(output)])
+        == 0
+    )
     document = json.loads(output.read_text())
     assert document["schema_version"] == 1
     assert document["comparisons"][0]["status"] == "compared"

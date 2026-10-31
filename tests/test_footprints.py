@@ -17,8 +17,10 @@ from dtcc_qes.footprints import Footprints
 
 
 def surface(polygon, z=0):
-    return Surface(vertices=np.c_[polygon.exterior.coords, np.full(len(polygon.exterior.coords), z)],
-        holes=[np.c_[h.coords, np.full(len(h.coords), z)] for h in polygon.interiors])
+    return Surface(
+        vertices=np.c_[polygon.exterior.coords, np.full(len(polygon.exterior.coords), z)],
+        holes=[np.c_[h.coords, np.full(len(h.coords), z)] for h in polygon.interiors],
+    )
 
 
 def building(name, polygon, height, z=0):
@@ -35,12 +37,22 @@ def city(*buildings):
 
 
 def prepare(value, **kwargs):
-    return prepare_footprints(value, settings=Footprints(min_detail=.01, **kwargs))
+    return prepare_footprints(value, settings=Footprints(min_detail=0.01, **kwargs))
 
 
-@pytest.mark.parametrize("kwargs", [dict(min_detail=0), dict(min_detail=-1),
-    dict(min_detail=np.nan), dict(min_detail=True), dict(min_detail="1"),
-    dict(exposed_faces=1), dict(fallback="average"), dict(fallback=[])])
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        dict(min_detail=0),
+        dict(min_detail=-1),
+        dict(min_detail=np.nan),
+        dict(min_detail=True),
+        dict(min_detail="1"),
+        dict(exposed_faces=1),
+        dict(fallback="average"),
+        dict(fallback=[]),
+    ],
+)
 def test_settings_reject_invalid_values(kwargs):
     with pytest.raises(ValueError):
         Footprints(**kwargs)
@@ -64,8 +76,7 @@ def test_measured_height_wins_overlap_and_original_elevations_are_preserved():
     assert len(low.polygon.interiors) == 1
     assert low.polygon.interiors[0].is_ccw
     assert not low.polygon.exterior.is_ccw
-    assert {s.source_id: s.base_range for s in result.sources} == {
-        "tower": (100, 100), "podium": (200, 200)}
+    assert {s.source_id: s.base_range for s in result.sources} == {"tower": (100, 100), "podium": (200, 200)}
     np.testing.assert_array_equal(tower.lod0.vertices, original)
     assert tower.estimated_height == 6 and tower.measured_height == 60
 
@@ -73,7 +84,9 @@ def test_measured_height_wins_overlap_and_original_elevations_are_preserved():
 def test_disconnected_multisurface_does_not_fill_gap_and_keeps_holes():
     holed = Polygon(box(0, 0, 10, 10).exterior.coords, [box(2, 2, 8, 8).exterior.coords])
     value = building("multipart", holed, 10)
-    value.add_geometry(MultiSurface(surfaces=[surface(holed), surface(box(30, 0, 40, 10))]), GeometryType.LOD0)
+    value.add_geometry(
+        MultiSurface(surfaces=[surface(holed), surface(box(30, 0, 40, 10))]), GeometryType.LOD0
+    )
     result = prepare(city(value))
     assert len(result.sources) == 1 and len(result.cells) == 2
     assert unary_union([c.polygon for c in result.cells]).equals(unary_union([holed, box(30, 0, 40, 10)]))
@@ -97,8 +110,10 @@ def test_multipart_transform_applied_once_and_hole_elevations_preserved():
 
 def test_multipart_component_order_and_small_areas_are_preserved():
     value = building("multipart", box(0, 0, 10, 10), 10)
-    value.add_geometry(MultiSurface(surfaces=[surface(box(0, 0, 10, 10)),
-        surface(box(20, 0, 20.08, .08))]), GeometryType.LOD0)
+    value.add_geometry(
+        MultiSurface(surfaces=[surface(box(0, 0, 10, 10)), surface(box(20, 0, 20.08, 0.08))]),
+        GeometryType.LOD0,
+    )
     original = prepare(city(value))
     value.lod0.surfaces.reverse()
     reordered = prepare(city(value))
@@ -156,27 +171,26 @@ def test_source_permutation_and_ring_rotation_produce_same_cells():
 
 
 def test_equal_represented_roofs_merge_after_grid_is_known():
-    result = prepare(city(building("a", box(0, 0, 10, 10), 10),
-                          building("b", box(10, 0, 20, 10), 9.9)))
+    result = prepare(city(building("a", box(0, 0, 10, 10), 10), building("b", box(10, 0, 20, 10), 9.9)))
     assert len(result.cells) == 2
     solids = merge_roof_cells(result, np.arange(0, 21))
     assert len(solids) == 1
     assert solids[0].polygon.equals(box(0, 0, 20, 10))
     assert solids[0].height == solids[0].represented_roof == 10
     assert solids[0].source_ids == ("a", "b")
-    finer = merge_roof_cells(result, np.arange(0, 21, .1))
+    finer = merge_roof_cells(result, np.arange(0, 21, 0.1))
     assert len(finer) == 2
 
 
 def test_subcell_gap_is_not_silently_merged_by_roof_grouping():
-    result = prepare(city(building("a", box(0, 0, 10, 10), 10),
-                          building("b", box(10.3, 0, 20.3, 10), 10)))
+    result = prepare(city(building("a", box(0, 0, 10, 10), 10), building("b", box(10.3, 0, 20.3, 10), 10)))
     assert len(merge_roof_cells(result, np.arange(0, 21))) == 2
 
 
 def test_fully_covered_source_is_accounted_for():
-    result = prepare(city(building("tower", box(0, 0, 20, 20), 20),
-                          building("covered", box(5, 5, 15, 15), 10)))
+    result = prepare(
+        city(building("tower", box(0, 0, 20, 20), 20), building("covered", box(5, 5, 15, 15), 10))
+    )
     rows = {row["source_id"]: row for row in result.metadata["buildings"]}
     assert rows["covered"]["status"] == "covered"
     assert rows["covered"]["cells"] == []
@@ -194,13 +208,19 @@ def test_tallest_fallback_overrides_upstream_average(monkeypatch, heights):
         return result
 
     def cells(cleaned):
-        return [SimpleNamespace(polygon=box(0, 0, 20, 10), height=sum(heights)/2,
-            source_ids=cleaned.attributes["test_source_ids"], part_id=None, building_id="fallback")]
+        return [
+            SimpleNamespace(
+                polygon=box(0, 0, 20, 10),
+                height=sum(heights) / 2,
+                source_ids=cleaned.attributes["test_source_ids"],
+                part_id=None,
+                building_id="fallback",
+            )
+        ]
 
     monkeypatch.setattr(_footprints.builder, "clean_footprints", clean)
     monkeypatch.setattr(_footprints.builder, "building_cells", cells)
-    value = city(building("a", box(0, 0, 10, 10), heights[0]),
-                 building("b", box(10, 0, 20, 10), heights[1]))
+    value = city(building("a", box(0, 0, 10, 10), heights[0]), building("b", box(10, 0, 20, 10), heights[1]))
     with pytest.raises(ValueError, match="fallback.*a.*b.*forced wall failure"):
         prepare(value)
     result = prepare(value, fallback="tallest")
@@ -222,8 +242,7 @@ def test_empty_city_prepares_without_solids():
 
 
 def test_strict_wind_path_still_rejects_contact():
-    value = city(building("a", box(10, 10, 20, 20), 10),
-                 building("b", box(20, 10, 30, 20), 10))
+    value = city(building("a", box(10, 10, 20, 20), 10), building("b", box(20, 10, 30, 20), 10))
     with pytest.raises(ValueError, match="overlapping or touching"):
         wind.preview_grid(value)
 
@@ -232,14 +251,15 @@ def test_strict_wind_path_still_rejects_contact():
 # layers required for turbulence. It does not allocate native flow storage.
 def finalize(prepared, **kwargs):
     from dtcc_qes._footprints import finalize_footprints
-    defaults = dict(effective_faces=np.arange(0, 41), origin=(-20, -20, 0),
-                    shape=(40, 60, 80), resolution=1)
+
+    defaults = dict(effective_faces=np.arange(0, 41), origin=(-20, -20, 0), shape=(40, 60, 80), resolution=1)
     return finalize_footprints(prepared, **(defaults | kwargs))
 
 
 def test_split_and_single_block_have_identical_canonical_native_arrays():
-    split = finalize(prepare(city(building("a", box(0, 0, 10, 10), 10),
-                                  building("b", box(10, 0, 20, 10), 10))))
+    split = finalize(
+        prepare(city(building("a", box(0, 0, 10, 10), 10), building("b", box(10, 0, 20, 10), 10)))
+    )
     single = finalize(prepare(city(building("block", box(0, 0, 20, 10), 10))))
     for name in single.arrays:
         np.testing.assert_array_equal(split.arrays[name], single.arrays[name])
@@ -249,18 +269,23 @@ def test_split_and_single_block_have_identical_canonical_native_arrays():
 
 
 def test_t_junction_vertices_are_shared_across_unequal_height_cells():
-    value = prepare(city(building("left", box(0, 0, 10, 20), 6),
-        building("right-lower", box(10, 0, 20, 10), 10),
-        building("right-upper", box(10, 10, 20, 20), 12)))
+    value = prepare(
+        city(
+            building("left", box(0, 0, 10, 20), 6),
+            building("right-lower", box(10, 0, 20, 10), 10),
+            building("right-upper", box(10, 10, 20, 20), 12),
+        )
+    )
     result = finalize(value)
     assert len(result.solids) == 3
     for solid in result.solids:
-        assert (10., 10.) in list(solid.polygon.exterior.coords)
+        assert (10.0, 10.0) in list(solid.polygon.exterior.coords)
     assert all(solid.polygon.is_valid for solid in result.solids)
 
 
 def test_redundant_vertices_hole_order_and_winding_are_canonical():
     from dtcc_qes._footprints import canonical_polygon
+
     outer = [(0, 0), (0, 0), (5, 0), (10, 0), (10, 10), (0, 10), (0, 0)]
     holes = [list(box(1, 1, 3, 3).exterior.coords), list(box(6, 6, 9, 9).exterior.coords)]
     first = canonical_polygon(Polygon(outer, holes))
@@ -271,8 +296,9 @@ def test_redundant_vertices_hole_order_and_winding_are_canonical():
 
 def test_canonical_native_arrays_ignore_component_and_source_order():
     a = building("a", box(0, 0, 10, 10), 10)
-    a.add_geometry(MultiSurface(surfaces=[surface(box(0, 0, 10, 10)),
-        surface(box(30, 0, 40, 10))]), GeometryType.LOD0)
+    a.add_geometry(
+        MultiSurface(surfaces=[surface(box(0, 0, 10, 10)), surface(box(30, 0, 40, 10))]), GeometryType.LOD0
+    )
     b = building("b", box(10, 0, 20, 10), 10)
     first = finalize(prepare(city(a, b)))
     a.lod0.surfaces.reverse()
@@ -285,24 +311,23 @@ def test_canonical_native_arrays_ignore_component_and_source_order():
 
 
 def test_holes_are_preserved_in_native_ring_arrays():
-    value = prepare(city(building("podium", box(0, 0, 20, 20), 10),
-                          building("tower", box(5, 5, 15, 15), 20)))
+    value = prepare(city(building("podium", box(0, 0, 20, 20), 10), building("tower", box(5, 5, 15, 15), 20)))
     assert sum(c.polygon.area for c in value.cells) == 400
     result = finalize(value)
     assert len(result.arrays["ring_offsets"]) == 4
     assert len(result.solids) == 2
     assert sum(c.polygon.area for c in result.solids) == 400
     # A hole removed by a legitimate same-roof union needs no native ring support.
-    same_roof = prepare(city(building("podium", box(0, 0, 20, 20), 10),
-                            building("tower", box(5, 5, 15, 15), 10)))
+    same_roof = prepare(
+        city(building("podium", box(0, 0, 20, 20), 10), building("tower", box(5, 5, 15, 15), 10))
+    )
     assert len(finalize(same_roof).solids) == 1
 
 
 def test_nonuniform_effective_faces_and_centre_tie_match_native_roof_rule():
-    value = prepare(city(building("a", box(0, 0, 10, 10), 10),
-                          building("b", box(10, 0, 20, 10), 9.9)))
+    value = prepare(city(building("a", box(0, 0, 10, 10), 10), building("b", box(10, 0, 20, 10), 9.9)))
     # Centre at 10: exact ties are occupied; 9.9 is below the centre.
-    faces = np.array([0., 4., 8., 12., 20.])
+    faces = np.array([0.0, 4.0, 8.0, 12.0, 20.0])
     result = finalize(value, effective_faces=faces, shape=(4, 60, 80))
     assert sorted(s.represented_roof for s in result.solids) == [8, 12]
     assert result.metadata["grid"]["effective_faces"] == faces.tolist()
@@ -313,8 +338,9 @@ def test_nonuniform_effective_faces_and_centre_tie_match_native_roof_rule():
 
 
 def test_finalization_checks_original_bases_even_for_covered_sources():
-    value = prepare(city(building("tower", box(0, 0, 20, 20), 20),
-                          building("covered", box(5, 5, 15, 15), 10, z=5)))
+    value = prepare(
+        city(building("tower", box(0, 0, 20, 20), 20), building("covered", box(5, 5, 15, 15), 10, z=5))
+    )
     with pytest.raises(ValueError, match="covered.*incompatible base elevation"):
         finalize(value)
     assert len(finalize(value, terrain="flat").solids) == 1
@@ -325,6 +351,7 @@ def test_finalization_checks_original_bases_even_for_covered_sources():
 
 def test_finalization_requires_explicit_terrain_flattening():
     from dtcc_core.model import Terrain
+
     value = city(building("a", box(0, 0, 10, 10), 10))
     value.add_terrain(Terrain())
     prepared = prepare(value)
@@ -337,21 +364,24 @@ def test_finalization_preserves_global_anchor_with_large_translation():
     value = city(building("a", box(0, 0, 10, 10), 10))
     plain = finalize(prepare(value))
     value.transform.set_translation(1e9, -2e9, 100)
-    translated = finalize(prepare(value), origin=(1e9-20, -2e9-20, 100))
+    translated = finalize(prepare(value), origin=(1e9 - 20, -2e9 - 20, 100))
     for name in plain.arrays:
         np.testing.assert_array_equal(plain.arrays[name], translated.arrays[name])
 
 
-@pytest.mark.parametrize("kwargs, message", [
-    (dict(origin=(-1, -20, 0)), "two cells of clearance"),
-    (dict(origin=(np.nan, 0, 0)), "origin must be finite"),
-    (dict(shape=(40, 2, 80)), "shape must contain"),
-    (dict(shape=(39, 60, 80)), "physical z dimension"),
-    (dict(max_cells=10), "max_cells"),
-    (dict(resolution=0), "resolution must be positive"),
-    (dict(resolution=1e-30), "solver coefficients"),
-    (dict(resolution=1e30), "solver coefficients"),
-])
+@pytest.mark.parametrize(
+    "kwargs, message",
+    [
+        (dict(origin=(-1, -20, 0)), "two cells of clearance"),
+        (dict(origin=(np.nan, 0, 0)), "origin must be finite"),
+        (dict(shape=(40, 2, 80)), "shape must contain"),
+        (dict(shape=(39, 60, 80)), "physical z dimension"),
+        (dict(max_cells=10), "max_cells"),
+        (dict(resolution=0), "resolution must be positive"),
+        (dict(resolution=1e-30), "solver coefficients"),
+        (dict(resolution=1e30), "solver coefficients"),
+    ],
+)
 def test_finalization_rejects_invalid_domain(kwargs, message):
     value = prepare(city(building("a", box(0, 0, 10, 10), 10)))
     with pytest.raises(ValueError, match=message):
@@ -360,9 +390,10 @@ def test_finalization_rejects_invalid_domain(kwargs, message):
 
 def test_float32_collapsed_edge_is_rejected_after_cleaning():
     from dataclasses import replace
+
     value = prepare(city(building("a", box(0, 0, 10, 10), 10)))
     # A valid sliver whose edge disappears when converted to native coordinates.
-    polygon = Polygon([(0, 0), (0, 10), (1e-8, 10-1e-8), (10, 0)])
+    polygon = Polygon([(0, 0), (0, 10), (1e-8, 10 - 1e-8), (10, 0)])
     value = replace(value, cells=(replace(value.cells[0], polygon=polygon),))
     with pytest.raises(ValueError, match="float32 precision"):
         finalize(value)
@@ -370,18 +401,19 @@ def test_float32_collapsed_edge_is_rejected_after_cleaning():
 
 def test_float32_gap_closure_is_allowed_without_shared_area():
     from dataclasses import replace
-    value = prepare(city(building("a", box(0, 0, 10, 10), 10),
-                          building("b", box(11, 0, 20, 10), 20)))
-    cells = tuple(replace(c, polygon=box(10+1e-7, 0, 20, 10)) if c.height == 20 else c
-                  for c in value.cells)
+
+    value = prepare(city(building("a", box(0, 0, 10, 10), 10), building("b", box(11, 0, 20, 10), 20)))
+    cells = tuple(replace(c, polygon=box(10 + 1e-7, 0, 20, 10)) if c.height == 20 else c for c in value.cells)
     result = finalize(replace(value, cells=cells))
     assert len(result.solids) == 2
 
 
 def test_native_bridge_accepts_finalized_arrays():
     from dtcc_qes import _qes
-    value = finalize(prepare(city(building("a", box(0, 0, 10, 10), 10),
-                                 building("b", box(10, 0, 20, 10), 9.9))))
+
+    value = finalize(
+        prepare(city(building("a", box(0, 0, 10, 10), 10), building("b", box(10, 0, 20, 10), 9.9)))
+    )
     grid = _qes.GridConfig()
     grid.nx, grid.ny, grid.nz, grid.cell_size = 80, 60, 40, 1
     runner = _qes.WindRunner()
@@ -395,12 +427,18 @@ def test_native_bridge_accepts_finalized_arrays():
 
 def test_cleaning_failure_names_original_sources_and_keeps_diagnostics(monkeypatch):
     from dtcc_core.builder.cleaning.footprints import UnresolvedFootprintCleaningError
+
     def fail(*args, **kwargs):
-        raise UnresolvedFootprintCleaningError({"unresolved_groups": [
-            {"group": 0, "source_indices": [0, 1], "reason": "work_limit", "attempts": 7}]})
+        raise UnresolvedFootprintCleaningError(
+            {
+                "unresolved_groups": [
+                    {"group": 0, "source_indices": [0, 1], "reason": "work_limit", "attempts": 7}
+                ]
+            }
+        )
+
     monkeypatch.setattr(_footprints.builder, "clean_footprints", fail)
-    value = city(building("source-a", box(0, 0, 10, 10), 10),
-                 building("source-b", box(10, 0, 20, 10), 20))
+    value = city(building("source-a", box(0, 0, 10, 10), 10), building("source-b", box(10, 0, 20, 10), 20))
     with pytest.raises(ValueError, match="source-a.*source-b") as caught:
         prepare(value)
     assert "work_limit" in str(caught.value) and "attempts" in str(caught.value)
@@ -410,15 +448,18 @@ def test_cleaning_failure_names_original_sources_and_keeps_diagnostics(monkeypat
 def test_partial_exclusion_covered_and_excluded_sources_are_all_accounted_for(monkeypatch):
     def clean(flat, **kwargs):
         result = city(deepcopy(flat.buildings[0]))
-        result.attributes["footprint_cleaning"] = {"excluded": [
-            {"ids": [flat.buildings[1].id], "reason": "no_protected_core"},
-            {"ids": [flat.buildings[3].id], "reason": "no_protected_core"}]}
+        result.attributes["footprint_cleaning"] = {
+            "excluded": [
+                {"ids": [flat.buildings[1].id], "reason": "no_protected_core"},
+                {"ids": [flat.buildings[3].id], "reason": "no_protected_core"},
+            ]
+        }
         return result
+
     monkeypatch.setattr(_footprints.builder, "clean_footprints", clean)
     a = building("a", box(0, 0, 10, 10), 10)
-    a.add_geometry(MultiSurface(surfaces=[a.lod0, surface(box(20, 0, 20.005, .005))]), GeometryType.LOD0)
-    value = prepare(city(a, building("b", box(2, 2, 5, 5), 5),
-                         building("c", box(30, 0, 30.005, .005), 10)))
+    a.add_geometry(MultiSurface(surfaces=[a.lod0, surface(box(20, 0, 20.005, 0.005))]), GeometryType.LOD0)
+    value = prepare(city(a, building("b", box(2, 2, 5, 5), 5), building("c", box(30, 0, 30.005, 0.005), 10)))
     rows = {r["source_id"]: r for r in value.metadata["buildings"]}
     assert rows["a"]["status"] == "solid"
     assert sorted(rows["a"]["components"].values()) == ["excluded", "solid"]
@@ -430,6 +471,7 @@ def test_partial_exclusion_covered_and_excluded_sources_are_all_accounted_for(mo
     assert final.metadata["buildings"][1]["solids"] == []
     assert final.metadata["counts"]["covered"] == final.metadata["counts"]["excluded"] == 1
     import json
+
     json.dumps(final.metadata, allow_nan=False)
     final.metadata["buildings"][0]["components"].clear()
     assert value.metadata["buildings"][0]["components"]
@@ -443,15 +485,27 @@ def test_fallback_volume_counts_overlaps_once_and_blocks_once(monkeypatch):
         result.attributes["footprint_cleaning"] = {"excluded": []}
         result.attributes["components"] = tuple(b.id for b in flat.buildings)
         return result
+
     def cells(cleaned):
-        return [SimpleNamespace(polygon=p, height=15., source_ids=cleaned.attributes["components"],
-            part_id=None, building_id="fallback") for p in [box(0, 0, 10, 10), box(10, 0, 20, 10)]]
+        return [
+            SimpleNamespace(
+                polygon=p,
+                height=15.0,
+                source_ids=cleaned.attributes["components"],
+                part_id=None,
+                building_id="fallback",
+            )
+            for p in [box(0, 0, 10, 10), box(10, 0, 20, 10)]
+        ]
+
     monkeypatch.setattr(_footprints.builder, "clean_footprints", clean)
     monkeypatch.setattr(_footprints.builder, "building_cells", cells)
-    value = prepare(city(building("low", box(0, 0, 20, 10), 10),
-                         building("tall", box(10, 0, 20, 10), 20)), fallback="tallest")
+    value = prepare(
+        city(building("low", box(0, 0, 20, 10), 10), building("tall", box(10, 0, 20, 10), 20)),
+        fallback="tallest",
+    )
     assert value.metadata["counts"]["fallbacks"] == 1
-    record, = value.metadata["fallbacks"]
+    (record,) = value.metadata["fallbacks"]
     assert record["reference_volume_within_output"] == 3000
     assert record["output_volume"] == 4000
     assert record["added_volume"] == 1000
@@ -473,16 +527,22 @@ def test_original_coordinate_system_is_preserved_and_conflicts_rejected():
         prepare(value)
 
 
-@pytest.mark.parametrize("grid", [None, wind.VerticalGrid.from_faces(np.arange(0, 51, .5)),
-                                   wind.VerticalGrid.auto()])
+@pytest.mark.parametrize(
+    "grid", [None, wind.VerticalGrid.from_faces(np.arange(0, 51, 0.5)), wind.VerticalGrid.auto()]
+)
 def test_finalization_uses_effective_grid_from_existing_planner(grid):
     envelope = city(building("envelope", box(0, 0, 20, 10), 10))
-    preview = wind.preview_grid(envelope, resolution=1, vertical_clearance=20,
-                                vertical_grid=grid, turbulence=True)
-    prepared = prepare(city(building("a", box(0, 0, 10, 10), 10),
-                            building("b", box(10, 0, 20, 10), 9.9)))
-    result = finalize(prepared, effective_faces=preview.z_faces, shape=preview.shape,
-                      origin=preview.origin, resolution=preview.resolution)
+    preview = wind.preview_grid(
+        envelope, resolution=1, vertical_clearance=20, vertical_grid=grid, turbulence=True
+    )
+    prepared = prepare(city(building("a", box(0, 0, 10, 10), 10), building("b", box(10, 0, 20, 10), 9.9)))
+    result = finalize(
+        prepared,
+        effective_faces=preview.z_faces,
+        shape=preview.shape,
+        origin=preview.origin,
+        resolution=preview.resolution,
+    )
     assert result.metadata["grid"]["shape"] == list(preview.shape)
     assert result.metadata["grid"]["effective_faces"] == preview.z_faces.astype(float).tolist()
     assert result.solids
@@ -490,13 +550,12 @@ def test_finalization_uses_effective_grid_from_existing_planner(grid):
 
 def test_float32_narrowing_must_not_introduce_shared_area():
     from dataclasses import replace
+
     a = Polygon([(3, 3), (3, 7), (5.004, 7), (5, 3)])
     b = Polygon([(5.00100001, 4), (5.00300001, 6), (8, 6), (8, 4)])
     assert a.intersection(b).area == 0
-    value = prepare(city(building("a", box(0, 0, 10, 10), 10),
-                          building("b", box(11, 0, 20, 10), 20)))
-    cells = tuple(replace(c, polygon=a if c.height == 10 else b)
-                  for c in value.cells)
+    value = prepare(city(building("a", box(0, 0, 10, 10), 10), building("b", box(11, 0, 20, 10), 20)))
+    cells = tuple(replace(c, polygon=a if c.height == 10 else b) for c in value.cells)
     with pytest.raises(ValueError, match="share area"):
         finalize(replace(value, cells=cells), origin=(0, 0, 0))
 
@@ -508,3 +567,37 @@ def test_empty_city_finalizes_to_empty_native_arrays():
     assert result.arrays["offsets"].tolist() == [0]
     assert result.metadata["counts"]["solids"] == 0
     assert result.arrays["vertices"].dtype == np.float64
+
+
+def test_preparation_does_not_deepcopy_unrelated_city_data():
+    from dtcc_core.model import CityObject
+
+    class ReadOnlyContext:
+        def __deepcopy__(self, memo):
+            raise AssertionError("Unrelated data was copied")
+
+    value = city(building("a", box(0, 0, 10, 10), 10))
+    context = CityObject()
+    context.attributes["large_readonly_payload"] = ReadOnlyContext()
+    value.add_child(context)
+    value.buildings[0].attributes["large_readonly_payload"] = ReadOnlyContext()
+    result = prepare(value)
+    assert len(result.cells) == 1
+    assert result.ignored_objects == {"CityObject": 1}
+    assert value.buildings[0].id == "a" and value.buildings[0].lod0 is not None
+
+
+def test_source_names_matching_component_ids_keep_correct_error_attribution():
+    value = city(
+        building("qes-component-1-0", box(0, 0, 10, 10), None), building("z", box(20, 0, 30, 10), 10)
+    )
+    with pytest.raises(ValueError, match="Building 'qes-component-1-0': missing measured_height"):
+        prepare(value)
+
+
+@pytest.mark.parametrize("extent", [1e30, 1e200, np.finfo(float).max])
+def test_extreme_footprint_extent_is_rejected_before_geos(extent):
+    value = building("oversized", box(0, 0, 10, 10), 10)
+    value.lod0.vertices[:, :2] *= extent / 10
+    with pytest.raises(ValueError, match="oversized.*extent exceeds the native grid range"):
+        prepare(city(value))
