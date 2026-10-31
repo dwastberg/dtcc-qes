@@ -152,7 +152,7 @@ def execute(task, configs, executable, initial_n, max_n):
         cmd = [str(executable), "tower", "--horizontal", str(task["direction"]), str(n)]
         if task["precision"] == "float64":
             cmd.append("--float64")
-        proc = subprocess.run(cmd, input=input_text(task, configs), text=True,
+        proc = subprocess.run(cmd, env=os.environ | {"DTCC_QES_STUDY_ORDER": "legacy"}, input=input_text(task, configs), text=True,
                               capture_output=True, check=True, timeout=7200)
         if proc.stderr:
             raise RuntimeError(proc.stderr)
@@ -193,8 +193,7 @@ def main():
         precision_doc = json.loads(gzip.decompress(args.precision_reference.read_bytes()))
         require_precision_reference(precision_doc)
     executable = args.executable.resolve()
-    sources = (Path(__file__), Path("tools/vertical_grid_study.cpp"), Path("src/qes_core/dtcc/precision_solver.cpp"),
-               Path("src/qes_core/dtcc/precision_solver.h"), Path("src/qes_core/dtcc/divergence.cpp"), Path("src/qes_core/dtcc/model_inputs.cpp"),
+    sources = (Path(__file__), Path("tools/vertical_grid_study.cpp"), *[p for p in sorted(Path("src/qes_core").rglob("*")) if p.suffix in (".cpp", ".h", ".txt")], Path("src/qes_core/dtcc/divergence.cpp"), Path("src/qes_core/dtcc/model_inputs.cpp"),
                Path("tools/run_horizontal_sensitivity.py"), Path("tools/run_auto_grid_controls.py"),
                Path("tools/run_vertical_grid_study.py"))
     metadata = dict(utc=datetime.now(timezone.utc).isoformat(), phase=args.phase, platform=platform.platform(),

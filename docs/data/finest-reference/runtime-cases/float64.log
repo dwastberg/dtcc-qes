@@ -1,0 +1,4 @@
+[18:48:17] [dtcc-qes] [info] Wind grid 320 x 320 x 92, 4 buildings: 500 
+iterations, converged=False, max_divergence=0.044065943702094545 s^-1
+[18:48:17] [dtcc-qes] [warning] Wind solve did not converge after 500 
+iterations: maximum Lagrange multiplier change 0.015235 > tolerance 1e-05
