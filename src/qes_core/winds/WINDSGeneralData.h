@@ -113,6 +113,8 @@ public:
   void applyParametrizations();
 
   void resetICellFlag();
+  void ensureCutCellStorage();
+  void ensureMixingLengthStorage();
   bool isSolid(const int &);
   bool isTerrain(const int &);
   bool isBuilding(const int &);

@@ -99,6 +99,13 @@ protected:
   CutBuilding *cutBuilding = nullptr;
 
 public:
+  void resetConditionState() override
+  {
+    // polygonWake only assigns this for eligible wind-facing edges. Restore
+    // the fresh-building decision before every condition, including retries.
+    rooftop_flag = 0;
+  }
+
   PolyBuilding()
     : Building()
   {
@@ -131,7 +138,7 @@ public:
    *
    * @param WGD :document this:
    */
-  void setPolyBuilding(WINDSGeneralData *WGD);
+  void setPolyBuilding(WINDSGeneralData *WGD) override;
 
 
   /**
@@ -141,7 +148,7 @@ public:
    * @param WGD :document this:
    * @param building_number :document this:
    */
-  void setCellFlags(WINDSGeneralData *WGD, int building_number);
+  void setCellFlags(WINDSGeneralData *WGD, int building_number) override;
 
   /**
    * Applies the upwind cavity in front of the building to buildings defined as polygons.
@@ -153,7 +160,7 @@ public:
    *
    * @param WGD :document this:
    */
-  void upwindCavity(WINDSGeneralData *WGD);
+  void upwindCavity(WINDSGeneralData *WGD) override;
 
   /**
    * Applies wake behind the building parameterization to buildings defined as polygons.
@@ -166,7 +173,7 @@ public:
    * @param WGD :document this:
    * @param building_id :document this:
    */
-  void polygonWake(WINDSGeneralData *WGD, int building_id);
+  void polygonWake(WINDSGeneralData *WGD, int building_id) override;
 
 
   /**
@@ -179,7 +186,7 @@ public:
    *
    * @param WGD :document this:
    */
-  void streetCanyon(WINDSGeneralData *WGD);
+  void streetCanyon(WINDSGeneralData *WGD) override;
 
   /**
    * Applies the street canyon parameterization to the qualified space between buildings defined as polygons.
@@ -193,7 +200,7 @@ public:
    *
    * @param WGD :document this:
    */
-  void streetCanyonModified(WINDSGeneralData *WGD);
+  void streetCanyonModified(WINDSGeneralData *WGD) override;
 
   /**
    * Applies the sidewall parameterization to the qualified space on the side of buildings defined as polygons.
@@ -206,7 +213,7 @@ public:
    *
    * @param WGD :document this:
    */
-  void sideWall(WINDSGeneralData *WGD);
+  void sideWall(WINDSGeneralData *WGD) override;
 
 
   /**
@@ -219,7 +226,7 @@ public:
    *
    * @param WGD :document this:
    */
-  void rooftop(WINDSGeneralData *WGD);
+  void rooftop(WINDSGeneralData *WGD) override;
 
 
 
@@ -234,5 +241,5 @@ public:
    * @param TGD
    * @param bWIDling_id
    */
-  void NonLocalMixing(WINDSGeneralData *WGD, TURBGeneralData *TGD, int bWIDling_id);
+  void NonLocalMixing(WINDSGeneralData *WGD, TURBGeneralData *TGD, int bWIDling_id) override;
 };

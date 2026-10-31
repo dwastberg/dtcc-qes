@@ -33,6 +33,54 @@ static BuildingArrays building()
   return arrays;
 }
 
+static void condition_state(GridConfig grid, ModelSettings model, const BuildingArrays &geometry)
+{
+  model.rooftop_flag = 2;
+  Messages messages;
+  WindRunner reused;
+  reused.prepare(grid, model, geometry, messages);
+  SolverOptions options;
+  options.max_iterations = 12;
+  for (const auto *precision : {"float32", "float64", "float32"}) {
+    options.precision = precision;
+    for (double direction : {270., 45., 33., 300., 225., 45.}) {
+      WindCondition condition{5., direction, 10.};
+      WindRunner fresh;
+      fresh.prepare(grid, model, geometry, messages);
+      const auto expected = fresh.solve(condition, options, messages);
+      const auto actual = reused.solve(condition, options, messages);
+      require(actual.velocity == expected.velocity && actual.cell_flags == expected.cell_flags
+              && actual.iterations == expected.iterations && actual.converged == expected.converged
+              && actual.max_lagrange_multiplier_change == expected.max_lagrange_multiplier_change
+              && actual.divergence.interior_max == expected.divergence.interior_max
+              && actual.divergence.interior_rms == expected.divergence.interior_rms
+              && actual.divergence.top_band_max == expected.divergence.top_band_max,
+              "Reused condition or precision switch differs from a fresh runner");
+    }
+  }
+  // A finite extreme inflow injects overflow into the real float32 iteration.
+  // Independent models are disabled so this failure is in the solver itself.
+  model.rooftop_flag = model.upwind_cavity_flag = model.street_canyon_flag = 0;
+  model.sidewall_flag = model.wake_flag = 0;
+  reused.prepare(grid, model, geometry, messages);
+  options.precision = "float32";
+  options.max_iterations = 500;
+  WindCondition extreme{1e38, 270., 10.};
+  rejects<qes::RuntimeError>([&] { reused.solve(extreme, options, messages); });
+  for (const auto *precision : {"float32", "float64"}) {
+    options.precision = precision;
+    options.max_iterations = 12;
+    WindCondition normal{5., 45., 10.};
+    WindRunner fresh;
+    fresh.prepare(grid, model, geometry, messages);
+    const auto expected = fresh.solve(normal, options, messages);
+    const auto actual = reused.solve(normal, options, messages);
+    require(actual.velocity == expected.velocity && actual.cell_flags == expected.cell_flags
+            && actual.max_lagrange_multiplier_change == expected.max_lagrange_multiplier_change,
+            "Numerical failure or precision switch poisoned the next solve");
+  }
+}
+
 int main()
 {
   GridConfig grid;
@@ -47,6 +95,7 @@ int main()
   SolverOptions options;
   options.tolerance = fixture::tolerance; options.max_iterations = fixture::max_iterations;
   const auto geometry = building();
+  condition_state(grid, model, geometry);
   WindData retained;
   for (int repeat = 0; repeat < 12; ++repeat) {
     WindRunner runner;

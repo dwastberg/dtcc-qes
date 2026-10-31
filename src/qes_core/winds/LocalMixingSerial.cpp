@@ -41,6 +41,7 @@
 
 void LocalMixingSerial::defineMixingLength(const TurbulenceConfig &, WINDSGeneralData *WGD)
 {
+  WGD->ensureMixingLengthStorage();
   const auto &d = WGD->domain;
   const int cx = static_cast<int>(d.x.size());
   const int cy = static_cast<int>(d.y.size());

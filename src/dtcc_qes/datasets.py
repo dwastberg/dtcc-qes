@@ -13,6 +13,7 @@ from dtcc_core.model import Bounds, City, Field, FieldSlice, Transform
 
 from . import __version__, wind
 from ._dataset_city import prepare_city
+from .solver_control import SolverControl
 
 __all__ = ["QESWindArgs", "QESWindDataset"]
 
@@ -42,6 +43,9 @@ class QESWindArgs(DatasetBaseArgs):
     tolerance: float = Argument(1e-4, gt=0)
     max_iterations: int = Argument(1000, ge=1)
     raise_on_nonconvergence: bool = False
+    raise_on_unaccepted: bool = False
+    solver_control: dict | None = Argument(None, description="Bounded or versioned adaptive native controls and explicit monitor.")
+    solver_policy_revision: str | None = Argument(None, description="Automatically bound native policy/arithmetic identity for cache provenance.")
     product: Literal["field", "slice"] = "field"
     slice_axis: Literal["x", "y", "z"] = "z"
     slice_sampling: Literal["nearest", "linear"] = Argument(
@@ -73,6 +77,24 @@ class QESWindArgs(DatasetBaseArgs):
                             self.vertical_clearance, self.max_cells, vertical_grid=self.vertical_grid_spec())
         wind._validate_solver(self.tolerance, self.max_iterations, self.raise_on_nonconvergence,
                               self.solver_precision)
+        if self.solver_control is not None:
+            control = SolverControl.from_dict(self.solver_control)
+            # Normalize omitted defaults so the cache key contains the policy
+            # version and the actual requested observables/windows.
+            self.solver_control = asdict(control)
+            if control.mode == "adaptive" and self.raise_on_nonconvergence:
+                raise ValueError("Adaptive mode uses raise_on_unaccepted, not raise_on_nonconvergence")
+            if control.mode == "adaptive":
+                actual_revision = wind._qes.solver_policy_revision
+                if self.solver_policy_revision not in (None, actual_revision):
+                    raise ValueError("Solver policy implementation changed; re-create the request for this build")
+                self.solver_policy_revision = actual_revision
+        if (self.solver_control is None or self.solver_control["mode"] != "adaptive") and self.solver_policy_revision is not None:
+            raise ValueError("solver_policy_revision requires adaptive solver controls")
+        if self.raise_on_unaccepted and (self.solver_control is None or self.solver_control["mode"] != "adaptive"):
+            raise ValueError("raise_on_unaccepted requires adaptive solver controls")
+        if self.solver_control is not None and self.solver_control["mode"] == "adaptive" and self.wind_speed == 0:
+            raise ValueError("Adaptive pedestrian acceptance is unavailable for calm wind")
         return self
 
     def vertical_grid_spec(self):
@@ -81,13 +103,16 @@ class QESWindArgs(DatasetBaseArgs):
         return None
 
     def wind_options(self):
-        return dict(speed=self.wind_speed, direction=self.wind_direction,
+        options = dict(speed=self.wind_speed, direction=self.wind_direction,
                     reference_height=self.reference_height, roughness_length=self.roughness_length,
                     resolution=self.resolution, horizontal_padding=self.horizontal_padding,
                     vertical_clearance=self.vertical_clearance, max_cells=self.max_cells,
                     tolerance=self.tolerance, max_iterations=self.max_iterations,
-                    raise_on_nonconvergence=self.raise_on_nonconvergence,
+                    raise_on_nonconvergence=self.raise_on_nonconvergence,raise_on_unaccepted=self.raise_on_unaccepted,
                     vertical_grid=self.vertical_grid_spec(), solver_precision=self.solver_precision)
+        if self.solver_control is not None:
+            options["solver_control"] = SolverControl.from_dict(self.solver_control)
+        return options
 
 
 class QESWindDataset(DatasetDescriptor):
@@ -171,6 +196,18 @@ class QESWindDataset(DatasetDescriptor):
             step["sampling"] = obj.metadata_payload.copy()
         context.provenance.processing_steps.append(step)
         context.health = asdict(solved.diagnostics)
+        if solved.control is not None:
+            context.health["solver_control"] = solved.control
+            context.health["execution_deterministic"] = False
+            if solved.control["mode"] == "adaptive":
+                context.health["numerically_accepted"] = solved.control["accepted"]
+                context.health["numerical_assessment_scope"] = solved.control["assessment_scope"]
+                if solved.control["accepted"]:
+                    context.warnings.append("Numerical acceptance covers only the declared pedestrian ROI/receptors; full-volume and physical/model accuracy remain unassessed.")
+                else:
+                    context.warnings.append(f"QES pedestrian output is unaccepted: {solved.control['assessment_reason']}.")
+            else:
+                context.warnings.append("Time-budgeted QES output records actual completed work; accuracy is not assessed.")
         context.health["automatic_grid_experimental"] = args.vertical_grid == "auto"
         if args.vertical_grid == "auto":
             context.warnings.append("Automatic vertical generation is experimental; local grid sensitivity "
@@ -179,7 +216,7 @@ class QESWindDataset(DatasetDescriptor):
             valid = obj.field("valid").values
             context.health["valid_samples"] = int(np.count_nonzero(valid))
             context.health["invalid_samples"] = int(valid.size - np.count_nonzero(valid))
-        if not solved.diagnostics.converged:
+        if not solved.diagnostics.converged and (solved.control is None or solved.control["mode"] != "adaptive"):
             context.warnings.append("QES solver did not converge; inspect the recorded diagnostics.")
         obj.dataset_context = context
         return obj

@@ -1,9 +1,8 @@
+#include "solver/solver.h"
 #include "model_inputs.h"
 #include "divergence.h"
-#include "winds/Solver_CPU.h"
 #include <limits>
 #include "winds/WINDSGeneralData.h"
-#include "winds/SolverFactory.h"
 #include "fixture.h"
 #include <algorithm>
 #include <cmath>
@@ -11,6 +10,8 @@
 #include <stdexcept>
 
 using namespace dtcc_qes;
+
+using namespace dtcc_qes::solver;
 
 static void require(bool condition, const char *message)
 {
@@ -38,11 +39,11 @@ static void check(bool with_building, bool report)
   data.resetICellFlag();
   data.applyWindProfile(inputs.inflow);
   data.applyParametrizations();
-  const auto before = divergence_stats(data, true);
-  std::unique_ptr<Solver> solver(SolverFactory::create(CPU_Type, data.domain, fixture::tolerance));
-  solver->resetLambda();
-  const auto diagnostics = solver->solve(&data, fixture::max_iterations);
-  const auto after = divergence_stats(data);
+  const PoissonOperator op(data);
+  const auto before = divergence_stats(data, op, true);
+  SolverState<float> solver(op, fixture::tolerance);
+  const auto diagnostics = solve_wind(solver, data, fixture::max_iterations);
+  const auto after = divergence_stats(data, op);
   require(diagnostics.converged, "Physics fixture did not converge");
   require(after.cells > 1000, "Flux check did not cover the solved interior");
   require(after.interior_max < 1e-5 && after.interior_rms < 1e-6, "Interior staggered flux exceeds the validated bound (s^-1)");
@@ -55,7 +56,7 @@ static void check(bool with_building, bool report)
   }
   // The numerical flux assertion must detect a broken staggered component.
   data.u[data.domain.face(10, 10, 2)] += 0.1f;
-  require(divergence_stats(data).interior_max > 1e-2, "Flux check missed a perturbed face");
+  require(divergence_stats(data, op).interior_max > 1e-2, "Flux check missed a perturbed face");
   if (report)
     std::cout << (with_building ? "building" : "flat") << ": initial_rms=" << before.interior_rms
               << " interior_max=" << after.interior_max << " interior_rms=" << after.interior_rms
@@ -74,12 +75,11 @@ static void injection(bool serial, bool vertical, float spacing, bool report)
   data.applyWindProfile(inputs.inflow);
   data.applyParametrizations();
   (vertical ? data.w0 : data.u0)[data.domain.face(12, 12, 6)] = 0.1f;
-  const auto before = divergence_stats(data, true);
-  std::unique_ptr<Solver> solver;
-  if (serial) solver = std::make_unique<Solver_CPU>(data.domain, 2e-7f);
-  else solver.reset(SolverFactory::create(CPU_Type, data.domain, 2e-7f));
-  const auto diagnostics = solver->solve(&data, 20000);
-  const auto after = divergence_stats(data);
+  const PoissonOperator op(data);
+  const auto before = divergence_stats(data, op, true);
+  SolverState<float> solver(op, 2e-7f, serial ? SweepOrder::Lexicographic : default_order());
+  const auto diagnostics = solve_wind(solver, data, 20000);
+  const auto after = divergence_stats(data, op);
   require(before.interior_max > 0.02, "Injection did not create divergence");
   require(after.interior_max < 1e-6, "Solver failed to remove injected divergence");
   if (report)
@@ -120,7 +120,8 @@ static void diagnostic_checks()
     weighted_square += volume * expected * expected;
     volume_sum += volume;
   }
-  const auto stats = divergence_stats(data, true);
+  const PoissonOperator op(data);
+  const auto stats = divergence_stats(data, op, true);
   require(std::abs(stats.interior_max - maximum) < 2e-6, "Divergence maximum differs from independent oracle");
   require(std::abs(stats.interior_rms - std::sqrt(weighted_square / volume_sum)) < 2e-6,
           "Divergence RMS does not use actual cell volumes");
@@ -129,10 +130,10 @@ static void diagnostic_checks()
 
   // Neither top-layer values nor its unscaled coefficients may be accessed.
   data.u0[d.face(2, 2, grid.nz)] = std::numeric_limits<float>::quiet_NaN();
-  require(divergence_stats(data, true).interior_max == stats.interior_max, "Unassessed top layer contaminated diagnostic");
+  require(divergence_stats(data, op, true).interior_max == stats.interior_max, "Unassessed top layer contaminated diagnostic");
   data.u0[d.face(2, 2, 2)] = std::numeric_limits<float>::quiet_NaN();
   bool rejected = false;
-  try { divergence_stats(data, true); } catch (const std::runtime_error &) { rejected = true; }
+  try { divergence_stats(data, op, true); } catch (const std::runtime_error &) { rejected = true; }
   require(rejected, "Diagnostic accepted a nonfinite assessed face");
 
   GridConfig small;
@@ -141,10 +142,11 @@ static void diagnostic_checks()
   WINDSGeneralData small_data(make_domain(small_inputs), small_inputs.buildings, small_inputs.parameterizations, small_inputs.inflow.site_z0);
   small_data.applyWindProfile(small_inputs.inflow);
   small_data.applyParametrizations();
-  const auto empty = divergence_stats(small_data, true);
+  const PoissonOperator small_op(small_data);
+  const auto empty = divergence_stats(small_data, small_op, true);
   require(empty.cells == 0 && empty.top_band_cells == 1, "Small grid diagnostic bands are incorrect");
   std::fill(small_data.icellflag.begin(), small_data.icellflag.end(), 2);
-  const auto solid = divergence_stats(small_data, true);
+  const auto solid = divergence_stats(small_data, small_op, true);
   require(solid.cells == 0 && solid.top_band_cells == 0, "Solid cells entered diagnostic");
 }
 
@@ -170,20 +172,18 @@ static std::vector<float> canyon(bool serial, bool report)
   WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
   data.applyWindProfile(inputs.inflow);
   data.applyParametrizations();
-  const auto before = divergence_stats(data, true);
+  const PoissonOperator op(data);
+  const auto before = divergence_stats(data, op, true);
   require(before.interior_max > 0.1, "Canyon did not exercise divergent parameterizations");
-  std::unique_ptr<Solver> solver;
-  if (serial) solver = std::make_unique<Solver_CPU>(data.domain, std::numeric_limits<float>::epsilon());
-  else solver.reset(SolverFactory::create(CPU_Type, data.domain, std::numeric_limits<float>::epsilon()));
+  SolverState<float> solver(op, std::numeric_limits<float>::epsilon(), serial ? SweepOrder::Lexicographic : default_order());
   std::vector<float> previous, plane;
   for (const int budget : {1000, 2000, 4000}) {
     // Always restart from the same initial field and reset lambda. Verify that
     // the requested work is performed, even if the production stopping rule
     // would normally return early. No public stopping-rule change is made.
-    solver->resetLambda();
-    const auto diagnostics = solver->solve(&data, budget);
+      const auto diagnostics = solve_wind(solver, data, budget);
     require(diagnostics.iterations == budget, "Canyon study stopped before the requested checkpoint");
-    const auto stats = divergence_stats(data);
+    const auto stats = divergence_stats(data, op);
     require(stats.interior_max * 15 / 5 < 1e-3 && stats.interior_rms * 15 / 5 < 1e-4,
             "Canyon exceeds common conservative divergence bounds");
     plane.clear();

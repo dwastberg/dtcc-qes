@@ -518,8 +518,8 @@ def test_public_fields_match_audited_standalone_reference(spec):
     toolchain=metadata["toolchain"]
     if (toolchain["compiler_id"] != _qes.compiler_id or toolchain["compiler_version"] != _qes.compiler_version
             or toolchain["build_type"] != _qes.build_type or toolchain["machine"] != platform.machine()
-            or toolchain["platform"] != platform.platform() or _qes.openmp_enabled):
-        pytest.skip("Exact public parity requires the recorded serial toolchain or locally regenerated references")
+            or toolchain["platform"] != platform.platform() or _qes.cpu_sweep_order != "lexicographic"):
+        pytest.skip("Archived exact parity requires lexicographic ordering and the recorded toolchain")
     city,condition,grid,solver=city_case(spec.case)
     options={}
     if spec.dz_layers:

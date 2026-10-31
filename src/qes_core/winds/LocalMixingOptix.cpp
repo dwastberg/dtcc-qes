@@ -44,6 +44,7 @@
 
 void LocalMixingOptix::defineMixingLength(const TurbulenceConfig &config, WINDSGeneralData *WGD)
 {
+  WGD->ensureMixingLengthStorage();
 
   auto [nx, ny, nz] = WGD->domain.getDomainCellNum();
   auto [dx, dy, dz] = WGD->domain.getDomainSize();

@@ -4,6 +4,8 @@
 #include <nanobind/stl/string.h>
 #include "build_info.h"
 #include "wind_runner.h"
+#include "control_bindings.h"
+#include <chrono>
 #include <cstring>
 #include <exception>
 #include <type_traits>
@@ -68,6 +70,7 @@ nb::object owned_array(const std::vector<T> &values, nb::tuple shape, const char
 
 nb::dict python_result(const WindData &data)
 {
+  const auto transfer_started = std::chrono::steady_clock::now();
   nb::dict result;
   result["x"] = owned_array(data.x, nb::make_tuple(data.nx), "float32");
   result["y"] = owned_array(data.y, nb::make_tuple(data.ny), "float32");
@@ -112,6 +115,12 @@ nb::dict python_result(const WindData &data)
     fields["rotation_fallback_columns"] = t.rotation_fallback_columns;
     result["turbulence"] = fields;
   }
+  if (data.control) {
+    auto control = control_binding::encode(*data.control);
+    auto timings = nb::cast<nb::dict>(control["timings"]);
+    timings["output_transfer_seconds"] = std::chrono::duration<double>(std::chrono::steady_clock::now()-transfer_started).count();
+    result["control"] = control;
+  }
   nb::module_::import_("dtcc_qes._logging").attr("_log_solve")(result);
   return result;
 }
@@ -128,6 +137,9 @@ NB_MODULE(_qes, m)
   m.attr("io_enabled") = false;
   m.attr("openmp_enabled") = dtcc_qes::openmp_enabled();
   m.attr("cpu_backend") = dtcc_qes::cpu_backend();
+  m.attr("cpu_sweep_order") = dtcc_qes::cpu_sweep_order();
+  m.attr("fp_contract") = dtcc_qes::fp_contract();
+  m.attr("solver_policy_revision") = dtcc_qes::solver_policy_revision();
   m.attr("compiler_id") = DTCC_QES_COMPILER_ID;
   m.attr("compiler_version") = DTCC_QES_COMPILER_VERSION;
   m.attr("build_type") = DTCC_QES_BUILD_TYPE;
@@ -180,9 +192,20 @@ NB_MODULE(_qes, m)
        nb::arg("heights").noconvert(), nb::arg("base_heights").noconvert(), nb::arg("ids").noconvert(),
        nb::kw_only(), nb::arg("dz_layers").noconvert().none() = nb::none(),
        nb::arg("turbulence").none() = nb::none())
-    .def("solve", [](WindRunner &runner, const WindCondition &condition, const SolverOptions &options) {
+    .def("solve", [](WindRunner &runner, const WindCondition &condition, const SolverOptions &options,nb::object control) {
       const WindCondition wind = condition;
       const SolverOptions solver = options;
-      return python_result(native_call([&](Messages &messages) { return runner.solve(wind, solver, messages); }));
-    }, "condition"_a, "options"_a = SolverOptions{});
+      const auto settings = control.is_none() ? std::optional<SolverControl>{} : control_binding::parse(nb::cast<nb::dict>(control));
+      try {
+        return python_result(native_call([&](Messages &messages) { return runner.solve(wind, solver, messages,settings ? &*settings : nullptr); }));
+      } catch (const BudgetExhausted &failure) {
+        auto cls=nb::module_::import_("dtcc_qes.solver_control").attr("BudgetExhaustedError");
+        auto error=cls(control_binding::encode(failure.record));
+        PyErr_SetObject(cls.ptr(),error.ptr());throw nb::python_error();
+      } catch (const NumericalFailure &failure) {
+        auto cls=nb::module_::import_("dtcc_qes.solver_control").attr("NumericalFailureError");
+        auto error=cls(control_binding::encode(failure.record));
+        PyErr_SetObject(cls.ptr(),error.ptr());throw nb::python_error();
+      }
+    }, "condition"_a, "options"_a = SolverOptions{},nb::kw_only(),"control"_a=nb::none());
 }

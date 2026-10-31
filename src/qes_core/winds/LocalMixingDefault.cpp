@@ -41,6 +41,7 @@
 
 void LocalMixingDefault::defineMixingLength(const TurbulenceConfig &, WINDSGeneralData *WGD)
 {
+  WGD->ensureMixingLengthStorage();
   auto [nx, ny, nz] = WGD->domain.getDomainCellNum();
 
   // seeding Local Mixing Length with the verical distance to the terrain (up to 2*max_z)

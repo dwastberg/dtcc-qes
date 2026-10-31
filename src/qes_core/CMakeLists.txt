@@ -20,8 +20,8 @@ add_library(qeswindscore STATIC
   qes/Domain.cpp
   winds/Cell.cpp winds/CutCell.cpp winds/CutBuilding.cpp
   winds/LocalMixingDefault.cpp winds/LocalMixingSerial.cpp winds/LocalMixingOptix.cpp
-  winds/PolyBuilding.cpp winds/Solver.cpp winds/Solver_CPU.cpp winds/Solver_CPU_RB.cpp
-  winds/SolverFactory.cpp
+  winds/PolyBuilding.cpp
+  solver/solver.cpp solver/cpu_float32.cpp solver/cpu_float64.cpp
   winds/TURBGeneralData.cpp winds/TURBWall.cpp winds/TURBWallBuilding.cpp winds/TURBWallTerrain.cpp
   winds/LogProfile.cpp
   winds/WINDSGeneralData.cpp winds/Wall.cpp winds/UpwindCavity.cpp winds/NonLocalMixing.cpp
@@ -38,6 +38,6 @@ target_include_directories(dtcc_qes_api INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/d
 add_library(dtcc_qes_internal INTERFACE)
 target_include_directories(dtcc_qes_internal INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/dtcc")
 target_link_libraries(dtcc_qes_internal INTERFACE dtcc_qes_api qeswindscore)
-add_library(qesbridge OBJECT dtcc/build_info.cpp dtcc/model_inputs.cpp dtcc/divergence.cpp
-  dtcc/log_sink.cpp dtcc/wind_runner.cpp dtcc/precision_solver.cpp dtcc/turbulence.cpp)
+add_library(qesbridge OBJECT dtcc/build_info.cpp dtcc/model_inputs.cpp dtcc/divergence.cpp dtcc/monitor.cpp dtcc/solver_control.cpp dtcc/pedestrian_policy.cpp
+  dtcc/log_sink.cpp dtcc/wind_runner.cpp dtcc/turbulence.cpp)
 target_link_libraries(qesbridge PRIVATE dtcc_qes_internal)

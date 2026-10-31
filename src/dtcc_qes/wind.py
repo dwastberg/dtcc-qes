@@ -14,9 +14,13 @@ from ._city import extract_city, number, prepare_domain
 from .result import ConvergenceError, SolveDiagnostics, TurbulenceFields, WindResult, WindSample
 from .turbulence import Turbulence, _resolve_turbulence, _turbulence_metadata
 from .vertical_grid import GridPreview, VerticalGrid
+from .solver_control import (SolverControl, MonitorSpec, Receptor, MassRegion, BudgetExhaustedError,
+                             NumericalFailureError, UnacceptedResultError)
 
 __all__ = ["run", "preview_grid", "WindResult", "WindSample", "GridPreview",
-           "SolveDiagnostics", "ConvergenceError", "VerticalGrid", "Turbulence", "TurbulenceFields"]
+           "SolveDiagnostics", "ConvergenceError", "VerticalGrid", "Turbulence", "TurbulenceFields",
+           "SolverControl", "MonitorSpec", "Receptor", "MassRegion", "BudgetExhaustedError",
+           "NumericalFailureError", "UnacceptedResultError"]
 
 
 def _dtcc_version():
@@ -32,7 +36,8 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
         max_cells: int = 20_000_000, tolerance: float = 1e-5, max_iterations: int = 500,
         raise_on_nonconvergence: bool = False, terrain=None, height_policy="measured",
         vertical_grid: VerticalGrid | None = None, solver_precision: str = "float32",
-        turbulence: bool | Turbulence = False) -> WindResult:
+        turbulence: bool | Turbulence = False, solver_control: SolverControl | None = None,
+        raise_on_unaccepted: bool = False) -> WindResult:
     """Solve one explicit wind condition without modifying the source city.
 
     Speed is in m/s. Direction is clockwise from north and denotes where the
@@ -49,6 +54,23 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
     cells of padding.
     Non-convergence logs a warning and returns the available result unless
     raise_on_nonconvergence=True.
+
+    ``solver_control=SolverControl(...)`` runs with a cooperative native solve
+    budget and bounded diagnostic history. It includes mutex wait and checks
+    every complete sweep. Preparation and required final output/turbulence are
+    timed separately. ``result.control`` records termination and overshoot;
+    bounded accuracy remains ``not_assessed``. No completed sweep raises
+    ``BudgetExhaustedError`` with phase/timing evidence.
+
+    ``SolverControl(..., mode='adaptive')`` opts into pedestrian-v1 on its
+    qualified small rectangular-building scope. It assesses the declared ROI
+    at 1.5/1.75 m and every required receptor, with independent mass/residual
+    safeguards. ``control['accepted']`` is separate from legacy ``converged``;
+    it does not qualify the full volume, turbulence or physical wind accuracy.
+    Unsupported configurations return bounded, unaccepted outputs. Set
+    ``raise_on_unaccepted=True`` to raise ``UnacceptedResultError`` instead of
+    warning. Adaptive mode rejects ``raise_on_nonconvergence=True`` and calm
+    wind. See docs/solver-control-s7.md for the versioned scope and limits.
 
     ``solver_precision='float64'`` opts into double multiplier storage, RHS,
     updates and face corrections. Geometry, coefficients and returned velocities
@@ -81,6 +103,17 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
     Other city objects are omitted and listed in result metadata.
     """
     turbulence_spec = _resolve_turbulence(turbulence)
+    if solver_control is not None and not isinstance(solver_control, SolverControl):
+        raise TypeError("solver_control must be SolverControl or None")
+    adaptive = solver_control is not None and solver_control.mode == "adaptive"
+    if not isinstance(raise_on_unaccepted, bool):
+        raise ValueError("raise_on_unaccepted must be boolean")
+    if raise_on_unaccepted and not adaptive:
+        raise ValueError("raise_on_unaccepted requires adaptive solver controls")
+    if adaptive and raise_on_nonconvergence:
+        raise ValueError("Adaptive mode uses raise_on_unaccepted, not raise_on_nonconvergence")
+    if adaptive and speed == 0:
+        raise ValueError("Adaptive pedestrian acceptance is unavailable for calm wind")
     condition = _validate_condition(speed, direction, reference_height, roughness_length)
     grid = _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, max_cells,
                           vertical_grid=vertical_grid)
@@ -103,23 +136,33 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
             turbulence_options["turbulence"] = native_turbulence
         runner.prepare(prepared.grid, prepared.model, **prepared.arrays, dz_layers=prepared.dz_layers,
                        **turbulence_options)
-        native = runner.solve(native_condition, native_solver)
+        control_options = {} if solver_control is None else {"control":solver_control._native(prepared.origin, geometry.crs)}
+        native = runner.solve(native_condition, native_solver, **control_options)
     finally:
         # Arrays already own their storage. A retained Python exception's
         # traceback must not retain the much larger prepared native domain.
         del runner
     diagnostics = SolveDiagnostics(**native["diagnostics"])
-    if not diagnostics.converged:
+    if adaptive:
+        if not native["control"]["accepted"]:
+            failure = UnacceptedResultError(diagnostics, native["control"])
+            if raise_on_unaccepted:
+                raise failure
+            get_python_logger("dtcc-qes").warning(str(failure))
+    elif not diagnostics.converged:
         if solver["raise_on_nonconvergence"]:
-            raise ConvergenceError(diagnostics)
-        get_python_logger("dtcc-qes").warning(str(ConvergenceError(diagnostics)))
+            raise ConvergenceError(diagnostics,native.get("control"))
+        get_python_logger("dtcc-qes").warning(str(ConvergenceError(diagnostics,native.get("control"))))
     model_names = ("wall_roughness", "rooftop_flag", "upwind_cavity_flag", "street_canyon_flag",
                    "street_intersection_flag", "wake_flag", "high_rise_flag", "sidewall_flag")
+    solver_metadata = dict(solver)
+    if adaptive:
+        solver_metadata["raise_on_unaccepted"] = raise_on_unaccepted
     metadata = dict(
         divergence_diagnostic=dict(unit="s^-1", norm="volume-weighted RMS and maximum",
             lateral_boundary_cells="excluded", last_solved_band="reported separately",
             highest_physical_layer="unassessed"),
-        domain=prepared.domain, condition=condition, solver=solver, terrain=prepared.terrain,
+        domain=prepared.domain, condition=condition, solver=solver_metadata, terrain=prepared.terrain,
         effective_condition={name: float(np.float32(value)) for name, value in condition.items()},
         height_policy=height_policy, ignored_city_objects=geometry.ignored_objects,
         model=dict(backend=_qes.cpu_backend, log_law_flag=0, mesh_type_flag=0, halo_x=0, halo_y=0,
@@ -129,7 +172,7 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
         versions=dict(dtcc_qes=__version__, qes=dict(version=_qes.qes_version, revision=_qes.qes_revision),
                       dtcc_core=_dtcc_version(), native_build=dict(compiler_id=_qes.compiler_id,
                           compiler_version=_qes.compiler_version, build_type=_qes.build_type,
-                          openmp_enabled=_qes.openmp_enabled)),
+                          openmp_enabled=_qes.openmp_enabled, fp_contract=_qes.fp_contract)),
         buildings=[dict(native_id=i, source_id=source_id, height=height, height_source=source,
                         original_base_range=base_range, redundant_vertices_removed=removed)
                    for i, (source_id, height, source, base_range, removed) in enumerate(zip(
@@ -143,6 +186,11 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
         dtcc_cell_order="y, x, z fastest (VolumeGrid.coordinates meshgrid xy)",
     )
     turbulence_fields = None
+    if "control" in native:
+        metadata["solver_control"] = native["control"]
+        metadata["solver_control"]["execution"] = dict(precision=solver["precision"],backend=_qes.cpu_backend,
+            sweep_order=_qes.cpu_sweep_order,native_build=metadata["versions"]["native_build"],
+            source_revision=_qes.qes_revision,shape=list(native["cell_flags"].shape))
     if turbulence_spec is not None:
         fields = native["turbulence"]
         turbulence_fields = TurbulenceFields(stress=fields["stress"],tke=fields["tke"],co_eps=fields["co_eps"],

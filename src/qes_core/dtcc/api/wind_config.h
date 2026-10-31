@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <optional>
+#include "control_types.h"
 
 namespace dtcc_qes {
 // Private numerical contract. Coordinates are metres in a local, flat frame.
@@ -41,11 +42,6 @@ struct BuildingArrays {
   std::vector<double> heights, base_heights;
 };
 
-struct DivergenceStats {
-  double interior_max = 0, interior_rms = 0, top_band_max = 0;
-  std::size_t cells = 0, top_band_cells = 0;
-};
-
 struct TurbulenceSettings {
   bool enabled = false;
   int mixing_length_method = 0; // 0: height; 1: qualified serial wall distance.
@@ -74,5 +70,6 @@ struct WindData {
   DivergenceStats divergence;
   std::size_t building_count = 0;
   std::optional<TurbulenceData> turbulence;
+  std::optional<ControlRecord> control;
 };
 }

@@ -612,7 +612,9 @@ void PolyBuilding::streetCanyonModified(WINDSGeneralData *WGD)
                 y_pos = y_w;
                 if (x_pos <= s + 0.001 && x_pos > -0.5 * dxy) {
                   icell_cent = WGD->domain.cell(i, j, k);
-                  if (WGD->icellflag[WGD->domain.cellAdd(icell_cent, 0, 0, -1)] != 0
+                  // Match the original canyon's geometry-mask invariant.
+                  if (WGD->icellflag[icell_cent] != 0 && WGD->icellflag[icell_cent] != 2
+                      && WGD->icellflag[WGD->domain.cellAdd(icell_cent, 0, 0, -1)] != 0
                       && WGD->icellflag[WGD->domain.cellAdd(icell_cent, 0, 0, -1)] != 2) {
                     icell_face = WGD->domain.face(i, j, k);
                     if (reverse_flag == 0) {
