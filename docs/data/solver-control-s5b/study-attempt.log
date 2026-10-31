@@ -1,0 +1,32 @@
+[1/16] mixed_downtown_core 225 float32 2000
+[2/16] mixed_downtown_core 270 float32 2000
+[3/16] mixed_downtown_core 315 float32 2000
+[4/16] perimeter_neighbourhood_core 225 float32 2000
+[5/16] mixed_downtown_pilot 225 float32 2000
+[6/16] mixed_downtown_pilot 225 float64 2000
+[7/16] mixed_downtown_pilot 225 float32 2000
+[8/16] perimeter_neighbourhood_pilot 225 float32 2000
+[9/16] perimeter_neighbourhood_pilot 225 float64 2000
+[10/16] perimeter_neighbourhood_pilot 225 float32 2000
+[11/16] tower_2m 270 float64 500
+[12/16] tower_2m 270 float64 1000
+[13/16] tower_2m 270 float64 2000
+[14/16] passages_2m 270 float64 500
+[15/16] passages_2m 270 float64 1000
+[16/16] passages_2m 270 float64 2000
+Traceback (most recent call last):
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/run_solver_numerics.py", line 261, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/run_solver_numerics.py", line 259, in main
+    if not run(output,protocol):raise SystemExit(1)
+           ~~~^^^^^^^^^^^^^^^^^
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/run_solver_numerics.py", line 219, in run
+    summary=dict(completed=all(r['status']=='completed' for r in rows),rows=rows,references=qualify(rows,output))
+                                                                                            ~~~~~~~^^^^^^^^^^^^^
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/run_solver_numerics.py", line 176, in qualify
+    for a,b in zip(arrays,arrays[1:]):record['pairs'].append(compare_samples(a,b,group[0]['result']['plane_points']))
+                                                             ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/run_solver_numerics.py", line 141, in compare_samples
+    raise ValueError('Nonfinite sample evidence')
+ValueError: Nonfinite sample evidence

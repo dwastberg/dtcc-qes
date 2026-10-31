@@ -1,0 +1,9 @@
+{
+  "executable_sha256": "21b0bce5287d50cfaf457716f31e538d0ec65e8951ece614069a8cf0a063af64",
+  "cmake_cache_sha256": "b2ed12481e1720b91e11b2da33446a02cdc01979791b4f303d8159f8326cde04",
+  "protocol_sha256": "794f5e8e6d3b8c7486a480227344ddfba5b6ccdddf2db3eee3fbca521dffc177",
+  "environment": {
+    "OMP_NUM_THREADS": "4",
+    "OMP_DYNAMIC": "FALSE"
+  }
+}

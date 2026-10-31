@@ -1,0 +1,22 @@
+{
+  "reason": "Main cadence 25 does not resolve the first 25 sweeps. Diagnostic-only supplement, frozen before running; does not retune or repeat the main method selection.",
+  "cases": [
+    "tower_2m",
+    "passages_2m"
+  ],
+  "omegas": [
+    1.78,
+    1.85,
+    1.9,
+    1.95
+  ],
+  "precision": "float32",
+  "iterations": 25,
+  "cadence": 1,
+  "workers": 8,
+  "worker_seconds": 30,
+  "total_seconds": 30,
+  "veto": "Any selected-factor worker failure, nonfinite diagnostic, or maximum/RMS residual or interior-mass growth above 10 times its initial value vetoes the scoped opt-in. No replacement candidate selected.",
+  "executable_sha256": "6dbeaf9324b89cdb9f6e57ca750695b2ebc267e7c5ddd25f4f703ded798a7fc9",
+  "main_protocol_sha256": "26e04da632793b7b8c9ffc33a58ae720ec7cbc4bf7ab424ba416e326a3661786"
+}

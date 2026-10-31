@@ -1,0 +1,74 @@
+{
+  "native_openmp": {
+    "passed": 46,
+    "failed": 0
+  },
+  "native_serial": {
+    "passed": 43,
+    "failed": 0
+  },
+  "sanitizer": {
+    "passed": 4,
+    "failed": 0,
+    "scope": [
+      "equation_residual",
+      "solver_phases",
+      "solver_monitor",
+      "solver_control"
+    ]
+  },
+  "strict_parity": {
+    "passed": true,
+    "cases_per_revision": 429,
+    "records_per_comparison": 3872,
+    "comparisons": 12,
+    "openmp_teams": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "serial_team": 1
+  },
+  "python": {
+    "workspace_run": {
+      "passed": 1037,
+      "skipped": 16,
+      "failed": 13
+    },
+    "fresh_study_executable_recheck": {
+      "passed": 1,
+      "failed": 0,
+      "reason": "Old build/extension study executable had obsolete allocation accounting"
+    },
+    "inherited_dataset_failures": {
+      "count": 12,
+      "reproduced_against_frozen_s4": true,
+      "reason": "Live dataset tests exercise unfinished slice API absent from frozen S4; no dataset files changed in S5b"
+    },
+    "focused_study_and_urban_tools": {
+      "passed": 37,
+      "failed": 0
+    }
+  },
+  "study": {
+    "workers": 16,
+    "completed": 16,
+    "qualified_reference_triples": 2,
+    "independent_zero_start_workers": 6,
+    "large_urban_reference_qualified": false,
+    "physical_validation": false
+  },
+  "analysis_correction": "Original supervisor rejected NaN velocity in explicitly invalid samples after all 16 native workers completed. Reanalyzed saved workers with corrected mask handling; no worker reruns. Original driver/log retained.",
+  "production_numerics": "Unchanged S4 kernels, default stopping, coefficients, flagging, face reconstruction and Python API. Only pure native diagnostics added.",
+  "sources": {
+    "studied_sha256": "26a643a6d2bfc6d3dd6574847fde1403942f1177ce5d4c0593a4d179cc1b5606",
+    "final_implementation_sha256": "565534ab023d35710d522c0b3977c73ec27d5290a891e13b66162eebe65523bc"
+  },
+  "final_runner_reanalysis": "Exact saved results, all hotspot classifications and all cost/error curves; no native worker reruns",
+  "frozen_prior_evidence": {
+    "files": 514,
+    "unchanged": true
+  },
+  "portable_case_inputs": "Fresh-checkout preparation test passes without historical build/urban-benchmarks outputs"
+}

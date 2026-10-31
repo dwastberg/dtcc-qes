@@ -1,0 +1,123 @@
+{
+  "completed": true,
+  "workers": 16,
+  "references": [
+    {
+      "case": "tower_2m",
+      "accepted": true,
+      "complete": true,
+      "pairs": [
+        [
+          {
+            "common_valid": 1461,
+            "validity_changes": 0,
+            "required_valid": true,
+            "p95": 3.3799623186667303e-06,
+            "maximum": 4.5411744885379934e-06
+          },
+          {
+            "common_valid": 1461,
+            "validity_changes": 0,
+            "required_valid": true,
+            "p95": 3.377347056595263e-06,
+            "maximum": 4.545151505847136e-06
+          }
+        ],
+        [
+          {
+            "common_valid": 1461,
+            "validity_changes": 0,
+            "required_valid": true,
+            "p95": 4.470348358154297e-09,
+            "maximum": 3.5767329971958416e-08
+          },
+          {
+            "common_valid": 1461,
+            "validity_changes": 0,
+            "required_valid": true,
+            "p95": 3.725290298461914e-09,
+            "maximum": 3.576278793104846e-08
+          }
+        ]
+      ],
+      "mass_checks": [
+        {
+          "maximum": 5.710005294531584e-05,
+          "rms": 1.8567699625372762e-05,
+          "passed": true
+        },
+        {
+          "maximum": 2.070937771350145e-06,
+          "rms": 4.502027242939116e-07,
+          "passed": true
+        },
+        {
+          "maximum": 2.0659714937210085e-06,
+          "rms": 4.503902434614745e-07,
+          "passed": true
+        }
+      ],
+      "same_initial_fields_and_flags": true,
+      "label": "qualified_same_grid_reference"
+    },
+    {
+      "case": "passages_2m",
+      "accepted": true,
+      "complete": true,
+      "pairs": [
+        [
+          {
+            "common_valid": 2575,
+            "validity_changes": 0,
+            "required_valid": true,
+            "p95": 5.159662454409822e-07,
+            "maximum": 6.776932779973088e-07
+          },
+          {
+            "common_valid": 2575,
+            "validity_changes": 0,
+            "required_valid": true,
+            "p95": 5.137106979168222e-07,
+            "maximum": 6.758444616516677e-07
+          }
+        ],
+        [
+          {
+            "common_valid": 2575,
+            "validity_changes": 0,
+            "required_valid": true,
+            "p95": 3.492459654808044e-11,
+            "maximum": 2.384185791015625e-08
+          },
+          {
+            "common_valid": 2575,
+            "validity_changes": 0,
+            "required_valid": true,
+            "p95": 3.2014213502407077e-11,
+            "maximum": 3.5762786865234374e-08
+          }
+        ]
+      ],
+      "mass_checks": [
+        {
+          "maximum": 1.0111341252923011e-05,
+          "rms": 2.7216249462402782e-06,
+          "passed": true
+        },
+        {
+          "maximum": 1.2537091970443726e-06,
+          "rms": 4.368962497341294e-07,
+          "passed": true
+        },
+        {
+          "maximum": 1.2537091970443726e-06,
+          "rms": 4.3694606528830897e-07,
+          "passed": true
+        }
+      ],
+      "same_initial_fields_and_flags": true,
+      "label": "qualified_same_grid_reference"
+    }
+  ],
+  "output": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s5b/reanalysis-final"
+}

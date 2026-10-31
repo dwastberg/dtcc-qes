@@ -1,0 +1,25 @@
+{
+  "existing": [
+    {
+      "path": "docs/data/generated-grid-pilot/raw.json.gz",
+      "sha256": "3551d6f18089689be3d107949da32dbf97ae8834b7b4159661cd133274e058dc",
+      "disposition": "Not compatible with new 2m calibration cases or urban core",
+      "reasons": [
+        "historical tower 0.5m/92 layers versus new 2m/uniform32",
+        "source/method/order differs; archived serial trajectory",
+        "same complete initial fields/condition flags not established"
+      ]
+    },
+    {
+      "path": "docs/data/finest-reference/manifest.json",
+      "disposition": "No accepted finest reference; stopped runtime escalation retained"
+    },
+    {
+      "path": "build/urban-benchmarks/core-2000-20261030-clean/results.json",
+      "sha256": "03b7f203ca7f5f4879e65a2e7d0323c814a81e6204dbd6cde80b8868e1c706b7",
+      "disposition": "Compatible geometry/grid benchmark evidence only; 2000 is not a reference"
+    }
+  ],
+  "new_scope": "Two explicitly new 2m geometries. Same frozen source, initial fields/flags and sampling within each triple; no transfer to large-grid hotspots.",
+  "no_adaptive_budget_expansion": true
+}

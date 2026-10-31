@@ -1,0 +1,154 @@
+[
+  {
+    "request": {
+      "id": "00",
+      "case": "tower_2m",
+      "purpose": "early_transient",
+      "omega": 1.78,
+      "precision": "float32",
+      "iterations": 25,
+      "cadence": 1,
+      "direction": 270
+    },
+    "growth": {
+      "residual_maximum": 2.4218408448610775,
+      "residual_rms": 2.0068161402701747,
+      "mass_maximum": 2.4218408265742943,
+      "mass_rms": 2.006816138557524
+    },
+    "passed": true
+  },
+  {
+    "request": {
+      "id": "01",
+      "case": "tower_2m",
+      "purpose": "early_transient",
+      "omega": 1.85,
+      "precision": "float32",
+      "iterations": 25,
+      "cadence": 1,
+      "direction": 270
+    },
+    "growth": {
+      "residual_maximum": 2.561272170529957,
+      "residual_rms": 2.2579168605165125,
+      "mass_maximum": 2.5612721339563906,
+      "mass_rms": 2.2579168538702037
+    },
+    "passed": true
+  },
+  {
+    "request": {
+      "id": "02",
+      "case": "tower_2m",
+      "purpose": "early_transient",
+      "omega": 1.9,
+      "precision": "float32",
+      "iterations": 25,
+      "cadence": 1,
+      "direction": 270
+    },
+    "growth": {
+      "residual_maximum": 2.7995976322565976,
+      "residual_rms": 2.500343692442811,
+      "mass_maximum": 2.7995975591094657,
+      "mass_rms": 2.500343686385917
+    },
+    "passed": true
+  },
+  {
+    "request": {
+      "id": "03",
+      "case": "tower_2m",
+      "purpose": "early_transient",
+      "omega": 1.95,
+      "precision": "float32",
+      "iterations": 25,
+      "cadence": 1,
+      "direction": 270
+    },
+    "growth": {
+      "residual_maximum": 3.058751264348176,
+      "residual_rms": 2.879007052406589,
+      "mass_maximum": 3.0587513374953077,
+      "mass_rms": 2.879007047258323
+    },
+    "passed": true
+  },
+  {
+    "request": {
+      "id": "04",
+      "case": "passages_2m",
+      "purpose": "early_transient",
+      "omega": 1.78,
+      "precision": "float32",
+      "iterations": 25,
+      "cadence": 1,
+      "direction": 270
+    },
+    "growth": {
+      "residual_maximum": 2.3006165241888197,
+      "residual_rms": 2.0063703543414912,
+      "mass_maximum": 2.30061655974252,
+      "mass_rms": 2.0063703557830244
+    },
+    "passed": true
+  },
+  {
+    "request": {
+      "id": "05",
+      "case": "passages_2m",
+      "purpose": "early_transient",
+      "omega": 1.85,
+      "precision": "float32",
+      "iterations": 25,
+      "cadence": 1,
+      "direction": 270
+    },
+    "growth": {
+      "residual_maximum": 2.429250941234376,
+      "residual_rms": 2.160634858102591,
+      "mass_maximum": 2.4292509803044315,
+      "mass_rms": 2.160634855752261
+    },
+    "passed": true
+  },
+  {
+    "request": {
+      "id": "06",
+      "case": "passages_2m",
+      "purpose": "early_transient",
+      "omega": 1.9,
+      "precision": "float32",
+      "iterations": 25,
+      "cadence": 1,
+      "direction": 270
+    },
+    "growth": {
+      "residual_maximum": 2.913604095185971,
+      "residual_rms": 2.275159645057381,
+      "mass_maximum": 2.9136041748323582,
+      "mass_rms": 2.275159630583807
+    },
+    "passed": true
+  },
+  {
+    "request": {
+      "id": "07",
+      "case": "passages_2m",
+      "purpose": "early_transient",
+      "omega": 1.95,
+      "precision": "float32",
+      "iterations": 25,
+      "cadence": 1,
+      "direction": 270
+    },
+    "growth": {
+      "residual_maximum": 3.5623165752015065,
+      "residual_rms": 2.5811894769481647,
+      "mass_maximum": 3.562316672581122,
+      "mass_rms": 2.5811894779848195
+    },
+    "passed": true
+  }
+]
