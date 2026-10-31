@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-31",
+  "scope": "BUILDING_UPDATE.md section 5.3 dataset migration",
+  "python_full_suite": {
+    "passed": 959,
+    "failed": 0
+  },
+  "python_dataset_suite": {
+    "passed": 63,
+    "failed": 0
+  },
+  "openmp_python_dataset_and_contacts": {
+    "passed": 78,
+    "failed": 0,
+    "threads": 2
+  },
+  "native_serial": {
+    "passed": 40,
+    "failed": 0
+  },
+  "native_openmp": {
+    "passed": 43,
+    "failed": 0
+  },
+  "native_address_undefined_sanitizers": {
+    "passed": 40,
+    "failed": 0
+  },
+  "dataset_preparation_schema": 2,
+  "dataset_pipeline": "canonical-cells-v1",
+  "dtcc_core_revision": "80a4bbae2760e891e2a0be4175d67bf3340a8e67",
+  "dtcc_core_changes_required": false,
+  "post_conditioning_fill_area_available": false,
+  "live_fetches_run": false,
+  "aij_cases_run": false,
+  "physical_validation": false
+}

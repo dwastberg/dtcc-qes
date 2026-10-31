@@ -86,7 +86,25 @@ def reject_intersections(polygons, source_ids, *, context=""):
                                  f"overlapping or touching footprints are unsupported{context}")
 
 
-def extract_city(city, height_policy):
+def near_contacts(city, resolution):
+    """Report strict-mode pairs separated by less than one horizontal cell."""
+    if not city.rings:
+        return ()
+    anchor=np.min(np.concatenate(city.rings),axis=0)
+    polygons=[Polygon(r-anchor) for r in city.rings]
+    tree=STRtree(polygons)
+    rows=[]
+    for i,polygon in enumerate(polygons):
+        for j in tree.query(polygon.buffer(resolution).envelope):
+            if j<=i:
+                continue
+            distance=polygon.distance(polygons[j])
+            if distance<resolution:
+                rows.append(dict(source_ids=[city.source_ids[i],city.source_ids[j]],distance=distance))
+    return tuple(rows)
+
+
+def extract_city(city, height_policy, *, _allow_contacts=False):
     if not isinstance(city, City):
         raise TypeError("city must be a dtcc_core.model.City")
     if height_policy not in ("measured", "allow_estimated"):
@@ -171,7 +189,7 @@ def extract_city(city, height_policy):
     if declared and any(crs is None or not crs.equals(declared[0]) for crs in systems):
         raise ValueError("Buildings must share one CRS; declare it on the city to inherit it")
     system = declared[0] if declared else city_frame[1]
-    if rings:
+    if rings and not _allow_contacts:
         anchor = np.min(np.concatenate(rings), axis=0)
         polygons = [Polygon(ring - anchor) for ring in rings]
         reject_intersections(polygons, ids)
@@ -195,6 +213,8 @@ class PreparedDomain:
     domain: dict
     terrain: dict
     dz_layers: np.ndarray | None = None
+    footprints: object | None = None
+    near_contacts: tuple = ()
 
 
 def default_domain_top(heights, reference_height, vertical_clearance, spacing, *, turbulence_reference=None):
@@ -206,7 +226,7 @@ def default_domain_top(heights, reference_height, vertical_clearance, spacing, *
 
 def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, resolution,
                    bounds, horizontal_padding, vertical_clearance, max_cells, terrain, vertical_grid=None,
-                   turbulence=False):
+                   turbulence=False, _footprints=None):
     if not isinstance(turbulence, bool):
         raise ValueError("turbulence must be a bool")
     z_ref = turbulence_reference_height(city.heights, roughness_length) if turbulence else None
@@ -214,9 +234,11 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
         raise ValueError("City has terrain; pass terrain='flat' or a ground elevation to explicitly accept flattening")
     if not city.rings and bounds is None:
         raise ValueError("An empty city requires explicit grid bounds")
-    base = min((lo for lo, _ in city.base_ranges), default=bounds[2] if bounds else 0.0)
+    base_ranges = city.base_ranges if _footprints is None else tuple(s.base_range for s in _footprints.sources)
+    base_ids = city.source_ids if _footprints is None else tuple(s.source_id for s in _footprints.sources)
+    base = min((lo for lo, _ in base_ranges), default=bounds[2] if bounds else 0.0)
     if terrain is None:
-        for source_id, (lo, hi) in zip(city.source_ids, city.base_ranges):
+        for source_id, (lo, hi) in zip(base_ids, base_ranges):
             if hi - lo > 1e-6 or abs(lo - base) > 1e-6:
                 raise ValueError(f"Building {source_id!r}: incompatible base elevation; explicitly request terrain='flat' to flatten")
     elif terrain != "flat":
@@ -372,27 +394,39 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
              error=float(faces[np.searchsorted(centres_z, np.float32(height), side="right")]) - height)
         for source_id, height in zip(city.source_ids, city.heights)
     ]
-    top_centre = float(np.float32(0.5) * (faces[-2] + faces[-1]))
-    local_rings, narrowed_polygons, offsets = [], [], [0]
-    for source_id, ring, height in zip(city.source_ids, city.rings, city.heights):
-        local = ring - np.asarray(origin[:2], dtype=np.float64)
-        if (not np.isfinite(local).all() or np.any(local < 2 * spacing)
-                or np.any(local >= np.asarray(effective[:2]) - 2 * spacing)):
-            raise ValueError(f"Building {source_id!r}: footprint needs two cells of clearance inside the effective bounds")
-        narrowed = local.astype(np.float32).astype(np.float64)
-        if (np.any(narrowed < 2 * spacing)
-                or np.any(narrowed >= np.asarray(effective[:2]) - 2 * spacing)):
-            raise ValueError(f"Building {source_id!r}: footprint needs two cells of clearance inside the effective bounds")
-        if np.float32(height) >= top_centre:
-            raise ValueError(f"Building {source_id!r}: roof needs clearance below the top physical cell centre")
-        polygon = Polygon(narrowed)
-        if (np.any(np.all(narrowed[1:] == narrowed[:-1], axis=1))
-                or not polygon.is_valid or polygon.area <= 0 or polygon.exterior.is_ccw):
-            raise ValueError(f"Building {source_id!r}: footprint loses valid edges or area at float32 precision")
-        local_rings.append(local)
-        narrowed_polygons.append(polygon)
-        offsets.append(offsets[-1] + len(local))
-    reject_intersections(narrowed_polygons, city.source_ids, context=" after float32 conversion")
+    final_footprints = None
+    if _footprints is not None:
+        from ._footprints import finalize_footprints
+        final_footprints = finalize_footprints(_footprints, effective_faces=faces,
+            origin=origin, resolution=spacing, shape=(nz,ny,nx), terrain=terrain, max_cells=max_cells)
+        local_rings = [np.asarray(c.polygon.exterior.coords)+np.asarray(_footprints.anchor)-origin[:2]
+                       for c in final_footprints.solids]
+        vertical_metadata["roof_representation"] = [dict(native_id=r["native_id"],
+            source_ids=r["source_ids"], requested_height=r["height"],
+            represented_height=r["represented_roof"], error=r["roof_error"])
+            for r in final_footprints.metadata["solids"]]
+    else:
+        top_centre = float(np.float32(0.5) * (faces[-2] + faces[-1]))
+        local_rings, narrowed_polygons, offsets = [], [], [0]
+        for source_id, ring, height in zip(city.source_ids, city.rings, city.heights):
+            local = ring - np.asarray(origin[:2], dtype=np.float64)
+            if (not np.isfinite(local).all() or np.any(local < 2 * spacing)
+                    or np.any(local >= np.asarray(effective[:2]) - 2 * spacing)):
+                raise ValueError(f"Building {source_id!r}: footprint needs two cells of clearance inside the effective bounds")
+            narrowed = local.astype(np.float32).astype(np.float64)
+            if (np.any(narrowed < 2 * spacing)
+                    or np.any(narrowed >= np.asarray(effective[:2]) - 2 * spacing)):
+                raise ValueError(f"Building {source_id!r}: footprint needs two cells of clearance inside the effective bounds")
+            if np.float32(height) >= top_centre:
+                raise ValueError(f"Building {source_id!r}: roof needs clearance below the top physical cell centre")
+            polygon = Polygon(narrowed)
+            if (np.any(np.all(narrowed[1:] == narrowed[:-1], axis=1))
+                    or not polygon.is_valid or polygon.area <= 0 or polygon.exterior.is_ccw):
+                raise ValueError(f"Building {source_id!r}: footprint loses valid edges or area at float32 precision")
+            local_rings.append(local)
+            narrowed_polygons.append(polygon)
+            offsets.append(offsets[-1] + len(local))
+        reject_intersections(narrowed_polygons, city.source_ids, context=" after float32 conversion")
     native_grid = _qes.GridConfig()
     native_grid.nx, native_grid.ny, native_grid.nz = counts
     native_grid.cell_size, native_grid.max_cells = spacing, max_cells
@@ -402,17 +436,22 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
     model.sensor_y = (min(15, ny - 1) + 0.5) * spacing
     if any(Polygon(ring).covers(Point(model.sensor_x, model.sensor_y)) for ring in local_rings):
         model.sensor_x = model.sensor_y = 0.5 * spacing
-    arrays = dict(vertices=np.ascontiguousarray(np.concatenate(local_rings) if local_rings else np.empty((0, 2)), dtype=np.float64),
-                  offsets=np.asarray(offsets, dtype=np.int64), heights=np.asarray(city.heights, dtype=np.float64),
-                  base_heights=np.zeros(len(city.rings), dtype=np.float64), ids=np.arange(len(city.rings), dtype=np.int64))
+    if final_footprints is not None:
+        arrays = final_footprints.arrays
+        model.exposed_faces = _footprints.metadata["settings"]["exposed_faces"]
+    else:
+        arrays = dict(vertices=np.ascontiguousarray(np.concatenate(local_rings) if local_rings else np.empty((0, 2)), dtype=np.float64),
+                      offsets=np.asarray(offsets, dtype=np.int64), heights=np.asarray(city.heights, dtype=np.float64),
+                      base_heights=np.zeros(len(city.rings), dtype=np.float64), ids=np.arange(len(city.rings), dtype=np.int64))
     return PreparedDomain(native_grid, model, arrays, origin, spacing,
                           dict(requested_bounds=bounds, local_bounds=(0.0, 0.0, 0.0, *effective),
                                effective_bounds=(*origin, *(origin[i] + effective[i] for i in range(3))),
                                shape=(nz, ny, nx), requested_resolution=resolution, resolution=spacing,
                                vertical_grid=vertical_metadata,
                                **({"turbulence": turbulence_metadata} if turbulence else {}),
+                               **({"footprints": final_footprints.metadata} if final_footprints is not None else {}),
                                effective_horizontal_padding=padding, max_cells=max_cells),
                           dict(model="flat", elevation=base, flattening_requested=terrain is not None,
                                city_terrain_ignored=city.has_terrain, base_elevation_tolerance=1e-6,
                                base_elevations_flattened=any(abs(lo - base) > 1e-6 or abs(hi - base) > 1e-6
-                                                            for lo, hi in city.base_ranges)), layers)
+                                                            for lo, hi in base_ranges)), layers, final_footprints)

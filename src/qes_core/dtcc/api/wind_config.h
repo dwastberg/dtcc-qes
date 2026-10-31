@@ -19,6 +19,7 @@ struct GridConfig {
 struct ModelSettings {
   double roughness_length = 0.1;
   double sensor_x = 11.0, sensor_y = 31.0;
+  bool exposed_faces = false;
   double wall_roughness = 0.001;
   int rooftop_flag = 1, upwind_cavity_flag = 2, street_canyon_flag = 1;
   int street_intersection_flag = 0, wake_flag = 2, high_rise_flag = 0, sidewall_flag = 1;
@@ -39,6 +40,8 @@ struct BuildingArrays {
   std::vector<double> vertices;
   std::vector<std::int64_t> offsets, ids;
   std::vector<double> heights, base_heights;
+  // Optional global vertex boundaries of closed rings; building offsets align.
+  std::vector<std::int64_t> ring_offsets;
 };
 
 struct DivergenceStats {

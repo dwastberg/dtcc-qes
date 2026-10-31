@@ -2,6 +2,7 @@
 
 from importlib.metadata import distribution
 import json
+from dataclasses import replace
 import math
 from numbers import Integral
 import numpy as np
@@ -10,13 +11,14 @@ from dtcc_core.common import get_python_logger
 from dtcc_core.model import Bounds
 
 from . import __version__, _qes
-from ._city import extract_city, number, prepare_domain
+from ._city import extract_city, near_contacts, number, prepare_domain
 from .result import ConvergenceError, SolveDiagnostics, TurbulenceFields, WindResult, WindSample
 from .turbulence import Turbulence, _resolve_turbulence, _turbulence_metadata
 from .vertical_grid import GridPreview, VerticalGrid
+from .footprints import Footprints
 
 __all__ = ["run", "preview_grid", "WindResult", "WindSample", "GridPreview",
-           "SolveDiagnostics", "ConvergenceError", "VerticalGrid", "Turbulence", "TurbulenceFields"]
+           "SolveDiagnostics", "ConvergenceError", "VerticalGrid", "Turbulence", "TurbulenceFields", "Footprints"]
 
 
 def _dtcc_version():
@@ -32,7 +34,7 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
         max_cells: int = 20_000_000, tolerance: float = 1e-5, max_iterations: int = 500,
         raise_on_nonconvergence: bool = False, terrain=None, height_policy="measured",
         vertical_grid: VerticalGrid | None = None, solver_precision: str = "float32",
-        turbulence: bool | Turbulence = False) -> WindResult:
+        turbulence: bool | Turbulence = False, footprints: Footprints | None = None) -> WindResult:
     """Solve one explicit wind condition without modifying the source city.
 
     Speed is in m/s. Direction is clockwise from north and denotes where the
@@ -63,8 +65,15 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
     mask uncomputed or invalid covariance and undefined mean directions.
     This algebraic model has not been validated for pedestrian gusts.
 
+    ``footprints=Footprints(...)`` opts into cleaning touching, overlapping,
+    multipart and holed footprints into height-preserving canonical solids.
+    Its default exposure rules suppress parameterizations from hidden walls.
+    Cleaning tolerance is in metres and independent of grid resolution.
+    Source-to-solid mappings and cleaning decisions are recorded in metadata.
+
     The input uses one shared planar frame in metres (or an unlabelled local
-    metre frame). Only single, hole-free LOD0 Surfaces are accepted; footprints
+    metre frame). With ``footprints=None``, only single, hole-free LOD0 Surfaces
+    are accepted; footprints
     may not overlap or touch, and building parts are unsupported. Measured
     heights are required unless ``height_policy='allow_estimated'`` explicitly
     permits estimates when measurements are absent. Invalid measurements do
@@ -86,7 +95,14 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
                           vertical_grid=vertical_grid)
     solver = _validate_solver(tolerance, max_iterations, raise_on_nonconvergence, solver_precision)
     geometry, prepared = _prepare_city(city, condition, grid, terrain, height_policy,
-                                        turbulence=turbulence_spec is not None)
+                                        turbulence=turbulence_spec is not None, footprints=footprints)
+    return _solve_prepared(geometry, prepared, condition, solver, vertical_grid=vertical_grid,
+                           turbulence_spec=turbulence_spec, height_policy=height_policy)
+
+
+def _solve_prepared(geometry, prepared, condition, solver, *, vertical_grid=None,
+                    turbulence_spec=None, height_policy="measured"):
+    """Solve a validated prepared domain and assemble the common result metadata."""
     native_condition = _qes.WindCondition()
     for name in ("speed", "direction", "reference_height"):
         setattr(native_condition, name, condition[name])
@@ -142,6 +158,16 @@ def run(city, speed: float, direction: float, *, reference_height: float = 10.0,
         coordinates="local metres; add origin to recover the input global frame",
         dtcc_cell_order="y, x, z fastest (VolumeGrid.coordinates meshgrid xy)",
     )
+    if prepared.footprints is not None:
+        final = prepared.footprints
+        metadata["footprints"] = final.metadata
+        metadata["solids"] = final.metadata["solids"]
+        metadata["buildings"] = [dict(row)
+            for row in final.metadata["buildings"]]
+        metadata["model"].update(exposed_faces=prepared.model.exposed_faces,
+            building_geometry="canonical-prisms-v1", exposure_rule="initial-mask-normal-dda-v1")
+    if prepared.near_contacts:
+        metadata["near_contacts"] = list(prepared.near_contacts)
     turbulence_fields = None
     if turbulence_spec is not None:
         fields = native["turbulence"]
@@ -161,8 +187,12 @@ def preview_grid(city, *, reference_height: float = 10.0, roughness_length: floa
                  resolution: float = 2.0, bounds=None, horizontal_padding: float = 20.0,
                  vertical_clearance: float = 20.0, max_cells: int = 20_000_000,
                  terrain=None, height_policy="measured",
-                 vertical_grid: VerticalGrid | None = None, turbulence: bool | Turbulence = False) -> GridPreview:
+                 vertical_grid: VerticalGrid | None = None, turbulence: bool | Turbulence = False,
+                 footprints: Footprints | None = None) -> GridPreview:
     """Inspect a uniform, explicit or automatic grid without QES wind arrays.
+
+    ``footprints=Footprints(...)`` uses the same cleaning and final solid mapping
+    as ``run``; details are in ``domain["footprints"]``.
 
     Geometry, terrain, bounds, clearance and cell limits use the same preparation
     as ``run``. Reference height and roughness use the same profile validation;
@@ -180,7 +210,7 @@ def preview_grid(city, *, reference_height: float = 10.0, roughness_length: floa
     grid = _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, max_cells,
                           vertical_grid=vertical_grid)
     geometry, prepared = _prepare_city(city, condition, grid, terrain, height_policy,
-                                        turbulence=turbulence_spec is not None)
+                                        turbulence=turbulence_spec is not None, footprints=footprints)
     nz, ny, nx = prepared.domain["shape"]
     spacing = np.float32(prepared.resolution)
     faces = np.asarray(prepared.domain["vertical_grid"]["effective_faces"], dtype=np.float32)
@@ -192,16 +222,29 @@ def preview_grid(city, *, reference_height: float = 10.0, roughness_length: floa
                        prepared.origin, geometry.crs, prepared.resolution, prepared.domain, prepared.terrain)
 
 
-def _prepare_city(city, condition, grid, terrain, height_policy, *, turbulence=False):
+def _prepare_city(city, condition, grid, terrain, height_policy, *, turbulence=False, footprints=None):
     """Shared geometry and domain preparation for solving and grid preview."""
     if not isinstance(turbulence, bool):
         raise ValueError("turbulence must be a bool")
     if terrain is not None and not (isinstance(terrain, str) and terrain == "flat"):
         terrain = number(terrain, "terrain elevation")
+    if footprints is not None:
+        if not isinstance(footprints, Footprints):
+            raise TypeError("footprints must be Footprints or None")
+        from ._footprints import prepare_footprint_domain
+        return prepare_footprint_domain(city, height_policy, footprints,
+            reference_height=condition["reference_height"], roughness_length=condition["roughness_length"],
+            **grid, terrain=terrain, turbulence=turbulence)
     geometry = extract_city(city, height_policy)
     prepared = prepare_domain(geometry, reference_height=condition["reference_height"],
                               roughness_length=condition["roughness_length"], **grid, terrain=terrain,
                               turbulence=turbulence)
+    contacts=near_contacts(geometry,prepared.resolution)
+    if contacts:
+        get_python_logger("dtcc-qes").warning(
+            "%d building pairs are closer than one grid cell; use Footprints for contact-aware preparation",len(contacts))
+        prepared=replace(prepared,near_contacts=contacts,
+            domain=dict(prepared.domain,near_contacts=list(contacts)))
     return geometry, prepared
 
 

@@ -99,6 +99,9 @@ protected:
   CutBuilding *cutBuilding = nullptr;
 
 public:
+  void prepareParameterFaces(WINDSGeneralData *WGD);
+  bool faceExposed(const WINDSGeneralData *WGD, std::size_t edge, double x, double y, int k) const;
+
   PolyBuilding()
     : Building()
   {

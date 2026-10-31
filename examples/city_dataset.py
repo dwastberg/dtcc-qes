@@ -15,6 +15,8 @@ def main():
     parser.add_argument("--wind-speed", type=float, default=5.0)
     parser.add_argument("--wind-direction", type=float, default=270.0)
     args = parser.parse_args()
+    # The dataset preserves height steps and fills source/region courtyards.
+    # Its context records source-to-solid mappings and any tallest-height fallback.
     result = datasets.qes_wind(**vars(args))
     print(result)
     print(result.provenance.processing_steps[-1]["diagnostics"])

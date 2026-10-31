@@ -139,8 +139,10 @@ WINDSGeneralData::WINDSGeneralData(qes::Domain domain_in, const std::vector<Buil
     int j = allBuildingsV.size() - 1;
     building_id.push_back(j);
     allBuildingsV[j]->ID = j;
+    allBuildingsV[j]->ringOffsets = footprint.ring_offsets;
     allBuildingsV[j]->setPolyBuilding(this);
     allBuildingsV[j]->setCellFlags(this, j);
+    static_cast<PolyBuilding*>(allBuildingsV[j])->prepareParameterFaces(this);
     effective_height.push_back(allBuildingsV[j]->height_eff);
   }
 

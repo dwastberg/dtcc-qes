@@ -88,3 +88,41 @@ it says otherwise.
 - **Kept for their own decisions:** cut cells (`CutCell`, `CutBuilding` and the
   arrays they share with `Wall`), `StreetCanyonModified`, OptiX mixing lengths
   (`LocalMixingOptix` with the util mesh classes) and the `HAS_CUDA` hooks.
+
+- **Canonical footprints, explicit rings and exposed faces.** `BuildingArrays`
+  accepts optional global ring offsets aligned with building vertex offsets.
+  The bridge validates closure, winding, simple rings, hole containment and
+  nonintersecting/non-nested holes after float32 conversion. Legacy callers
+  omit ring offsets and retain their single-ring contract. `BuildingFootprint`
+  carries the validated local offsets into `PolyBuilding`.
+  `Building` provides ring-local edge traversal and a shared even-odd point
+  test used by both rasterization and exposure. All face loops in
+  `UpwindCavity`, `PolygonWake`, `StreetCanyon`, `StreetCanyonModified`,
+  `Sidewall` and `Rooftop`, including downstream face searches, skip ring
+  jumps. The centroid uses the outer ring; wake dimensions use net polygon
+  area. Courtyard faces participate in parameterizations, with one common
+  wake scale calculated from outer-ring faces. Explicit/canonical ring inputs
+  use exact ring ends instead of the legacy 0.1 m closure heuristic.
+  Canonical parameterization faces remove exact collinear vertices while
+  retaining the original noded vertices for mask membership. This geometry
+  is the same with exposure enabled or disabled.
+- **Exposure rule (opt-in).** `ModelSettings.exposed_faces` defaults to false.
+  For a candidate seed, project onto the source face segment and trace its
+  outward normal through grid cells with a deterministic DDA. Skip cells
+  whose centres lie in the source's original even-odd footprint. The first
+  outside centre must be fluid in `icellflag_initial`. Own solid ahead of the
+  seed face blocks the ray, preventing traversal through an opposite courtyard
+  wall or concave branch when a gap has no fluid centre. Mutable flow flags and
+  input building ownership are not used for this decision. Upwind cavity and
+  wake apply this test to their staggered velocity samples; sidewall also
+  checks the originating upwind corner and restores eligibility per level.
+  Wake and canyon marches skip source-footprint cells before fluid and stop
+  at a solid neighbor. Downstream canyon searches require a found face in
+  exposure mode. Rooftop support is limited to its own footprint for holes
+  and exposure mode, preserving existing upwind-cavity flags in exposure mode.
+  The legacy single-ring, exposure-off path retains its closure heuristic.
+  Nonfinite wake-length guards and canyon/sidewall bounds checks also protect
+  that path; canonical reference fixtures retain their numerical results.
+  This is a numerical geometry/exposure correction, not experimental
+  validation of empirical parameterizations at height steps. OptiX is not
+  enabled by this CPU integration.

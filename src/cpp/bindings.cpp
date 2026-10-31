@@ -148,7 +148,8 @@ NB_MODULE(_qes, m)
     .def_rw("street_intersection_flag", &ModelSettings::street_intersection_flag)
     .def_rw("wake_flag", &ModelSettings::wake_flag)
     .def_rw("high_rise_flag", &ModelSettings::high_rise_flag)
-    .def_rw("sidewall_flag", &ModelSettings::sidewall_flag);
+    .def_rw("sidewall_flag", &ModelSettings::sidewall_flag)
+    .def_rw("exposed_faces", &ModelSettings::exposed_faces);
   nb::class_<WindCondition>(m, "WindCondition")
     .def(nb::init<>()).def_rw("speed", &WindCondition::speed)
     .def_rw("direction", &WindCondition::direction).def_rw("reference_height", &WindCondition::reference_height);
@@ -163,7 +164,7 @@ NB_MODULE(_qes, m)
     .def(nb::init<>())
     .def("prepare", [](WindRunner &runner, const GridConfig &grid, const ModelSettings &model,
                        Vertices vertices, Integers offsets, Floats heights, Floats base_heights, Integers ids,
-                       Floats dz_layers, const TurbulenceSettings *turbulence) {
+                       Floats dz_layers, const TurbulenceSettings *turbulence, Integers ring_offsets) {
       // Snapshot Python inputs while holding the GIL. Native work never borrows
       // mutable NumPy buffers or configuration objects from another Python thread.
       GridConfig grid_value = grid;
@@ -171,7 +172,8 @@ NB_MODULE(_qes, m)
       const ModelSettings model_value = model;
       const TurbulenceSettings turbulence_value = turbulence ? *turbulence : TurbulenceSettings{};
       const BuildingArrays buildings{copy_input(vertices), copy_input(offsets), copy_input(ids),
-                                     copy_input(heights), copy_input(base_heights)};
+                                     copy_input(heights), copy_input(base_heights),
+                                     ring_offsets.is_valid() ? copy_input(ring_offsets) : std::vector<std::int64_t>{}};
       native_call([&](Messages &messages) {
         runner.prepare(grid_value, model_value, buildings, turbulence_value, messages);
         return 0;
@@ -179,7 +181,8 @@ NB_MODULE(_qes, m)
     }, "grid"_a, "model"_a, nb::arg("vertices").noconvert(), nb::arg("offsets").noconvert(),
        nb::arg("heights").noconvert(), nb::arg("base_heights").noconvert(), nb::arg("ids").noconvert(),
        nb::kw_only(), nb::arg("dz_layers").noconvert().none() = nb::none(),
-       nb::arg("turbulence").none() = nb::none())
+       nb::arg("turbulence").none() = nb::none(),
+       nb::arg("ring_offsets").noconvert().none() = nb::none())
     .def("solve", [](WindRunner &runner, const WindCondition &condition, const SolverOptions &options) {
       const WindCondition wind = condition;
       const SolverOptions solver = options;

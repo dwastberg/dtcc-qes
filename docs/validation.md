@@ -1,5 +1,10 @@
 # Milestone 1 validation
 
+The [building-contact baseline](building-contacts.md) records reproducible
+synthetic comparisons of touching, overlapping and nearly touching footprints.
+It measures decomposition artifacts while public contact rejection remains
+active outside the standalone experiment.
+
 The later [vertical-grid Stage 0 report](stage0-validation.md) documents the
 vertical RHS correction, public conservative-divergence diagnostics, injection
 and canyon regression tests, and plan reassessment. The original flat and

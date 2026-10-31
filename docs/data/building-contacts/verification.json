@@ -1,0 +1,41 @@
+{
+  "python_full_suite": {
+    "passed": 949,
+    "failed": 0
+  },
+  "native_serial": {
+    "passed": 40,
+    "failed": 0
+  },
+  "native_openmp": {
+    "passed": 43,
+    "failed": 0
+  },
+  "native_address_undefined_sanitizers": {
+    "passed": 40,
+    "failed": 0
+  },
+  "openmp_python_subset": {
+    "passed": 131,
+    "skipped": 8,
+    "skip_reason": "Existing exact serial turbulence references require their serial toolchain"
+  },
+  "resolved_artifact_sha256": "76b4d5b1df8587d0df609147c238a675a75c787f5c823214152b1efbdd9320fe",
+  "resolved_source_and_binary_hashes_verified": true,
+  "staged_python_matches_sources": true,
+  "identical_velocity_and_flags_comparisons": [
+    "split",
+    "split_reversed",
+    "split_parallel",
+    "gap_order",
+    "separated_order",
+    "near_equal_roofs",
+    "overlap_partition",
+    "overlap_order"
+  ],
+  "solves": 15,
+  "comparisons": 12,
+  "iterations_per_solve": 1500,
+  "physical_validation": false,
+  "aij_cases_run": false
+}

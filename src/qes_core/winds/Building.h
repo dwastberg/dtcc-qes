@@ -31,6 +31,7 @@
 /** @file Building.h */
 
 #pragma once
+#include <algorithm>
 
 #include "util/PolygonVertex.h"
 #include "CutVertex.h"
@@ -101,6 +102,44 @@ public:
   float Lr{}; /**< Length of far wake zone */
 
   std::vector<polyVert> polygonVertices; /**< :document this: */
+
+  std::vector<std::size_t> ringOffsets;
+  std::vector<polyVert> maskVertices;
+  std::vector<std::size_t> maskRingOffsets;
+
+  bool isFace(std::size_t edge) const
+  {
+    return edge + 1 < polygonVertices.size()
+      && !std::binary_search(ringOffsets.begin(), ringOffsets.end(), edge + 1);
+  }
+  std::size_t previousFace(std::size_t edge) const
+  {
+    if (ringOffsets.empty()) return (edge + polygonVertices.size()-2) % (polygonVertices.size()-1);
+    const auto end = std::upper_bound(ringOffsets.begin(), ringOffsets.end(), edge);
+    return edge == *(end-1) ? *end-2 : edge-1;
+  }
+  std::size_t nextFace(std::size_t edge) const
+  {
+    if (ringOffsets.empty()) return (edge+1) % (polygonVertices.size()-1);
+    const auto end = std::upper_bound(ringOffsets.begin(), ringOffsets.end(), edge);
+    return edge+2 == *end ? *(end-1) : edge+1;
+  }
+  bool containsXY(double x, double y) const
+  {
+    const auto &vertices=maskVertices.empty() ? polygonVertices : maskVertices;
+    const auto &offsets=maskVertices.empty() ? ringOffsets : maskRingOffsets;
+    const float px=x, py=y;
+    bool inside = false;
+    for (std::size_t edge=0; edge+1<vertices.size(); ++edge) {
+      if (std::binary_search(offsets.begin(),offsets.end(),edge+1)) continue;
+      const auto &a=vertices[edge], &b=vertices[edge+1];
+      if ((a.y_poly<=py && b.y_poly>py)||(a.y_poly>py && b.y_poly<=py)) {
+        const float fraction=(py-a.y_poly)/(b.y_poly-a.y_poly);
+        if (px<a.x_poly+fraction*(b.x_poly-a.x_poly)) inside=!inside;
+      }
+    }
+    return inside;
+  }
 
   Building()
   {

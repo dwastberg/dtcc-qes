@@ -10,7 +10,7 @@ from dtcc_core.model import Bounds, Building, City, FieldSlice, GeometryType, Ra
 
 from dtcc_qes import wind
 from dtcc_qes.datasets import QESWindArgs, _field_slice
-from dtcc_qes._dataset_city import prepare_city
+from dtcc_qes._dataset_city import prepare_city, _source_city
 
 
 pytestmark = pytest.mark.usefixtures("dtcc_logger")
@@ -81,8 +81,10 @@ def test_discovery_has_native_products_and_no_formats():
 def test_field_matches_direct_solver_and_keeps_source(source_city, fetched):
     before = deepcopy(source_city)
     args = QESWindArgs(**request())
-    city, bounds, _ = prepare_city(source_city, args)
-    expected = wind.run(city, **args.wind_options(), bounds=bounds,
+    _, bounds, _ = prepare_city(source_city, args)
+    expected = wind.run(_source_city(source_city, []), footprints=wind.Footprints(
+                        min_detail=args.min_building_detail, fallback="tallest"),
+                        **args.wind_options(), bounds=bounds,
                         terrain=bounds[2], height_policy="allow_estimated").to_dtcc()
     actual = datasets.qes_wind(**request())
     assert type(actual) is VolumeGrid
@@ -102,7 +104,7 @@ def test_field_matches_direct_solver_and_keeps_source(source_city, fetched):
     json.dumps(actual.dataset_context.model_dump(mode="json"), allow_nan=False)
 
 
-def test_cleaning_uses_core_block_height_and_records_courtyards(source_city, monkeypatch):
+def test_cleaning_preserves_cell_heights_and_records_courtyards(source_city, monkeypatch):
     source_city.add_building(building("b", x=16.2, height=12.0, holes=True))
     clean = builder.clean_footprints
     seen = []
@@ -113,15 +115,13 @@ def test_cleaning_uses_core_block_height_and_records_courtyards(source_city, mon
         return result
 
     monkeypatch.setattr(builder, "clean_footprints", tracked)
-    city, bounds, metadata = prepare_city(source_city, QESWindArgs(**request()))
+    prepared, bounds, metadata = prepare_city(source_city, QESWindArgs(**request()))
     assert len(seen) == 1
-    assert len(city.buildings) == 1
-    block = city.buildings[0]
-    assert not block.building_parts
-    assert not block.lod0.holes
-    assert block.estimated_height == seen[0].buildings[0].estimated_height == 12
-    assert metadata["blocks"][0]["source_ids"] == ["a", "b"]
+    assert sorted(c.height for c in prepared.cells) == [6, 12]
+    assert {s.source_id for s in prepared.sources} == {"a", "b"}
+    assert metadata["schema_version"] == 2
     assert metadata["footprint_cleaning"]["merged_count"] == 1
+    assert metadata["footprint_cleaning"]["remove_holes"] is True
     assert metadata["filled_courtyards"] == [{"source_id": "b", "hole_count": 1, "filled_area": 1.0}]
     assert len(source_city.buildings[1].lod0.holes) == 1
 
@@ -158,14 +158,14 @@ def test_slice_sampling_on_unequal_axes(axis, position):
 
 
 def test_dataset_slice_solves_once_and_context_is_per_request(fetched, monkeypatch):
-    run = wind.run
+    run = wind._solve_prepared
     calls = []
 
     def tracked(*args, **kwargs):
         calls.append(1)
         return run(*args, **kwargs)
 
-    monkeypatch.setattr(wind, "run", tracked)
+    monkeypatch.setattr(wind, "_solve_prepared", tracked)
     first = datasets.qes_wind(**request(product="slice", slice_resolution=8))
     saved = first.dataset_context.model_dump(mode="json")
     second = datasets.qes_wind(**request(wind_speed=2.0))
@@ -288,7 +288,7 @@ def test_empty_city_with_explicit_elevation(fetched, source_city):
     source_city.remove_buildings()
     result = datasets.qes_wind(**(request() | {"bounds": [0, 0, 10, 30, 24, 30]}))
     assert type(result) is VolumeGrid
-    assert realization(result)["preparation"]["blocks"] == []
+    assert realization(result)["preparation"]["footprints"]["counts"]["sources"] == 0
     with pytest.raises(ValueError, match="empty city without terrain"):
         datasets.qes_wind(**request())
 
@@ -307,17 +307,20 @@ def test_residual_overlap_is_rejected(source_city, monkeypatch):
         city.attributes["footprint_cleaning"] = {}
         return city
     monkeypatch.setattr(builder, "clean_footprints", unresolved)
-    with pytest.raises(ValueError, match="overlapping or touching"):
+    with pytest.raises(ValueError, match="footprints share area"):
         prepare_city(source_city, QESWindArgs(**request()))
 
 
 def test_projected_coordinates_and_translations(source_city):
     source_city.transform.set_translation(300000, 6400000, 20)
     args = QESWindArgs(**(request() | {"bounds": [300000, 6400000, 300030, 6400024]}))
-    city, bounds, _ = prepare_city(source_city, args)
+    prepared, bounds, _ = prepare_city(source_city, args)
     assert bounds[:3] == (299994, 6399994, 20)
-    np.testing.assert_allclose(city.buildings[0].lod0.vertices.min(axis=0), [300010, 6400010, 20])
-    assert city.transform.srs == "EPSG:3006"
+    np.testing.assert_allclose(
+        np.asarray(prepared.sources[0].polygon.exterior.coords).min(axis=0) + prepared.anchor,
+        [300010, 6400010])
+    assert prepared.sources[0].base_range == (20, 20)
+    assert prepared.crs == "EPSG:3006"
     source_city.transform.srs = "EPSG:4326"
     with pytest.raises(ValueError, match="planar"):
         prepare_city(source_city, args)

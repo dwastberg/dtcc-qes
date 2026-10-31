@@ -98,6 +98,7 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
   }
 
   for (size_t id = 0; id < polygonVertices.size() - 1; id++) {
+    if (!isFace(id)) continue;
     // Face relative angle to the perpendicular angle to the local wind
     face_rel_dir[id] = atan2(yi[id + 1] - yi[id], xi[id + 1] - xi[id]) + 0.5 * M_PI;
     if (face_rel_dir[id] > M_PI) {
@@ -120,12 +121,13 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
     y_pref = vd / sqrt(0.5 * R_cx_side);
 
     for (size_t id = 0; id < polygonVertices.size() - 1; id++) {
+    if (!isFace(id)) continue;
       // +/-10 degree perpendicular to the local wind
       if (abs(face_rel_dir[id]) >= 0.5 * M_PI - tol && abs(face_rel_dir[id]) <= 0.5 * M_PI + tol) {
         right_flag = 0;
         left_flag = 0;
         if (face_rel_dir[id] > 0.0) {
-          index_previous = (id + polygonVertices.size() - 2) % (polygonVertices.size() - 1);
+          index_previous = previousFace(id);
           // Finding the left face eligible for the parameterization
           if (abs(face_rel_dir[index_previous]) >= M_PI - tol) {
             left_flag = 1;
@@ -137,7 +139,7 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
             face_dir = atan2(y_end_left - y_start_left, x_end_left - x_start_left);
           }
         } else {
-          index_next = (id + 1) % (polygonVertices.size() - 1);
+          index_next = nextFace(id);
           // Finding the right face eligible for the parameterization
           if (abs(face_rel_dir[index_next]) >= M_PI - tol) {
             right_flag = 1;
@@ -149,8 +151,16 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
             face_dir = atan2(y_end_right - y_start_right, x_end_right - x_start_right);
           }
         }
+        const int eligible_right=right_flag, eligible_left=left_flag;
         // Loop through all points might be eligible for the parameterization
         for (auto k = k_end - 1; k >= k_start; k--) {
+          if (WGD->parameterizations.exposedFaces) {
+            right_flag=eligible_right; left_flag=eligible_left;
+            if (right_flag && (!faceExposed(WGD,id,x_start_right,y_start_right,k)
+                || !faceExposed(WGD,nextFace(id),x_start_right,y_start_right,k))) right_flag=0;
+            if (left_flag && (!faceExposed(WGD,id,x_start_left,y_start_left,k)
+                || !faceExposed(WGD,previousFace(id),x_start_left,y_start_left,k))) left_flag=0;
+          }
           if (right_flag == 1)// If the right face is eligible for the parameterization
           {
             // i and j indices for start of the right section of building
@@ -170,7 +180,7 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                 }
                 // If the cell is anything else (not eligible for the sidewall)
                 else {
-                  right_flag = 0;
+                  if (!WGD->parameterizations.exposedFaces) right_flag = 0;
                 }
               }
             }
@@ -190,6 +200,8 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                   // i and j indices of the point
                   int i = ceil(x / dx) - 1;
                   int j = ceil(y / dy) - 1;
+                  if (i<=0 || j<=0 || i>=nx-2 || j>=ny-2) continue;
+                  if (!faceExposed(WGD,id,(i+.5)*dx,(j+.5)*dy,k)) continue;
                   icell_cent = WGD->domain.cell(i, j, k);
                   icell_face = WGD->domain.face(i, j, k);
                   if (WGD->icellflag[icell_cent] != 0 && WGD->icellflag[icell_cent] != 2)// No solid cell
@@ -209,9 +221,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                     }
                     internal_BL_width = y_pref * sqrt(xp_u);
                     if (abs(yp_u) <= shell_width) {
-                      WGD->u0[icell_face] = -u0_right * abs((shell_width - abs(yp_u)) / vd);
+                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) WGD->u0[icell_face] = -u0_right * abs((shell_width - abs(yp_u)) / vd);
                     } else if (abs(yp_u) <= internal_BL_width) {
-                      WGD->u0[icell_face] = u0_right * log((abs(yp_u) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
+                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) WGD->u0[icell_face] = u0_right * log((abs(yp_u) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
                     }
 
                     x_v = (i + 0.5) * dx;// x location of v component
@@ -229,9 +241,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                     }
                     internal_BL_width = y_pref * sqrt(xp_v);
                     if (abs(yp_v) <= shell_width) {
-                      WGD->v0[icell_face] = -v0_right * abs((shell_width - abs(yp_v)) / vd);
+                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) WGD->v0[icell_face] = -v0_right * abs((shell_width - abs(yp_v)) / vd);
                     } else if (abs(yp_v) <= internal_BL_width) {
-                      WGD->v0[icell_face] = v0_right * log((abs(yp_v) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
+                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) WGD->v0[icell_face] = v0_right * log((abs(yp_v) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
                     }
                     // x location of cell center in local coordinates
                     xp_c = (x_v - x_start_right) * cos(face_dir) + (y_u - y_start_right) * sin(face_dir);
@@ -267,7 +279,7 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                 }
                 // If the cell anything else (not eligible for the parameterization)
                 else {
-                  left_flag = 0;
+                  if (!WGD->parameterizations.exposedFaces) left_flag = 0;
                 }
               }
             }
@@ -287,6 +299,8 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                   // i and j indices of the point
                   int i = ceil(x / dx) - 1;
                   int j = ceil(y / dy) - 1;
+                  if (i<=0 || j<=0 || i>=nx-2 || j>=ny-2) continue;
+                  if (!faceExposed(WGD,id,(i+.5)*dx,(j+.5)*dy,k)) continue;
                   icell_cent = WGD->domain.cell(i, j, k);
                   icell_face = WGD->domain.face(i, j, k);
                   if (WGD->icellflag[icell_cent] != 0 && WGD->icellflag[icell_cent] != 2)// No solid cell
@@ -306,9 +320,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                     }
                     internal_BL_width = y_pref * sqrt(xp_u);
                     if (abs(yp_u) <= shell_width) {
-                      WGD->u0[icell_face] = -u0_left * abs((shell_width - abs(yp_u)) / vd);
+                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) WGD->u0[icell_face] = -u0_left * abs((shell_width - abs(yp_u)) / vd);
                     } else if (abs(yp_u) <= internal_BL_width) {
-                      WGD->u0[icell_face] = u0_left * log((abs(yp_u) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
+                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) WGD->u0[icell_face] = u0_left * log((abs(yp_u) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
                     }
 
                     x_v = (i + 0.5) * dx;// x location of v component
@@ -326,9 +340,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                     }
                     internal_BL_width = y_pref * sqrt(xp_v);
                     if (abs(yp_v) <= shell_width) {
-                      WGD->v0[icell_face] = -v0_left * abs((shell_width - abs(yp_v)) / vd);
+                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) WGD->v0[icell_face] = -v0_left * abs((shell_width - abs(yp_v)) / vd);
                     } else if (abs(yp_v) <= internal_BL_width) {
-                      WGD->v0[icell_face] = v0_left * log((abs(yp_v) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
+                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) WGD->v0[icell_face] = v0_left * log((abs(yp_v) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
                     }
                     // x location of cell center in local coordinates
                     xp_c = (x_v - x_start_left) * cos(face_dir) + (y_u - y_start_left) * sin(face_dir);

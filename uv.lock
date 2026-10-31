@@ -614,7 +614,7 @@ wheels = [
 [[package]]
 name = "dtcc-core"
 version = "0.9.8.dev0"
-source = { git = "https://github.com/dtcc-platform/dtcc-core.git?branch=develop#ecd56669cddcabc6de75b6126ae8c2e85c32abd4" }
+source = { git = "https://github.com/dtcc-platform/dtcc-core.git?branch=dev%2Ffootprint-cleaning-update#80a4bbae2760e891e2a0be4175d67bf3340a8e67" }
 dependencies = [
     { name = "affine" },
     { name = "aiohttp" },
@@ -680,7 +680,7 @@ reference = [
 
 [package.metadata]
 requires-dist = [
-    { name = "dtcc-core", git = "https://github.com/dtcc-platform/dtcc-core.git?branch=develop" },
+    { name = "dtcc-core", git = "https://github.com/dtcc-platform/dtcc-core.git?branch=dev%2Ffootprint-cleaning-update" },
     { name = "numpy", specifier = ">=2.5.4" },
 ]
 

@@ -30,6 +30,68 @@ void flag(int value, int maximum, const char *name)
     throw std::invalid_argument(std::string("Unsupported ") + name);
 }
 
+double cross(const polyVert &a, const polyVert &b, const polyVert &c)
+{
+  return (double(b.x_poly)-a.x_poly)*(double(c.y_poly)-a.y_poly)
+       - (double(b.y_poly)-a.y_poly)*(double(c.x_poly)-a.x_poly);
+}
+bool on_segment(const polyVert &a, const polyVert &b, const polyVert &p)
+{
+  return cross(a,b,p)==0 && p.x_poly>=std::min(a.x_poly,b.x_poly)
+    && p.x_poly<=std::max(a.x_poly,b.x_poly) && p.y_poly>=std::min(a.y_poly,b.y_poly)
+    && p.y_poly<=std::max(a.y_poly,b.y_poly);
+}
+bool intersects(const polyVert &a, const polyVert &b, const polyVert &c, const polyVert &d)
+{
+  const auto ab_c=cross(a,b,c), ab_d=cross(a,b,d), cd_a=cross(c,d,a), cd_b=cross(c,d,b);
+  return (((ab_c>0 && ab_d<0)||(ab_c<0 && ab_d>0))
+       && ((cd_a>0 && cd_b<0)||(cd_a<0 && cd_b>0)))
+       || on_segment(a,b,c)||on_segment(a,b,d)||on_segment(c,d,a)||on_segment(c,d,b);
+}
+bool in_ring(const std::vector<polyVert> &v, std::size_t begin, std::size_t end, const polyVert &p)
+{
+  bool inside=false;
+  for (auto i=begin; i+1<end; ++i) {
+    const auto &a=v[i], &b=v[i+1];
+    if ((a.y_poly>p.y_poly)!=(b.y_poly>p.y_poly)
+        && p.x_poly < a.x_poly+(double(p.y_poly)-a.y_poly)*(b.x_poly-a.x_poly)/(b.y_poly-a.y_poly)) inside=!inside;
+  }
+  return inside;
+}
+void validate_rings(const std::vector<polyVert> &v, const std::vector<std::size_t> &offsets)
+{
+  double net=0;
+  for (std::size_t r=0; r+1<offsets.size(); ++r) {
+    const auto begin=offsets[r], end=offsets[r+1];
+    if (end-begin<4 || v[begin].x_poly!=v[end-1].x_poly || v[begin].y_poly!=v[end-1].y_poly)
+      throw std::invalid_argument("Each building ring must be closed with at least four vertices");
+    double area=0;
+    for (auto i=begin; i+1<end; ++i) {
+      area+=double(v[i].x_poly)*v[i+1].y_poly-double(v[i].y_poly)*v[i+1].x_poly;
+      for (auto j=i+1; j+1<end; ++j) {
+        if (j==i+1 || (i==begin && j==end-2)) continue;
+        if (intersects(v[i],v[i+1],v[j],v[j+1]))
+          throw std::invalid_argument("Building rings must be simple without self intersections");
+      }
+    }
+    if ((r==0 && area>=0)||(r>0 && area<=0))
+      throw std::invalid_argument("Building outer ring must have positive area and clockwise winding; holes counter-clockwise");
+    net+=area;
+    for (std::size_t other=0; other<r; ++other) {
+      for (auto i=begin; i+1<end; ++i)
+        for (auto j=offsets[other]; j+1<offsets[other+1]; ++j)
+          if (intersects(v[i],v[i+1],v[j],v[j+1]))
+            throw std::invalid_argument("Building rings may not touch or intersect");
+      if (other>0 && (in_ring(v,offsets[other],offsets[other+1],v[begin])
+          || in_ring(v,begin,end,v[offsets[other]])))
+        throw std::invalid_argument("Building holes may not overlap or nest");
+    }
+    if (r>0 && !in_ring(v,0,offsets[1],v[begin]))
+      throw std::invalid_argument("Building hole must be inside its outer ring");
+  }
+  if (net>=0) throw std::invalid_argument("Building must have positive net area");
+}
+
 std::vector<float> narrow_layers(const GridConfig &grid)
 {
   if (grid.dz_layers.size() != static_cast<std::size_t>(grid.nz))
@@ -132,6 +194,8 @@ ModelInputs::ModelInputs(const GridConfig &grid, const ModelSettings &model, con
   parameterizations.wakeFlag = model.wake_flag;
   parameterizations.highRiseFlag = model.high_rise_flag;
   parameterizations.sidewallFlag = model.sidewall_flag;
+  parameterizations.exposedFaces = model.exposed_faces;
+  parameterizations.canonicalFaces = !arrays.ring_offsets.empty();
 
   const auto count = arrays.heights.size();
   if (arrays.vertices.size() % 2 || arrays.offsets.size() != count + 1
@@ -143,6 +207,16 @@ ModelInputs::ModelInputs(const GridConfig &grid, const ModelSettings &model, con
     throw std::invalid_argument("Offsets must span the complete vertex array, starting at zero");
   if (count > static_cast<std::size_t>(std::numeric_limits<int>::max()))
     throw std::invalid_argument("Too many buildings");
+  const auto &ring_offsets = arrays.ring_offsets.empty() ? arrays.offsets : arrays.ring_offsets;
+  if (ring_offsets.empty() || ring_offsets.front()!=0 || ring_offsets.back()!=static_cast<std::int64_t>(vertex_count))
+    throw std::invalid_argument("Ring offsets must span all vertices starting at zero");
+  for (std::size_t i=1; i<ring_offsets.size(); ++i)
+    if (ring_offsets[i]<0 || ring_offsets[i]>static_cast<std::int64_t>(vertex_count)
+        || ring_offsets[i]<=ring_offsets[i-1] || ring_offsets[i]-ring_offsets[i-1]<4)
+      throw std::invalid_argument("Ring offsets must increase by at least four vertices");
+  for (auto offset: arrays.offsets)
+    if (!std::binary_search(ring_offsets.begin(),ring_offsets.end(),offset))
+      throw std::invalid_argument("Building offsets must align with ring boundaries");
   std::unordered_set<std::int64_t> ids;
   // Use QES's actual float32 accumulation for the roof guard, rather than a
   // double-precision estimate of the top cell centre.
@@ -160,6 +234,9 @@ ModelInputs::ModelInputs(const GridConfig &grid, const ModelSettings &model, con
     // QES's vertical building scan requires a physical cell centre above roofs.
     if (height >= top_centre)
       throw std::invalid_argument("Building needs clearance below the top physical cell centre");
+    std::vector<std::size_t> local_offsets;
+    for (auto offset: ring_offsets) if (offset>=begin && offset<=end)
+      local_offsets.push_back(static_cast<std::size_t>(offset-begin));
     std::vector<polyVert> ring;
     ring.reserve(static_cast<std::size_t>(end - begin));
     for (auto v = begin; v < end; ++v) {
@@ -168,19 +245,14 @@ ModelInputs::ModelInputs(const GridConfig &grid, const ModelSettings &model, con
       // Leave cells around the footprint for QES's stencil and centroid reads.
       if (x < 2 * spacing || y < 2 * spacing || x >= (grid.nx - 2) * spacing || y >= (grid.ny - 2) * spacing)
         throw std::invalid_argument("Building footprint needs at least two cells of domain clearance");
-      if (!ring.empty() && x == ring.back().x_poly && y == ring.back().y_poly)
+      if (!ring.empty() && !std::binary_search(ring_offsets.begin(),ring_offsets.end(),v)
+          && x == ring.back().x_poly && y == ring.back().y_poly)
         throw std::invalid_argument("Footprint has an edge that collapses in float32");
       ring.emplace_back(x, y);
     }
-    if (ring.front().x_poly != ring.back().x_poly || ring.front().y_poly != ring.back().y_poly)
-      throw std::invalid_argument("Building footprint must be closed");
-    double area = 0;
-    for (std::size_t v = 1; v < ring.size(); ++v)
-      area += double(ring[v - 1].x_poly) * ring[v].y_poly - double(ring[v].x_poly) * ring[v - 1].y_poly;
-    if (area >= 0)
-      throw std::invalid_argument("Building footprint must have positive area and clockwise winding");
+    validate_rings(ring, local_offsets);
     // IDs are validated for the caller; the model numbers buildings by position.
-    buildings.push_back({std::move(ring), height, base});
+    buildings.push_back({std::move(ring), height, base, std::move(local_offsets)});
   }
 }
 

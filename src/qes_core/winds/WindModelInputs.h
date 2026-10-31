@@ -19,11 +19,14 @@ struct BuildingFootprint
   std::vector<polyVert> vertices;
   float height = 0; /**< metres above the base */
   float base_height = 0; /**< metres above the ground */
+  std::vector<std::size_t> ring_offsets;
 };
 
 /** Empirical building parameterizations (formerly BuildingsParams). */
 struct BuildingParameterizations
 {
+  bool exposedFaces = false;
+  bool canonicalFaces = false;
   float wallRoughness = 0.001; /**< wall roughness length (m) */
   int rooftopFlag = 1; /**< 0 none, 1 log profile, 2 vortex */
   int upwindCavityFlag = 2; /**< 0 none, 1 Rockle, 2 MVP, 3 HMVP */

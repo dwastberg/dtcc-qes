@@ -36,7 +36,7 @@ def check_wheel(path):
         require(b"QES-Winds" in archive.read(prefix + "NOTICE"), "Missing QES attribution")
         require(any(name.startswith("dtcc_qes/_qes.") and name.endswith((".so", ".pyd")) for name in names),
                 "Wheel omits native extension")
-        for name in ("wind.py", "result.py", "_city.py", "vertical_grid.py", "_auto_grid.py",
+        for name in ("wind.py", "result.py", "_city.py", "footprints.py", "_footprints.py", "vertical_grid.py", "_auto_grid.py",
                      "_turbulence_domain.py", "turbulence.py", "comfort.py", "_qes_revision.txt"):
             require("dtcc_qes/" + name in names, f"Wheel omits {name}")
         require(len(archive.read("dtcc_qes/_qes_revision.txt").strip()) == 40, "Missing source revision")
@@ -90,6 +90,12 @@ def check_sdist(path):
             "docs/data/lateral-horizontal-verification/openmp/raw.json.gz",
             "docs/data/lateral-horizontal-verification/openmp/summary.json",
             "src/dtcc_qes/vertical_grid.py", "tests/test_vertical_grid.py", "tests/native/check_vertical_grid.cpp",
+            "src/dtcc_qes/footprints.py", "src/dtcc_qes/_footprints.py",
+            "tests/test_building_contacts.py", "tests/native/check_contacts.cpp",
+            "src/dtcc_qes/_dataset_city.py", "src/dtcc_qes/datasets.py",
+            "tests/test_dataset_footprints.py", "tests/test_datasets.py",
+            "docs/data/building-contacts/dataset-verification.json",
+            "docs/building-contacts.md",
             "src/dtcc_qes/wind.py", "src/dtcc_qes/_qes_revision.txt", "tests/fixtures/reference/flat.npz",
             "tests/fixtures/reference/one_building.npz", "tests/native/check_physics.cpp",
             "tests/native/check_openmp.cpp", "demo/simple_wind_demo.py", "demo/medium_city.py",

@@ -101,6 +101,7 @@ void PolyBuilding::streetCanyon(WINDSGeneralData *WGD)
 
   // Loop over face of current building
   for (size_t id = 0; id < polygonVertices.size() - 1; id++) {
+    if (!isFace(id)) continue;
     // Calculate upwind reletive direction for each face (out-facing normal)
     upwind_rel_dir[id] = atan2(yi[id + 1] - yi[id], xi[id + 1] - xi[id]) + 0.5 * M_PI;
 
@@ -141,13 +142,20 @@ void PolyBuilding::streetCanyon(WINDSGeneralData *WGD)
 
 
         for (auto k = k_end - 1; k >= k_start; k--) {
+          if (!faceExposed(WGD,id,x_wall*cos(upwind_dir)-yc*sin(upwind_dir)+building_cent_x,
+                           x_wall*sin(upwind_dir)+yc*cos(upwind_dir)+building_cent_y,k)) continue;
 
           // checking that the cell before the wall is defined as building (loop if not)
           int i1 = ceil(((x_wall - dxy) * cos(upwind_dir) - yc * sin(upwind_dir) + building_cent_x) / dx) - 1;
           int j1 = ceil(((x_wall - dxy) * sin(upwind_dir) + yc * cos(upwind_dir) + building_cent_y) / dy) - 1;
+          if (i1<0 || j1<0 || i1>=nx-1 || j1>=ny-1) continue;
           icell_cent = WGD->domain.cell(i1, j1, k);
-          if (WGD->icellflag[icell_cent] != 0)
+          if (WGD->parameterizations.exposedFaces) {
+            const auto initial=WGD->icellflag_initial[icell_cent];
+            if (!containsXY((i1+.5)*dx,(j1+.5)*dy) || (initial!=0 && initial!=2)) continue;
+          } else if (WGD->icellflag[icell_cent] != 0) {
             continue;
+          }
 
           // resting canyon parameters
           canyon_flag = 0;
@@ -164,10 +172,15 @@ void PolyBuilding::streetCanyon(WINDSGeneralData *WGD)
             int j = ceil(((xc + x_wall) * sin(upwind_dir) + yc * cos(upwind_dir) + building_cent_y) / dy) - 1;
             icell_cent = WGD->domain.cell(i, j, k);
             // Making sure i and j are inside the domain
-            if (i >= nx - 2 && i <= 0 && j >= ny - 2 && j <= 0) {
+            if (i >= nx - 2 || i <= 0 || j >= ny - 2 || j <= 0) {
               break;// exit LoopX1
             }
             icell_cent = WGD->domain.cell(i, j, k);
+            if (WGD->parameterizations.exposedFaces && x_id_min<0) {
+              if (containsXY((i+.5)*dx,(j+.5)*dy)) continue;
+              const auto initial=WGD->icellflag_initial[icell_cent];
+              if (initial==0 || initial==2 || initial==7) break;
+            }
             // Finding id of the first cell in perpendicular direction of the face that is outside of the building
             if (WGD->icellflag[icell_cent] != 0 && WGD->icellflag[icell_cent] != 2 && x_id_min < 0) {
               x_id_min = x_id;
@@ -299,8 +312,10 @@ void PolyBuilding::streetCanyon(WINDSGeneralData *WGD)
                   continue;
                 }
 
+                bool found_face=false;
                 // (LoopDB) Loop through each polygon node of the downstream buildings
                 for (size_t j_id = 0; j_id < WGD->allBuildingsV[d_build]->polygonVertices.size() - 1; j_id++) {
+                  if (!WGD->allBuildingsV[d_build]->isFace(j_id)) continue;
                   // normal direction (out-facing normal) of face of downstream building (ref as db-face for that loop)
                   facenormal_dir = atan2(WGD->allBuildingsV[d_build]->polygonVertices[j_id + 1].y_poly
                                            - WGD->allBuildingsV[d_build]->polygonVertices[j_id].y_poly,
@@ -386,12 +401,16 @@ void PolyBuilding::streetCanyon(WINDSGeneralData *WGD)
                       if (cos(facenormal_dir - perpendicular_dir[id]) > cos(angle_tol)) {
                         continue;
                       } else {
+                        found_face=true;
                         break;// exit LoopDB
                       }
                     }
                   }
                 }
 
+                if (WGD->parameterizations.exposedFaces && !found_face) {
+                  canyon_flag=0; top_flag=0; s=0; continue;
+                }
                 // check angle between the face of current and downstream buildings.
                 // angle need to be (-pi;-0.75*pi) or (0.75*pi;pi)
                 if (cos(facenormal_dir - perpendicular_dir[id]) > cos(angle_tol)) {

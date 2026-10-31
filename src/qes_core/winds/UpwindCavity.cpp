@@ -92,6 +92,7 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
   // Wind direction of initial velocity at the height of building at the centroid
   upwind_dir = atan2(v0_h, u0_h);
   for (auto id = 0u; id < polygonVertices.size() - 1; id++) {
+    if (!isFace(id)) continue;
     xf1[id] = 0.5 * (polygonVertices[id].x_poly - polygonVertices[id + 1].x_poly) * cos(upwind_dir)
               + 0.5 * (polygonVertices[id].y_poly - polygonVertices[id + 1].y_poly) * sin(upwind_dir);
     yf1[id] = -0.5 * (polygonVertices[id].x_poly - polygonVertices[id + 1].x_poly) * sin(upwind_dir)
@@ -174,7 +175,7 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
             x_w = ((i + 0.5) * dx - x_average) * cos(upwind_dir) + ((j + 0.5) * dy - y_average) * sin(upwind_dir);// x-location of w velocity
             y_w = -((i + 0.5) * dx - x_average) * sin(upwind_dir) + ((j + 0.5) * dy - y_average) * cos(upwind_dir);// y-location of w velocity
 
-            if ((abs(y_u) <= abs(yf2[id])) && (height_factor * vortex_height > z_front)) {
+            if (faceExposed(WGD,id,i * dx,(j + 0.5) * dy,k) && (abs(y_u) <= abs(yf2[id])) && (height_factor * vortex_height > z_front)) {
               // Intersection of a parallel line to the line goes through (xf1,yf1) and (xf2,yf2) and the y=y_u
               x_intersect_u = ((xf2[id] - xf1[id]) / (yf2[id] - yf1[id])) * (y_u - yf1[id]) + xf1[id];
               x_ellipse_u = -Lf_face[counter] * sqrt((1 - pow(y_u / abs(yf2[id]), 2.0)) * (1 - pow(z_front / (height_factor * vortex_height), 2.0)));
@@ -215,7 +216,7 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
               }
             }
             // v velocity
-            if ((abs(y_v) <= abs(yf2[id])) && (height_factor * vortex_height > z_front)) {
+            if (faceExposed(WGD,id,(i + 0.5) * dx,j * dy,k) && (abs(y_v) <= abs(yf2[id])) && (height_factor * vortex_height > z_front)) {
               x_intersect_v = ((xf2[id] - xf1[id]) / (yf2[id] - yf1[id])) * (y_v - yf1[id]) + xf1[id];
               x_ellipse_v = -Lf_face[counter] * sqrt((1 - pow(y_v / abs(yf2[id]), 2.0)) * (1 - pow(z_front / (height_factor * vortex_height), 2.0)));
               xrz_v = -Lf_face[counter] * sqrt((1 - pow(y_v / abs(yf2[id]), 2.0)) * (1 - pow(z_front / (height_factor * retarding_height), 2.0)));
@@ -256,7 +257,7 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
             }
 
             // w velocity
-            if ((abs(y_w) <= abs(yf2[id])) && (height_factor * vortex_height > z_front)) {
+            if (faceExposed(WGD,id,(i + 0.5) * dx,(j + 0.5) * dy,k) && (abs(y_w) <= abs(yf2[id])) && (height_factor * vortex_height > z_front)) {
               x_intersect_w = ((xf2[id] - xf1[id]) / (yf2[id] - yf1[id])) * (y_w - yf1[id]) + xf1[id];
               x_ellipse_w = -Lf_face[counter] * sqrt((1 - pow(y_w / abs(yf2[id]), 2.0)) * (1 - pow(z_front / (height_factor * vortex_height), 2.0)));
               icell_cent = WGD->domain.cell(i, j, k);

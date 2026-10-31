@@ -298,12 +298,21 @@ field = datasets.qes_wind(
 ```
 
 The dataset fetches a LOD1 city through `datasets.city` (`source="LM"` by
-default, or `"OSM"`), fills footprint courtyards, and calls Core's
-`builder.clean_footprints` at `min_building_detail=0.5` metres. Core determines
-merged blocks and their heights. Each block becomes a constant-height QES
-obstacle; source IDs, cleaning changes, and filled courtyard areas are recorded.
-The source city is unchanged. Unsupported geometry remaining after cleaning
-raises an error.
+default, or `"OSM"`) and cleans footprints once at `min_building_detail=0.5`
+metres. It uses the shared canonical-solid pipeline, preserving height steps
+and disconnected components. Valid measured heights take precedence over
+estimates; invalid measurements raise. Source and cleaned-region courtyards are
+filled, while partition holes retain towers within podiums. Hidden walls do not
+seed building parameterizations. The source city is unchanged.
+
+The dataset uses `fallback="tallest"` for explicitly reported wall-partition
+failures, recording the reason and added volume and adding a context warning.
+Unresolved cleaning errors and invalid geometry still raise. Preparation schema
+version 2 (`canonical-cells-v1`) replaces the old block-height records with
+source/component-to-solid mappings, cleaning settings, covered/excluded sources,
+courtyard accounting and the pinned Core revision. Exact post-conditioning
+courtyard fill area is unavailable from Core and is recorded as such; net area
+change is reported separately.
 
 Bounds select the city area. The solver expands that area and the building
 extent by at least three cells of padding. Four-coordinate bounds derive flat
@@ -401,9 +410,11 @@ CFD. Method, conventions and sources are in
 
 ## Geometry, coordinates and flat ground
 
-- Buildings must be direct city children with one canonical LOD0 `Surface`.
-  Footprints must be valid simple polygons, without holes, multipart surfaces,
-  overlap or touching. Building parts and nested buildings are rejected.
+- With the default `footprints=None`, buildings must be direct city children
+  with one canonical, hole-free LOD0 `Surface`; overlap and touching are rejected.
+  `footprints=wind.Footprints(...)` accepts touching, overlapping, multipart and
+  holed footprints using height-preserving canonical solids. Building parts and
+  nested buildings remain unsupported.
   Consecutive duplicate vertices are removed and rings made clockwise.
 - Positive finite `measured_height` values are required. Explicit
   `height_policy="allow_estimated"` permits an `estimated_height` when a
@@ -421,7 +432,26 @@ CFD. Method, conventions and sources are in
   Other city objects, such as trees, are omitted and recorded in metadata.
 - A common origin is subtracted in float64 before QES's float32 conversion.
   Rings are checked again after narrowing. Float32 precision can reject very
-  thin edges or gaps; the adapter does not repair or merge them.
+  thin edges. Strict mode also rejects gaps that close during narrowing.
+  Opt-in cleaning permits contact and checks that solids share no area.
+
+```python
+result = wind.run(city, speed=5.0, direction=270.0,
+                  footprints=wind.Footprints(min_detail=0.5))
+preview = wind.preview_grid(city, footprints=wind.Footprints(min_detail=0.5))
+```
+
+Cleaning tolerance is in metres and independent of resolution. Use 0.01 m for
+precise footprints. Overlaps go to the resolved taller source; cells with roofs
+represented at the same grid level merge. Hidden walls do not seed building
+parameterizations by default. `exposed_faces=False` disables that rule for
+comparisons. `fallback="error"` rejects a failed wall partition;
+`fallback="tallest"` uses the tallest source height and records added volume.
+Result metadata maps every source to its solids, including covered/excluded
+sources. See [building contacts](docs/building-contacts.md) for the exposure rule,
+synthetic checks and modelling limits. The dataset adapter uses this same
+pipeline with its own courtyard-filling and tallest-fallback defaults described
+above.
 
 ## Options and domain
 
@@ -432,6 +462,7 @@ Options are arguments to `wind.run`; defaults are declared in its signature.
 | Wind | Required `speed`/`direction`; `reference_height=10.0`; `roughness_length=0.1` |
 | Grid | `resolution=2.0`; `bounds=None`; `horizontal_padding=20.0`; `vertical_clearance=20.0`; `max_cells=20_000_000` |
 | Solver | `tolerance=1e-5`; `max_iterations=500`; `raise_on_nonconvergence=False`; `solver_precision="float32"` |
+| Footprints | `None` for strict input; `wind.Footprints(min_detail=0.5, exposed_faces=True, fallback="error")` opts in |
 | Terrain | `terrain=None` infers flat ground; `"flat"` explicitly flattens; a number sets the global ground elevation |
 
 Automatic domains include all footprints, at least three cells of horizontal

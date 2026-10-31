@@ -1,5 +1,6 @@
 """Bounds-based QES datasets, including experimental automatic vertical grids."""
 
+from copy import deepcopy
 from dataclasses import asdict
 from datetime import datetime, timezone
 from typing import Literal
@@ -13,6 +14,7 @@ from dtcc_core.model import Bounds, City, Field, FieldSlice, Transform
 
 from . import __version__, wind
 from ._dataset_city import prepare_city
+from ._footprints import plan_footprint_domain
 
 __all__ = ["QESWindArgs", "QESWindDataset"]
 
@@ -107,11 +109,12 @@ class QESWindDataset(DatasetDescriptor):
     license = "Input data terms are inherited from the selected city sources."
     processing_steps = [
         "Fetch a LOD1 city with LOD0 footprints and estimated heights",
-        "Fill courtyards and clean/merge footprints using dtcc-core",
+        "Fill source/region courtyards and clean once into height-preserving cells",
+        "Plan canonical solids and apply exposure-aware building parameterizations",
         "Flatten terrain and solve one steady QES wind condition",
     ]
     presentation_limitations = [
-        "Flat ground, constant-height blocks and stair-step cells; courtyards are filled.",
+        "Flat ground and stair-step cells; source/region courtyards are filled, partition holes preserve towers.",
         "Convergence measures multiplier change, not a mass-conservation residual.",
         "Automatic vertical grids are experimental; no automatic comfort-analysis preset is qualified.",
     ]
@@ -153,9 +156,21 @@ class QESWindDataset(DatasetDescriptor):
         upstream = source_city.dataset_context
         if upstream is not None and upstream.health and upstream.health.get("partial_result"):
             raise ValueError("QES wind requires a complete city; the upstream dataset returned a partial result")
-        city, bounds, preparation = prepare_city(source_city, args)
-        solved = wind.run(city, **args.wind_options(), bounds=bounds,
-                          terrain=bounds[2], height_policy="allow_estimated")
+        footprints, bounds, preparation = prepare_city(source_city, args)
+        condition = wind._validate_condition(args.wind_speed, args.wind_direction,
+                                              args.reference_height, args.roughness_length)
+        vertical_grid = args.vertical_grid_spec()
+        grid = wind._validate_grid(args.resolution, bounds, args.horizontal_padding,
+                                   args.vertical_clearance, args.max_cells, vertical_grid=vertical_grid)
+        geometry, domain = plan_footprint_domain(footprints,
+            reference_height=args.reference_height, roughness_length=args.roughness_length,
+            **grid, terrain=bounds[2])
+        solver = wind._validate_solver(args.tolerance, args.max_iterations,
+                                       args.raise_on_nonconvergence, args.solver_precision)
+        solved = wind._solve_prepared(geometry, domain, condition, solver,
+            vertical_grid=vertical_grid, height_policy="allow_estimated")
+        preparation["footprints"] = deepcopy(solved.metadata["footprints"])
+        preparation["dtcc_core"] = deepcopy(solved.metadata["versions"]["dtcc_core"])
         obj = solved.to_dtcc() if args.product == "field" else _field_slice(solved, args)
         context = self.create_context(args)
         context.metadata.python_return_type = f"dtcc_core.model.{type(obj).__name__}"
@@ -172,6 +187,16 @@ class QESWindDataset(DatasetDescriptor):
         context.provenance.processing_steps.append(step)
         context.health = asdict(solved.diagnostics)
         context.health["automatic_grid_experimental"] = args.vertical_grid == "auto"
+        counts = solved.metadata["footprints"]["counts"]
+        context.health["footprint_fallbacks"] = counts["fallbacks"]
+        context.health["excluded_sources"] = counts["excluded"]
+        context.health["excluded_components"] = sum(
+            status == "excluded" for source in solved.metadata["buildings"]
+            for status in source["components"].values())
+        if counts["fallbacks"]:
+            context.warnings.append(
+                f"{counts['fallbacks']} footprint blocks use tallest-height wall-partition fallbacks; "
+                "inspect provenance and added volume.")
         if args.vertical_grid == "auto":
             context.warnings.append("Automatic vertical generation is experimental; local grid sensitivity "
                                     "remains unresolved and no comfort-analysis preset is qualified.")
