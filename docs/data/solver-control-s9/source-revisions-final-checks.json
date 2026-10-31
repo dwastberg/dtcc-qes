@@ -1,0 +1,17 @@
+{
+  "changes": {
+    "tools/validate_solver_release.py": {
+      "before": "0043b4da25105bf1088a112e56da5cd545108265f9adb3d06d150871c0c2de43",
+      "after": "665db5c4bed9c0341066dfdd754b803ef1649e725be3e02f500b3786a62a727e"
+    },
+    "tools/audit_solver_release.py": {
+      "before": "fc3d28654edbe765e1416f31d8945638ef664e4b62bcb0aed99e156b643562cb",
+      "after": "a73e64a68e3d8eee758ed6344059bac3ea12d3555472d0d1b4f02c3941997c41"
+    },
+    "tests/test_solver_release.py": {
+      "before": "deece3f69aec792150baec63af1fe7615a19d3108621eec92ee5f980441bdcd1",
+      "after": "0dc71557d4bb621af1333e733aebc0a2ac4847d03895a13c72cb97414afc79e2"
+    }
+  },
+  "scope": "Stronger independent portable parity audit and wiring already-built native integration executables into full Python suite; runtime unchanged."
+}

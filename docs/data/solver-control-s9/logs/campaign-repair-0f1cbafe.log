@@ -1,0 +1,43 @@
+Campaign: /Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-repair
+Reusing baseline: 3e06426ca9cb (openmp, verified)
+Building candidate: 9c0ce6931d8b (cached package files changed or are missing)
+Built candidate; log: /Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-cache/builds/1dd6d786f73bad542c20ec0a0b929a807abd86bd19bcaa25084d8a4c04d4327d/20261031T091924Z-8139b57a/build.log
+Preparing fresh smoke fixtures...
+Running 12 workers in 2 sequential shards (up to 6 minutes, excluding preparation).
+Shard 1/2...
+  6/6 completed in 6.51 s
+Shard 2/2...
+  6/6 completed in 5.96 s
+
+Benchmark results: 12/12 workers completed
+Statuses: completed=12
+
+Medians by case and variant (RSS is process peak; sweeps show min-max):
+Case / wind FROM                Variant   N  API s  Pipeline s  RSS MiB  Sweeps  Stops            
+industrial_residential 270deg   baseline  1  0.028  0.042       247.2    8       iteration_limit:1
+industrial_residential 270deg   disabled  1  0.022  0.036       233.3    8       iteration_limit:1
+industrial_residential 270deg   bounded   1  0.025  0.039       232.3    8       iteration_limit:1
+mixed_downtown 270deg           baseline  1  0.028  0.041       239.0    8       iteration_limit:1
+mixed_downtown 270deg           disabled  1  0.028  0.041       227.6    8       iteration_limit:1
+mixed_downtown 270deg           bounded   1  0.028  0.041       230.2    8       iteration_limit:1
+perimeter_neighbourhood 270deg  baseline  1  0.027  0.046       233.7    8       iteration_limit:1
+perimeter_neighbourhood 270deg  disabled  1  0.028  0.047       227.0    8       iteration_limit:1
+perimeter_neighbourhood 270deg  bounded   1  0.028  0.046       224.6    8       iteration_limit:1
+slab_estate 270deg              baseline  1  0.024  0.035       239.7    8       iteration_limit:1
+slab_estate 270deg              disabled  1  0.019  0.030       228.3    8       iteration_limit:1
+slab_estate 270deg              bounded   1  0.027  0.038       232.8    8       iteration_limit:1
+
+Paired comparisons with baseline (API/base < 1 is faster; inspect equal-work counts):
+Case / wind FROM                Variant   Pairs  API/base  Same grid  Same work  Equal fields  p95 dU/Uref*  max dU/Uref*  Mask changes*
+industrial_residential 270deg   bounded   1      0.899     1/1        1/1        1/1           0             0             0            
+industrial_residential 270deg   disabled  1      0.801     1/1        1/1        1/1           0             0             0            
+mixed_downtown 270deg           bounded   1      1.010     1/1        1/1        1/1           0             0             0            
+mixed_downtown 270deg           disabled  1      0.983     1/1        1/1        1/1           0             0             0            
+perimeter_neighbourhood 270deg  bounded   1      1.035     1/1        1/1        1/1           0             0             0            
+perimeter_neighbourhood 270deg  disabled  1      1.018     1/1        1/1        1/1           0             0             0            
+slab_estate 270deg              bounded   1      1.145     1/1        1/1        1/1           0             0             0            
+slab_estate 270deg              disabled  1      0.819     1/1        1/1        1/1           0             0             0            
+* Largest value across paired repetitions and sampled heights; n/a means no comparable support.
+Field differences are against baseline; accuracy is not assessed.
+Detailed results: /Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-repair/results.json
+Campaign completed in 20.89 s. Report: /Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-repair/results.txt

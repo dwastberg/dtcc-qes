@@ -1,0 +1,111 @@
+[  8%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_internals.cpp.o
+[  8%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_func.cpp.o
+[  8%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_type.cpp.o
+[  8%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/HitRecord.cpp.o
+[  8%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/BVH.cpp.o
+[  8%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/Mesh.cpp.o
+[  8%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_enum.cpp.o
+[  8%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/QESLog.cpp.o
+[ 10%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_ndarray.cpp.o
+[ 11%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_static_property.cpp.o
+[ 12%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_datetime.cpp.o
+[ 13%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/Triangle.cpp.o
+[ 14%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/common.cpp.o
+[ 15%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/Ray.cpp.o
+[ 16%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/SphereDirections.cpp.o
+[ 17%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/error.cpp.o
+[ 18%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/trampoline.cpp.o
+[ 20%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/implicit.cpp.o
+[ 21%] Linking CXX static library libqesutil.a
+[ 21%] Built target qesutil
+[ 27%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/Cell.cpp.o
+[ 27%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/LocalMixingDefault.cpp.o
+[ 27%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/CutCell.cpp.o
+[ 27%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/qes/Domain.cpp.o
+[ 27%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/LocalMixingSerial.cpp.o
+[ 27%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/CutBuilding.cpp.o
+[ 28%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/LocalMixingOptix.cpp.o
+[ 30%] Linking CXX static library libnanobind-static.a
+[ 30%] Built target nanobind-static
+[ 31%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/PolyBuilding.cpp.o
+[ 32%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/solver/solver.cpp.o
+[ 33%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/solver/cpu_float32.cpp.o
+[ 34%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/solver/cpu_float64.cpp.o
+[ 35%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/TURBGeneralData.cpp.o
+[ 36%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/TURBWall.cpp.o
+[ 37%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/TURBWallBuilding.cpp.o
+[ 38%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/TURBWallTerrain.cpp.o
+[ 40%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/LogProfile.cpp.o
+[ 41%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/WINDSGeneralData.cpp.o
+[ 42%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/Wall.cpp.o
+[ 43%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/UpwindCavity.cpp.o
+[ 44%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/NonLocalMixing.cpp.o
+[ 45%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/PolygonWake.cpp.o
+[ 46%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/StreetCanyon.cpp.o
+[ 47%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/StreetCanyonModified.cpp.o
+[ 50%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/Sidewall.cpp.o
+[ 50%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/Rooftop.cpp.o
+[ 51%] Linking CXX static library libqeswindscore.a
+[ 51%] Built target qeswindscore
+[ 52%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/build_info.cpp.o
+[ 56%] Building CXX object CMakeFiles/check_noio.dir/tests/native/check_noio.cpp.o
+[ 57%] Building CXX object CMakeFiles/check_safety.dir/tests/native/check_safety.cpp.o
+[ 57%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/model_inputs.cpp.o
+[ 57%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/divergence.cpp.o
+[ 57%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/monitor.cpp.o
+[ 58%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/pedestrian_policy.cpp.o
+[ 60%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/solver_control.cpp.o
+[ 61%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/log_sink.cpp.o
+[ 62%] Linking CXX executable check_noio
+[ 63%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/wind_runner.cpp.o
+[ 64%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/turbulence.cpp.o
+[ 64%] Built target check_noio
+[ 65%] Linking CXX executable check_safety
+[ 65%] Built target check_safety
+[ 65%] Built target qesbridge
+[ 67%] Building CXX object CMakeFiles/check_precision.dir/tests/native/check_precision.cpp.o
+[ 71%] Building CXX object CMakeFiles/check_vertical_grid.dir/tests/native/check_vertical_grid.cpp.o
+[ 74%] Building CXX object CMakeFiles/check_condition_mask.dir/tests/native/check_condition_mask.cpp.o
+[ 74%] Building CXX object CMakeFiles/check_solver_phases.dir/tests/native/check_solver_phases.cpp.o
+[ 74%] Building CXX object CMakeFiles/check_turbulence.dir/tests/native/check_turbulence.cpp.o
+[ 74%] Building CXX object CMakeFiles/_qes.dir/src/cpp/bindings.cpp.o
+[ 74%] Building CXX object CMakeFiles/check_physics.dir/tests/native/check_physics.cpp.o
+[ 74%] Building CXX object CMakeFiles/check_runner.dir/tests/native/check_runner.cpp.o
+[ 75%] Linking CXX executable check_precision
+[ 76%] Linking CXX executable check_condition_mask
+[ 78%] Linking CXX executable check_runner
+[ 78%] Linking CXX executable check_physics
+[ 78%] Built target check_precision
+[ 78%] Built target check_condition_mask
+[ 80%] Linking CXX executable check_vertical_grid
+[ 81%] Building CXX object CMakeFiles/check_equation_residual.dir/tests/native/check_equation_residual.cpp.o
+[ 82%] Building CXX object CMakeFiles/solver_numerics_probe.dir/tools/solver_numerics_probe.cpp.o
+[ 82%] Built target check_physics
+[ 82%] Built target check_runner
+[ 82%] Built target check_vertical_grid
+[ 83%] Building CXX object CMakeFiles/check_monitor.dir/tests/native/check_monitor.cpp.o
+[ 84%] Building CXX object CMakeFiles/check_solver_control.dir/tests/native/check_solver_control.cpp.o
+[ 85%] Building CXX object CMakeFiles/check_pedestrian_policy.dir/tests/native/check_pedestrian_policy.cpp.o
+[ 86%] Linking CXX executable check_solver_phases
+[ 86%] Built target check_solver_phases
+[ 87%] Building CXX object CMakeFiles/solver_monitor_probe.dir/tools/solver_monitor_probe.cpp.o
+[ 88%] Linking CXX shared module _qes.cpython-313-darwin.so
+[ 88%] Built target _qes
+[ 90%] Building CXX object CMakeFiles/vertical_grid_study.dir/tools/vertical_grid_study.cpp.o
+[ 91%] Linking CXX executable check_solver_control
+[ 92%] Linking CXX executable check_turbulence
+[ 92%] Built target check_solver_control
+[ 93%] Building CXX object CMakeFiles/vertical_grid_study.dir/tools/vertical_grid_diagnostics.cpp.o
+[ 94%] Built target check_turbulence
+[ 94%] Linking CXX executable check_equation_residual
+[ 95%] Linking CXX executable check_pedestrian_policy
+[ 95%] Built target check_equation_residual
+[ 95%] Built target check_pedestrian_policy
+[ 96%] Linking CXX executable solver_numerics_probe
+[ 96%] Built target solver_numerics_probe
+[ 97%] Linking CXX executable solver_monitor_probe
+[ 97%] Built target solver_monitor_probe
+[ 98%] Linking CXX executable check_monitor
+[ 98%] Built target check_monitor
+[100%] Linking CXX executable vertical_grid_study
+[100%] Built target vertical_grid_study

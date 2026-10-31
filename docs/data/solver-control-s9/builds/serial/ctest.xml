@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="45"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="7"
+	timestamp="2026-10-30T23:06:19"
+	>
+	<testcase name="noio_core" classname="noio_core" time="0.13439" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_success" classname="native_success" time="0.176367" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_failures" classname="native_failures" time="0.0166497" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_nonconvergence" classname="native_nonconvergence" time="0.00334162" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_messages" classname="native_messages" time="0.00159408" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="runner_lifecycle" classname="runner_lifecycle" time="0.338346" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="staggered_flux" classname="staggered_flux" time="2.32465" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_low_top" classname="native_turbulence_low_top" time="0.133474" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_ref_in_top_cell" classname="native_turbulence_ref_in_top_cell" time="0.00231971" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_ref_above_top" classname="native_turbulence_ref_above_top" time="0.00212146" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_reference_boundary" classname="native_turbulence_reference_boundary" time="0.00194433" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_methods" classname="native_turbulence_methods" time="0.00320721" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_ownership" classname="native_turbulence_ownership" time="0.00259146" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_references" classname="native_turbulence_references" time="0.00323925" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_lifecycle" classname="native_turbulence_lifecycle" time="0.0274912" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_rotation" classname="native_turbulence_rotation" time="0.0129034" status="run">
+		<properties/>
+		<system-out>flow heading=0 sigma=0.900001 expected=0.9 m/s
+flow heading=45 sigma=0.9 expected=0.9 m/s
+flow heading=30 sigma=0.9 expected=0.9 m/s
+flow heading=90 sigma=0.900001 expected=0.9 m/s
+flow heading=180 sigma=0.900001 expected=0.9 m/s
+flow heading=225 sigma=0.9 expected=0.9 m/s
+flow heading=210 sigma=0.9 expected=0.9 m/s
+flow heading=270 sigma=0.900001 expected=0.9 m/s
+</system-out>
+	</testcase>
+	<testcase name="native_turbulence_rotation_fallback" classname="native_turbulence_rotation_fallback" time="0.0125097" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_calm" classname="native_turbulence_calm" time="0.00539083" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_validity" classname="native_turbulence_validity" time="0.00247417" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_building_validity" classname="native_turbulence_building_validity" time="0.0242473" status="run">
+		<properties/>
+		<system-out>building computed=20116 invalid=90 negative_projected=6
+</system-out>
+	</testcase>
+	<testcase name="native_turbulence_wall_thin" classname="native_turbulence_wall_thin" time="0.0186154" status="run">
+		<properties/>
+		<system-out>wall computed=83656 above_height=0 max_length_over_height=1
+</system-out>
+	</testcase>
+	<testcase name="native_turbulence_wall_upper_bound" classname="native_turbulence_wall_upper_bound" time="0.0147326" status="run">
+		<properties/>
+		<system-out>wall computed=265356 above_height=0 max_length_over_height=1
+</system-out>
+	</testcase>
+	<testcase name="native_turbulence_wall_geometry" classname="native_turbulence_wall_geometry" time="0.146371" status="run">
+		<properties/>
+		<system-out>wall computed=14292 above_height=0 max_length_over_height=1
+box/plane oracle cells=14292 transition=0 far=0
+wall computed=14292 above_height=0 max_length_over_height=1
+box/plane oracle cells=14292 transition=0 far=0
+wall computed=14292 above_height=0 max_length_over_height=1
+box/plane oracle cells=14292 transition=0 far=0
+wall computed=14292 above_height=0 max_length_over_height=1
+box/plane oracle cells=14292 transition=0 far=0
+wall computed=14292 above_height=0 max_length_over_height=1
+box/plane oracle cells=14292 transition=0 far=0
+wall computed=14292 above_height=0 max_length_over_height=1
+box/plane oracle cells=14292 transition=0 far=0
+wall computed=14292 above_height=0 max_length_over_height=1
+box/plane oracle cells=14292 transition=0 far=0
+wall computed=14292 above_height=0 max_length_over_height=1
+box/plane oracle cells=14292 transition=0 far=0
+wall computed=14292 above_height=0 max_length_over_height=1
+box/plane oracle cells=14292 transition=0 far=0
+</system-out>
+	</testcase>
+	<testcase name="native_turbulence_wall_nonuniform" classname="native_turbulence_wall_nonuniform" time="0.0146055" status="run">
+		<properties/>
+		<system-out>wall computed=83706 above_height=0 max_length_over_height=1
+box/plane oracle cells=83706 transition=8512 far=34048
+</system-out>
+	</testcase>
+	<testcase name="native_turbulence_wall_transition" classname="native_turbulence_wall_transition" time="0.00383871" status="run">
+		<properties/>
+		<system-out>wall computed=30476 above_height=0 max_length_over_height=1
+box/plane oracle cells=30476 transition=1568 far=19600
+</system-out>
+	</testcase>
+	<testcase name="native_turbulence_wall_underside" classname="native_turbulence_wall_underside" time="0.00664554" status="run">
+		<properties/>
+		<system-out>wall computed=7808 above_height=0 max_length_over_height=1
+box/plane oracle cells=7808 transition=0 far=0
+</system-out>
+	</testcase>
+	<testcase name="native_turbulence_wall_empty" classname="native_turbulence_wall_empty" time="0.00517071" status="run">
+		<properties/>
+		<system-out>wall computed=9 above_height=0 max_length_over_height=1
+wall computed=54 above_height=0 max_length_over_height=1
+</system-out>
+	</testcase>
+	<testcase name="native_turbulence_flat_analytic" classname="native_turbulence_flat_analytic" time="0.00618962" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_bridge_calm" classname="native_turbulence_bridge_calm" time="0.00719196" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_scaling" classname="native_turbulence_scaling" time="0.0243417" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_repeat" classname="native_turbulence_repeat" time="0.0474123" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_wall_distance" classname="native_turbulence_wall_distance" time="0.280006" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_margin" classname="native_turbulence_margin" time="0.013751" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_bridge_methods" classname="native_turbulence_bridge_methods" time="0.00244292" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="native_turbulence_invalid_stress" classname="native_turbulence_invalid_stress" time="0.00307875" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="explicit_vertical_grid" classname="explicit_vertical_grid" time="0.427664" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="precision_solver" classname="precision_solver" time="0.292607" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="solver_phases" classname="solver_phases" time="0.293315" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="condition_mask" classname="condition_mask" time="0.940776" status="run">
+		<properties/>
+		<system-out>384 model combinations/directions preserve prepared solids and faces; repeated solves pass
+</system-out>
+	</testcase>
+	<testcase name="equation_residual" classname="equation_residual" time="0.138613" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="solver_monitor" classname="solver_monitor" time="0.353351" status="run">
+		<properties/>
+		<system-out>Monitor sampling, windows, mass, trend and trajectory checks passed
+</system-out>
+	</testcase>
+	<testcase name="solver_control" classname="solver_control" time="0.221743" status="run">
+		<properties/>
+		<system-out>Deadline phase boundaries, precedence, histories, output scope and trajectory checks passed
+</system-out>
+	</testcase>
+	<testcase name="pedestrian_policy" classname="pedestrian_policy" time="0.724342" status="run">
+		<properties/>
+		<system-out>Predictions, nonzero anchors, expiration, support, safeguards, native acceptance, deadlines and method reset passed
+</system-out>
+	</testcase>
+	<testcase name="study_sampler" classname="study_sampler" time="0.132476" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="study_solver_diagnostics" classname="study_solver_diagnostics" time="0.00324354" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+</testsuite>

@@ -1,0 +1,52 @@
+{
+  "schema": "urban-campaign-v1",
+  "status": "completed",
+  "tier": "smoke",
+  "backend": "openmp",
+  "iterations": null,
+  "max_solve_seconds": 5.0,
+  "started_utc": "2026-10-31T09:19:07.962063+00:00",
+  "output": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-reuse",
+  "command": [
+    "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/run_urban_benchmarks.py",
+    "--tier",
+    "smoke",
+    "--candidate-archive",
+    "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/sources.tar.gz",
+    "--baseline-archive",
+    "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s5/s1a-matched-mask-sources.tar.gz",
+    "--cache-dir",
+    "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-cache",
+    "--output",
+    "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-reuse"
+  ],
+  "runner_sha256": "3cf8bc89c907d20dfd864ea38b7f7b54f811b047abbb0866f3e7906bee179805",
+  "shards": [
+    {
+      "shard": 0,
+      "completed": 6,
+      "workers": 6,
+      "output": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-reuse/run-00"
+    },
+    {
+      "shard": 1,
+      "completed": 6,
+      "workers": 6,
+      "output": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-reuse/run-01"
+    }
+  ],
+  "build_cache": {
+    "baseline": {
+      "key": "f82173780c38d8e4b193fbe70a6def9cb761a616c82c480639fb302574908951",
+      "reused": true,
+      "reason": "source, toolchain, package and import checks passed"
+    },
+    "candidate": {
+      "key": "1dd6d786f73bad542c20ec0a0b929a807abd86bd19bcaa25084d8a4c04d4327d",
+      "reused": true,
+      "reason": "source, toolchain, package and import checks passed"
+    }
+  },
+  "expected_rows": 12,
+  "elapsed_seconds": 14.993157874967437
+}

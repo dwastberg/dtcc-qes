@@ -1,0 +1,18 @@
+{
+  "s5": {
+    "passed": true,
+    "log": "logs/prior-audit-s5-80c252af.log"
+  },
+  "s6": {
+    "passed": true,
+    "log": "logs/prior-audit-s6-0b9ed2f2.log"
+  },
+  "s7": {
+    "passed": true,
+    "log": "logs/prior-audit-s7-179fe3ea.log"
+  },
+  "s8a": {
+    "passed": true,
+    "log": "logs/prior-audit-s8a-8d966563.log"
+  }
+}

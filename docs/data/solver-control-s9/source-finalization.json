@@ -1,0 +1,34 @@
+{
+  "measured_sources_sha256": "9c0ce6931d8b312180cec2f74b5a25869119416c7a1cf7228ae2677bd9c63197",
+  "final_changes": {
+    "tools/publish_solver_release.py": {
+      "before": null,
+      "after": "346d29c7868525e188cc57d41a39fb4e745dc77206ec70c1160a2b51a935c52c"
+    },
+    "tools/check_artifacts.py": {
+      "before": "94030b43f134c2b7fed7cd41953f6e6dfe74b54af777ff273e355110cfab3786",
+      "after": "4b6a05e82479472a204240090e20e9917cdccc33734a672c1f0810ff8128cd60"
+    },
+    "SOLVER_CONTROL_REFACTOR.md": {
+      "before": "e58ffefd0d61b915d8faff0133a48a3d492dc347ecffb3ec2d6dfdd900aaf79c",
+      "after": "7d5d15a5e11d4fec6ce0cdea3a897ab3be7a6851d66c75e85bfdb99618654400"
+    },
+    "docs/solver-control-s9.md": {
+      "before": "d0d1cd6e6f237c7e20df2c303204e3a4d73a55c970d5655b116df79bf5a25491",
+      "after": "1a58d68d3b5a2d71fe5637a63da46d7adabf61f975b9781ed57a6216785fa0f2"
+    },
+    "docs/solver-control-s4.md": {
+      "before": "16b7f17dcac21b69eaadae3a0e13e86a84c2fc9f69f86a7aca74da786343e907",
+      "after": "046cc649a41d541b42859063e8324b69a2ee0efa329c254ff00af7cde81bc65f"
+    },
+    "docs/solver-control-s5b.md": {
+      "before": "103bd9956d08eaaf556918a1b91b861f40c50cd9252a4811157f22e215e7b75d",
+      "after": "fc5e28df811e5a3fc7c1a8aa7eee364ab2b06b46b05960de8d7e9f567a9b44c5"
+    },
+    "docs/urban-wind-benchmarks.md": {
+      "before": "d16655c2d37959c473b872c0393c0a5dcd1a202bc58a042d3b62e45a09c941ee",
+      "after": "74a898166c3fd61ce337c986265d8b0616711d9c379e1ceddd6b59a02191cfa0"
+    }
+  },
+  "scope": "Release documentation, publication helper and content gate only; all Python/native runtime, numerical kernels, policy parameters and tests unchanged after their final validation."
+}
