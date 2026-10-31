@@ -1,0 +1,17 @@
+{
+  "focused_tests": {
+    "command": "OMP_NUM_THREADS=4 OMP_DYNAMIC=FALSE .venv/bin/python -m pytest tests/test_condition_state.py tests/test_adaptive_control.py tests/test_prepared_wind_study.py -q",
+    "passed": 38
+  },
+  "final_artifact_checks": {
+    "command": "OMP_NUM_THREADS=4 OMP_DYNAMIC=FALSE .venv/bin/python -m pytest tests/test_prepared_wind_study.py -q",
+    "passed": 5
+  },
+  "s7_portable_audit": "passed; original evidence unchanged",
+  "replay": {
+    "workers": 24,
+    "condition_solves": 144,
+    "all_fields_diagnostics_control_exact": true
+  },
+  "production_changes": false
+}
