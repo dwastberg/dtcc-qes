@@ -1,0 +1,1431 @@
+{
+  "campaigns": {
+    "overall-pilot": {
+      "output": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/urban-benchmarks/20261031T093341Z-bba6ac53",
+      "workers": 36,
+      "summary": [
+        {
+          "case": "industrial_residential",
+          "direction": 270.0,
+          "api_median_seconds": {
+            "baseline": 0.7076123330043629,
+            "disabled": 0.39994041703175753,
+            "bounded": 0.4510000830050558
+          },
+          "pipeline_median_seconds": {
+            "baseline": 0.7404342500376515,
+            "disabled": 0.43270525004481897,
+            "bounded": 0.4850947079830803
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 396623872,
+            "disabled": 352206848,
+            "bounded": 357826560
+          },
+          "api_speedup": {
+            "disabled": 1.7692943820383487,
+            "bounded": 1.5689849285380961
+          },
+          "pipeline_speedup": {
+            "disabled": 1.7111746389972353,
+            "bounded": 1.5263704960134863
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.11198777263714477,
+            "bounded": 0.09781890284203565
+          },
+          "sweeps": {
+            "baseline": [
+              500
+            ],
+            "disabled": [
+              500
+            ],
+            "bounded": [
+              500
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "mixed_downtown",
+          "direction": 270.0,
+          "api_median_seconds": {
+            "baseline": 0.689728291996289,
+            "disabled": 0.37691150000318885,
+            "bounded": 0.4196121250279248
+          },
+          "pipeline_median_seconds": {
+            "baseline": 0.7197860000305809,
+            "disabled": 0.4047028750064783,
+            "bounded": 0.4501702500274405
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 382844928,
+            "disabled": 334020608,
+            "bounded": 346570752
+          },
+          "api_speedup": {
+            "disabled": 1.8299475924466448,
+            "bounded": 1.6437282215102538
+          },
+          "pipeline_speedup": {
+            "disabled": 1.7785542047830991,
+            "bounded": 1.5989195198632202
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.1275302777421149,
+            "bounded": 0.0947490050070613
+          },
+          "sweeps": {
+            "baseline": [
+              500
+            ],
+            "disabled": [
+              500
+            ],
+            "bounded": [
+              500
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "perimeter_neighbourhood",
+          "direction": 270.0,
+          "api_median_seconds": {
+            "baseline": 0.48640062496997416,
+            "disabled": 0.2964292500400916,
+            "bounded": 0.3448534999624826
+          },
+          "pipeline_median_seconds": {
+            "baseline": 0.5184077919693664,
+            "disabled": 0.32991054200101644,
+            "bounded": 0.3780355409835465
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 334839808,
+            "disabled": 300990464,
+            "bounded": 313556992
+          },
+          "api_speedup": {
+            "disabled": 1.640865821791167,
+            "bounded": 1.4104558168117498
+          },
+          "pipeline_speedup": {
+            "disabled": 1.5713586744608155,
+            "bounded": 1.3713202484100016
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.10109115819347259,
+            "bounded": 0.06356118804129762
+          },
+          "sweeps": {
+            "baseline": [
+              500
+            ],
+            "disabled": [
+              500
+            ],
+            "bounded": [
+              500
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "slab_estate",
+          "direction": 270.0,
+          "api_median_seconds": {
+            "baseline": 0.6408394579775631,
+            "disabled": 0.37175554200075567,
+            "bounded": 0.41967695899074897
+          },
+          "pipeline_median_seconds": {
+            "baseline": 0.6712577079888433,
+            "disabled": 0.40266737499041483,
+            "bounded": 0.45012529200175777
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 382615552,
+            "disabled": 341262336,
+            "bounded": 346112000
+          },
+          "api_speedup": {
+            "disabled": 1.7238195146429331,
+            "bounded": 1.5269827047895888
+          },
+          "pipeline_speedup": {
+            "disabled": 1.667027799321517,
+            "bounded": 1.4912685865832707
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.10808033229135439,
+            "bounded": 0.09540530124609259
+          },
+          "sweeps": {
+            "baseline": [
+              500
+            ],
+            "disabled": [
+              500
+            ],
+            "bounded": [
+              500
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        }
+      ],
+      "comparison_count": 24,
+      "all_equal_work": true,
+      "all_equal_grids": true,
+      "all_bitwise_fields_equal": true,
+      "source_ids": [
+        "sha256:3be0889f7b728a6c1bc2067dba962df32f2f515adf32177e8bf35d72c6e17a64",
+        "sha256:3e06426ca9cbf1d1122fc1d3b752bdd75050d454e53be5a0782952b146e2ea0f"
+      ],
+      "dependencies": [
+        {
+          "version": "0.9.8dev",
+          "revision": "80a4bbae2760e891e2a0be4175d67bf3340a8e67"
+        }
+      ]
+    },
+    "overall-core-long": {
+      "output": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/urban-benchmarks/20261031T093521Z-852fd764",
+      "workers": 108,
+      "summary": [
+        {
+          "case": "industrial_residential",
+          "direction": 225.0,
+          "api_median_seconds": {
+            "baseline": 12.96161191596184,
+            "disabled": 6.173031541984528,
+            "bounded": 6.745868167025037
+          },
+          "pipeline_median_seconds": {
+            "baseline": 13.082359749998432,
+            "disabled": 6.2878340420429595,
+            "bounded": 6.8669896249775775
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 1006501888,
+            "disabled": 717684736,
+            "bounded": 737427456
+          },
+          "api_speedup": {
+            "disabled": 2.099715808643818,
+            "bounded": 1.9214149454210248
+          },
+          "pipeline_speedup": {
+            "disabled": 2.080582862480875,
+            "bounded": 1.9051084193302752
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.2869514259669228,
+            "bounded": 0.26733624169813774
+          },
+          "sweeps": {
+            "baseline": [
+              2000
+            ],
+            "disabled": [
+              2000
+            ],
+            "bounded": [
+              2000
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "industrial_residential",
+          "direction": 270.0,
+          "api_median_seconds": {
+            "baseline": 12.61843258398585,
+            "disabled": 5.960979582974687,
+            "bounded": 6.709520666976459
+          },
+          "pipeline_median_seconds": {
+            "baseline": 12.736918915994465,
+            "disabled": 6.074416999996174,
+            "bounded": 6.82289920799667
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 1001078784,
+            "disabled": 714850304,
+            "bounded": 733380608
+          },
+          "api_speedup": {
+            "disabled": 2.116838752480497,
+            "bounded": 1.8806757159408451
+          },
+          "pipeline_speedup": {
+            "disabled": 2.096813392297975,
+            "bounded": 1.8667898392909517
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.28592003404199606,
+            "bounded": 0.2674096986956024
+          },
+          "sweeps": {
+            "baseline": [
+              2000
+            ],
+            "disabled": [
+              2000
+            ],
+            "bounded": [
+              2000
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "industrial_residential",
+          "direction": 315.0,
+          "api_median_seconds": {
+            "baseline": 12.601565833028872,
+            "disabled": 6.002651832997799,
+            "bounded": 6.662084833020344
+          },
+          "pipeline_median_seconds": {
+            "baseline": 12.715613958949689,
+            "disabled": 6.1165204589487985,
+            "bounded": 6.779256665962748
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 999194624,
+            "disabled": 713850880,
+            "bounded": 731807744
+          },
+          "api_speedup": {
+            "disabled": 2.099333125362277,
+            "bounded": 1.8915348796775655
+          },
+          "pipeline_speedup": {
+            "disabled": 2.0788966609841157,
+            "bounded": 1.8756649269221755
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.28557373823500476,
+            "bounded": 0.2676024005509461
+          },
+          "sweeps": {
+            "baseline": [
+              2000
+            ],
+            "disabled": [
+              2000
+            ],
+            "bounded": [
+              2000
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "mixed_downtown",
+          "direction": 225.0,
+          "api_median_seconds": {
+            "baseline": 11.94628837495111,
+            "disabled": 6.667002958012745,
+            "bounded": 7.1254095420008525
+          },
+          "pipeline_median_seconds": {
+            "baseline": 12.046390125004109,
+            "disabled": 6.766426749993116,
+            "bounded": 7.221952166990377
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 1094483968,
+            "disabled": 768409600,
+            "bounded": 781795328
+          },
+          "api_speedup": {
+            "disabled": 1.7918528685506956,
+            "bounded": 1.6765756837601407
+          },
+          "pipeline_speedup": {
+            "disabled": 1.7803178206305663,
+            "bounded": 1.6680240808108582
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.2979252118200054,
+            "bounded": 0.2856950390706865
+          },
+          "sweeps": {
+            "baseline": [
+              2000
+            ],
+            "disabled": [
+              2000
+            ],
+            "bounded": [
+              2000
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "mixed_downtown",
+          "direction": 270.0,
+          "api_median_seconds": {
+            "baseline": 11.866421791026369,
+            "disabled": 6.6546207499923185,
+            "bounded": 7.15866608300712
+          },
+          "pipeline_median_seconds": {
+            "baseline": 11.970606292015873,
+            "disabled": 6.752557332976721,
+            "bounded": 7.259951834043022
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 1097465856,
+            "disabled": 770129920,
+            "bounded": 788955136
+          },
+          "api_speedup": {
+            "disabled": 1.7831852838555926,
+            "bounded": 1.6576302978000723
+          },
+          "pipeline_speedup": {
+            "disabled": 1.7727515223834296,
+            "bounded": 1.6488547810859946
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.2982652573748955,
+            "bounded": 0.2811119073211513
+          },
+          "sweeps": {
+            "baseline": [
+              2000
+            ],
+            "disabled": [
+              2000
+            ],
+            "bounded": [
+              2000
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "mixed_downtown",
+          "direction": 315.0,
+          "api_median_seconds": {
+            "baseline": 11.891729041992221,
+            "disabled": 6.53607779199956,
+            "bounded": 7.097496834001504
+          },
+          "pipeline_median_seconds": {
+            "baseline": 11.997298833040986,
+            "disabled": 6.633363708038814,
+            "bounded": 7.196882167016156
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 1094336512,
+            "disabled": 767803392,
+            "bounded": 787070976
+          },
+          "api_speedup": {
+            "disabled": 1.8193983334390862,
+            "bounded": 1.6754821199811332
+          },
+          "pipeline_speedup": {
+            "disabled": 1.80862973313249,
+            "bounded": 1.6670133753232053
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.2983845612564191,
+            "bounded": 0.28077792583055106
+          },
+          "sweeps": {
+            "baseline": [
+              2000
+            ],
+            "disabled": [
+              2000
+            ],
+            "bounded": [
+              2000
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "perimeter_neighbourhood",
+          "direction": 225.0,
+          "api_median_seconds": {
+            "baseline": 7.581965791992843,
+            "disabled": 3.9243753750342876,
+            "bounded": 4.464528833981603
+          },
+          "pipeline_median_seconds": {
+            "baseline": 7.67257375002373,
+            "disabled": 4.008972459007055,
+            "bounded": 4.555822333029937
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 732479488,
+            "disabled": 542244864,
+            "bounded": 559284224
+          },
+          "api_speedup": {
+            "disabled": 1.9320184914590641,
+            "bounded": 1.6982678517569376
+          },
+          "pipeline_speedup": {
+            "disabled": 1.9138504513258938,
+            "bounded": 1.68412488221878
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.25971324401100504,
+            "bounded": 0.23645066768067635
+          },
+          "sweeps": {
+            "baseline": [
+              2000
+            ],
+            "disabled": [
+              2000
+            ],
+            "bounded": [
+              2000
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "perimeter_neighbourhood",
+          "direction": 270.0,
+          "api_median_seconds": {
+            "baseline": 7.557821833004709,
+            "disabled": 3.9750281249871477,
+            "bounded": 4.447863582987338
+          },
+          "pipeline_median_seconds": {
+            "baseline": 7.649406999989878,
+            "disabled": 4.0629414159921,
+            "bounded": 4.544592958001886
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 731217920,
+            "disabled": 545439744,
+            "bounded": 558579712
+          },
+          "api_speedup": {
+            "disabled": 1.9013253731454154,
+            "bounded": 1.6992027052971386
+          },
+          "pipeline_speedup": {
+            "disabled": 1.882726383865918,
+            "bounded": 1.6831885871145393
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.25406677123011423,
+            "bounded": 0.23609679587721266
+          },
+          "sweeps": {
+            "baseline": [
+              2000
+            ],
+            "disabled": [
+              2000
+            ],
+            "bounded": [
+              2000
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "perimeter_neighbourhood",
+          "direction": 315.0,
+          "api_median_seconds": {
+            "baseline": 7.491384040971752,
+            "disabled": 3.988673457992263,
+            "bounded": 4.594452792021912
+          },
+          "pipeline_median_seconds": {
+            "baseline": 7.586349958030041,
+            "disabled": 4.081768625008408,
+            "bounded": 4.6891722500440665
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 731791360,
+            "disabled": 545964032,
+            "bounded": 562233344
+          },
+          "api_speedup": {
+            "disabled": 1.878164286916235,
+            "bounded": 1.6305280258794363
+          },
+          "pipeline_speedup": {
+            "disabled": 1.8585938241451436,
+            "bounded": 1.6178441638518928
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.2539348483152356,
+            "bounded": 0.2317026754729654
+          },
+          "sweeps": {
+            "baseline": [
+              2000
+            ],
+            "disabled": [
+              2000
+            ],
+            "bounded": [
+              2000
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "slab_estate",
+          "direction": 225.0,
+          "api_median_seconds": {
+            "baseline": 11.382001749996562,
+            "disabled": 6.0603977080318145,
+            "bounded": 6.279281833034474
+          },
+          "pipeline_median_seconds": {
+            "baseline": 11.50092850002693,
+            "disabled": 6.174377292045392,
+            "bounded": 6.410016042005736
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 990412800,
+            "disabled": 711327744,
+            "bounded": 726138880
+          },
+          "api_speedup": {
+            "disabled": 1.8780948542225293,
+            "bounded": 1.812627948966608
+          },
+          "pipeline_speedup": {
+            "disabled": 1.862686382130206,
+            "bounded": 1.7942121243784304
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.2817866004962779,
+            "bounded": 0.26683209263854424
+          },
+          "sweeps": {
+            "baseline": [
+              2000
+            ],
+            "disabled": [
+              2000
+            ],
+            "bounded": [
+              2000
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "slab_estate",
+          "direction": 270.0,
+          "api_median_seconds": {
+            "baseline": 11.37289724999573,
+            "disabled": 5.734746249974705,
+            "bounded": 6.363981749978848
+          },
+          "pipeline_median_seconds": {
+            "baseline": 11.482666541007347,
+            "disabled": 5.8463257910334505,
+            "bounded": 6.484532791015226
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 989659136,
+            "disabled": 708067328,
+            "bounded": 725630976
+          },
+          "api_speedup": {
+            "disabled": 1.9831561422697463,
+            "bounded": 1.7870725744984313
+          },
+          "pipeline_speedup": {
+            "disabled": 1.9640825625247211,
+            "bounded": 1.7707777739851027
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.2845341368121317,
+            "bounded": 0.26678696775048005
+          },
+          "sweeps": {
+            "baseline": [
+              2000
+            ],
+            "disabled": [
+              2000
+            ],
+            "bounded": [
+              2000
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "slab_estate",
+          "direction": 315.0,
+          "api_median_seconds": {
+            "baseline": 11.741474540962372,
+            "disabled": 5.983661749982275,
+            "bounded": 6.502099916047882
+          },
+          "pipeline_median_seconds": {
+            "baseline": 11.861068375001196,
+            "disabled": 6.098295875010081,
+            "bounded": 6.619803917012177
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 820772864,
+            "disabled": 719093760,
+            "bounded": 735772672
+          },
+          "api_speedup": {
+            "disabled": 1.9622557276064532,
+            "bounded": 1.8057973104939757
+          },
+          "pipeline_speedup": {
+            "disabled": 1.9449807976038207,
+            "bounded": 1.7917552428584083
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.12388214627914407,
+            "bounded": 0.10356116256786974
+          },
+          "sweeps": {
+            "baseline": [
+              2000
+            ],
+            "disabled": [
+              2000
+            ],
+            "bounded": [
+              2000
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        }
+      ],
+      "comparison_count": 72,
+      "all_equal_work": true,
+      "all_equal_grids": true,
+      "all_bitwise_fields_equal": true,
+      "source_ids": [
+        "sha256:3be0889f7b728a6c1bc2067dba962df32f2f515adf32177e8bf35d72c6e17a64",
+        "sha256:3e06426ca9cbf1d1122fc1d3b752bdd75050d454e53be5a0782952b146e2ea0f"
+      ],
+      "dependencies": [
+        {
+          "version": "0.9.8dev",
+          "revision": "80a4bbae2760e891e2a0be4175d67bf3340a8e67"
+        }
+      ]
+    },
+    "controls-pilot": {
+      "output": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/urban-benchmarks/20261031T095234Z-90945794",
+      "workers": 36,
+      "summary": [
+        {
+          "case": "industrial_residential",
+          "direction": 270.0,
+          "api_median_seconds": {
+            "baseline": 0.4029779579723254,
+            "disabled": 0.4046023749979213,
+            "bounded": 0.4540978329605423
+          },
+          "pipeline_median_seconds": {
+            "baseline": 0.4361547500011511,
+            "disabled": 0.43964362499536946,
+            "bounded": 0.48788279201835394
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 348749824,
+            "disabled": 347815936,
+            "bounded": 355483648
+          },
+          "api_speedup": {
+            "disabled": 0.9959851520258519,
+            "bounded": 0.8874254152350054
+          },
+          "pipeline_speedup": {
+            "disabled": 0.9920643111923775,
+            "bounded": 0.8939744486514769
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.0026778164051489695,
+            "bounded": -0.019308465658179008
+          },
+          "sweeps": {
+            "baseline": [
+              500
+            ],
+            "disabled": [
+              500
+            ],
+            "bounded": [
+              500
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "mixed_downtown",
+          "direction": 270.0,
+          "api_median_seconds": {
+            "baseline": 0.3793417499982752,
+            "disabled": 0.3741421249578707,
+            "bounded": 0.4400855420390144
+          },
+          "pipeline_median_seconds": {
+            "baseline": 0.4083295419695787,
+            "disabled": 0.40475466602947563,
+            "bounded": 0.46969741594512016
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 337854464,
+            "disabled": 333004800,
+            "bounded": 344358912
+          },
+          "api_speedup": {
+            "disabled": 1.0138974595308934,
+            "bounded": 0.8619727615697174
+          },
+          "pipeline_speedup": {
+            "disabled": 1.0088322043947549,
+            "bounded": 0.8693459408286127
+          },
+          "memory_reduction_fraction": {
+            "disabled": 0.014354299015566618,
+            "bounded": -0.019252218612094474
+          },
+          "sweeps": {
+            "baseline": [
+              500
+            ],
+            "disabled": [
+              500
+            ],
+            "bounded": [
+              500
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "perimeter_neighbourhood",
+          "direction": 270.0,
+          "api_median_seconds": {
+            "baseline": 0.29388516704784706,
+            "disabled": 0.2963853750261478,
+            "bounded": 0.3460529580479488
+          },
+          "pipeline_median_seconds": {
+            "baseline": 0.32741345901740715,
+            "disabled": 0.3325106660486199,
+            "bounded": 0.37970129103632644
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 301662208,
+            "disabled": 305905664,
+            "bounded": 310870016
+          },
+          "api_speedup": {
+            "disabled": 0.9915643341778245,
+            "bounded": 0.8492491111927631
+          },
+          "pipeline_speedup": {
+            "disabled": 0.9846705457849361,
+            "bounded": 0.8622921932232334
+          },
+          "memory_reduction_fraction": {
+            "disabled": -0.014066912882902516,
+            "bounded": -0.030523571583749742
+          },
+          "sweeps": {
+            "baseline": [
+              500
+            ],
+            "disabled": [
+              500
+            ],
+            "bounded": [
+              500
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        },
+        {
+          "case": "slab_estate",
+          "direction": 270.0,
+          "api_median_seconds": {
+            "baseline": 0.3660463329870254,
+            "disabled": 0.36836908297846094,
+            "bounded": 0.4127238340443
+          },
+          "pipeline_median_seconds": {
+            "baseline": 0.39721591700799763,
+            "disabled": 0.39905079104937613,
+            "bounded": 0.44419995800126344
+          },
+          "peak_rss_median_bytes": {
+            "baseline": 338018304,
+            "disabled": 339099648,
+            "bounded": 347865088
+          },
+          "api_speedup": {
+            "disabled": 0.9936945034239711,
+            "bounded": 0.8869037908475514
+          },
+          "pipeline_speedup": {
+            "disabled": 0.995401903510695,
+            "bounded": 0.8942277230176321
+          },
+          "memory_reduction_fraction": {
+            "disabled": -0.003199069361640161,
+            "bounded": -0.029130919490087726
+          },
+          "sweeps": {
+            "baseline": [
+              500
+            ],
+            "disabled": [
+              500
+            ],
+            "bounded": [
+              500
+            ]
+          },
+          "converged": {
+            "baseline": 0,
+            "disabled": 0,
+            "bounded": 0
+          },
+          "stops": {
+            "baseline": {
+              "iteration_limit": 3
+            },
+            "disabled": {
+              "iteration_limit": 3
+            },
+            "bounded": {
+              "iteration_limit": 3
+            }
+          }
+        }
+      ],
+      "comparison_count": 24,
+      "all_equal_work": true,
+      "all_equal_grids": true,
+      "all_bitwise_fields_equal": true,
+      "source_ids": [
+        "sha256:3be0889f7b728a6c1bc2067dba962df32f2f515adf32177e8bf35d72c6e17a64",
+        "sha256:deccfc1616b987bbd8b5f610136c3e973398c5f25330f70e6ac4db114fbd72d3"
+      ],
+      "dependencies": [
+        {
+          "version": "0.9.8dev",
+          "revision": "80a4bbae2760e891e2a0be4175d67bf3340a8e67"
+        }
+      ]
+    }
+  },
+  "adaptive": {
+    "completed": 36,
+    "groups": [
+      {
+        "case": "val_staggered_240",
+        "api_median_seconds": {
+          "legacy": 0.29212075000396,
+          "adaptive": 0.12562912498833612
+        },
+        "speedup": 2.325262951812182,
+        "api_ranges": {
+          "legacy": [
+            0.2910906669567339,
+            0.30134908301988617
+          ],
+          "adaptive": [
+            0.1252842079848051,
+            0.13213441596599296
+          ]
+        },
+        "iterations": {
+          "legacy": [
+            2000
+          ],
+          "adaptive": [
+            225
+          ]
+        },
+        "peak_rss_median_bytes": {
+          "legacy": 232849408,
+          "adaptive": 240959488
+        },
+        "max_vector_error_Uref": 1.3304124840934817e-06,
+        "all_adaptive_accepted": true,
+        "all_adaptive_targets_passed": true
+      },
+      {
+        "case": "val_courtyards_315",
+        "api_median_seconds": {
+          "legacy": 0.2927196249947883,
+          "adaptive": 0.1278496669838205
+        },
+        "speedup": 2.2895611064190904,
+        "api_ranges": {
+          "legacy": [
+            0.2917239590315148,
+            0.3038117920514196
+          ],
+          "adaptive": [
+            0.12699437496485189,
+            0.12993162497878075
+          ]
+        },
+        "iterations": {
+          "legacy": [
+            2000
+          ],
+          "adaptive": [
+            225
+          ]
+        },
+        "peak_rss_median_bytes": {
+          "legacy": 236912640,
+          "adaptive": 235896832
+        },
+        "max_vector_error_Uref": 1.2738150683193672e-06,
+        "all_adaptive_accepted": true,
+        "all_adaptive_targets_passed": true
+      },
+      {
+        "case": "val_mixed_195",
+        "api_median_seconds": {
+          "legacy": 0.292165249993559,
+          "adaptive": 0.12651049997657537
+        },
+        "speedup": 2.3094150291687736,
+        "api_ranges": {
+          "legacy": [
+            0.2828810409992002,
+            0.29814037500182167
+          ],
+          "adaptive": [
+            0.1254779999726452,
+            0.12701004196424037
+          ]
+        },
+        "iterations": {
+          "legacy": [
+            2000
+          ],
+          "adaptive": [
+            225
+          ]
+        },
+        "peak_rss_median_bytes": {
+          "legacy": 236814336,
+          "adaptive": 240812032
+        },
+        "max_vector_error_Uref": 1.1344380769026768e-06,
+        "all_adaptive_accepted": true,
+        "all_adaptive_targets_passed": true
+      },
+      {
+        "case": "val_staggered_graded_150",
+        "api_median_seconds": {
+          "legacy": 0.29346904100384563,
+          "adaptive": 0.14160324999829754
+        },
+        "speedup": 2.0724739086664603,
+        "api_ranges": {
+          "legacy": [
+            0.29299250000622123,
+            0.29428975004702806
+          ],
+          "adaptive": [
+            0.1388689589803107,
+            0.14315491600427777
+          ]
+        },
+        "iterations": {
+          "legacy": [
+            2000
+          ],
+          "adaptive": [
+            250
+          ]
+        },
+        "peak_rss_median_bytes": {
+          "legacy": 238141440,
+          "adaptive": 238403584
+        },
+        "max_vector_error_Uref": 1.5165091863538913e-06,
+        "all_adaptive_accepted": true,
+        "all_adaptive_targets_passed": true
+      },
+      {
+        "case": "val_courtyards_210_u2",
+        "api_median_seconds": {
+          "legacy": 0.29403641703538597,
+          "adaptive": 0.1283439169637859
+        },
+        "speedup": 2.291003921271568,
+        "api_ranges": {
+          "legacy": [
+            0.29126083297887817,
+            0.29510241700336337
+          ],
+          "adaptive": [
+            0.1271610420080833,
+            0.12916291697183624
+          ]
+        },
+        "iterations": {
+          "legacy": [
+            2000
+          ],
+          "adaptive": [
+            225
+          ]
+        },
+        "peak_rss_median_bytes": {
+          "legacy": 235241472,
+          "adaptive": 238518272
+        },
+        "max_vector_error_Uref": 1.1236942747001031e-06,
+        "all_adaptive_accepted": true,
+        "all_adaptive_targets_passed": true
+      },
+      {
+        "case": "val_courtyards_210_u10",
+        "api_median_seconds": {
+          "legacy": 0.291131415986456,
+          "adaptive": 0.12835379200987518
+        },
+        "speedup": 2.268194896525201,
+        "api_ranges": {
+          "legacy": [
+            0.29061754199210554,
+            0.29673591698519886
+          ],
+          "adaptive": [
+            0.1276969580212608,
+            0.12933825002983212
+          ]
+        },
+        "iterations": {
+          "legacy": [
+            2000
+          ],
+          "adaptive": [
+            225
+          ]
+        },
+        "peak_rss_median_bytes": {
+          "legacy": 237879296,
+          "adaptive": 240091136
+        },
+        "max_vector_error_Uref": 1.2332358459106564e-06,
+        "all_adaptive_accepted": true,
+        "all_adaptive_targets_passed": true
+      }
+    ],
+    "false_acceptances": 0,
+    "all_frozen_s7_fields_and_diagnostics_exact": true,
+    "elapsed_seconds": 45.83584316598717
+  },
+  "total_workers": 216
+}
