@@ -1,5 +1,5 @@
+#include "solver/solver.h"
 #include "winds/WINDSGeneralData.h"
-#include "winds/SolverFactory.h"
 #include "util/QESLog.h"
 #include "fixture.h"
 #include <cmath>
@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+using namespace dtcc_qes::solver;
 
 static void require(bool condition, const char *message)
 {
@@ -70,9 +72,9 @@ static SolveDiagnostics solve(Inputs &inputs, WINDSGeneralData &data, int limit)
   data.resetICellFlag();
   data.applyWindProfile(inputs.inflow);
   data.applyParametrizations();
-  std::unique_ptr<Solver> solver(SolverFactory::create(CPU_Type, data.domain, fixture::tolerance));
-  solver->resetLambda();
-  return solver->solve(&data, limit);
+  const PoissonOperator op(data);
+  SolverState<float> solver(op, fixture::tolerance);
+  return solve_wind(solver, data, limit);
 }
 
 static void success()
@@ -109,6 +111,20 @@ static void success()
 
 static void failures()
 {
+  for (int dependent = 0; dependent < 3; ++dependent) {
+    Inputs inputs(true);
+    inputs.parameterizations.wakeFlag = 0;
+    inputs.parameterizations.rooftopFlag = dependent == 0;
+    inputs.parameterizations.streetCanyonFlag = dependent == 1;
+    inputs.parameterizations.sidewallFlag = dependent == 2;
+    rejects<std::invalid_argument>([&] { inputs.prepare(); });
+  }
+  {
+    Inputs inputs(true);
+    auto data = inputs.prepare();
+    data->parameterizations.wakeFlag = 0;
+    rejects<std::invalid_argument>([&] { data->applyParametrizations(); });
+  }
   const float nan = std::numeric_limits<float>::quiet_NaN();
   rejects<qes::InputError>([] { qes::Domain d(0, 2, 3, 2, 2, 2); });
   rejects<qes::InputError>([] { qes::Domain d(100000, 100000, 100000, 2, 2, 2); });
@@ -134,18 +150,22 @@ static void failures()
     inputs.inflow.site_xcoord = -1;
     rejects<qes::InputError>([&] { data->applyWindProfile(inputs.inflow); });
     inputs.inflow.site_xcoord = fixture::sensor_x;
-    rejects<qes::InputError>([&] { std::unique_ptr<Solver> s(SolverFactory::create(99, data->domain, fixture::tolerance)); });
-    rejects<qes::InputError>([&] { std::unique_ptr<Solver> s(SolverFactory::create(1, data->domain, 1e-12f)); });
     data->applyWindProfile(inputs.inflow);
-    std::unique_ptr<Solver> solver(SolverFactory::create(1, data->domain, fixture::tolerance));
-    rejects<qes::InputError>([&] { solver->solve(data.get(), 0); });
-    data->u0[0] = nan;
-    rejects<qes::InputError>([&] { solver->solve(data.get(), 2); });
+    {
+      const PoissonOperator op(*data);
+      rejects<qes::InputError>([&] { SolverState<float> s(op,fixture::tolerance,static_cast<SweepOrder>(99)); });
+      rejects<qes::InputError>([&] { SolverState<float> s(op,1e-12f); });
+      SolverState<float> solver(op,fixture::tolerance);
+      rejects<qes::InputError>([&] { solve_wind(solver,*data,0); });
+      data->u0[0] = nan;
+      rejects<qes::InputError>([&] { solve_wind(solver,*data,2); });
+    }
     data->applyWindProfile(inputs.inflow);
-    const auto cell = data->domain.cell(2, 2, 2);
-    for (auto *values : {&data->e, &data->f, &data->g, &data->h, &data->m, &data->n})
-      (*values)[cell] = 0.0f;
-    rejects<qes::RuntimeError>([&] { solver->solve(data.get(), 2); });
+    const auto cell = data->domain.cell(2,2,2);
+    for (auto *values : {&data->e,&data->f,&data->g,&data->h,&data->m,&data->n}) (*values)[cell] = 0.0f;
+    const PoissonOperator invalid_diagonal(*data);
+    SolverState<float> bad(invalid_diagonal,fixture::tolerance);
+    rejects<qes::RuntimeError>([&] { solve_wind(bad,*data,2); });
   }
   // Failure after the arrays are allocated must also release the partial model.
   Inputs bad_building(true);
@@ -161,9 +181,9 @@ static void nonconvergence()
   require(!result.converged && result.iterations == 1, "Iteration-limit status is wrong");
   require(result.max_lagrange_multiplier_change > result.tolerance, "Non-convergence metric is wrong");
   // A permissive tolerance must not report the unmeasured initial sentinel.
-  std::unique_ptr<Solver> loose(SolverFactory::create(CPU_Type, data->domain, 2.0f));
-  loose->resetLambda();
-  const auto measured = loose->solve(data.get(), fixture::max_iterations);
+  const PoissonOperator op(*data);
+  SolverState<float> loose(op,2.0f);
+  const auto measured = solve_wind(loose,*data,fixture::max_iterations);
   require(measured.iterations > 0, "Convergence must be measured at least once");
 }
 

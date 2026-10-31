@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "workers": 24,
+  "exact_workers": 24,
+  "frozen_policy_manifest_sha256": "7f973e28ca61d72b72c058fab598e82814c9444b166449322999defac16cc23d"
+}

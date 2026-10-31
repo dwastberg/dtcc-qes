@@ -218,69 +218,87 @@ void PolyBuilding::setCellFlags(WINDSGeneralData *WGD, int building_number)
   }
 }
 
-
-bool PolyBuilding::faceExposed(const WINDSGeneralData *WGD, std::size_t edge,
-                              double x, double y, int k) const
-{
-  if (!WGD->parameterizations.exposedFaces) return true;
-  if (!isFace(edge) || k<0 || k>=WGD->domain.nz()-1) return false;
-  const auto &a=polygonVertices[edge], &b=polygonVertices[edge+1];
-  const double ex=double(b.x_poly)-a.x_poly, ey=double(b.y_poly)-a.y_poly;
-  const double length2=ex*ex+ey*ey;
-  if (!(length2>0)) return false;
-  const double along=std::clamp(((x-a.x_poly)*ex+(y-a.y_poly)*ey)/length2, 0., 1.);
-  const double nx=-ey/std::sqrt(length2), ny=ex/std::sqrt(length2);
-  const double px=std::nextafter(a.x_poly+along*ex, a.x_poly+along*ex+nx);
-  const double py=std::nextafter(a.y_poly+along*ey, a.y_poly+along*ey+ny);
-  const double dx=WGD->domain.dx(), dy=WGD->domain.dy();
-  int i=std::floor(px/dx), j=std::floor(py/dy);
-  const int sx=nx>0 ? 1 : -1, sy=ny>0 ? 1 : -1;
-  const double inf=std::numeric_limits<double>::infinity();
-  double tx=nx==0 ? inf : (((sx>0 ? i+1 : i)*dx)-px)/nx;
-  double ty=ny==0 ? inf : (((sy>0 ? j+1 : j)*dy)-py)/ny;
-  const double dtx=nx==0 ? inf : dx/std::abs(nx), dty=ny==0 ? inf : dy/std::abs(ny);
-  for (int steps=0; steps<WGD->domain.nx()+WGD->domain.ny(); ++steps) {
-    if (i<0 || j<0 || i>=WGD->domain.nx()-1 || j>=WGD->domain.ny()-1) return false;
-    const auto flag=WGD->icellflag_initial[WGD->domain.cell(i,j,k)];
-    const bool solid=flag==0 || flag==2 || flag==7;
-    if (!containsXY((i+.5)*dx,(j+.5)*dy)) return !solid;
+bool PolyBuilding::faceExposed(const WINDSGeneralData *WGD, std::size_t edge, double x, double y, int k) const {
+  if (!WGD->parameterizations.exposedFaces)
+    return true;
+  if (!isFace(edge) || k < 0 || k >= WGD->domain.nz() - 1)
+    return false;
+  const auto &a = polygonVertices[edge], &b = polygonVertices[edge + 1];
+  const double ex = double(b.x_poly) - a.x_poly, ey = double(b.y_poly) - a.y_poly;
+  const double length2 = ex * ex + ey * ey;
+  if (!(length2 > 0))
+    return false;
+  const double along = std::clamp(((x - a.x_poly) * ex + (y - a.y_poly) * ey) / length2, 0., 1.);
+  const double nx = -ey / std::sqrt(length2), ny = ex / std::sqrt(length2);
+  const double px = std::nextafter(a.x_poly + along * ex, a.x_poly + along * ex + nx);
+  const double py = std::nextafter(a.y_poly + along * ey, a.y_poly + along * ey + ny);
+  const double dx = WGD->domain.dx(), dy = WGD->domain.dy();
+  int i = std::floor(px / dx), j = std::floor(py / dy);
+  const int sx = nx > 0 ? 1 : -1, sy = ny > 0 ? 1 : -1;
+  const double inf = std::numeric_limits<double>::infinity();
+  double tx = nx == 0 ? inf : (((sx > 0 ? i + 1 : i) * dx) - px) / nx;
+  double ty = ny == 0 ? inf : (((sy > 0 ? j + 1 : j) * dy) - py) / ny;
+  const double dtx = nx == 0 ? inf : dx / std::abs(nx), dty = ny == 0 ? inf : dy / std::abs(ny);
+  for (int steps = 0; steps < WGD->domain.nx() + WGD->domain.ny(); ++steps) {
+    if (i < 0 || j < 0 || i >= WGD->domain.nx() - 1 || j >= WGD->domain.ny() - 1)
+      return false;
+    const auto flag = WGD->icellflag_initial[WGD->domain.cell(i, j, k)];
+    const bool solid = flag == 0 || flag == 2 || flag == 7;
+    if (!containsXY((i + .5) * dx, (j + .5) * dy))
+      return !solid;
     // Own solid ahead of the face is an opposite courtyard wall or concave
     // branch, not the source-side raster cell that the ray may skip.
-    const double ahead=((i+.5)*dx-px)*nx+((j+.5)*dy-py)*ny;
-    if (solid && ahead>8*std::numeric_limits<float>::epsilon()*std::max(dx,dy)) return false;
-    if (tx<ty) { i+=sx; tx+=dtx; }
-    else if (ty<tx) { j+=sy; ty+=dty; }
-    else { i+=sx; j+=sy; tx+=dtx; ty+=dty; }
+    const double ahead = ((i + .5) * dx - px) * nx + ((j + .5) * dy - py) * ny;
+    if (solid && ahead > 8 * std::numeric_limits<float>::epsilon() * std::max(dx, dy))
+      return false;
+    if (tx < ty) {
+      i += sx;
+      tx += dtx;
+    } else if (ty < tx) {
+      j += sy;
+      ty += dty;
+    } else {
+      i += sx;
+      j += sy;
+      tx += dtx;
+      ty += dty;
+    }
   }
   return false;
 }
 
-
-void PolyBuilding::prepareParameterFaces(WINDSGeneralData *WGD)
-{
-  if (!WGD->parameterizations.exposedFaces && !WGD->parameterizations.canonicalFaces) return;
+void PolyBuilding::prepareParameterFaces(WINDSGeneralData *WGD) {
+  if (!WGD->parameterizations.exposedFaces && !WGD->parameterizations.canonicalFaces)
+    return;
   std::vector<polyVert> vertices;
   std::vector<std::size_t> offsets{0};
-  for (std::size_t r=0; r+1<ringOffsets.size(); ++r) {
-    std::vector<polyVert> ring(polygonVertices.begin()+ringOffsets[r],polygonVertices.begin()+ringOffsets[r+1]-1);
-    bool changed=true;
-    while (changed && ring.size()>3) {
-      changed=false;
-      for (std::size_t i=0; i<ring.size(); ++i) {
-        const auto &a=ring[(i+ring.size()-1)%ring.size()], &b=ring[i], &c=ring[(i+1)%ring.size()];
-        if ((double(b.x_poly)-a.x_poly)*(double(c.y_poly)-b.y_poly)
-              ==(double(b.y_poly)-a.y_poly)*(double(c.x_poly)-b.x_poly)
-            && b.x_poly>=std::min(a.x_poly,c.x_poly) && b.x_poly<=std::max(a.x_poly,c.x_poly)
-            && b.y_poly>=std::min(a.y_poly,c.y_poly) && b.y_poly<=std::max(a.y_poly,c.y_poly)) {
-          ring.erase(ring.begin()+i); changed=true; break;
+  for (std::size_t r = 0; r + 1 < ringOffsets.size(); ++r) {
+    std::vector<polyVert> ring(polygonVertices.begin() + ringOffsets[r],
+                               polygonVertices.begin() + ringOffsets[r + 1] - 1);
+    bool changed = true;
+    while (changed && ring.size() > 3) {
+      changed = false;
+      for (std::size_t i = 0; i < ring.size(); ++i) {
+        const auto &a = ring[(i + ring.size() - 1) % ring.size()], &b = ring[i], &c = ring[(i + 1) % ring.size()];
+        if ((double(b.x_poly) - a.x_poly) * (double(c.y_poly) - b.y_poly) ==
+                (double(b.y_poly) - a.y_poly) * (double(c.x_poly) - b.x_poly) &&
+            b.x_poly >= std::min(a.x_poly, c.x_poly) && b.x_poly <= std::max(a.x_poly, c.x_poly) &&
+            b.y_poly >= std::min(a.y_poly, c.y_poly) && b.y_poly <= std::max(a.y_poly, c.y_poly)) {
+          ring.erase(ring.begin() + i);
+          changed = true;
+          break;
         }
       }
     }
-    vertices.insert(vertices.end(),ring.begin(),ring.end()); vertices.push_back(ring.front());
+    vertices.insert(vertices.end(), ring.begin(), ring.end());
+    vertices.push_back(ring.front());
     offsets.push_back(vertices.size());
   }
-  if (vertices.size()==polygonVertices.size()) return;
-  maskVertices=polygonVertices; maskRingOffsets=ringOffsets;
-  polygonVertices=std::move(vertices); ringOffsets=std::move(offsets);
+  if (vertices.size() == polygonVertices.size())
+    return;
+  maskVertices = polygonVertices;
+  maskRingOffsets = ringOffsets;
+  polygonVertices = std::move(vertices);
+  ringOffsets = std::move(offsets);
   setPolyBuilding(WGD);
 }

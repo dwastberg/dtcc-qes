@@ -199,6 +199,7 @@ def fingerprint():
     files = [*sorted((ROOT/"src/dtcc_qes").glob("*.py")), Path(__file__).resolve(),
              *sorted((ROOT/"src/cpp").glob("*.cpp")), *sorted((ROOT/"src/qes_core/dtcc").rglob("*.cpp")),
              *sorted((ROOT/"src/qes_core/dtcc").rglob("*.h")),
+             *[p for p in sorted((ROOT/"src/qes_core").rglob("*")) if p.suffix in (".cpp", ".h", ".txt")],
              ROOT/"tools/run_auto_grid_controls.py", ROOT/"src/dtcc_qes/_qes_revision.txt", Path(_qes.__file__)]
     return hashlib.sha256(b"".join(hashlib.sha256(f.read_bytes()).digest() for f in files)).hexdigest()
 
@@ -623,6 +624,7 @@ def main():
     files = [*sorted((ROOT/"src/dtcc_qes").glob("*.py")), Path(__file__).resolve(),
              *sorted((ROOT/"src/cpp").glob("*.cpp")), *sorted((ROOT/"src/qes_core/dtcc").rglob("*.cpp")),
              *sorted((ROOT/"src/qes_core/dtcc").rglob("*.h")), ROOT/"src/dtcc_qes/_qes_revision.txt",
+             *[p for p in sorted((ROOT/"src/qes_core").rglob("*")) if p.suffix in (".cpp", ".h", ".txt")],
              ROOT/"tools/run_auto_grid_controls.py", ROOT/"src/qes_core/dtcc/api/stress_validity.h"]
     summed = summary(runs)
     raw_file = args.output.with_name(args.output.stem+"-runs.json.gz")

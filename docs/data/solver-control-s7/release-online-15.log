@@ -1,0 +1,4 @@
+[22:02:57] [dtcc-qes] [info] Wind grid 80 x 80 x 32, 20 buildings: 506 
+iterations, converged=True, max_divergence=4.1425228118896484e-06 s^-1
+[22:02:57] [dtcc-qes] [warning] Wind result unaccepted by pedestrian-v1: 
+unqualified_precision (termination: legacy_tolerance)

@@ -327,3 +327,55 @@ def test_dataset_rejects_nested_buildings_before_cleaning(source_city, monkeypat
     )
     with pytest.raises(ValueError, match="unsupported"):
         prepare_city(source_city, QESWindArgs(**request()))
+
+
+@pytest.mark.parametrize("grid", ["uniform", "auto"])
+def test_stepped_dataset_combines_profiles_controls_and_final_grid(source_city, fetched, grid):
+    from dataclasses import asdict
+    from dtcc_qes.datasets import _field_slice
+
+    source_city.replace_buildings(
+        [
+            building("podium", box(10, 10, 30, 30), 6),
+            building("tower", box(14, 14, 26, 26), 12),
+        ]
+    )
+    profile = wind.UniformProfile(5, 270, reference_height=30)
+    control = wind.SolverControl(10, wind.MonitorSpec((0, 40, 0, 40)), checkpoint_interval=1)
+    args = QESWindArgs(
+        **request(
+            product="slice",
+            slice_resolution=4,
+            vertical_grid=grid,
+            profile=profile.to_dict(),
+            solver_control=asdict(control),
+            max_iterations=3,
+        )
+    )
+    actual = datasets.qes_wind(**args.model_dump())
+    prep = realization(actual)["preparation"]
+    direct = wind.run(
+        source_city,
+        **args.wind_options(),
+        bounds=prep["bounds"],
+        terrain=0,
+        footprints=wind.Footprints(min_detail=args.min_building_detail, fallback="tallest"),
+    )
+    preview = wind.preview_grid(
+        source_city,
+        profile=profile,
+        resolution=args.resolution,
+        max_cells=args.max_cells,
+        bounds=prep["bounds"],
+        terrain=0,
+        vertical_grid=args.vertical_grid_spec(),
+        footprints=wind.Footprints(min_detail=args.min_building_detail, fallback="tallest"),
+    )
+    assert preview.domain == direct.metadata["domain"]
+    assert prep["bounds"][5] >= 30
+    assert prep["footprints"]["counts"]["solids"] == 2
+    assert realization(actual)["simulation"]["profile"] == direct.metadata["profile"]
+    assert actual.dataset_context.health["solver_control"]["iterations"] == 3
+    expected = _field_slice(direct, args)
+    for name in ("velocity", "speed", "speedup", "cell_flags", "valid"):
+        np.testing.assert_array_equal(actual.field(name).values, expected.field(name).values)

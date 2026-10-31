@@ -1,0 +1,17 @@
+{
+  "workers": 8,
+  "timeout_seconds": 30,
+  "scope": "Separate tracemalloc workers, not end-to-end timing evidence",
+  "counts": [
+    4,
+    8
+  ],
+  "modes": [
+    "legacy",
+    "adaptive"
+  ],
+  "kinds": [
+    "fresh",
+    "prototype"
+  ]
+}

@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 #include <optional>
+#include "control_types.h"
+#include "profile_types.h"
 
 namespace dtcc_qes {
 // Private numerical contract. Coordinates are metres in a local, flat frame.
@@ -27,6 +29,10 @@ struct ModelSettings {
 
 struct WindCondition {
   double speed = 5.0, direction = 270.0, reference_height = 10.0;
+  ProfileKind profile_kind = ProfileKind::Log;
+  // Python evaluates all new profile families at physical cell centres. Owned
+  // float64 boundary arrays are validated/narrowed atomically by ModelInputs.
+  std::vector<double> layer_u, layer_v;
 };
 
 struct SolverOptions {
@@ -42,11 +48,6 @@ struct BuildingArrays {
   std::vector<double> heights, base_heights;
   // Optional global vertex boundaries of closed rings; building offsets align.
   std::vector<std::int64_t> ring_offsets;
-};
-
-struct DivergenceStats {
-  double interior_max = 0, interior_rms = 0, top_band_max = 0;
-  std::size_t cells = 0, top_band_cells = 0;
 };
 
 struct TurbulenceSettings {
@@ -77,5 +78,6 @@ struct WindData {
   DivergenceStats divergence;
   std::size_t building_count = 0;
   std::optional<TurbulenceData> turbulence;
+  std::optional<ControlRecord> control;
 };
 }

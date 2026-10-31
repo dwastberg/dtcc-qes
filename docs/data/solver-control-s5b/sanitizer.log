@@ -1,0 +1,13 @@
+Test project /Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s5b/sanitizers
+    Start 38: solver_phases
+1/4 Test #38: solver_phases ....................   Passed    2.02 sec
+    Start 39: solver_monitor
+2/4 Test #39: solver_monitor ...................   Passed    3.24 sec
+    Start 40: solver_control
+3/4 Test #40: solver_control ...................   Passed    0.92 sec
+    Start 46: equation_residual
+4/4 Test #46: equation_residual ................   Passed    0.26 sec
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) =   6.45 sec

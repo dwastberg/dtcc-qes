@@ -1,0 +1,23 @@
+{
+  "observed_utc": "2026-10-28T10:30:36.462851+00:00",
+  "start_utc": "2026-10-28T08:10:16.906641+00:00",
+  "local_timezone": "Europe/Stockholm",
+  "command": "pmset -g log (filtered sleep/wake events since study start)",
+  "events": [
+    "2026-10-28 09:20:39 +0100 Sleep               \tEntering Sleep state due to 'Clamshell Sleep':TCPKeepAlive=active Using Batt (Charge:100%) 138 secs  ",
+    "2026-10-28 09:22:57 +0100 DarkWake            \tDarkWake from Deep Idle [CDNP] : due to smc.70070000 wifibt SMC.OutboxNotEmpty/ Using BATT (Charge:100%) 45 secs   ",
+    "2026-10-28 09:23:42 +0100 Sleep               \tEntering Sleep state due to 'Maintenance Sleep':TCPKeepAlive=active Using Batt (Charge:100%) 242 secs  ",
+    "2026-10-28 09:27:44 +0100 DarkWake            \tDarkWake from Deep Idle [CDNP] : due to smc.70070000 wifibt SMC.OutboxNotEmpty/ Using BATT (Charge:100%) 45 secs   ",
+    "2026-10-28 09:28:29 +0100 Sleep               \tEntering Sleep state due to 'Maintenance Sleep':TCPKeepAlive=active Using Batt (Charge:100%) 515 secs  ",
+    "2026-10-28 09:37:04 +0100 DarkWake            \tDarkWake from Deep Idle [CDNP] : due to smc.70070000 wifibt SMC.OutboxNotEmpty/ Using BATT (Charge:100%) 52 secs   ",
+    "2026-10-28 09:37:56 +0100 Sleep               \tEntering Sleep state due to 'Maintenance Sleep':TCPKeepAlive=active Using Batt (Charge:100%) 8 secs    ",
+    "2026-10-28 09:38:04 +0100 DarkWake            \tDarkWake from Deep Idle [CDNP] : due to smc.70070000 wifibt SMC.OutboxNotEmpty/ Using BATT (Charge:100%) 45 secs   ",
+    "2026-10-28 09:38:49 +0100 Sleep               \tEntering Sleep state due to 'Maintenance Sleep':TCPKeepAlive=active Using Batt (Charge:100%) 227 secs  ",
+    "2026-10-28 09:42:36 +0100 DarkWake            \tDarkWake from Deep Idle [CDNP] : due to smc.70070000 wifibt SMC.OutboxNotEmpty/ Using BATT (Charge:100%) 45 secs   ",
+    "2026-10-28 09:43:21 +0100 Sleep               \tEntering Sleep state due to 'Maintenance Sleep':TCPKeepAlive=active Using Batt (Charge:100%) 268 secs  ",
+    "2026-10-28 09:47:49 +0100 DarkWake            \tDarkWake from Deep Idle [CDNP] : due to smc.70070000 wifibt SMC.OutboxNotEmpty bluetooth-pcie/ Using BATT (Charge:100%) 13 secs   ",
+    "2026-10-28 09:48:02 +0100 Wake                \tDarkWake to FullWake from Deep Idle [CDNVA] : due to UserActivity Assertion Using BATT (Charge:100%)           "
+  ],
+  "timing_interpretation": "Single shared-host repetitions; sleep-interrupted elapsed intervals remain diagnostic and cannot establish speedups.",
+  "execution_policy": "No sleep settings changed; all four cases passed or exhausted the frozen cap; the driver exited successfully."
+}

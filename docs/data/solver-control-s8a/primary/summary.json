@@ -1,0 +1,129 @@
+{
+  "worthwhile": false,
+  "series": {
+    "legacy-4": {
+      "parity": true,
+      "median_seconds": {
+        "fresh": 0.3715789580019191,
+        "prototype": 0.3448334580170922
+      },
+      "saving_seconds": 0.026745499984826893,
+      "saving_fraction": 0.07197797240361703,
+      "median_phases": {
+        "fresh": {
+          "geometry": 0.004179498937446624,
+          "domain": 0.002246457035653293,
+          "native_prepare": 0.014128084003459662,
+          "native_solve_and_transfer": 0.3077653329819441,
+          "sampling": 0.0015758739900775254,
+          "output": 0.028847042995039374
+        },
+        "prototype": {
+          "geometry": 0.0011331249843351543,
+          "domain": 0.0006134580471552908,
+          "native_prepare": 0.003576457966119051,
+          "native_solve_and_transfer": 0.3054432069766335,
+          "sampling": 0.0015912069357000291,
+          "output": 0.022956125088967383
+        }
+      },
+      "maximum_peak_rss_bytes": {
+        "fresh": 264552448,
+        "prototype": 247529472
+      }
+    },
+    "legacy-8": {
+      "parity": true,
+      "median_seconds": {
+        "fresh": 0.703521124960389,
+        "prototype": 0.6550202090293169
+      },
+      "saving_seconds": 0.048500915931072086,
+      "saving_fraction": 0.06894024103939012,
+      "median_phases": {
+        "fresh": {
+          "geometry": 0.007897083065472543,
+          "domain": 0.004403748956974596,
+          "native_prepare": 0.026696750021073967,
+          "native_solve_and_transfer": 0.6220646250294521,
+          "sampling": 0.003234957985114306,
+          "output": 0.018889834929723293
+        },
+        "prototype": {
+          "geometry": 0.0011040829704143107,
+          "domain": 0.000566875038202852,
+          "native_prepare": 0.003529541951138526,
+          "native_solve_and_transfer": 0.6131953748990782,
+          "sampling": 0.003303626028355211,
+          "output": 0.015240166045259684
+        }
+      },
+      "maximum_peak_rss_bytes": {
+        "fresh": 301088768,
+        "prototype": 276758528
+      }
+    },
+    "adaptive-4": {
+      "parity": false,
+      "median_seconds": {
+        "fresh": 0.5151879590121098,
+        "prototype": 0.5156378749525174
+      },
+      "saving_seconds": -0.0004499159404076636,
+      "saving_fraction": -0.0008733044562423409,
+      "median_phases": {
+        "fresh": {
+          "geometry": 0.003975874977186322,
+          "domain": 0.002174999041017145,
+          "native_prepare": 0.014215210103429854,
+          "native_solve_and_transfer": 0.4732116259401664,
+          "sampling": 0.0015662930672988296,
+          "output": 0.007712999009527266
+        },
+        "prototype": {
+          "geometry": 0.0012927909847348928,
+          "domain": 0.0006245839758776128,
+          "native_prepare": 0.003957750042900443,
+          "native_solve_and_transfer": 0.4867922499543056,
+          "sampling": 0.0016412090044468641,
+          "output": 0.01043833396397531
+        }
+      },
+      "maximum_peak_rss_bytes": {
+        "fresh": 270729216,
+        "prototype": 264519680
+      }
+    },
+    "adaptive-8": {
+      "parity": false,
+      "median_seconds": {
+        "fresh": 1.0444941659807228,
+        "prototype": 1.018403833033517
+      },
+      "saving_seconds": 0.026090332947205752,
+      "saving_fraction": 0.024978916873804047,
+      "median_phases": {
+        "fresh": {
+          "geometry": 0.007641792995855212,
+          "domain": 0.004267790005542338,
+          "native_prepare": 0.02813012502156198,
+          "native_solve_and_transfer": 0.9530061259865761,
+          "sampling": 0.0031897909357212484,
+          "output": 0.029624415969010442
+        },
+        "prototype": {
+          "geometry": 0.001131500001065433,
+          "domain": 0.0005618329741992056,
+          "native_prepare": 0.003581582976039499,
+          "native_solve_and_transfer": 0.953960832033772,
+          "sampling": 0.0032101250253617764,
+          "output": 0.03616112703457475
+        }
+      },
+      "maximum_peak_rss_bytes": {
+        "fresh": 291274752,
+        "prototype": 268533760
+      }
+    }
+  }
+}

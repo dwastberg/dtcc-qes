@@ -1,0 +1,954 @@
+[
+  {
+    "name": "openmp-configure",
+    "command": [
+      "cmake",
+      "-S",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree",
+      "-B",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DPython_EXECUTABLE=/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "-DDTCC_QES_BUILD_TESTS=ON",
+      "-DDTCC_QES_OPENMP=ON"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 1.7103244999889284,
+    "returncode": 0,
+    "log": "logs/openmp-configure-244d539b.log"
+  },
+  {
+    "name": "openmp-build",
+    "command": [
+      "cmake",
+      "--build",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp",
+      "-j8"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 6.301605749991722,
+    "returncode": 0,
+    "log": "logs/openmp-build-d90e8dd9.log"
+  },
+  {
+    "name": "openmp-tests",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp",
+      "--output-on-failure",
+      "--output-junit",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp/ctest.xml",
+      "-j1"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 300,
+    "elapsed_seconds": 9.096995791012887,
+    "returncode": 0,
+    "log": "logs/openmp-tests-77a552ea.log"
+  },
+  {
+    "name": "openmp-symbols",
+    "command": [
+      "cmake",
+      "--build",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp",
+      "--target",
+      "check_native_symbols"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 0.4861077919485979,
+    "returncode": 0,
+    "log": "logs/openmp-symbols-1584e8f4.log"
+  },
+  {
+    "name": "serial-configure",
+    "command": [
+      "cmake",
+      "-S",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree",
+      "-B",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/serial",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DPython_EXECUTABLE=/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "-DDTCC_QES_BUILD_TESTS=ON",
+      "-DDTCC_QES_OPENMP=OFF"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 0.6610112080234103,
+    "returncode": 0,
+    "log": "logs/serial-configure-021b7e6c.log"
+  },
+  {
+    "name": "serial-build",
+    "command": [
+      "cmake",
+      "--build",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/serial",
+      "-j8"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 5.605841583048459,
+    "returncode": 0,
+    "log": "logs/serial-build-c4fe644d.log"
+  },
+  {
+    "name": "serial-tests",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/serial",
+      "--output-on-failure",
+      "--output-junit",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/serial/ctest.xml",
+      "-j1"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 300,
+    "elapsed_seconds": 7.391861209005583,
+    "returncode": 0,
+    "log": "logs/serial-tests-6d8b52f7.log"
+  },
+  {
+    "name": "serial-symbols",
+    "command": [
+      "cmake",
+      "--build",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/serial",
+      "--target",
+      "check_native_symbols"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 0.4278480840148404,
+    "returncode": 0,
+    "log": "logs/serial-symbols-4e069bce.log"
+  },
+  {
+    "name": "sanitizers-configure",
+    "command": [
+      "cmake",
+      "-S",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree",
+      "-B",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/sanitizers",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DPython_EXECUTABLE=/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "-DDTCC_QES_BUILD_TESTS=ON",
+      "-DDTCC_QES_OPENMP=OFF",
+      "-DDTCC_QES_ENABLE_SANITIZERS=ON"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 0.6477630409644917,
+    "returncode": 0,
+    "log": "logs/sanitizers-configure-c332c612.log"
+  },
+  {
+    "name": "sanitizers-build",
+    "command": [
+      "cmake",
+      "--build",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/sanitizers",
+      "--target",
+      "check_runner",
+      "check_monitor",
+      "check_solver_control",
+      "check_equation_residual",
+      "check_solver_phases",
+      "check_pedestrian_policy",
+      "-j8"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 18.632827166002244,
+    "returncode": 0,
+    "log": "logs/sanitizers-build-a92a41ef.log"
+  },
+  {
+    "name": "sanitizers-tests",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/sanitizers",
+      "--output-on-failure",
+      "--output-junit",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/sanitizers/ctest.xml",
+      "-j1",
+      "-R",
+      "^(runner_lifecycle|solver_monitor|solver_control|equation_residual|solver_phases|pedestrian_policy)$"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 300,
+    "elapsed_seconds": 18.587529750016984,
+    "returncode": 0,
+    "log": "logs/sanitizers-tests-65e15e70.log"
+  },
+  {
+    "name": "full-python",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "-m",
+      "pytest",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tests",
+      "-q",
+      "--junitxml",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/python.xml"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree",
+    "timeout_seconds": 1200,
+    "elapsed_seconds": 58.639465374988504,
+    "returncode": 0,
+    "log": "logs/full-python-76c8bfe5.log"
+  },
+  {
+    "name": "full-python",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "-m",
+      "pytest",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tests",
+      "-q",
+      "--junitxml",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/python.xml"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree",
+    "timeout_seconds": 1200,
+    "elapsed_seconds": 58.4238706670003,
+    "returncode": 0,
+    "log": "logs/full-python-cc14a220.log"
+  },
+  {
+    "name": "release-online-00",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_staggered_240\", \"variant\": \"adaptive\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-00\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-00.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.3620375000173226,
+    "returncode": 0,
+    "log": "logs/release-online-00-a51051db.log"
+  },
+  {
+    "name": "release-online-01",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_courtyards_315\", \"variant\": \"adaptive\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-01\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-01.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.1167446249746718,
+    "returncode": 0,
+    "log": "logs/release-online-01-980b7bc1.log"
+  },
+  {
+    "name": "release-online-02",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_mixed_195\", \"variant\": \"adaptive\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-02\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-02.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.108385250030551,
+    "returncode": 0,
+    "log": "logs/release-online-02-8bba3e57.log"
+  },
+  {
+    "name": "release-online-03",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_staggered_graded_150\", \"variant\": \"adaptive\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-03\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-03.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.2156617500004359,
+    "returncode": 0,
+    "log": "logs/release-online-03-d092c3ee.log"
+  },
+  {
+    "name": "release-online-04",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_mixed_graded_domain_300\", \"variant\": \"adaptive\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-04\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-04.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.4015010420116596,
+    "returncode": 0,
+    "log": "logs/release-online-04-a1ea4296.log"
+  },
+  {
+    "name": "release-online-05",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_courtyards_210_u2\", \"variant\": \"adaptive\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-05\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-05.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.1037074159830809,
+    "returncode": 0,
+    "log": "logs/release-online-05-d0408a25.log"
+  },
+  {
+    "name": "release-online-06",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_courtyards_210_u10\", \"variant\": \"adaptive\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-06\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-06.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.0838130829506554,
+    "returncode": 0,
+    "log": "logs/release-online-06-26df98ad.log"
+  },
+  {
+    "name": "release-online-07",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_staggered_240\", \"variant\": \"legacy\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-07\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-07.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.2489437499898486,
+    "returncode": 0,
+    "log": "logs/release-online-07-d45b2fed.log"
+  },
+  {
+    "name": "release-online-08",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_courtyards_315\", \"variant\": \"legacy\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-08\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-08.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.2661635420517996,
+    "returncode": 0,
+    "log": "logs/release-online-08-e8c7d4c4.log"
+  },
+  {
+    "name": "release-online-09",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_mixed_195\", \"variant\": \"legacy\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-09\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-09.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.215766415989492,
+    "returncode": 0,
+    "log": "logs/release-online-09-f73e418e.log"
+  },
+  {
+    "name": "release-online-10",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_staggered_graded_150\", \"variant\": \"legacy\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-10\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-10.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.2896442500059493,
+    "returncode": 0,
+    "log": "logs/release-online-10-1b622a35.log"
+  },
+  {
+    "name": "release-online-11",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_mixed_graded_domain_300\", \"variant\": \"legacy\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-11\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-11.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.2765057500218973,
+    "returncode": 0,
+    "log": "logs/release-online-11-644592ba.log"
+  },
+  {
+    "name": "release-online-12",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_courtyards_210_u2\", \"variant\": \"legacy\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-12\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-12.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.2353919169981964,
+    "returncode": 0,
+    "log": "logs/release-online-12-512a8f04.log"
+  },
+  {
+    "name": "release-online-13",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_courtyards_210_u10\", \"variant\": \"legacy\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-13\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-13.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.229322624974884,
+    "returncode": 0,
+    "log": "logs/release-online-13-e8c0ee5c.log"
+  },
+  {
+    "name": "release-online-14",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_staggered_240\", \"variant\": \"invalid_receptor\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-14\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-14.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.0527886250056326,
+    "returncode": 0,
+    "log": "logs/release-online-14-32a434b5.log"
+  },
+  {
+    "name": "release-online-15",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_staggered_240\", \"variant\": \"unqualified_precision\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 2000, \"id\": \"release-online-15\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-15.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.2207271250081249,
+    "returncode": 0,
+    "log": "logs/release-online-15-3626f260.log"
+  },
+  {
+    "name": "release-online-16",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_staggered_240\", \"variant\": \"early_limit\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 1, \"id\": \"release-online-16\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-16.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 0.9466963749728166,
+    "returncode": 0,
+    "log": "logs/release-online-16-391280a0.log"
+  },
+  {
+    "name": "release-online-17",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_staggered_240\", \"variant\": \"legacy_converged_unaccepted\", \"rep\": 0, \"threads\": 4, \"budget\": 5.0, \"iterations\": 1, \"id\": \"release-online-17\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/openmp-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-17.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 0.9265833329991437,
+    "returncode": 0,
+    "log": "logs/release-online-17-864a72b9.log"
+  },
+  {
+    "name": "release-online-18",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_staggered_240\", \"variant\": \"adaptive\", \"rep\": 0, \"threads\": 1, \"budget\": 5.0, \"iterations\": 2000, \"backend\": \"serial\", \"id\": \"release-online-18\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/serial-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-18.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.1247777079697698,
+    "returncode": 0,
+    "log": "logs/release-online-18-f084b32b.log"
+  },
+  {
+    "name": "release-online-19",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_courtyards_315\", \"variant\": \"adaptive\", \"rep\": 0, \"threads\": 1, \"budget\": 5.0, \"iterations\": 2000, \"backend\": \"serial\", \"id\": \"release-online-19\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/serial-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-19.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.109195083961822,
+    "returncode": 0,
+    "log": "logs/release-online-19-3deb2d05.log"
+  },
+  {
+    "name": "release-online-20",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_mixed_195\", \"variant\": \"adaptive\", \"rep\": 0, \"threads\": 1, \"budget\": 5.0, \"iterations\": 2000, \"backend\": \"serial\", \"id\": \"release-online-20\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/serial-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-20.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.0893938340013847,
+    "returncode": 0,
+    "log": "logs/release-online-20-f574a7ce.log"
+  },
+  {
+    "name": "release-online-21",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_staggered_graded_150\", \"variant\": \"adaptive\", \"rep\": 0, \"threads\": 1, \"budget\": 5.0, \"iterations\": 2000, \"backend\": \"serial\", \"id\": \"release-online-21\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/serial-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-21.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.1754973329952918,
+    "returncode": 0,
+    "log": "logs/release-online-21-5c596cd7.log"
+  },
+  {
+    "name": "release-online-22",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_courtyards_210_u2\", \"variant\": \"adaptive\", \"rep\": 0, \"threads\": 1, \"budget\": 5.0, \"iterations\": 2000, \"backend\": \"serial\", \"id\": \"release-online-22\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/serial-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-22.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.1128533750306815,
+    "returncode": 0,
+    "log": "logs/release-online-22-d36e0a8a.log"
+  },
+  {
+    "name": "release-online-23",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/validate_solver_policy.py",
+      "--worker",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7",
+      "--request",
+      "{\"case\": \"val_courtyards_210_u10\", \"variant\": \"adaptive\", \"rep\": 0, \"threads\": 1, \"budget\": 5.0, \"iterations\": 2000, \"backend\": \"serial\", \"id\": \"release-online-23\"}",
+      "--package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/serial-package",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/policy/release-online-23.json"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 30,
+    "elapsed_seconds": 1.1047921249992214,
+    "returncode": 0,
+    "log": "logs/release-online-23-65f372d4.log"
+  },
+  {
+    "name": "campaign-first",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/run_urban_benchmarks.py",
+      "--tier",
+      "smoke",
+      "--candidate-archive",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/sources.tar.gz",
+      "--baseline-archive",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s5/s1a-matched-mask-sources.tar.gz",
+      "--cache-dir",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-cache",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-first"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 600,
+    "elapsed_seconds": 26.686274875013623,
+    "returncode": 0,
+    "log": "logs/campaign-first-5d10000b.log"
+  },
+  {
+    "name": "campaign-reuse",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/run_urban_benchmarks.py",
+      "--tier",
+      "smoke",
+      "--candidate-archive",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/sources.tar.gz",
+      "--baseline-archive",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s5/s1a-matched-mask-sources.tar.gz",
+      "--cache-dir",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-cache",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-reuse"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 600,
+    "elapsed_seconds": 15.089616459037643,
+    "returncode": 0,
+    "log": "logs/campaign-reuse-23f0f18b.log"
+  },
+  {
+    "name": "campaign-repair",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/run_urban_benchmarks.py",
+      "--tier",
+      "smoke",
+      "--candidate-archive",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/sources.tar.gz",
+      "--baseline-archive",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s5/s1a-matched-mask-sources.tar.gz",
+      "--cache-dir",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-cache",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-repair"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 600,
+    "elapsed_seconds": 20.98912420804845,
+    "returncode": 0,
+    "log": "logs/campaign-repair-0f1cbafe.log"
+  },
+  {
+    "name": "build-sdist",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "-m",
+      "build",
+      "--sdist",
+      "--no-isolation",
+      "--outdir",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/artifacts"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree",
+    "timeout_seconds": 600,
+    "elapsed_seconds": 26.48075158300344,
+    "returncode": 0,
+    "log": "logs/build-sdist-43fd06f8.log"
+  },
+  {
+    "name": "wheel-from-sdist",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "-m",
+      "build",
+      "--wheel",
+      "--no-isolation",
+      "--outdir",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/artifacts"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/sdist-tree/dtcc_qes-0.1.0b1",
+    "timeout_seconds": 600,
+    "elapsed_seconds": 0.2554438330116682,
+    "returncode": 1,
+    "log": "logs/wheel-from-sdist-51bba69d.log"
+  },
+  {
+    "name": "prior-audit-s5",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/publish_solver_s5.py",
+      "--output",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s5",
+      "--audit"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 25.79752899997402,
+    "returncode": 0,
+    "log": "logs/prior-audit-s5-80c252af.log"
+  },
+  {
+    "name": "prior-audit-s6",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/complete_solver_s6.py",
+      "--audit",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s6"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 5.374167750007473,
+    "returncode": 0,
+    "log": "logs/prior-audit-s6-0b9ed2f2.log"
+  },
+  {
+    "name": "prior-audit-s7",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7/audit_solver_policy.py",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s7"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 6.847681416955311,
+    "returncode": 0,
+    "log": "logs/prior-audit-s7-179fe3ea.log"
+  },
+  {
+    "name": "prior-audit-s8a",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s8a/audit_prepared_wind.py",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/docs/data/solver-control-s8a"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 2.301685832964722,
+    "returncode": 0,
+    "log": "logs/prior-audit-s8a-8d966563.log"
+  },
+  {
+    "name": "build-sdist",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "-m",
+      "build",
+      "--sdist",
+      "--no-isolation",
+      "--outdir",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/artifact-attempts/765d5cf4"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree",
+    "timeout_seconds": 600,
+    "elapsed_seconds": 27.004723124962766,
+    "returncode": 0,
+    "log": "logs/build-sdist-f6777d48.log"
+  },
+  {
+    "name": "wheel-from-sdist",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "-m",
+      "build",
+      "--wheel",
+      "--no-isolation",
+      "--outdir",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/artifact-attempts/765d5cf4"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/sdist-attempts/765d5cf4/dtcc_qes-0.1.0b1",
+    "timeout_seconds": 600,
+    "elapsed_seconds": 6.123539041029289,
+    "returncode": 0,
+    "log": "logs/wheel-from-sdist-16b648a6.log"
+  },
+  {
+    "name": "artifact-content",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/check_artifacts.py",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/artifact-attempts/765d5cf4/dtcc_qes-0.1.0b1.tar.gz",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/artifact-attempts/765d5cf4/dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 300,
+    "elapsed_seconds": 34.847314583021216,
+    "returncode": 0,
+    "log": "logs/artifact-content-53e6f0d4.log"
+  },
+  {
+    "name": "wheel-venv",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python",
+      "-m",
+      "venv",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/wheel-envs/765d5cf4"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 1.2873724999953993,
+    "returncode": 0,
+    "log": "logs/wheel-venv-4d2cda78.log"
+  },
+  {
+    "name": "wheel-install",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/wheel-envs/765d5cf4/bin/python",
+      "-m",
+      "pip",
+      "install",
+      "--no-index",
+      "--no-deps",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/artifact-attempts/765d5cf4/dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 0.22173112496966496,
+    "returncode": 0,
+    "log": "logs/wheel-install-6aaff656.log"
+  },
+  {
+    "name": "wheel-runtime",
+    "command": [
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/wheel-envs/765d5cf4/bin/python",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/tree/tools/wheel_runtime_smoke.py",
+      "--expected-package",
+      "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/wheel-envs/765d5cf4/lib/python3.13/site-packages/dtcc_qes"
+    ],
+    "cwd": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+    "timeout_seconds": 240,
+    "elapsed_seconds": 2.356809999968391,
+    "returncode": 0,
+    "log": "logs/wheel-runtime-abb9de51.log"
+  }
+]

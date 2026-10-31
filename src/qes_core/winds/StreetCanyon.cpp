@@ -550,7 +550,10 @@ void PolyBuilding::streetCanyon(WINDSGeneralData *WGD)
                     WGD->w0[icell_face] = abs(0.5 * cross_vel_mag * (1 - 2 * x_pos / s)) * (1 - 2 * (s - x_pos) / s);
                   }
                 }
-                if ((WGD->icellflag[icell_cent] != 7) && (WGD->icellflag[icell_cent] != 8)) {
+                // Condition labels classify existing fluid; the prepared wall
+                // operator and solid-owned faces must keep the geometry mask.
+                if (WGD->icellflag[icell_cent] != 0 && WGD->icellflag[icell_cent] != 2
+                    && WGD->icellflag[icell_cent] != 7 && WGD->icellflag[icell_cent] != 8) {
                   WGD->icellflag[icell_cent] = 6;
                 }
               }

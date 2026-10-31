@@ -1,0 +1,36 @@
+{
+  "main_revision": "0f7382d9bd938a4082083ff0ef335e53818e7368",
+  "feature_parent_revision": "ce0c2c0e1dead300d117d6fadca76e2034e9be51",
+  "native_policy_revision": "916fd3c038c1f55fb540c834d1b650b3eec5ab80bd58f2e04aa251f3e9da7d9b",
+  "qualification": "Exact compatibility for the existing log-only policy; no qualification for experimental inflow families.",
+  "checks": {
+    "python_serial": "1143 passed, 50 skipped",
+    "python_openmp": "1143 passed, 50 skipped",
+    "native_serial": 46,
+    "native_openmp": 49,
+    "sanitizers": 3,
+    "wheel_tests": 177,
+    "policy_exact_workers": 24
+  },
+  "files": {
+    "ctest-openmp-integration.txt.gz": "95a8aaa4c0d2586cbe17884b0a9c799d01d08cd08d58f13b4a400d87ea685e23",
+    "ctest-serial-integration.txt.gz": "586550ed931f99af9d91b444b85f94155660dcaf22b39303090eec93928484d1",
+    "dependency-import.txt.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "openmp-identity.txt": "916fd3c038c1f55fb540c834d1b650b3eec5ab80bd58f2e04aa251f3e9da7d9b",
+    "policy-main-integration.txt.gz": "ab2a3a2d4d6caca97672881d664fd94312409a135f654a069876927a4eaa5f70",
+    "policy-summary.json": "50fd92a34b4083cb25b3a3465e51f4e63af3190b7e4d60eac6ae9dc9ee5d3ff6",
+    "policy-workers.tar.gz": "8146332cd8619e3a4af8ed4f2c590fe78ccaf4405012f9e9fc0f298ca7305b32",
+    "profiles-openmp-main.json": "e97ed4a8da68bcdc0a77a40c486de83b6873099e2d94d1f82b465aee64da5da7",
+    "profiles-serial-main.json": "73b0145aca81a9b416d3378b0d6c6697c9e90147d6b725bc6977987a2da5a745",
+    "pytest-openmp-integration.txt.gz": "b0cda46808fdf013f28d78a6ba4fd8bb6d9951ad823682aabc30a0a0745dcc96",
+    "pytest-serial-integration-final.txt.gz": "d41233a4ebb179845a6d2bead83f32cbd701fcb902c3a6872c8f7ebf0e580b7e",
+    "pytest-serial-integration.txt.gz": "9e4c8ccf94fc8798125f8a72a4568d72fa1fadb1143d512d3da1a68d86823f46",
+    "sanitizers-integration.txt.gz": "c54c2dff503c86a091a5c318eac852f879b023dc02915e384a7c2267e2e42926",
+    "serial-identity.txt": "916fd3c038c1f55fb540c834d1b650b3eec5ab80bd58f2e04aa251f3e9da7d9b",
+    "source-index.json": "edd35b96afb911ffa3e83cb32b7d02ae6cdf954b1d9db43bf23f6ca0d9f881fb",
+    "symbols-main-integration.txt.gz": "5de1d8f3d0bad6b0918bd09c48ce372a34bec3af920a73d05e7cb644946a45a1",
+    "sync-main-integration.txt.gz": "3edb9dc31f842caf20b29f660cc0b406d260c666fd422e13f6d788d713faf456",
+    "wheel-runtime-integration.txt.gz": "1898b3cfb897780669c2d22d594c515d1125cc6507812eb18c59e0931b1e95cc",
+    "wheel-tests-integration.txt.gz": "5f39c55a58f03f647582e65e37f066abce20964ffa08973a808f1c3cfdddd544"
+  }
+}

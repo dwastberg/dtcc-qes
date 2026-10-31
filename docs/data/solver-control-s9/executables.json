@@ -1,0 +1,24 @@
+{
+  "openmp": "b3e7dc731efcaf5f839654d813405ae125d6a853192bca2810cebd46fa75f569",
+  "serial": "43a948a9b6d91dd767818c27f3f62314ee284cb988e24e2a13a187e24116cff9",
+  "policy_revision": "d0775583915762bbe2accfcad81d38e21b4c79037ea2dd0fa4c6c7cd5a24fde3",
+  "artifacts": {
+    "passed": true,
+    "sdist": {
+      "name": "dtcc_qes-0.1.0b1.tar.gz",
+      "path": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/artifact-attempts/765d5cf4/dtcc_qes-0.1.0b1.tar.gz",
+      "sha256": "b84c87812d1d0422db1e302413d60c58e22cd87ca27d072e474c4f4940aa4830",
+      "bytes": 1119043706
+    },
+    "wheel": {
+      "name": "dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl",
+      "path": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/artifact-attempts/765d5cf4/dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl",
+      "sha256": "96a17805e8a5e2ae619d63431ad89d7c90bfed34a66864cd321490cadaebf2ac",
+      "bytes": 390091
+    },
+    "wheel_built_from_sdist": true,
+    "installed_wheel_runtime": true
+  },
+  "retained_full_matrices": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/parity",
+  "retained_packages": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/artifacts"
+}

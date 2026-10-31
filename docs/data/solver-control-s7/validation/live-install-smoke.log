@@ -1,0 +1,3 @@
+[22:37:55] [dtcc-qes] [info] Wind grid 80 x 80 x 32, 4 buildings: 250 
+iterations, converged=False, max_divergence=1.3113021850585938e-05 s^-1
+{"accepted": true, "iterations": 250, "legacy_converged": false, "policy": "pedestrian-v1", "native_module": "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/dtcc_qes/_qes.cpython-313-darwin.so"}

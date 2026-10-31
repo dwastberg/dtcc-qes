@@ -104,7 +104,7 @@ def prepare_city(source, args):
         else ground
         + default_domain_top(
             [c.height for c in footprints.cells],
-            args.reference_height,
+            args.reference_condition()["height"],
             args.vertical_clearance,
             spacing,
         )

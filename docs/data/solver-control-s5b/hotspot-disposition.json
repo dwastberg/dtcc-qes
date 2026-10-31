@@ -1,0 +1,1176 @@
+{
+  "passed": true,
+  "hotspots": [
+    {
+      "worker": "00",
+      "iteration": 500,
+      "group": 0,
+      "ijk": [
+        200,
+        194,
+        1
+      ],
+      "xyz": [
+        401,
+        389,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 6,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.4099335474655143,
+      "equation_residual": 0.819867114495537,
+      "divergence_minus_half_residual": -9.782254173362759e-09,
+      "signed_flux": 0.7027432312077226,
+      "absolute_flux": 0.7027432312077226
+    },
+    {
+      "worker": "00",
+      "iteration": 500,
+      "group": 1,
+      "ijk": [
+        106,
+        107,
+        22
+      ],
+      "xyz": [
+        213,
+        215,
+        16.964344024658203
+      ],
+      "initial_flag": 0,
+      "flag": 6,
+      "classification": "solid_to_fluid_operator_mask_reconstruction_defect",
+      "divergence": -3.4303411683889817,
+      "equation_residual": -0.061114629382529984,
+      "divergence_minus_half_residual": -3.3997838536977167,
+      "signed_flux": -15.093501468054347,
+      "absolute_flux": 15.093501468054347
+    },
+    {
+      "worker": "00",
+      "iteration": 500,
+      "group": 2,
+      "ijk": [
+        192,
+        197,
+        78
+      ],
+      "xyz": [
+        385,
+        395,
+        150.8072509765625
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": 0.03706942879195324,
+      "equation_residual": 0.0024453885507558226,
+      "divergence_minus_half_residual": 0.03584673451657533,
+      "signed_flux": 0.9087189852828628,
+      "absolute_flux": 0.9087189852828628
+    },
+    {
+      "worker": "00",
+      "iteration": 2000,
+      "group": 0,
+      "ijk": [
+        96,
+        90,
+        1
+      ],
+      "xyz": [
+        193,
+        181,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": -0.02072324172092499,
+      "equation_residual": -0.04144645677297376,
+      "divergence_minus_half_residual": -1.333443810924706e-08,
+      "signed_flux": -0.035525557588786116,
+      "absolute_flux": 0.035525557588786116
+    },
+    {
+      "worker": "00",
+      "iteration": 2000,
+      "group": 1,
+      "ijk": [
+        106,
+        107,
+        22
+      ],
+      "xyz": [
+        213,
+        215,
+        16.964344024658203
+      ],
+      "initial_flag": 0,
+      "flag": 6,
+      "classification": "solid_to_fluid_operator_mask_reconstruction_defect",
+      "divergence": -3.580855312030292,
+      "equation_residual": -0.007716886435048309,
+      "divergence_minus_half_residual": -3.576996868812768,
+      "signed_flux": -15.755763714430259,
+      "absolute_flux": 15.755763714430259
+    },
+    {
+      "worker": "00",
+      "iteration": 2000,
+      "group": 2,
+      "ijk": [
+        195,
+        198,
+        78
+      ],
+      "xyz": [
+        391,
+        397,
+        150.8072509765625
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": 0.06238855592306525,
+      "equation_residual": 0.0001261676006496515,
+      "divergence_minus_half_residual": 0.06232547212274042,
+      "signed_flux": 1.5293913901359504,
+      "absolute_flux": 1.5293913901359504
+    },
+    {
+      "worker": "01",
+      "iteration": 500,
+      "group": 0,
+      "ijk": [
+        222,
+        152,
+        1
+      ],
+      "xyz": [
+        445,
+        305,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.3440031329782658,
+      "equation_residual": 0.6880062657619419,
+      "divergence_minus_half_residual": 9.729483885223544e-11,
+      "signed_flux": 0.5897196623925084,
+      "absolute_flux": 0.5897196623925084
+    },
+    {
+      "worker": "01",
+      "iteration": 500,
+      "group": 2,
+      "ijk": [
+        219,
+        158,
+        78
+      ],
+      "xyz": [
+        439,
+        317,
+        150.8072509765625
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": 0.02947496024117852,
+      "equation_residual": 0.001825680190192358,
+      "divergence_minus_half_residual": 0.02856212014608234,
+      "signed_flux": 0.7225483864868898,
+      "absolute_flux": 0.7225483864868898
+    },
+    {
+      "worker": "01",
+      "iteration": 2000,
+      "group": 0,
+      "ijk": [
+        76,
+        152,
+        1
+      ],
+      "xyz": [
+        153,
+        305,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": -0.016000746228807376,
+      "equation_residual": -0.03200149376061745,
+      "divergence_minus_half_residual": 6.515013493968436e-10,
+      "signed_flux": -0.027429850950446588,
+      "absolute_flux": 0.027429850950446588
+    },
+    {
+      "worker": "01",
+      "iteration": 2000,
+      "group": 2,
+      "ijk": [
+        220,
+        157,
+        78
+      ],
+      "xyz": [
+        441,
+        315,
+        150.8072509765625
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": 0.047407021418330406,
+      "equation_residual": 8.418063042903157e-05,
+      "divergence_minus_half_residual": 0.04736493110311589,
+      "signed_flux": 1.1621344542514118,
+      "absolute_flux": 1.1621344542514118
+    },
+    {
+      "worker": "02",
+      "iteration": 500,
+      "group": 0,
+      "ijk": [
+        213,
+        111,
+        1
+      ],
+      "xyz": [
+        427,
+        223,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 4,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.31102603652733624,
+      "equation_residual": 0.622052084596362,
+      "divergence_minus_half_residual": -5.770844746511017e-09,
+      "signed_flux": 0.5331874964864611,
+      "absolute_flux": 0.5331874964864611
+    },
+    {
+      "worker": "02",
+      "iteration": 500,
+      "group": 1,
+      "ijk": [
+        164,
+        64,
+        25
+      ],
+      "xyz": [
+        329,
+        129,
+        20.714344024658203
+      ],
+      "initial_flag": 0,
+      "flag": 6,
+      "classification": "solid_to_fluid_operator_mask_reconstruction_defect",
+      "divergence": -3.9764341092351083,
+      "equation_residual": 0.05965184953231528,
+      "divergence_minus_half_residual": -4.006260034001266,
+      "signed_flux": -22.2680306324943,
+      "absolute_flux": 22.2680306324943
+    },
+    {
+      "worker": "02",
+      "iteration": 500,
+      "group": 2,
+      "ijk": [
+        114,
+        217,
+        78
+      ],
+      "xyz": [
+        229,
+        435,
+        150.8072509765625
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": -0.02604360711316728,
+      "equation_residual": -0.001768027058808741,
+      "divergence_minus_half_residual": -0.02515959358376291,
+      "signed_flux": -0.6384322877432692,
+      "absolute_flux": 0.6384322877432692
+    },
+    {
+      "worker": "02",
+      "iteration": 2000,
+      "group": 0,
+      "ijk": [
+        89,
+        198,
+        2
+      ],
+      "xyz": [
+        179,
+        397,
+        1.0714285373687744
+      ],
+      "initial_flag": 1,
+      "flag": 4,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": -0.017090952978500475,
+      "equation_residual": -0.03418190033335122,
+      "divergence_minus_half_residual": -2.8118248632247322e-09,
+      "signed_flux": -0.02929877682562944,
+      "absolute_flux": 0.02929877682562944
+    },
+    {
+      "worker": "02",
+      "iteration": 2000,
+      "group": 1,
+      "ijk": [
+        164,
+        64,
+        25
+      ],
+      "xyz": [
+        329,
+        129,
+        20.714344024658203
+      ],
+      "initial_flag": 0,
+      "flag": 6,
+      "classification": "solid_to_fluid_operator_mask_reconstruction_defect",
+      "divergence": -3.9216911270370165,
+      "equation_residual": 0.004070498062446859,
+      "divergence_minus_half_residual": -3.92372637606824,
+      "signed_flux": -21.96146993740568,
+      "absolute_flux": 21.96146993740568
+    },
+    {
+      "worker": "02",
+      "iteration": 2000,
+      "group": 2,
+      "ijk": [
+        110,
+        215,
+        78
+      ],
+      "xyz": [
+        221,
+        431,
+        150.8072509765625
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": -0.04551233603656414,
+      "equation_residual": -0.00011112192187656689,
+      "divergence_minus_half_residual": -0.04545677507562586,
+      "signed_flux": -1.115688187511994,
+      "absolute_flux": 1.115688187511994
+    },
+    {
+      "worker": "03",
+      "iteration": 500,
+      "group": 0,
+      "ijk": [
+        188,
+        214,
+        1
+      ],
+      "xyz": [
+        377,
+        429,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 4,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.17111277173085082,
+      "equation_residual": 0.3422255433142709,
+      "divergence_minus_half_residual": 7.371536714373406e-11,
+      "signed_flux": 0.2933361830240631,
+      "absolute_flux": 0.2933361830240631
+    },
+    {
+      "worker": "03",
+      "iteration": 500,
+      "group": 1,
+      "ijk": [
+        126,
+        152,
+        13
+      ],
+      "xyz": [
+        253,
+        305,
+        7.884346008300781
+      ],
+      "initial_flag": 0,
+      "flag": 6,
+      "classification": "solid_to_fluid_operator_mask_reconstruction_defect",
+      "divergence": 3.3622092537675528,
+      "equation_residual": 0.007009757838090991,
+      "divergence_minus_half_residual": 3.3587043748485073,
+      "signed_flux": 15.331789437086904,
+      "absolute_flux": 15.331789437086904
+    },
+    {
+      "worker": "03",
+      "iteration": 500,
+      "group": 2,
+      "ijk": [
+        58,
+        107,
+        44
+      ],
+      "xyz": [
+        117,
+        215,
+        90.18888854980469
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": -0.043902877081605965,
+      "equation_residual": -0.0020243190799815736,
+      "divergence_minus_half_residual": -0.04289071754161518,
+      "signed_flux": -1.148628968061168,
+      "absolute_flux": 1.148628968061168
+    },
+    {
+      "worker": "03",
+      "iteration": 2000,
+      "group": 0,
+      "ijk": [
+        203,
+        193,
+        1
+      ],
+      "xyz": [
+        407,
+        387,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 5,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.002816490767099082,
+      "equation_residual": 0.005633046264847508,
+      "divergence_minus_half_residual": -3.236532467205955e-08,
+      "signed_flux": 0.004828269934420121,
+      "absolute_flux": 0.004828269934420121
+    },
+    {
+      "worker": "03",
+      "iteration": 2000,
+      "group": 1,
+      "ijk": [
+        126,
+        152,
+        14
+      ],
+      "xyz": [
+        253,
+        305,
+        9.109855651855469
+      ],
+      "initial_flag": 0,
+      "flag": 6,
+      "classification": "solid_to_fluid_operator_mask_reconstruction_defect",
+      "divergence": 3.3035730394120963,
+      "equation_residual": -8.38893311083666e-05,
+      "divergence_minus_half_residual": 3.3036149840776505,
+      "signed_flux": 17.324066051896754,
+      "absolute_flux": 17.324066051896754
+    },
+    {
+      "worker": "03",
+      "iteration": 2000,
+      "group": 2,
+      "ijk": [
+        61,
+        94,
+        44
+      ],
+      "xyz": [
+        123,
+        189,
+        90.18888854980469
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": -0.056665707798334734,
+      "equation_residual": -2.4432092523340998e-05,
+      "divergence_minus_half_residual": -0.056653491752073064,
+      "signed_flux": -1.482542325230135,
+      "absolute_flux": 1.482542325230135
+    },
+    {
+      "worker": "04",
+      "iteration": 500,
+      "group": 0,
+      "ijk": [
+        100,
+        100,
+        1
+      ],
+      "xyz": [
+        402,
+        402,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 6,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.33953585487860366,
+      "equation_residual": 0.6790717485419009,
+      "divergence_minus_half_residual": -1.939234678394186e-08,
+      "signed_flux": 2.3282458851537555,
+      "absolute_flux": 2.3282458851537555
+    },
+    {
+      "worker": "04",
+      "iteration": 500,
+      "group": 1,
+      "ijk": [
+        46,
+        62,
+        31
+      ],
+      "xyz": [
+        186,
+        250,
+        30.914342880249023
+      ],
+      "initial_flag": 0,
+      "flag": 6,
+      "classification": "solid_to_fluid_operator_mask_reconstruction_defect",
+      "divergence": 2.931597820040392,
+      "equation_residual": -0.02005509852985199,
+      "divergence_minus_half_residual": 2.941625369305318,
+      "signed_flux": 93.81113024129255,
+      "absolute_flux": 93.81113024129255
+    },
+    {
+      "worker": "04",
+      "iteration": 500,
+      "group": 2,
+      "ijk": [
+        96,
+        98,
+        59
+      ],
+      "xyz": [
+        386,
+        394,
+        148.335205078125
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": 0.041751446530455136,
+      "equation_residual": 0.0005712932921646541,
+      "divergence_minus_half_residual": 0.04146579988437281,
+      "signed_flux": 5.194904112595198,
+      "absolute_flux": 5.194904112595198
+    },
+    {
+      "worker": "04",
+      "iteration": 2000,
+      "group": 0,
+      "ijk": [
+        43,
+        45,
+        3
+      ],
+      "xyz": [
+        174,
+        182,
+        1.5
+      ],
+      "initial_flag": 1,
+      "flag": 5,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": -0.004615641675193867,
+      "equation_residual": -0.009231283602275653,
+      "divergence_minus_half_residual": 1.2594395925463742e-10,
+      "signed_flux": -0.03165011465860215,
+      "absolute_flux": 0.03165011465860215
+    },
+    {
+      "worker": "04",
+      "iteration": 2000,
+      "group": 1,
+      "ijk": [
+        46,
+        62,
+        31
+      ],
+      "xyz": [
+        186,
+        250,
+        30.914342880249023
+      ],
+      "initial_flag": 0,
+      "flag": 6,
+      "classification": "solid_to_fluid_operator_mask_reconstruction_defect",
+      "divergence": 2.84712063840281,
+      "equation_residual": -0.0003961155742331357,
+      "divergence_minus_half_residual": 2.8473186961899266,
+      "signed_flux": 91.10786042888992,
+      "absolute_flux": 91.10786042888992
+    },
+    {
+      "worker": "04",
+      "iteration": 2000,
+      "group": 2,
+      "ijk": [
+        97,
+        99,
+        59
+      ],
+      "xyz": [
+        390,
+        398,
+        148.335205078125
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": 0.05136224898239359,
+      "equation_residual": 6.123496131493766e-06,
+      "divergence_minus_half_residual": 0.05135918723432784,
+      "signed_flux": 6.390723690882054,
+      "absolute_flux": 6.390723690882054
+    },
+    {
+      "worker": "05",
+      "iteration": 500,
+      "group": 0,
+      "ijk": [
+        100,
+        100,
+        1
+      ],
+      "xyz": [
+        402,
+        402,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 6,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.33950572473173585,
+      "equation_residual": 0.6790114290776046,
+      "divergence_minus_half_residual": 1.0192933552755079e-08,
+      "signed_flux": 2.3280392784303237,
+      "absolute_flux": 2.3280392784303237
+    },
+    {
+      "worker": "05",
+      "iteration": 500,
+      "group": 1,
+      "ijk": [
+        46,
+        62,
+        31
+      ],
+      "xyz": [
+        186,
+        250,
+        30.914342880249023
+      ],
+      "initial_flag": 0,
+      "flag": 6,
+      "classification": "solid_to_fluid_operator_mask_reconstruction_defect",
+      "divergence": 2.9315994889703596,
+      "equation_residual": -0.02005787368571621,
+      "divergence_minus_half_residual": 2.9416284258132177,
+      "signed_flux": 93.81118364705151,
+      "absolute_flux": 93.81118364705151
+    },
+    {
+      "worker": "05",
+      "iteration": 500,
+      "group": 2,
+      "ijk": [
+        96,
+        98,
+        59
+      ],
+      "xyz": [
+        386,
+        394,
+        148.335205078125
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": 0.041752496998475615,
+      "equation_residual": 0.0005712794949341848,
+      "divergence_minus_half_residual": 0.04146685725100852,
+      "signed_flux": 5.195034816584957,
+      "absolute_flux": 5.195034816584957
+    },
+    {
+      "worker": "05",
+      "iteration": 2000,
+      "group": 0,
+      "ijk": [
+        46,
+        44,
+        1
+      ],
+      "xyz": [
+        186,
+        178,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 5,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": -0.004517273949352751,
+      "equation_residual": -0.009034553851051896,
+      "divergence_minus_half_residual": 2.97617319677812e-09,
+      "signed_flux": -0.03097559310327659,
+      "absolute_flux": 0.03097559310327659
+    },
+    {
+      "worker": "05",
+      "iteration": 2000,
+      "group": 1,
+      "ijk": [
+        46,
+        62,
+        31
+      ],
+      "xyz": [
+        186,
+        250,
+        30.914342880249023
+      ],
+      "initial_flag": 0,
+      "flag": 6,
+      "classification": "solid_to_fluid_operator_mask_reconstruction_defect",
+      "divergence": 2.8471254067741882,
+      "equation_residual": -0.0003943429148964839,
+      "divergence_minus_half_residual": 2.8473225782316365,
+      "signed_flux": 91.10801301677402,
+      "absolute_flux": 91.10801301677402
+    },
+    {
+      "worker": "05",
+      "iteration": 2000,
+      "group": 2,
+      "ijk": [
+        97,
+        99,
+        59
+      ],
+      "xyz": [
+        390,
+        398,
+        148.335205078125
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": 0.051363537055522365,
+      "equation_residual": 6.25747571048052e-06,
+      "divergence_minus_half_residual": 0.051360408317667125,
+      "signed_flux": 6.3908839587757456,
+      "absolute_flux": 6.3908839587757456
+    },
+    {
+      "worker": "06",
+      "iteration": 500,
+      "group": 0,
+      "ijk": [
+        100,
+        100,
+        1
+      ],
+      "xyz": [
+        402,
+        402,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 4,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.32492227608606267,
+      "equation_residual": 0.6498445787474338,
+      "divergence_minus_half_residual": -1.3287654254678927e-08,
+      "signed_flux": 2.2280384867237175,
+      "absolute_flux": 2.2280384867237175
+    },
+    {
+      "worker": "06",
+      "iteration": 500,
+      "group": 2,
+      "ijk": [
+        96,
+        100,
+        59
+      ],
+      "xyz": [
+        386,
+        402,
+        148.335205078125
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": 0.03967530083620646,
+      "equation_residual": 0.0005491145116138796,
+      "divergence_minus_half_residual": 0.03940074358039952,
+      "signed_flux": 4.9365806603159585,
+      "absolute_flux": 4.9365806603159585
+    },
+    {
+      "worker": "06",
+      "iteration": 2000,
+      "group": 0,
+      "ijk": [
+        45,
+        46,
+        4
+      ],
+      "xyz": [
+        182,
+        186,
+        1.9285714626312256
+      ],
+      "initial_flag": 1,
+      "flag": 5,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": -0.004343039342592771,
+      "equation_residual": -0.008686076926096575,
+      "divergence_minus_half_residual": -8.795444832523924e-10,
+      "signed_flux": -0.02978084150219651,
+      "absolute_flux": 0.02978084150219651
+    },
+    {
+      "worker": "06",
+      "iteration": 2000,
+      "group": 2,
+      "ijk": [
+        97,
+        99,
+        59
+      ],
+      "xyz": [
+        390,
+        398,
+        148.335205078125
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": 0.04883900685864087,
+      "equation_residual": 5.9216329475475504e-06,
+      "divergence_minus_half_residual": 0.0488360460421671,
+      "signed_flux": 6.076770475483997,
+      "absolute_flux": 6.076770475483997
+    },
+    {
+      "worker": "07",
+      "iteration": 500,
+      "group": 0,
+      "ijk": [
+        93,
+        107,
+        1
+      ],
+      "xyz": [
+        374,
+        430,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 4,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.1301167242476394,
+      "equation_residual": 0.26023346961665084,
+      "divergence_minus_half_residual": -1.056068602012239e-08,
+      "signed_flux": 0.8922289751330257,
+      "absolute_flux": 0.8922289751330257
+    },
+    {
+      "worker": "07",
+      "iteration": 500,
+      "group": 2,
+      "ijk": [
+        38,
+        30,
+        41
+      ],
+      "xyz": [
+        154,
+        122,
+        88.26388549804688
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": -0.04230793109294745,
+      "equation_residual": -0.0004562324773313975,
+      "divergence_minus_half_residual": -0.04207981485428175,
+      "signed_flux": -5.296327288528926,
+      "absolute_flux": 5.296327288528926
+    },
+    {
+      "worker": "07",
+      "iteration": 2000,
+      "group": 0,
+      "ijk": [
+        85,
+        107,
+        3
+      ],
+      "xyz": [
+        342,
+        430,
+        1.5
+      ],
+      "initial_flag": 1,
+      "flag": 4,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.0005678019698591339,
+      "equation_residual": 0.001135654831159627,
+      "divergence_minus_half_residual": -2.5445720679617354e-08,
+      "signed_flux": 0.003893499260569644,
+      "absolute_flux": 0.003893499260569644
+    },
+    {
+      "worker": "07",
+      "iteration": 2000,
+      "group": 2,
+      "ijk": [
+        37,
+        31,
+        41
+      ],
+      "xyz": [
+        150,
+        126,
+        88.26388549804688
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": -0.04791263752706258,
+      "equation_residual": -1.3225676696038136e-06,
+      "divergence_minus_half_residual": -0.04791197624322778,
+      "signed_flux": -5.997953647094729,
+      "absolute_flux": 5.997953647094729
+    },
+    {
+      "worker": "08",
+      "iteration": 500,
+      "group": 0,
+      "ijk": [
+        93,
+        107,
+        1
+      ],
+      "xyz": [
+        374,
+        430,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 4,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.13009039917417822,
+      "equation_residual": 0.26018080013068356,
+      "divergence_minus_half_residual": -8.911635596131617e-10,
+      "signed_flux": 0.8920484603417844,
+      "absolute_flux": 0.8920484603417844
+    },
+    {
+      "worker": "08",
+      "iteration": 500,
+      "group": 2,
+      "ijk": [
+        38,
+        30,
+        41
+      ],
+      "xyz": [
+        154,
+        122,
+        88.26388549804688
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": -0.04230711214643024,
+      "equation_residual": -0.00045613627909046883,
+      "divergence_minus_half_residual": -0.042079044006885,
+      "signed_flux": -5.296224768536223,
+      "absolute_flux": 5.296224768536223
+    },
+    {
+      "worker": "08",
+      "iteration": 2000,
+      "group": 0,
+      "ijk": [
+        97,
+        101,
+        1
+      ],
+      "xyz": [
+        390,
+        406,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 5,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.0004051086297847943,
+      "equation_residual": 0.0008102101574252174,
+      "divergence_minus_half_residual": 3.5510721855982856e-09,
+      "signed_flux": 0.0027778877746915676,
+      "absolute_flux": 0.0027778877746915676
+    },
+    {
+      "worker": "08",
+      "iteration": 2000,
+      "group": 2,
+      "ijk": [
+        37,
+        31,
+        41
+      ],
+      "xyz": [
+        150,
+        126,
+        88.26388549804688
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": -0.047911123075538055,
+      "equation_residual": -1.0583485678949955e-06,
+      "divergence_minus_half_residual": -0.04791059390125411,
+      "signed_flux": -5.997764060160807,
+      "absolute_flux": 5.997764060160807
+    },
+    {
+      "worker": "09",
+      "iteration": 500,
+      "group": 0,
+      "ijk": [
+        93,
+        107,
+        1
+      ],
+      "xyz": [
+        374,
+        430,
+        0.6428571343421936
+      ],
+      "initial_flag": 1,
+      "flag": 4,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.1290762935507415,
+      "equation_residual": 0.25815260534727713,
+      "divergence_minus_half_residual": -9.12289707666325e-09,
+      "signed_flux": 0.8850945931405663,
+      "absolute_flux": 0.8850945931405663
+    },
+    {
+      "worker": "09",
+      "iteration": 500,
+      "group": 2,
+      "ijk": [
+        38,
+        30,
+        41
+      ],
+      "xyz": [
+        154,
+        122,
+        88.26388549804688
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": -0.041775503277269116,
+      "equation_residual": -0.0004460664902978806,
+      "divergence_minus_half_residual": -0.041552470032120176,
+      "signed_flux": -5.229675199984254,
+      "absolute_flux": 5.229675199984254
+    },
+    {
+      "worker": "09",
+      "iteration": 2000,
+      "group": 0,
+      "ijk": [
+        96,
+        107,
+        4
+      ],
+      "xyz": [
+        386,
+        430,
+        1.9285714626312256
+      ],
+      "initial_flag": 1,
+      "flag": 4,
+      "classification": "iterative_residual_with_float_rounding",
+      "divergence": 0.0005985283787805694,
+      "equation_residual": 0.0011970868181379046,
+      "divergence_minus_half_residual": -1.5030288382932196e-08,
+      "signed_flux": 0.004104194638123986,
+      "absolute_flux": 0.004104194638123986
+    },
+    {
+      "worker": "09",
+      "iteration": 2000,
+      "group": 2,
+      "ijk": [
+        37,
+        31,
+        41
+      ],
+      "xyz": [
+        150,
+        126,
+        88.26388549804688
+      ],
+      "initial_flag": 1,
+      "flag": 1,
+      "classification": "prescribed_top_face_boundary_limitation",
+      "divergence": -0.047234978399775696,
+      "equation_residual": -1.229793214818642e-06,
+      "divergence_minus_half_residual": -0.047234363503168286,
+      "signed_flux": -5.913120746136154,
+      "absolute_flux": 5.913120746136154
+    }
+  ],
+  "precision_controls": [
+    {
+      "case": "mixed_downtown_pilot",
+      "identical_initial_fields_and_flags": true,
+      "float32_max": 2.84712063840281,
+      "float64_max": 2.8471254067741882
+    },
+    {
+      "case": "perimeter_neighbourhood_pilot",
+      "identical_initial_fields_and_flags": true,
+      "float32_max": 0.0005678019698591339,
+      "float64_max": 0.0004051086297847943
+    }
+  ],
+  "conclusions": [
+    "All three persistent core maxima occur in initially solid cells relabeled as fluid. The geometry operator was built before that relabeling.",
+    "The downtown pilot discrepancy persists in float64 with identical initial float fields and flags. Canyon-off removes relabeling and the large interior discrepancy on that pilot.",
+    "The courtyard pilot has no relabeled cells: it is a useful negative control, not a reproduction of the core courtyard defect.",
+    "Prescribed top-band faces explain a separate operator/reconstruction boundary limitation; their maxima remain reported.",
+    "Large-core acceptance remains blocked pending a separately frozen numerical fix; no cells or historical gates were removed."
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "stage": "S6",
+  "method_family": "s5c-rb-sor-float-omega-v1",
+  "parent_source_sha256": "f138616b7796f20b3f66e04c2c52f01f6f27c5fcd4122bccc373caf82156adeb",
+  "parent_manifest_sha256": "4915c19c6bebfee7eabcc889df8be95384f3f759ac9f79b94e28fccab523151b",
+  "source_sha256": "3fd915c91de4dda94c56fa44c1c81f3b961e5fdf7f4f297fea1b1984615d5f63",
+  "gates": {
+    "vector_maximum": 0.001,
+    "vector_p95": 0.0005,
+    "scaled_mass_maximum": 0.001,
+    "scaled_mass_rms": 0.0001,
+    "relative_residual_maximum": 0.001,
+    "relative_residual_rms": 0.0001,
+    "length_m": 23.7,
+    "uref_mps": 5.0,
+    "consecutive": 3
+  },
+  "omegas": [
+    1.78,
+    1.85,
+    1.9,
+    1.95
+  ],
+  "screen_cases": [
+    "tower_2m",
+    "passages_2m"
+  ],
+  "held_out": "passages_2m_225",
+  "iterations": 2000,
+  "cadence": 25,
+  "team": 4,
+  "worker_seconds": 30,
+  "study_seconds": 180,
+  "reference": {
+    "precision": "float64",
+    "omega": 1.78,
+    "independent_zero_starts": [
+      500,
+      1000,
+      2000
+    ],
+    "gates": "Unchanged S5 triple gates, both pairs, both heights, masks and all required receptors"
+  },
+  "screen_selection": "Among nondefault factors reaching the target on both screen cases, minimize geometric mean of total native first-target cost/default. Tie favors smaller omega. If none qualify, confirm 1.85 and retain default.",
+  "confirmation": {
+    "repetitions": 3,
+    "paired_order": "Alternate default/challenger by case and repetition",
+    "selection": "Opt-in only if all three cases qualify, median paired challenger/default cost <=0.90 on EVERY case, at least 2/3 pairs faster on EVERY case, and all float64 controls qualify. Otherwise retain 1.78."
+  },
+  "budgets": [
+    0.05,
+    0.15
+  ],
+  "precision_controls": [
+    "float32 screen/confirmation",
+    "float64 both factors, all three cases"
+  ],
+  "target": "Offline numerical comparison only: 3 consecutive noninitial checkpoints and no later failed gate. Cost is last of first three, including native preparation, RHS, all preceding checks, monitor capture and sample writes. Excludes process launch and full-volume API finalization/turbulence. No online acceptance claim.",
+  "hotspots": "Full two-height ROI maxima cover moving/current/previous pedestrian hotspots; all fixed required receptors checked. Global interior mass maximum covers moving volume hotspots. Top-band mass/flux reported separately and never qualified by this interior scope.",
+  "limits": "43 workers maximum (8 screen, 3 held-out reference, 18 paired confirmation, 6 precision, 8 budget). No retries or budget escalation. Unqualified held-out case forces retain-default decision.",
+  "precision_and_transients": "Record early residual/mass growth, late-window residual/drift, and both precision tails. No inference of error from update magnitude.",
+  "policy": "All public defaults unchanged. S7 must bind its policy to the recorded method and qualify supported grids/directions separately."
+}

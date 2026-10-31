@@ -1,0 +1,15 @@
+-- The CXX compiler identification is AppleClang 17.0.0.17000404
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- dtcc-qes OpenMP CPU solver: OFF (requested OFF)
+-- Found Python: /Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python (found suitable version "3.13.11", minimum required is "3.13") found components: Interpreter Development.Module
+-- dtcc-qes floating-point contraction: on
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.8s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s7/serial

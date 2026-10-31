@@ -1,0 +1,35 @@
+{
+  "solver-control-s0": {
+    "manifest_sha256": "106d6faafb35031466820df104e3d797e22e90a924b1eb067cf5e7d31ac31593"
+  },
+  "solver-control-s1": {
+    "manifest_sha256": "5e3d941e4efbaac2612438ed82afc8cbbd222652f96721f7241a263daa0f17af"
+  },
+  "solver-control-s1a": {
+    "manifest_sha256": "6f5dae06001c56f6a5d30db25bee93e1cfa59f0ea6096d34bf99ff1465487824"
+  },
+  "solver-control-s2": {
+    "manifest_sha256": "4b0dcea58fc55d4c835953f30decd0e7ee02790dd3db73379fbe1884515f6674"
+  },
+  "solver-control-s3": {
+    "manifest_sha256": "6851b62eb70b89f2ff4324e59173b2eeba59ea73694505d8f9787529f4203585"
+  },
+  "solver-control-s4": {
+    "manifest_sha256": "d602e01dc533d88f7c2ef051f4347ccd2ded8a6d2331d69cef7bc9a1c743640a"
+  },
+  "solver-control-s5": {
+    "manifest_sha256": "4915c19c6bebfee7eabcc889df8be95384f3f759ac9f79b94e28fccab523151b"
+  },
+  "solver-control-s5b": {
+    "manifest_sha256": "15b09854223bd432fc7336da6ea3314966ace9cc19ef5609c5692772df983ae4"
+  },
+  "solver-control-s6": {
+    "manifest_sha256": "b8893364d73901855fa935788b7154de9e760f5c558a862c8e90fb16c04ff5f4"
+  },
+  "solver-control-s7": {
+    "manifest_sha256": "7f973e28ca61d72b72c058fab598e82814c9444b166449322999defac16cc23d"
+  },
+  "solver-control-s8a": {
+    "manifest_sha256": "330e1fa8c3ae191482396d3652a9eecad60452269ca43a1726844ab41cf23332"
+  }
+}

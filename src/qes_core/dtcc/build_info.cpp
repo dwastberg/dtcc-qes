@@ -1,5 +1,6 @@
 #include "build_info.h"
 #include "qes/Domain.h"
+#include "pedestrian_policy.h"
 #include <stdexcept>
 
 namespace dtcc_qes {
@@ -14,6 +15,10 @@ bool openmp_enabled()
 #endif
 }
 const char *cpu_backend() { return openmp_enabled() ? "OpenMP CPU" : "serial CPU"; }
+const char *cpu_sweep_order() { return "red_black"; }
+const char *fp_contract() { return DTCC_QES_FP_CONTRACT; }
+const char *solver_policy_revision() {return DTCC_QES_POLICY_REVISION;}
+bool solver_policy_build_supported() { return policy_build_supported(); }
 
 std::array<int, 3> core_grid_shape(int nx, int ny, int nz)
 {

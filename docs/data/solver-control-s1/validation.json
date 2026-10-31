@@ -1,0 +1,108 @@
+{
+  "stage": "S1",
+  "date": "2026-10-29",
+  "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+  "cpu": "Apple M4 Pro, 14 cores",
+  "python": "3.13.11 (main, Dec  5 2025, 21:16:49) [Clang 21.1.4 ]",
+  "builds": {
+    "openmp": {
+      "CMAKE_BUILD_TYPE": "Release",
+      "DTCC_QES_ENABLE_SANITIZERS": "OFF",
+      "DTCC_QES_OPENMP": "ON"
+    },
+    "serial": {
+      "CMAKE_BUILD_TYPE": "Release",
+      "DTCC_QES_ENABLE_SANITIZERS": "OFF",
+      "DTCC_QES_OPENMP": "OFF"
+    },
+    "openmp-sanitizers": {
+      "CMAKE_BUILD_TYPE": "Debug",
+      "DTCC_QES_ENABLE_SANITIZERS": "ON",
+      "DTCC_QES_OPENMP": "ON"
+    }
+  },
+  "tests": {
+    "ctest-openmp.xml": {
+      "tests": 43,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ctest-serial.xml": {
+      "tests": 40,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ctest-sanitizers.xml": {
+      "tests": 43,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "pytest-openmp.xml": {
+      "tests": 971,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 18
+    },
+    "pytest-serial.xml": {
+      "tests": 971,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "pytest-provenance.xml": {
+      "tests": 45,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "native_symbol_audits": [
+    "openmp",
+    "serial",
+    "openmp-sanitizers"
+  ],
+  "parity_passed": true,
+  "expected_backend_differences": [
+    {
+      "threads": 1,
+      "records": 888
+    },
+    {
+      "threads": 2,
+      "records": 888
+    },
+    {
+      "threads": 4,
+      "records": 888
+    },
+    {
+      "threads": 8,
+      "records": 888
+    }
+  ],
+  "limitations": [
+    "Same compiler and machine; no cross-compiler bitwise claim.",
+    "No new accuracy references or performance claim.",
+    "S1a empirical-model condition-state corrections remain unimplemented."
+  ],
+  "compiler": {
+    "id": "AppleClang",
+    "version": "17.0.0.17000404",
+    "fp_contract": "on"
+  },
+  "sanitizer_environment": {
+    "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1"
+  },
+  "artifact_checks": {
+    "wheel_contents": true,
+    "sdist_contents": true,
+    "wheel_solve_precisions": [
+      "float32",
+      "float64"
+    ]
+  }
+}

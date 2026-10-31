@@ -1,0 +1,6 @@
+{
+  "tests": 1110,
+  "passed": 1060,
+  "skipped": 50,
+  "reason": "Initial full Python run did not wire the already-built native integration executables into its environment. Preserve it; final full run explicitly enables them."
+}

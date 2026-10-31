@@ -1,0 +1,23 @@
+{
+  "status": "failed",
+  "exit_code": 1,
+  "request": {
+    "case": "mixed_downtown",
+    "direction": 270.0,
+    "repeat": 0,
+    "variant": "disabled",
+    "precision": "float32",
+    "threads": 2,
+    "iterations": 8,
+    "speed": 5.0,
+    "reference_height": 10.0,
+    "roughness_length": 0.1,
+    "max_solve_seconds": 5.0,
+    "checkpoint_interval": 25,
+    "residual_interval": 0,
+    "id": "0004",
+    "shard": 0
+  },
+  "process_seconds": 1.0023454579641111,
+  "source_id": "sha256:5c27cd7363e5a2975cb17e288f3576408489ac50e69ba93be05f8c58556e47ec"
+}

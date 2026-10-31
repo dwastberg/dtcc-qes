@@ -1,0 +1,7 @@
+{
+  "status": "failed",
+  "stderr": "Traceback (most recent call last):\n  File \"/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/profile_solver_baseline.py\", line 417, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/profile_solver_baseline.py\", line 335, in main\n    if args.worker: return worker(args)\n                           ~~~~~~^^^^^^\n  File \"/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/profile_solver_baseline.py\", line 284, in worker\n    raise RuntimeError(\"Actual team differs from the requested team\")\nRuntimeError: Actual team differs from the requested team\n",
+  "record": "runs/03-openmp-profile-float32-2t.json",
+  "backend": "openmp",
+  "repeat": 0
+}

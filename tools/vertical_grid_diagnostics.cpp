@@ -3,7 +3,7 @@
 #include "model_inputs.h"
 #include "divergence.h"
 #include "winds/WINDSGeneralData.h"
-#include "winds/SolverFactory.h"
+#include "solver/solver.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -27,7 +27,7 @@ bool solid(const WINDSGeneralData &a, int i, int j, int k)
 }
 
 template<class Real, class Multiplier>
-Real corrected_face(const WINDSGeneralData &a, const std::vector<Multiplier> &lambda,
+Real corrected_face(const WINDSGeneralData &a, const dtcc_qes::solver::PoissonOperator &op, const std::vector<Multiplier> &lambda,
                     int axis, int i, int j, int k, bool zero_solids)
 {
   const auto &d = a.domain;
@@ -38,7 +38,7 @@ Real corrected_face(const WINDSGeneralData &a, const std::vector<Multiplier> &la
     const auto c = d.cell(i,j,k);
     const auto neighbour = d.cellAdd(c, axis == 0 ? -1 : 0, axis == 1 ? -1 : 0,
                                    axis == 2 ? -1 : 0);
-    const Real coeff = axis == 0 ? a.f[c] : axis == 1 ? a.h[c] : a.n[c];
+    const Real coeff = axis == 0 ? op.coefficient(1,c) : axis == 1 ? op.coefficient(3,c) : op.coefficient(5,c);
     const Real spacing = axis == 0 ? d.dx() : axis == 1 ? d.dy() : d.dz_array[k];
     // Real=float reproduces the production operand order; Real=double widens
     // operands BEFORE the subtraction, products and final addition.
@@ -66,40 +66,40 @@ Faces stored_faces(const WINDSGeneralData &a, int i, int j, int k, bool initial 
 }
 
 template<class Real, class Multiplier>
-Faces reconstructed(const WINDSGeneralData &a, const std::vector<Multiplier> &lambda,
+Faces reconstructed(const WINDSGeneralData &a, const dtcc_qes::solver::PoissonOperator &op, const std::vector<Multiplier> &lambda,
                     int i, int j, int k, bool zero)
 {
   return faces_at(i,j,k, [&](int axis, int x, int y, int z) {
-    return double(corrected_face<Real>(a,lambda,axis,x,y,z,zero));
+    return double(corrected_face<Real>(a,op,lambda,axis,x,y,z,zero));
   });
 }
 
-double flux(const WINDSGeneralData &a, int i, int j, int k, const Faces &v)
+double flux(const WINDSGeneralData &a, const dtcc_qes::solver::PoissonOperator &op, int i, int j, int k, const Faces &v)
 {
   const auto &d = a.domain;
   const auto c = d.cell(i,j,k);
   const double dx = d.dx(), dy = d.dy(), dz = d.dz_array[k];
   // Recover open areas independently from the scaled stencil coefficients.
-  const double east = double(a.e[c])*dx*dx, west = double(a.f[c])*dx*dx;
-  const double north = double(a.g[c])*dy*dy, south = double(a.h[c])*dy*dy;
-  const double above = double(a.m[c])*dz*0.5*(dz+d.dz_array[k+1]);
-  const double below = double(a.n[c])*dz*0.5*(dz+d.dz_array[k-1]);
+  const double east = double(op.coefficient(0,c))*dx*dx, west = double(op.coefficient(1,c))*dx*dx;
+  const double north = double(op.coefficient(2,c))*dy*dy, south = double(op.coefficient(3,c))*dy*dy;
+  const double above = double(op.coefficient(4,c))*dz*0.5*(dz+d.dz_array[k+1]);
+  const double below = double(op.coefficient(5,c))*dz*0.5*(dz+d.dz_array[k-1]);
   return ((east*v[0]-west*v[1])*dy*dz + (north*v[2]-south*v[3])*dx*dz
           + (above*v[4]-below*v[5])*dx*dy)/(dx*dy*dz);
 }
 
 template<class Real>
-double stencil(const WINDSGeneralData &a, const std::vector<Real> &lambda, long c)
+double stencil(const WINDSGeneralData &a, const dtcc_qes::solver::PoissonOperator &op, const std::vector<Real> &lambda, long c)
 {
   const auto &d = a.domain;
   // Difference form avoids cancellation from a second diagnostic's large
   // diagonal product. The underlying coefficients remain the actual floats.
-  return double(a.e[c])*(double(lambda[d.cellAdd(c,1,0,0)])-lambda[c])
-       + double(a.f[c])*(double(lambda[d.cellAdd(c,-1,0,0)])-lambda[c])
-       + double(a.g[c])*(double(lambda[d.cellAdd(c,0,1,0)])-lambda[c])
-       + double(a.h[c])*(double(lambda[d.cellAdd(c,0,-1,0)])-lambda[c])
-       + double(a.m[c])*(double(lambda[d.cellAdd(c,0,0,1)])-lambda[c])
-       + double(a.n[c])*(double(lambda[d.cellAdd(c,0,0,-1)])-lambda[c]);
+  return double(op.coefficient(0,c))*(double(lambda[d.cellAdd(c,1,0,0)])-lambda[c])
+       + double(op.coefficient(1,c))*(double(lambda[d.cellAdd(c,-1,0,0)])-lambda[c])
+       + double(op.coefficient(2,c))*(double(lambda[d.cellAdd(c,0,1,0)])-lambda[c])
+       + double(op.coefficient(3,c))*(double(lambda[d.cellAdd(c,0,-1,0)])-lambda[c])
+       + double(op.coefficient(4,c))*(double(lambda[d.cellAdd(c,0,0,1)])-lambda[c])
+       + double(op.coefficient(5,c))*(double(lambda[d.cellAdd(c,0,0,-1)])-lambda[c]);
 }
 
 struct Norm {
@@ -137,29 +137,25 @@ struct Inspection {
 // An isolated warm-start experiment, not a new selectable production solver.
 // Preserve coefficients, geometry, boundary conditions and the backend's node
 // ordering. Widen multiplier storage, RHS construction and update arithmetic.
-void refine(const WINDSGeneralData &a, std::vector<double> &lambda,
-            const std::vector<double> &rhs, int sweeps)
+void refine(const WINDSGeneralData &a, const dtcc_qes::solver::PoissonOperator &op, std::vector<double> &lambda,
+            const std::vector<double> &rhs, int sweeps, dtcc_qes::solver::SweepOrder order)
 {
   const auto &d = a.domain;
   const double omega = double(1.78f);
   for (int iteration = 0; iteration < sweeps; ++iteration) {
-#ifdef _OPENMP
-    constexpr int colours = 2;
-#else
-    constexpr int colours = 1;
-#endif
+    const int colours = order == dtcc_qes::solver::SweepOrder::RedBlack ? 2 : 1;
     for (int colour = 0; colour < colours; ++colour)
       for (int k = 1; k < d.nz()-2; ++k)
         for (int j = 1; j < d.ny()-2; ++j) for (int i = 1; i < d.nx()-2; ++i) {
           if (colours == 2 && (i+j+k)%2 != colour) continue;
           const auto c = d.cell(i,j,k);
-          const double diagonal = double(a.e[c])+a.f[c]+a.g[c]+a.h[c]+a.m[c]+a.n[c];
-          const double neighbours = double(a.e[c])*lambda[d.cellAdd(c,1,0,0)]
-                                  + double(a.f[c])*lambda[d.cellAdd(c,-1,0,0)]
-                                  + double(a.g[c])*lambda[d.cellAdd(c,0,1,0)]
-                                  + double(a.h[c])*lambda[d.cellAdd(c,0,-1,0)]
-                                  + double(a.m[c])*lambda[d.cellAdd(c,0,0,1)]
-                                  + double(a.n[c])*lambda[d.cellAdd(c,0,0,-1)];
+          const double diagonal = double(op.coefficient(0,c))+op.coefficient(1,c)+op.coefficient(2,c)+op.coefficient(3,c)+op.coefficient(4,c)+op.coefficient(5,c);
+          const double neighbours = double(op.coefficient(0,c))*lambda[d.cellAdd(c,1,0,0)]
+                                  + double(op.coefficient(1,c))*lambda[d.cellAdd(c,-1,0,0)]
+                                  + double(op.coefficient(2,c))*lambda[d.cellAdd(c,0,1,0)]
+                                  + double(op.coefficient(3,c))*lambda[d.cellAdd(c,0,-1,0)]
+                                  + double(op.coefficient(4,c))*lambda[d.cellAdd(c,0,0,1)]
+                                  + double(op.coefficient(5,c))*lambda[d.cellAdd(c,0,0,-1)];
           lambda[c] = omega/diagonal*(neighbours-rhs[c]) + (1-omega)*lambda[c];
         }
     for (int j = 0; j < d.ny()-1; ++j) for (int i = 0; i < d.nx()-1; ++i)
@@ -167,17 +163,17 @@ void refine(const WINDSGeneralData &a, std::vector<double> &lambda,
   }
 }
 
-std::vector<double> double_rhs(const WINDSGeneralData &a)
+std::vector<double> double_rhs(const WINDSGeneralData &a, const dtcc_qes::solver::PoissonOperator &op)
 {
   const auto &d = a.domain;
   std::vector<double> rhs(d.numCellCentered(),0);
   for (int k = 1; k < d.nz()-2; ++k)
     for (int j = 1; j < d.ny()-2; ++j) for (int i = 1; i < d.nx()-2; ++i)
-      rhs[d.cell(i,j,k)] = -2*flux(a,i,j,k,stored_faces(a,i,j,k,true));
+      rhs[d.cell(i,j,k)] = -2*flux(a,op,i,j,k,stored_faces(a,i,j,k,true));
   return rhs;
 }
 
-std::map<std::string,Norm> precision_norms(const WINDSGeneralData &a,
+std::map<std::string,Norm> precision_norms(const WINDSGeneralData &a, const dtcc_qes::solver::PoissonOperator &op,
                                         const std::vector<double> &lambda)
 {
   const auto &d = a.domain;
@@ -185,26 +181,26 @@ std::map<std::string,Norm> precision_norms(const WINDSGeneralData &a,
   for (int k = 1; k < d.nz()-2; ++k)
     for (int j = 1; j < d.ny()-2; ++j) for (int i = 1; i < d.nx()-2; ++i) {
       if (solid(a,i,j,k)) continue;
-      const auto exact = reconstructed<double>(a,lambda,i,j,k,true);
+      const auto exact = reconstructed<double>(a,op,lambda,i,j,k,true);
       auto rounded = exact;
       // Cast only the completed face correction, retaining double multipliers.
       for (auto &value : rounded) value = float(value);
       const double volume = double(d.dx())*d.dy()*d.dz_array[k];
       if (k == d.nz()-3) {
-        result["top_band_double_flux"].add(flux(a,i,j,k,exact),{i,j,k},volume);
-        result["top_band_cast_float_flux"].add(flux(a,i,j,k,rounded),{i,j,k},volume);
+        result["top_band_double_flux"].add(flux(a,op,i,j,k,exact),{i,j,k},volume);
+        result["top_band_cast_float_flux"].add(flux(a,op,i,j,k,rounded),{i,j,k},volume);
         continue;
       }
-      result["double_flux"].add(flux(a,i,j,k,exact),{i,j,k},volume);
-      result["cast_float_flux"].add(flux(a,i,j,k,rounded),{i,j,k},volume);
-      const double initial = flux(a,i,j,k,stored_faces(a,i,j,k,true));
-      const double prediction = initial+0.5*stencil(a,lambda,d.cell(i,j,k));
-      result["operator_flux_gap"].add(flux(a,i,j,k,exact)-prediction,{i,j,k},volume);
+      result["double_flux"].add(flux(a,op,i,j,k,exact),{i,j,k},volume);
+      result["cast_float_flux"].add(flux(a,op,i,j,k,rounded),{i,j,k},volume);
+      const double initial = flux(a,op,i,j,k,stored_faces(a,i,j,k,true));
+      const double prediction = initial+0.5*stencil(a,op,lambda,d.cell(i,j,k));
+      result["operator_flux_gap"].add(flux(a,op,i,j,k,exact)-prediction,{i,j,k},volume);
     }
   return result;
 }
 
-std::vector<double> pedestrian_changes(const WINDSGeneralData &a,
+std::vector<double> pedestrian_changes(const WINDSGeneralData &a, const dtcc_qes::solver::PoissonOperator &op,
                                        const std::vector<double> &lambda)
 {
   const auto &d = a.domain;
@@ -219,7 +215,7 @@ std::vector<double> pedestrian_changes(const WINDSGeneralData &a,
     std::array<double,3> delta{};
     for (int k : {lo,hi}) {
       const auto stored = stored_faces(a,i,j,k);
-      const auto corrected = reconstructed<double>(a,lambda,i,j,k,true);
+      const auto corrected = reconstructed<double>(a,op,lambda,i,j,k,true);
       const double w = k == lo ? 1-weight : weight;
       for (int axis = 0; axis < 3; ++axis) {
         const float before = 0.5f*(float(stored[2*axis])+float(stored[2*axis+1]));
@@ -235,7 +231,7 @@ std::vector<double> pedestrian_changes(const WINDSGeneralData &a,
   return changes;
 }
 
-Inspection inspect(const WINDSGeneralData &a, const std::vector<float> &lambda,
+Inspection inspect(const WINDSGeneralData &a, const dtcc_qes::solver::PoissonOperator &op, const std::vector<float> &lambda,
                    const std::vector<float> &rhs)
 {
   const auto &d = a.domain;
@@ -249,28 +245,28 @@ Inspection inspect(const WINDSGeneralData &a, const std::vector<float> &lambda,
       const auto c = d.cell(i,j,k);
       const double volume = double(d.dx())*d.dy()*d.dz_array[k];
       const auto stored = stored_faces(a,i,j,k);
-      const auto f_before = reconstructed<float>(a,lambda,i,j,k,false);
-      const auto f_after = reconstructed<float>(a,lambda,i,j,k,true);
-      const auto d_before = reconstructed<double>(a,lambda,i,j,k,false);
-      const auto d_after = reconstructed<double>(a,lambda,i,j,k,true);
-      const double initial = flux(a,i,j,k,stored_faces(a,i,j,k,true));
-      const double actual = flux(a,i,j,k,stored);
-      const double predicted = initial + 0.5*stencil(a,lambda,c);
-      const double stencil_residual = 0.5*(stencil(a,lambda,c)-rhs[c]);
+      const auto f_before = reconstructed<float>(a,op,lambda,i,j,k,false);
+      const auto f_after = reconstructed<float>(a,op,lambda,i,j,k,true);
+      const auto d_before = reconstructed<double>(a,op,lambda,i,j,k,false);
+      const auto d_after = reconstructed<double>(a,op,lambda,i,j,k,true);
+      const double initial = flux(a,op,i,j,k,stored_faces(a,i,j,k,true));
+      const double actual = flux(a,op,i,j,k,stored);
+      const double predicted = initial + 0.5*stencil(a,op,lambda,c);
+      const double stencil_residual = 0.5*(stencil(a,op,lambda,c)-rhs[c]);
       const double rhs_gap = initial + 0.5*rhs[c];
       auto add = [&](const char *name, double value) { result.norms[name].add(value,index,volume); };
       add("stored_flux",actual);
-      add("float_before_zero",flux(a,i,j,k,f_before));
-      add("float_after_zero",flux(a,i,j,k,f_after));
-      add("double_before_zero",flux(a,i,j,k,d_before));
-      add("double_after_zero",flux(a,i,j,k,d_after));
+      add("float_before_zero",flux(a,op,i,j,k,f_before));
+      add("float_after_zero",flux(a,op,i,j,k,f_after));
+      add("double_before_zero",flux(a,op,i,j,k,d_before));
+      add("double_after_zero",flux(a,op,i,j,k,d_after));
       add("stencil_prediction",predicted);
       add("stencil_residual",stencil_residual);
       add("rhs_rounding",rhs_gap);
-      add("operator_flux_gap",flux(a,i,j,k,d_before)-predicted);
-      add("solid_zeroing_effect",flux(a,i,j,k,d_after)-flux(a,i,j,k,d_before));
-      add("float_reconstruction_gap",flux(a,i,j,k,f_after)-actual);
-      add("float_correction_effect",flux(a,i,j,k,f_after)-flux(a,i,j,k,d_after));
+      add("operator_flux_gap",flux(a,op,i,j,k,d_before)-predicted);
+      add("solid_zeroing_effect",flux(a,op,i,j,k,d_after)-flux(a,op,i,j,k,d_before));
+      add("float_reconstruction_gap",flux(a,op,i,j,k,f_after)-actual);
+      add("float_correction_effect",flux(a,op,i,j,k,f_after)-flux(a,op,i,j,k,d_after));
       bool near_solid = false;
       for (Index delta : {Index{1,0,0}, {-1,0,0}, {0,1,0}, {0,-1,0}, {0,0,1}, {0,0,-1}})
         near_solid = near_solid || solid(a,i+delta[0],j+delta[1],k+delta[2]);
@@ -290,14 +286,14 @@ Inspection inspect(const WINDSGeneralData &a, const std::vector<float> &lambda,
 }
 } // namespace
 
-void write_solver_diagnostics(std::ostream &out, const WINDSGeneralData &a,
+void write_solver_diagnostics(std::ostream &out, const WINDSGeneralData &a, const dtcc_qes::solver::PoissonOperator &op,
                               const std::vector<float> &lambda,
                               const std::vector<float> &previous,
                               const std::vector<float> &rhs)
 {
   if (previous.size() != lambda.size()) throw std::invalid_argument("Previous multiplier size mismatch");
-  const auto result = inspect(a,lambda,rhs);
-  const auto oracle = dtcc_qes::divergence_stats(a);
+  const auto result = inspect(a,op,lambda,rhs);
+  const auto oracle = dtcc_qes::divergence_stats(a,op);
   const auto &actual = result.norms.at("stored_flux");
   if (actual.cells != oracle.cells || std::abs(actual.maximum-oracle.interior_max) > 1e-12
       || std::abs(actual.rms()-oracle.interior_rms) > 1e-12)
@@ -327,25 +323,25 @@ void write_solver_diagnostics(std::ostream &out, const WINDSGeneralData &a,
     for (Index delta : {Index{1,0,0}, {-1,0,0}, {0,1,0}, {0,-1,0}, {0,0,1}, {0,0,-1}}) {
       out << (next ? "," : "") << a.icellflag[d.cellAdd(c,delta[0],delta[1],delta[2])]; next = true;
     }
-    out << "],\"coefficients\":[" << a.e[c] << ',' << a.f[c] << ',' << a.g[c] << ',' << a.h[c]
-        << ',' << a.m[c] << ',' << a.n[c] << "]}";
+    out << "],\"coefficients\":[" << op.coefficient(0,c) << ',' << op.coefficient(1,c) << ',' << op.coefficient(2,c) << ',' << op.coefficient(3,c)
+        << ',' << op.coefficient(4,c) << ',' << op.coefficient(5,c) << "]}";
     first = false;
   }
   out << "]}";
 }
 
-void write_precision_probe(std::ostream &out, const WINDSGeneralData &a,
-                           const std::vector<float> &starting_lambda)
+void write_precision_probe(std::ostream &out, const WINDSGeneralData &a, const dtcc_qes::solver::PoissonOperator &op,
+                           const std::vector<float> &starting_lambda, dtcc_qes::solver::SweepOrder order)
 {
   std::vector<double> lambda(starting_lambda.begin(),starting_lambda.end());
-  const auto rhs = double_rhs(a);
+  const auto rhs = double_rhs(a,op);
   int completed = 0;
   out << "{\"warm_start\":true,\"parallel_updates\":false,\"checkpoints\":[";
   for (int target : {0,100,1000}) {
-    refine(a,lambda,rhs,target-completed);
+    refine(a,op,lambda,rhs,target-completed,order);
     completed = target;
-    const auto norms = precision_norms(a,lambda);
-    const auto changes = pedestrian_changes(a,lambda);
+    const auto norms = precision_norms(a,op,lambda);
+    const auto changes = pedestrian_changes(a,op,lambda);
     const double p = 0.95*(changes.size()-1);
     const auto lower = std::size_t(p), upper = std::min(lower+1,changes.size()-1);
     const double p95 = changes[lower]+(p-lower)*(changes[upper]-changes[lower]);
@@ -377,18 +373,19 @@ void diagnostics_self_test()
   for (auto *coeff : {&a.e,&a.f,&a.g,&a.h})
     std::fill(coeff->begin(),coeff->end(),1/(d.dx()*d.dx()));
   for (auto *coeff : {&a.m,&a.n}) std::fill(coeff->begin(),coeff->end(),4);
+  const solver::PoissonOperator op(a,solver::CoefficientOwnership::Take);
   std::vector<float> lambda(d.numCellCentered()), rhs(lambda.size(),0);
   for (int k = 0; k < d.nz()-1; ++k)
     for (int j = 0; j < d.ny()-1; ++j) for (int i = 0; i < d.nx()-1; ++i)
       lambda[d.cell(i,j,k)] = d.x[i]*d.x[i];
   for (int k = 0; k < d.nz(); ++k)
     for (int j = 0; j < d.ny(); ++j) for (int i = 0; i < d.nx(); ++i) {
-      a.u[d.face(i,j,k)] = corrected_face<float>(a,lambda,0,i,j,k,true);
-      a.v[d.face(i,j,k)] = corrected_face<float>(a,lambda,1,i,j,k,true);
-      a.w[d.face(i,j,k)] = corrected_face<float>(a,lambda,2,i,j,k,true);
+      a.u[d.face(i,j,k)] = corrected_face<float>(a,op,lambda,0,i,j,k,true);
+      a.v[d.face(i,j,k)] = corrected_face<float>(a,op,lambda,1,i,j,k,true);
+      a.w[d.face(i,j,k)] = corrected_face<float>(a,op,lambda,2,i,j,k,true);
     }
   auto require = [](bool ok) { if (!ok) throw std::runtime_error("Solver diagnostics self-test failed"); };
-  const auto result = inspect(a,lambda,rhs);
+  const auto result = inspect(a,op,lambda,rhs);
   // lambda=x^2 gives 0.5*laplacian(lambda)=1, independently of resolution.
   require(std::abs(result.norms.at("stored_flux").maximum-1) < 1e-12);
   require(std::abs(result.norms.at("stencil_prediction").rms()-1) < 1e-12);
@@ -397,21 +394,21 @@ void diagnostics_self_test()
   // Homogeneous equation, fixed lateral/top multipliers: refining the x^2
   // starting guess must reduce its known unit residual without changing edges.
   std::vector<double> precise(lambda.begin(),lambda.end());
-  const auto precise_rhs = double_rhs(a);
-  refine(a,precise,precise_rhs,200);
-  const auto refined = precision_norms(a,precise);
+  const auto precise_rhs = double_rhs(a,op);
+  refine(a,op,precise,precise_rhs,200,solver::default_order());
+  const auto refined = precision_norms(a,op,precise);
   require(refined.at("double_flux").maximum < 1e-8);
   require(refined.at("cast_float_flux").maximum < 1e-5);
   require(refined.at("operator_flux_gap").maximum < 1e-12);
   require(precise[d.cell(0,3,3)] == lambda[d.cell(0,3,3)]);
   a.u[d.face(3,3,3)] += 0.125f;
-  require(inspect(a,lambda,rhs).max_face_mismatch == 0.125);
+  require(inspect(a,op,lambda,rhs).max_face_mismatch == 0.125);
   // Both building and terrain flags must zero either side of a face.
   for (int flag : {0,2}) {
     a.icellflag[d.cell(3,3,3)] = flag;
-    require(corrected_face<double>(a,lambda,0,3,3,3,true) == 0);
-    require(corrected_face<double>(a,lambda,0,4,3,3,true) == 0);
-    require(corrected_face<double>(a,lambda,0,4,3,3,false) != 0);
+    require(corrected_face<double>(a,op,lambda,0,3,3,3,true) == 0);
+    require(corrected_face<double>(a,op,lambda,0,4,3,3,true) == 0);
+    require(corrected_face<double>(a,op,lambda,0,4,3,3,false) != 0);
   }
 }
 } // namespace study

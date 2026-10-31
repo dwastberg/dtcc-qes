@@ -1,7 +1,6 @@
+#include "solver/solver.h"
+#include "winds/WINDSGeneralData.h"
 #include "model_inputs.h"
-#include "winds/SolverFactory.h"
-#include "winds/Solver_CPU.h"
-#include "winds/Solver_CPU_RB.h"
 #include "fixture.h"
 #include <array>
 #include <cmath>
@@ -11,6 +10,8 @@
 
 using namespace dtcc_qes;
 
+using namespace dtcc_qes::solver;
+
 static void require(bool condition, const char *message)
 {
   if (!condition) throw std::runtime_error(message);
@@ -19,7 +20,7 @@ static void require(bool condition, const char *message)
 struct Snapshot {
   std::array<std::vector<float>, 3> velocity;
   std::vector<int> flags;
-  SolveDiagnostics diagnostics;
+  dtcc_qes::solver::SolveDiagnostics diagnostics;
 };
 
 static Snapshot solve(float height, bool serial, int threads)
@@ -45,14 +46,11 @@ static Snapshot solve(float height, bool serial, int threads)
   data.resetICellFlag();
   data.applyWindProfile(inputs.inflow);
   data.applyParametrizations();
-  std::unique_ptr<Solver> solver;
-  if (serial) {
-    solver = std::make_unique<Solver_CPU>(data.domain, fixture::tolerance);
-  } else {
-    solver.reset(SolverFactory::create(CPU_Type, data.domain, fixture::tolerance));
-    require(dynamic_cast<Solver_CPU_RB *>(solver.get()), "CPU factory did not select the OpenMP solver");
-  }
-  const auto diagnostics = solver->solve(&data, fixture::max_iterations);
+  const PoissonOperator op(data);
+  SolverState<float> solver(op,fixture::tolerance,
+      serial ? SweepOrder::Lexicographic : default_order());
+  if (!serial) require(solver.order() == SweepOrder::RedBlack, "Default CPU order is not red/black");
+  const auto diagnostics = solve_wind(solver, data, fixture::max_iterations);
   require(diagnostics.converged && diagnostics.iterations > 0, "Solver did not converge");
   // Every face adjoining a solid cell must be zero, including faces shared
   // across thread slabs. The tall building spans slabs at 2 and 4 threads.

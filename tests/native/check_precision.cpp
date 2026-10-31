@@ -1,9 +1,8 @@
-#include "precision_solver.h"
+#include "solver/solver.h"
 #include "model_inputs.h"
 #include "divergence.h"
 #include "wind_runner.h"
 #include "winds/WINDSGeneralData.h"
-#include "winds/SolverFactory.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -12,6 +11,8 @@
 #include <stdexcept>
 
 using namespace dtcc_qes;
+using namespace dtcc_qes::solver;
+
 static void require(bool ok, const char *message) { if (!ok) throw std::runtime_error(message); }
 template<class Operation> static void rejects(Operation operation) {
   try { operation(); } catch (const std::exception &) { return; }
@@ -36,19 +37,20 @@ static void injection(double spacing, bool stretched, int axis)
   data.applyParametrizations();
   auto &initial = axis == 0 ? data.u0 : axis == 1 ? data.v0 : data.w0;
   initial[data.domain.face(12,12,6)] = .1f;
-  PrecisionSolver solver(data.domain, 1e-12);
-  require(solver.workspace_bytes() == 2*sizeof(double)*data.domain.numCellCentered(), "Unexpected precision workspace");
-  const auto diagnostics = solver.solve(&data, 20000);
+  const PoissonOperator op(data);
+  SolverState<double> solver(op,1e-12);
+  require(solver.workspace_bytes() == sizeof(double)*(2*data.domain.numCellCentered()+op.tables().size()), "Unexpected precision workspace");
+  const auto diagnostics = solve_wind(solver,data,20000);
   require(diagnostics.converged && diagnostics.max_lagrange_multiplier_change <= 1e-12,
           "Precision injection did not converge");
-  require(divergence_stats(data).interior_max < 3e-8, "Precision injection retains divergent flux");
+  require(divergence_stats(data, op).interior_max < 3e-8, "Precision injection retains divergent flux");
   const auto u = data.u, v = data.v, w = data.w;
-  const auto repeated = solver.solve(&data, 20000);
+  const auto repeated = solve_wind(solver,data,20000);
   require(data.u == u && data.v == v && data.w == w && repeated.iterations == diagnostics.iterations,
           "Repeated precision solve did not start from zero");
 #ifdef _OPENMP
   omp_set_num_threads(4);
-  const auto parallel = solver.solve(&data, 20000);
+  const auto parallel = solve_wind(solver,data,20000);
   require(data.u == u && data.v == v && data.w == w && parallel.iterations == diagnostics.iterations,
           "Precision output depends on OpenMP team size");
   omp_set_num_threads(2);
@@ -58,17 +60,17 @@ static void injection(double spacing, bool stretched, int axis)
     require(data.u[d.face(0,2,k)] == data.u0[d.face(0,2,k)], "Prescribed lateral face changed");
     require(data.w[d.face(2,2,grid.nz)] == data.w0[d.face(2,2,grid.nz)], "Uncorrected top changed");
   }
-  require(solver.solve(&data, 7, true).iterations == 7, "Study fixed-sweep control ignored budget");
-  rejects([&] { solver.solve(nullptr, 1); });
-  rejects([&] { solver.solve(&data, 0); });
+  require(solve_wind(solver,data,7,StopRule::FixedSweeps).iterations == 7, "Study fixed-sweep control ignored budget");
+  rejects([&] { solver.advance(1); });
+  rejects([&] { solve_wind(solver,data,0); });
   initial[0] = std::numeric_limits<float>::quiet_NaN();
-  rejects([&] { solver.solve(&data, 1); });
+  rejects([&] { solve_wind(solver,data,1); });
   initial[0] = 0;
   data.e[0] = std::numeric_limits<float>::infinity();
-  rejects([&] { solver.solve(&data, 1); });
+  rejects([&] { PoissonOperator invalid(data); });
   data.e[0] = 1;
   data.e.pop_back();
-  rejects([&] { solver.solve(&data, 1); });
+  rejects([&] { PoissonOperator invalid(data); });
 }
 
 static void runner_modes()
@@ -121,8 +123,9 @@ static void solid_faces()
   WINDSGeneralData data(make_domain(input), input.buildings, input.parameterizations, input.inflow.site_z0);
   data.applyWindProfile(input.inflow);
   data.applyParametrizations();
-  PrecisionSolver solver(data.domain, 1e-10);
-  require(solver.solve(&data, 2000).converged, "Solid-face precision fixture did not converge");
+  const PoissonOperator op(data);
+  SolverState<double> solver(op,1e-10);
+  require(solve_wind(solver,data,2000).converged, "Solid-face precision fixture did not converge");
   const auto &d = data.domain;
   int cells = 0;
   for (int k = 1; k < d.nz()-1; ++k)
@@ -136,7 +139,7 @@ static void solid_faces()
               "Precision correction left nonzero staggered solid faces");
     }
   require(cells > 100, "Tall solid fixture does not span thread slabs");
-  require(divergence_stats(data).top_band_max > 1e-5, "Top-band boundary limitation unexpectedly changed");
+  require(divergence_stats(data, op).top_band_max > 1e-5, "Top-band boundary limitation unexpectedly changed");
 }
 
 int main()

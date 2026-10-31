@@ -1,0 +1,109 @@
+{
+  "baseline_revision": "sha256:b2d4cd6e8708a4058187a8284195a67805f78b226e156a3f13981b903a8d63fe",
+  "candidate": "sha256:26a643a6d2bfc6d3dd6574847fde1403942f1177ce5d4c0593a4d179cc1b5606",
+  "allow_added_contraction": false,
+  "ordering_migration": false,
+  "comparisons": [
+    {
+      "kind": "revision",
+      "backend": "openmp",
+      "threads": 1,
+      "cases": 429,
+      "records": 3872,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "revision",
+      "backend": "openmp",
+      "threads": 2,
+      "cases": 429,
+      "records": 3872,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "revision",
+      "backend": "openmp",
+      "threads": 4,
+      "cases": 429,
+      "records": 3872,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "revision",
+      "backend": "openmp",
+      "threads": 8,
+      "cases": 429,
+      "records": 3872,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "team",
+      "threads": [
+        1,
+        2
+      ],
+      "records": 3872,
+      "differences": []
+    },
+    {
+      "kind": "team",
+      "threads": [
+        1,
+        4
+      ],
+      "records": 3872,
+      "differences": []
+    },
+    {
+      "kind": "team",
+      "threads": [
+        1,
+        8
+      ],
+      "records": 3872,
+      "differences": []
+    },
+    {
+      "kind": "revision",
+      "backend": "serial",
+      "threads": 1,
+      "cases": 429,
+      "records": 3872,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "backend",
+      "threads": 1,
+      "records": 3872,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "backend",
+      "threads": 2,
+      "records": 3872,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "backend",
+      "threads": 4,
+      "records": 3872,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "backend",
+      "threads": 8,
+      "records": 3872,
+      "differences": [],
+      "required": true
+    }
+  ],
+  "passed": true
+}

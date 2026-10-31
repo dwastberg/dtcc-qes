@@ -1,0 +1,1367 @@
+{
+  "status": "completed",
+  "request": {
+    "case": "perimeter_neighbourhood",
+    "direction": 270.0,
+    "repeat": 0,
+    "variant": "baseline",
+    "precision": "float32",
+    "threads": 2,
+    "iterations": 8,
+    "speed": 5.0,
+    "reference_height": 10.0,
+    "roughness_length": 0.1,
+    "max_solve_seconds": 5.0,
+    "checkpoint_interval": 25,
+    "residual_interval": 0,
+    "id": "0000",
+    "shard": 0
+  },
+  "timing": {
+    "load_and_city_seconds": 0.0024412079947069287,
+    "preview_seconds": 0.01018375001149252,
+    "api_seconds": 0.024499666993506253,
+    "sampling_seconds": 0.0005213749827817082,
+    "hash_and_output_seconds": 0.004129750013817102,
+    "pipeline_seconds": 0.0417777500115335
+  },
+  "diagnostics": {
+    "iterations": 8,
+    "max_lagrange_multiplier_change": 4.426614761352539,
+    "tolerance": 9.999999747378752e-06,
+    "converged": false,
+    "max_divergence": 10.660805629022368,
+    "rms_divergence": 0.297223579334374,
+    "top_band_max_divergence": 0.0002176569790980687,
+    "divergence_cell_count": 177652,
+    "top_band_cell_count": 4624,
+    "precision": "float32"
+  },
+  "control": null,
+  "field_sha256": {
+    "velocity": "7415dfa9ef13580adad3854b9a9526f292579a47bfd07b4d3a54d1c825dddf73",
+    "cell_flags": "7e7d18c85d403b74c97bc6078b1caa5d2cd67dbf481c61754e07ba608ab72304"
+  },
+  "grid_sha256": {
+    "x": "15289de06a800bfb5275b770888c5803dcfa08300881c022d7861f72b6af1f89",
+    "y": "15289de06a800bfb5275b770888c5803dcfa08300881c022d7861f72b6af1f89",
+    "z": "8016c247126b0a2477f267fbaa37ceeb493bb30b18bb5c25d9ad6121696ab897",
+    "z_faces": "bfd1b0b76ca47dedac29b5e812e38afb4fa32fd36527d362109055060b7f9506"
+  },
+  "shape": [
+    43,
+    70,
+    70
+  ],
+  "building_count": 160,
+  "peak_rss_bytes": 234848256,
+  "actual_threads": 2,
+  "peaks": [
+    {
+      "height": 1.5,
+      "speed": 3.061369312801325,
+      "x": 188.0,
+      "y": 348.0
+    },
+    {
+      "height": 1.75,
+      "speed": 3.2111292827134337,
+      "x": 188.0,
+      "y": 348.0
+    }
+  ],
+  "receptors": [
+    [
+      [
+        3.003800630569458,
+        -2.661354301380925e-05,
+        -1.3924169252277352e-05
+      ],
+      [
+        3.003809690475464,
+        -1.3709473023482133e-05,
+        -4.726912266050931e-06
+      ],
+      [
+        3.003809690475464,
+        1.736259563900333e-08,
+        3.7332655439259455e-09
+      ],
+      [
+        3.003809690475464,
+        -9.074595454683799e-10,
+        -5.367396697047002e-10
+      ],
+      [
+        2.9943408966064453,
+        -0.007245676591992378,
+        -0.004019575193524361
+      ],
+      [
+        3.007516384124756,
+        0.025186117738485336,
+        -0.014464416541159153
+      ],
+      [
+        3.003799080848694,
+        -0.00041408438664802816,
+        -0.00024623759782116394
+      ],
+      [
+        3.003801703453064,
+        -1.025107287944138e-08,
+        -1.3107880363349977e-06
+      ],
+      [
+        2.901377558708191,
+        0.0056003970094025135,
+        -0.04866775684058666
+      ],
+      [
+        -2.122335433959961,
+        0.17490968480706215,
+        -0.16387906670570374
+      ],
+      [
+        -0.6567091941833496,
+        0.06870987638831139,
+        0.40508053079247475
+      ],
+      [
+        0.6232813727110624,
+        -0.0917135002091527,
+        -0.397113180719316
+      ],
+      [
+        2.9012207984924316,
+        -0.004629078786820173,
+        -0.03869592025876045
+      ],
+      [
+        -0.00908862054347992,
+        0.00948029663413763,
+        0.26218728348612785
+      ],
+      [
+        -0.7457112446427345,
+        -0.03769410774111748,
+        0.41470543667674065
+      ],
+      [
+        0.4186810404062271,
+        0.11930115893483162,
+        -0.17722280696034431
+      ]
+    ],
+    [
+      [
+        3.153787501654079,
+        -2.5814363110081774e-05,
+        -1.4165055498734581e-05
+      ],
+      [
+        3.153796561560085,
+        -1.312931958700081e-05,
+        -4.806305766029094e-06
+      ],
+      [
+        3.1537964224825914,
+        -3.8532539477161937e-07,
+        -1.1947858425726846e-06
+      ],
+      [
+        3.1537964224825914,
+        -8.347605948194955e-10,
+        -5.354310352533179e-10
+      ],
+      [
+        3.1448466658190277,
+        -0.006736516333292247,
+        -0.004348709415874642
+      ],
+      [
+        3.1573492964241576,
+        0.02391399003120285,
+        -0.01437581005279076
+      ],
+      [
+        3.15378880302193,
+        -0.001981343119087653,
+        -0.007849510726933528
+      ],
+      [
+        3.1537917037812866,
+        1.7902733923205573e-07,
+        -6.892310259623458e-06
+      ],
+      [
+        3.04273536671338,
+        0.005524980880415232,
+        -0.060132284048038546
+      ],
+      [
+        -2.0612833002052415,
+        0.20853880090978813,
+        -0.20931590111558956
+      ],
+      [
+        -0.6409416049832175,
+        0.07432750319499758,
+        0.48063035236648144
+      ],
+      [
+        0.6435815919510847,
+        -0.09950394936391618,
+        -0.47737163653095416
+      ],
+      [
+        3.0466089331795265,
+        -0.005447365394954455,
+        -0.05100027016987603
+      ],
+      [
+        -0.0010911865927723252,
+        0.016389445395909846,
+        0.29081888890213925
+      ],
+      [
+        -0.7258358756353751,
+        -0.036138857372770734,
+        0.46820664477338725
+      ],
+      [
+        0.4463130437229472,
+        0.11863466047080345,
+        -0.190263990518158
+      ]
+    ]
+  ],
+  "extension_sha256": "017fcdc6ab8605f1271a61ec04a51afe98aad9a505e35210ba6a56ef0528868b",
+  "backend": "OpenMP CPU",
+  "native_build": {
+    "compiler_id": "AppleClang",
+    "compiler_version": "17.0.0.17000404",
+    "build_type": "Release",
+    "openmp_enabled": true,
+    "fp_contract": "on"
+  },
+  "versions": {
+    "dtcc_qes": "0.1.0b1",
+    "qes": {
+      "version": "v2.3.1",
+      "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+      "version": "0.9.8dev",
+      "revision": "ecd56669cddcabc6de75b6126ae8c2e85c32abd4"
+    },
+    "native_build": {
+      "compiler_id": "AppleClang",
+      "compiler_version": "17.0.0.17000404",
+      "build_type": "Release",
+      "openmp_enabled": true,
+      "fp_contract": "on"
+    }
+  },
+  "effective_domain": {
+    "requested_bounds": [
+      0.0,
+      0.0,
+      0.0,
+      560.0,
+      560.0,
+      99.99999928474426
+    ],
+    "local_bounds": [
+      0.0,
+      0.0,
+      0.0,
+      560.0,
+      560.0,
+      99.99999237060547
+    ],
+    "effective_bounds": [
+      0.0,
+      0.0,
+      0.0,
+      560.0,
+      560.0,
+      99.99999237060547
+    ],
+    "shape": [
+      43,
+      70,
+      70
+    ],
+    "requested_resolution": 8.0,
+    "resolution": 8.0,
+    "vertical_grid": {
+      "mode": "explicit",
+      "generator_version": "explicit-v1",
+      "requested_faces": [
+        0.0,
+        0.4285714328289032,
+        0.8571428656578064,
+        1.2857142984867096,
+        1.7142857313156128,
+        2.142857164144516,
+        2.571428596973419,
+        3.0000000298023224,
+        3.4928571581840515,
+        4.059642851352692,
+        4.711446404457092,
+        5.461020529270172,
+        6.323030769824982,
+        7.314342498779297,
+        8.45435106754303,
+        9.765360832214355,
+        11.265360832214355,
+        12.765360832214355,
+        14.265360832214355,
+        15.765360832214355,
+        17.265360832214355,
+        18.765360832214355,
+        20.265360832214355,
+        21.765360832214355,
+        23.265360832214355,
+        24.865360856056213,
+        26.56536090373993,
+        28.365360856056213,
+        30.265360832214355,
+        32.365360736846924,
+        34.56536078453064,
+        36.96536087989807,
+        39.46536087989807,
+        42.16536092758179,
+        45.27036094665527,
+        48.841110944747925,
+        52.9474732875824,
+        57.66979002952576,
+        63.100454568862915,
+        69.34571862220764,
+        76.52777218818665,
+        84.35184788703918,
+        92.17592358589172,
+        99.99999928474426
+      ],
+      "uniform": false,
+      "effective_faces": [
+        0.0,
+        0.4285714328289032,
+        0.8571428656578064,
+        1.2857142686843872,
+        1.7142857313156128,
+        2.142857074737549,
+        2.5714285373687744,
+        3.0,
+        3.4928572177886963,
+        4.059642791748047,
+        4.711446285247803,
+        5.461020469665527,
+        6.323030471801758,
+        7.314342021942139,
+        8.454350471496582,
+        9.765359878540039,
+        11.265359878540039,
+        12.765359878540039,
+        14.265359878540039,
+        15.765359878540039,
+        17.26535987854004,
+        18.76535987854004,
+        20.26535987854004,
+        21.76535987854004,
+        23.26535987854004,
+        24.865360260009766,
+        26.56536102294922,
+        28.365360260009766,
+        30.26535987854004,
+        32.365360260009766,
+        34.56536102294922,
+        36.965362548828125,
+        39.465362548828125,
+        42.16536331176758,
+        45.270362854003906,
+        48.84111404418945,
+        52.94747543334961,
+        57.66979217529297,
+        63.10045623779297,
+        69.34571838378906,
+        76.52777099609375,
+        84.35184478759766,
+        92.17591857910156,
+        99.99999237060547
+      ],
+      "min_thickness": 0.42857134342193604,
+      "max_thickness": 7.824073791503906,
+      "max_growth_ratio": 1.1500000953674316,
+      "max_thin_cell_aspect_ratio": 18.66666603088379,
+      "max_tall_cell_aspect_ratio": 0.9780094623565674,
+      "roof_representation": [
+        {
+          "source_id": "b000",
+          "requested_height": 22.0,
+          "represented_height": 21.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b001",
+          "requested_height": 28.0,
+          "represented_height": 28.365360260009766,
+          "error": 0.3653602600097656
+        },
+        {
+          "source_id": "b002",
+          "requested_height": 27.0,
+          "represented_height": 26.56536102294922,
+          "error": -0.43463897705078125
+        },
+        {
+          "source_id": "b003",
+          "requested_height": 24.0,
+          "represented_height": 23.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b004",
+          "requested_height": 21.0,
+          "represented_height": 20.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b005",
+          "requested_height": 27.0,
+          "represented_height": 26.56536102294922,
+          "error": -0.43463897705078125
+        },
+        {
+          "source_id": "b006",
+          "requested_height": 15.0,
+          "represented_height": 14.265359878540039,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b007",
+          "requested_height": 19.0,
+          "represented_height": 18.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b008",
+          "requested_height": 19.0,
+          "represented_height": 18.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b009",
+          "requested_height": 20.0,
+          "represented_height": 20.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b010",
+          "requested_height": 17.0,
+          "represented_height": 17.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b011",
+          "requested_height": 28.0,
+          "represented_height": 28.365360260009766,
+          "error": 0.3653602600097656
+        },
+        {
+          "source_id": "b012",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b013",
+          "requested_height": 18.0,
+          "represented_height": 17.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b014",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b015",
+          "requested_height": 22.0,
+          "represented_height": 21.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b016",
+          "requested_height": 22.0,
+          "represented_height": 21.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b017",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b018",
+          "requested_height": 26.0,
+          "represented_height": 26.56536102294922,
+          "error": 0.5653610229492188
+        },
+        {
+          "source_id": "b019",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b020",
+          "requested_height": 15.0,
+          "represented_height": 14.265359878540039,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b021",
+          "requested_height": 26.0,
+          "represented_height": 26.56536102294922,
+          "error": 0.5653610229492188
+        },
+        {
+          "source_id": "b022",
+          "requested_height": 15.0,
+          "represented_height": 14.265359878540039,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b023",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b024",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b025",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b026",
+          "requested_height": 24.0,
+          "represented_height": 23.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b027",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b028",
+          "requested_height": 19.0,
+          "represented_height": 18.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b029",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b030",
+          "requested_height": 17.0,
+          "represented_height": 17.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b031",
+          "requested_height": 18.0,
+          "represented_height": 17.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b032",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b033",
+          "requested_height": 24.0,
+          "represented_height": 23.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b034",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b035",
+          "requested_height": 18.0,
+          "represented_height": 17.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b036",
+          "requested_height": 28.0,
+          "represented_height": 28.365360260009766,
+          "error": 0.3653602600097656
+        },
+        {
+          "source_id": "b037",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b038",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b039",
+          "requested_height": 27.0,
+          "represented_height": 26.56536102294922,
+          "error": -0.43463897705078125
+        },
+        {
+          "source_id": "b040",
+          "requested_height": 15.0,
+          "represented_height": 14.265359878540039,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b041",
+          "requested_height": 25.0,
+          "represented_height": 24.865360260009766,
+          "error": -0.13463973999023438
+        },
+        {
+          "source_id": "b042",
+          "requested_height": 17.0,
+          "represented_height": 17.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b043",
+          "requested_height": 26.0,
+          "represented_height": 26.56536102294922,
+          "error": 0.5653610229492188
+        },
+        {
+          "source_id": "b044",
+          "requested_height": 24.0,
+          "represented_height": 23.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b045",
+          "requested_height": 28.0,
+          "represented_height": 28.365360260009766,
+          "error": 0.3653602600097656
+        },
+        {
+          "source_id": "b046",
+          "requested_height": 25.0,
+          "represented_height": 24.865360260009766,
+          "error": -0.13463973999023438
+        },
+        {
+          "source_id": "b047",
+          "requested_height": 25.0,
+          "represented_height": 24.865360260009766,
+          "error": -0.13463973999023438
+        },
+        {
+          "source_id": "b048",
+          "requested_height": 24.0,
+          "represented_height": 23.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b049",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b050",
+          "requested_height": 22.0,
+          "represented_height": 21.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b051",
+          "requested_height": 27.0,
+          "represented_height": 26.56536102294922,
+          "error": -0.43463897705078125
+        },
+        {
+          "source_id": "b052",
+          "requested_height": 15.0,
+          "represented_height": 14.265359878540039,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b053",
+          "requested_height": 19.0,
+          "represented_height": 18.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b054",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b055",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b056",
+          "requested_height": 22.0,
+          "represented_height": 21.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b057",
+          "requested_height": 28.0,
+          "represented_height": 28.365360260009766,
+          "error": 0.3653602600097656
+        },
+        {
+          "source_id": "b058",
+          "requested_height": 27.0,
+          "represented_height": 26.56536102294922,
+          "error": -0.43463897705078125
+        },
+        {
+          "source_id": "b059",
+          "requested_height": 27.0,
+          "represented_height": 26.56536102294922,
+          "error": -0.43463897705078125
+        },
+        {
+          "source_id": "b060",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b061",
+          "requested_height": 17.0,
+          "represented_height": 17.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b062",
+          "requested_height": 21.0,
+          "represented_height": 20.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b063",
+          "requested_height": 22.0,
+          "represented_height": 21.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b064",
+          "requested_height": 19.0,
+          "represented_height": 18.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b065",
+          "requested_height": 28.0,
+          "represented_height": 28.365360260009766,
+          "error": 0.3653602600097656
+        },
+        {
+          "source_id": "b066",
+          "requested_height": 15.0,
+          "represented_height": 14.265359878540039,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b067",
+          "requested_height": 15.0,
+          "represented_height": 14.265359878540039,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b068",
+          "requested_height": 17.0,
+          "represented_height": 17.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b069",
+          "requested_height": 15.0,
+          "represented_height": 14.265359878540039,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b070",
+          "requested_height": 24.0,
+          "represented_height": 23.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b071",
+          "requested_height": 25.0,
+          "represented_height": 24.865360260009766,
+          "error": -0.13463973999023438
+        },
+        {
+          "source_id": "b072",
+          "requested_height": 18.0,
+          "represented_height": 17.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b073",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b074",
+          "requested_height": 20.0,
+          "represented_height": 20.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b075",
+          "requested_height": 18.0,
+          "represented_height": 17.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b076",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b077",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b078",
+          "requested_height": 15.0,
+          "represented_height": 14.265359878540039,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b079",
+          "requested_height": 17.0,
+          "represented_height": 17.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b080",
+          "requested_height": 17.0,
+          "represented_height": 17.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b081",
+          "requested_height": 26.0,
+          "represented_height": 26.56536102294922,
+          "error": 0.5653610229492188
+        },
+        {
+          "source_id": "b082",
+          "requested_height": 19.0,
+          "represented_height": 18.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b083",
+          "requested_height": 15.0,
+          "represented_height": 14.265359878540039,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b084",
+          "requested_height": 19.0,
+          "represented_height": 18.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b085",
+          "requested_height": 26.0,
+          "represented_height": 26.56536102294922,
+          "error": 0.5653610229492188
+        },
+        {
+          "source_id": "b086",
+          "requested_height": 21.0,
+          "represented_height": 20.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b087",
+          "requested_height": 24.0,
+          "represented_height": 23.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b088",
+          "requested_height": 27.0,
+          "represented_height": 26.56536102294922,
+          "error": -0.43463897705078125
+        },
+        {
+          "source_id": "b089",
+          "requested_height": 17.0,
+          "represented_height": 17.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b090",
+          "requested_height": 24.0,
+          "represented_height": 23.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b091",
+          "requested_height": 26.0,
+          "represented_height": 26.56536102294922,
+          "error": 0.5653610229492188
+        },
+        {
+          "source_id": "b092",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b093",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b094",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b095",
+          "requested_height": 18.0,
+          "represented_height": 17.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b096",
+          "requested_height": 24.0,
+          "represented_height": 23.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b097",
+          "requested_height": 28.0,
+          "represented_height": 28.365360260009766,
+          "error": 0.3653602600097656
+        },
+        {
+          "source_id": "b098",
+          "requested_height": 22.0,
+          "represented_height": 21.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b099",
+          "requested_height": 27.0,
+          "represented_height": 26.56536102294922,
+          "error": -0.43463897705078125
+        },
+        {
+          "source_id": "b100",
+          "requested_height": 21.0,
+          "represented_height": 20.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b101",
+          "requested_height": 21.0,
+          "represented_height": 20.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b102",
+          "requested_height": 24.0,
+          "represented_height": 23.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b103",
+          "requested_height": 28.0,
+          "represented_height": 28.365360260009766,
+          "error": 0.3653602600097656
+        },
+        {
+          "source_id": "b104",
+          "requested_height": 21.0,
+          "represented_height": 20.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b105",
+          "requested_height": 20.0,
+          "represented_height": 20.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b106",
+          "requested_height": 20.0,
+          "represented_height": 20.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b107",
+          "requested_height": 15.0,
+          "represented_height": 14.265359878540039,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b108",
+          "requested_height": 24.0,
+          "represented_height": 23.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b109",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b110",
+          "requested_height": 20.0,
+          "represented_height": 20.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b111",
+          "requested_height": 21.0,
+          "represented_height": 20.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b112",
+          "requested_height": 26.0,
+          "represented_height": 26.56536102294922,
+          "error": 0.5653610229492188
+        },
+        {
+          "source_id": "b113",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b114",
+          "requested_height": 26.0,
+          "represented_height": 26.56536102294922,
+          "error": 0.5653610229492188
+        },
+        {
+          "source_id": "b115",
+          "requested_height": 27.0,
+          "represented_height": 26.56536102294922,
+          "error": -0.43463897705078125
+        },
+        {
+          "source_id": "b116",
+          "requested_height": 15.0,
+          "represented_height": 14.265359878540039,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b117",
+          "requested_height": 22.0,
+          "represented_height": 21.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b118",
+          "requested_height": 20.0,
+          "represented_height": 20.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b119",
+          "requested_height": 25.0,
+          "represented_height": 24.865360260009766,
+          "error": -0.13463973999023438
+        },
+        {
+          "source_id": "b120",
+          "requested_height": 28.0,
+          "represented_height": 28.365360260009766,
+          "error": 0.3653602600097656
+        },
+        {
+          "source_id": "b121",
+          "requested_height": 26.0,
+          "represented_height": 26.56536102294922,
+          "error": 0.5653610229492188
+        },
+        {
+          "source_id": "b122",
+          "requested_height": 18.0,
+          "represented_height": 17.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b123",
+          "requested_height": 25.0,
+          "represented_height": 24.865360260009766,
+          "error": -0.13463973999023438
+        },
+        {
+          "source_id": "b124",
+          "requested_height": 18.0,
+          "represented_height": 17.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b125",
+          "requested_height": 24.0,
+          "represented_height": 23.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b126",
+          "requested_height": 17.0,
+          "represented_height": 17.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b127",
+          "requested_height": 19.0,
+          "represented_height": 18.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b128",
+          "requested_height": 27.0,
+          "represented_height": 26.56536102294922,
+          "error": -0.43463897705078125
+        },
+        {
+          "source_id": "b129",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b130",
+          "requested_height": 27.0,
+          "represented_height": 26.56536102294922,
+          "error": -0.43463897705078125
+        },
+        {
+          "source_id": "b131",
+          "requested_height": 21.0,
+          "represented_height": 20.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b132",
+          "requested_height": 18.0,
+          "represented_height": 17.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b133",
+          "requested_height": 19.0,
+          "represented_height": 18.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b134",
+          "requested_height": 18.0,
+          "represented_height": 17.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b135",
+          "requested_height": 25.0,
+          "represented_height": 24.865360260009766,
+          "error": -0.13463973999023438
+        },
+        {
+          "source_id": "b136",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b137",
+          "requested_height": 15.0,
+          "represented_height": 14.265359878540039,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b138",
+          "requested_height": 26.0,
+          "represented_height": 26.56536102294922,
+          "error": 0.5653610229492188
+        },
+        {
+          "source_id": "b139",
+          "requested_height": 19.0,
+          "represented_height": 18.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b140",
+          "requested_height": 25.0,
+          "represented_height": 24.865360260009766,
+          "error": -0.13463973999023438
+        },
+        {
+          "source_id": "b141",
+          "requested_height": 25.0,
+          "represented_height": 24.865360260009766,
+          "error": -0.13463973999023438
+        },
+        {
+          "source_id": "b142",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b143",
+          "requested_height": 20.0,
+          "represented_height": 20.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b144",
+          "requested_height": 25.0,
+          "represented_height": 24.865360260009766,
+          "error": -0.13463973999023438
+        },
+        {
+          "source_id": "b145",
+          "requested_height": 22.0,
+          "represented_height": 21.76535987854004,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b146",
+          "requested_height": 24.0,
+          "represented_height": 23.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b147",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b148",
+          "requested_height": 20.0,
+          "represented_height": 20.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b149",
+          "requested_height": 17.0,
+          "represented_height": 17.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b150",
+          "requested_height": 18.0,
+          "represented_height": 17.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b151",
+          "requested_height": 20.0,
+          "represented_height": 20.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b152",
+          "requested_height": 16.0,
+          "represented_height": 15.765359878540039,
+          "error": -0.23464012145996094
+        },
+        {
+          "source_id": "b153",
+          "requested_height": 27.0,
+          "represented_height": 26.56536102294922,
+          "error": -0.43463897705078125
+        },
+        {
+          "source_id": "b154",
+          "requested_height": 26.0,
+          "represented_height": 26.56536102294922,
+          "error": 0.5653610229492188
+        },
+        {
+          "source_id": "b155",
+          "requested_height": 25.0,
+          "represented_height": 24.865360260009766,
+          "error": -0.13463973999023438
+        },
+        {
+          "source_id": "b156",
+          "requested_height": 18.0,
+          "represented_height": 17.26535987854004,
+          "error": -0.7346401214599609
+        },
+        {
+          "source_id": "b157",
+          "requested_height": 27.0,
+          "represented_height": 26.56536102294922,
+          "error": -0.43463897705078125
+        },
+        {
+          "source_id": "b158",
+          "requested_height": 23.0,
+          "represented_height": 23.26535987854004,
+          "error": 0.26535987854003906
+        },
+        {
+          "source_id": "b159",
+          "requested_height": 17.0,
+          "represented_height": 17.26535987854004,
+          "error": 0.26535987854003906
+        }
+      ]
+    },
+    "effective_horizontal_padding": null,
+    "max_cells": 40000000
+  },
+  "process_seconds": 0.9911543750204146,
+  "source_id": "sha256:c0d2f0260170482fe195e3a7541205a5c5487810bebf4a25c7be0d0e86a86c0c"
+}

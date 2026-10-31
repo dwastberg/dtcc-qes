@@ -1,0 +1,10 @@
+{
+  "reason": "The 96x80 graded domain-control reference triple fails the unchanged qualification gate. No work escalation or policy threshold change. Restrict release to 80x80x32; larger domains remain bounded/unaccepted.",
+  "policy_parameters_unchanged": true,
+  "excluded": "val_mixed_graded_domain_300",
+  "horizontal_cells": [
+    80,
+    80
+  ],
+  "reference_qualification_sha256": "63402eb6b89424a48bf17db34028d2559493c5a60fc125fe92bc084d453a26d6"
+}

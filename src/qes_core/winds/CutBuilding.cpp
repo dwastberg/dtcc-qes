@@ -50,6 +50,7 @@
  */
 void CutBuilding::setCutCellFlags(WINDSGeneralData *WGD, const PolyBuilding *PolyB, int building_number)
 {
+  WGD->ensureCutCellStorage();
 
   float ray_intersect;
   int num_crossing, start_poly;

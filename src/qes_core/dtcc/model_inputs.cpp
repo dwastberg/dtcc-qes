@@ -30,70 +30,66 @@ void flag(int value, int maximum, const char *name)
     throw std::invalid_argument(std::string("Unsupported ") + name);
 }
 
-double cross(const polyVert &a, const polyVert &b, const polyVert &c)
-{
-  return (double(b.x_poly)-a.x_poly)*(double(c.y_poly)-a.y_poly)
-       - (double(b.y_poly)-a.y_poly)*(double(c.x_poly)-a.x_poly);
+double cross(const polyVert &a, const polyVert &b, const polyVert &c) {
+  return (double(b.x_poly) - a.x_poly) * (double(c.y_poly) - a.y_poly) -
+         (double(b.y_poly) - a.y_poly) * (double(c.x_poly) - a.x_poly);
 }
-bool on_segment(const polyVert &a, const polyVert &b, const polyVert &p)
-{
-  return cross(a,b,p)==0 && p.x_poly>=std::min(a.x_poly,b.x_poly)
-    && p.x_poly<=std::max(a.x_poly,b.x_poly) && p.y_poly>=std::min(a.y_poly,b.y_poly)
-    && p.y_poly<=std::max(a.y_poly,b.y_poly);
+bool on_segment(const polyVert &a, const polyVert &b, const polyVert &p) {
+  return cross(a, b, p) == 0 && p.x_poly >= std::min(a.x_poly, b.x_poly) && p.x_poly <= std::max(a.x_poly, b.x_poly) &&
+         p.y_poly >= std::min(a.y_poly, b.y_poly) && p.y_poly <= std::max(a.y_poly, b.y_poly);
 }
-bool intersects(const polyVert &a, const polyVert &b, const polyVert &c, const polyVert &d)
-{
-  const auto ab_c=cross(a,b,c), ab_d=cross(a,b,d), cd_a=cross(c,d,a), cd_b=cross(c,d,b);
-  return (((ab_c>0 && ab_d<0)||(ab_c<0 && ab_d>0))
-       && ((cd_a>0 && cd_b<0)||(cd_a<0 && cd_b>0)))
-       || on_segment(a,b,c)||on_segment(a,b,d)||on_segment(c,d,a)||on_segment(c,d,b);
+bool intersects(const polyVert &a, const polyVert &b, const polyVert &c, const polyVert &d) {
+  const auto ab_c = cross(a, b, c), ab_d = cross(a, b, d), cd_a = cross(c, d, a), cd_b = cross(c, d, b);
+  return (((ab_c > 0 && ab_d < 0) || (ab_c < 0 && ab_d > 0)) && ((cd_a > 0 && cd_b < 0) || (cd_a < 0 && cd_b > 0))) ||
+         on_segment(a, b, c) || on_segment(a, b, d) || on_segment(c, d, a) || on_segment(c, d, b);
 }
-bool in_ring(const std::vector<polyVert> &v, std::size_t begin, std::size_t end, const polyVert &p)
-{
-  bool inside=false;
-  for (auto i=begin; i+1<end; ++i) {
-    const auto &a=v[i], &b=v[i+1];
-    if ((a.y_poly>p.y_poly)!=(b.y_poly>p.y_poly)
-        && p.x_poly < a.x_poly+(double(p.y_poly)-a.y_poly)*(b.x_poly-a.x_poly)/(b.y_poly-a.y_poly)) inside=!inside;
+bool in_ring(const std::vector<polyVert> &v, std::size_t begin, std::size_t end, const polyVert &p) {
+  bool inside = false;
+  for (auto i = begin; i + 1 < end; ++i) {
+    const auto &a = v[i], &b = v[i + 1];
+    if ((a.y_poly > p.y_poly) != (b.y_poly > p.y_poly) &&
+        p.x_poly < a.x_poly + (double(p.y_poly) - a.y_poly) * (b.x_poly - a.x_poly) / (b.y_poly - a.y_poly))
+      inside = !inside;
   }
   return inside;
 }
-void validate_rings(const std::vector<polyVert> &v, const std::vector<std::size_t> &offsets)
-{
-  double net=0;
-  for (std::size_t r=0; r+1<offsets.size(); ++r) {
-    const auto begin=offsets[r], end=offsets[r+1];
-    if (end-begin<4 || v[begin].x_poly!=v[end-1].x_poly || v[begin].y_poly!=v[end-1].y_poly)
+void validate_rings(const std::vector<polyVert> &v, const std::vector<std::size_t> &offsets) {
+  double net = 0;
+  for (std::size_t r = 0; r + 1 < offsets.size(); ++r) {
+    const auto begin = offsets[r], end = offsets[r + 1];
+    if (end - begin < 4 || v[begin].x_poly != v[end - 1].x_poly || v[begin].y_poly != v[end - 1].y_poly)
       throw std::invalid_argument("Each building ring must be closed with at least four vertices");
-    double area=0;
-    for (auto i=begin; i+1<end; ++i) {
-      area+=double(v[i].x_poly)*v[i+1].y_poly-double(v[i].y_poly)*v[i+1].x_poly;
-      for (auto j=i+1; j+1<end; ++j) {
-        if (j==i+1 || (i==begin && j==end-2)) continue;
-        if (intersects(v[i],v[i+1],v[j],v[j+1]))
+    double area = 0;
+    for (auto i = begin; i + 1 < end; ++i) {
+      area += double(v[i].x_poly) * v[i + 1].y_poly - double(v[i].y_poly) * v[i + 1].x_poly;
+      for (auto j = i + 1; j + 1 < end; ++j) {
+        if (j == i + 1 || (i == begin && j == end - 2))
+          continue;
+        if (intersects(v[i], v[i + 1], v[j], v[j + 1]))
           throw std::invalid_argument("Building rings must be simple without self intersections");
       }
     }
-    if ((r==0 && area>=0)||(r>0 && area<=0))
-      throw std::invalid_argument("Building outer ring must have positive area and clockwise winding; holes counter-clockwise");
-    net+=area;
-    for (std::size_t other=0; other<r; ++other) {
-      for (auto i=begin; i+1<end; ++i)
-        for (auto j=offsets[other]; j+1<offsets[other+1]; ++j)
-          if (intersects(v[i],v[i+1],v[j],v[j+1]))
+    if ((r == 0 && area >= 0) || (r > 0 && area <= 0))
+      throw std::invalid_argument(
+          "Building outer ring must have positive area and clockwise winding; holes counter-clockwise");
+    net += area;
+    for (std::size_t other = 0; other < r; ++other) {
+      for (auto i = begin; i + 1 < end; ++i)
+        for (auto j = offsets[other]; j + 1 < offsets[other + 1]; ++j)
+          if (intersects(v[i], v[i + 1], v[j], v[j + 1]))
             throw std::invalid_argument("Building rings may not touch or intersect");
-      if (other>0 && (in_ring(v,offsets[other],offsets[other+1],v[begin])
-          || in_ring(v,begin,end,v[offsets[other]])))
+      if (other > 0 &&
+          (in_ring(v, offsets[other], offsets[other + 1], v[begin]) || in_ring(v, begin, end, v[offsets[other]])))
         throw std::invalid_argument("Building holes may not overlap or nest");
     }
-    if (r>0 && !in_ring(v,0,offsets[1],v[begin]))
+    if (r > 0 && !in_ring(v, 0, offsets[1], v[begin]))
       throw std::invalid_argument("Building hole must be inside its outer ring");
   }
-  if (net>=0) throw std::invalid_argument("Building must have positive net area");
+  if (net >= 0)
+    throw std::invalid_argument("Building must have positive net area");
 }
 
-std::vector<float> narrow_layers(const GridConfig &grid)
-{
+std::vector<float> narrow_layers(const GridConfig &grid) {
   if (grid.dz_layers.size() != static_cast<std::size_t>(grid.nz))
     throw std::invalid_argument("Vertical layer count must match nz");
   std::vector<float> layers;
@@ -197,6 +193,8 @@ ModelInputs::ModelInputs(const GridConfig &grid, const ModelSettings &model, con
   parameterizations.exposedFaces = model.exposed_faces;
   parameterizations.canonicalFaces = !arrays.ring_offsets.empty();
 
+  parameterizations.validateWakeDependencies();
+
   const auto count = arrays.heights.size();
   if (arrays.vertices.size() % 2 || arrays.offsets.size() != count + 1
       || arrays.base_heights.size() != count || arrays.ids.size() != count)
@@ -258,16 +256,34 @@ ModelInputs::ModelInputs(const GridConfig &grid, const ModelSettings &model, con
 
 void ModelInputs::set_condition(const WindCondition &condition)
 {
-  const float speed = narrow(condition.speed, "Wind speed");
-  const float direction = narrow(condition.direction, "Wind direction");
-  const float height = positive(condition.reference_height, "Reference height");
+  // Validate and narrow the complete condition before replacing active inputs.
+  InflowCondition candidate = inflow;
+  candidate.profile_kind = condition.profile_kind;
+  candidate.layer_u.clear(); candidate.layer_v.clear();
+  candidate.site_U_ref = narrow(condition.speed, "Wind speed");
+  candidate.site_wind_dir = narrow(condition.direction, "Wind direction");
+  candidate.site_z_ref = positive(condition.reference_height, "Reference height");
   if (condition.speed < 0 || condition.direction < 0 || condition.direction >= 360)
     throw std::invalid_argument("Wind speed must be nonnegative and direction must be in [0, 360)");
-  const float ratio = (height + inflow.site_z0) / inflow.site_z0;
-  if (!std::isfinite(ratio) || ratio <= 1)
-    throw std::invalid_argument("Reference height and roughness cannot form a finite float32 log profile");
-  inflow.site_U_ref = speed;
-  inflow.site_wind_dir = direction;
-  inflow.site_z_ref = height;
+  if (condition.profile_kind == ProfileKind::Log) {
+    if (!condition.layer_u.empty() || !condition.layer_v.empty())
+      throw std::invalid_argument("Log conditions cannot contain a layer table");
+    const float ratio = (candidate.site_z_ref + candidate.site_z0) / candidate.site_z0;
+    if (!std::isfinite(ratio) || ratio <= 1)
+      throw std::invalid_argument("Reference height and roughness cannot form a finite float32 log profile");
+  } else if (condition.profile_kind == ProfileKind::LayerTable) {
+    if (condition.layer_u.size() != static_cast<std::size_t>(nz) || condition.layer_v.size() != condition.layer_u.size())
+      throw std::invalid_argument("Layer table must have one u/v value per physical layer");
+    candidate.layer_u.reserve(nz); candidate.layer_v.reserve(nz);
+    for (int k = 0; k < nz; ++k) {
+      const float u = narrow(condition.layer_u[k], "Layer u"), v = narrow(condition.layer_v[k], "Layer v");
+      const float speed = narrow(std::hypot(double(u), double(v)), "Layer speed");
+      narrow(1.2 * speed, "Layer velocity limit");
+      candidate.layer_u.push_back(u); candidate.layer_v.push_back(v);
+    }
+  } else {
+    throw std::invalid_argument("Unsupported profile kind");
+  }
+  inflow = std::move(candidate);
 }
 }

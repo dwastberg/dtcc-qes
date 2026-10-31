@@ -1,0 +1,15 @@
+Test project /Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s7/sanitizers
+    Start 39: condition_mask
+1/5 Test #39: condition_mask ...................   Passed    9.25 sec
+    Start 40: equation_residual
+2/5 Test #40: equation_residual ................   Passed    0.28 sec
+    Start 41: solver_monitor
+3/5 Test #41: solver_monitor ...................   Passed    3.14 sec
+    Start 42: solver_control
+4/5 Test #42: solver_control ...................   Passed    0.86 sec
+    Start 43: pedestrian_policy
+5/5 Test #43: pedestrian_policy ................   Passed    9.65 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =  23.19 sec

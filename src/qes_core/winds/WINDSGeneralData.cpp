@@ -37,6 +37,7 @@
 #include "util/QESLog.h"
 #include "WINDSGeneralData.h"
 #include "LogProfile.h"
+#include "LayerProfile.h"
 #include "PolyBuilding.h"
 
 #include <chrono>
@@ -74,6 +75,7 @@ WINDSGeneralData::WINDSGeneralData(qes::Domain domain_in, const std::vector<Buil
   // former XML-driven setup reduces to the statements below, in their order.
   if (!std::isfinite(site_z0) || site_z0 <= 0)
     throw qes::InputError("Sensor roughness must be positive and stability must be finite");
+  parameterizations.validateWakeDependencies();
 
   qes::log::info() << "-------------------------------------------------------------------" << std::endl;
   qes::log::info() << "[QES-WINDS]\t Initialization of wind model...\n";
@@ -254,19 +256,10 @@ void WINDSGeneralData::allocateMemory()
   m.resize(numcell_cent, 1.0);
   n.resize(numcell_cent, 1.0);
 
-  building_volume_frac.resize(numcell_cent, 1.0);
-  ni.resize(numcell_cent, 0.0);
-  nj.resize(numcell_cent, 0.0);
-  nk.resize(numcell_cent, 0.0);
-  center_id.resize(numcell_cent, 1);
-  wall_distance.resize(numcell_cent, 0.0);
-
   icellflag.resize(numcell_cent, 1);
   icellflag_initial.resize(numcell_cent, 1);
 
   ibuilding_flag.resize(numcell_cent, -1);
-
-  mixingLengths.resize(numcell_cent, 0.0);
 
   terrain.resize(numcell_cout_2d, 0.0);
   terrain_face_id.resize(domain.nx() * domain.ny(), 1);
@@ -281,6 +274,19 @@ void WINDSGeneralData::allocateMemory()
   v.resize(numcell_face, 0.0);
   w.resize(numcell_face, 0.0);
 
+}
+
+void WINDSGeneralData::ensureCutCellStorage()
+{
+  const auto count = domain.numCellCentered();
+  building_volume_frac.resize(count, 1.0f);
+  ni.resize(count, 0.0f); nj.resize(count, 0.0f); nk.resize(count, 0.0f);
+  center_id.resize(count, 1); wall_distance.resize(count, 0.0f);
+}
+
+void WINDSGeneralData::ensureMixingLengthStorage()
+{
+  mixingLengths.resize(domain.numCellCentered(), 0.0);
 }
 
 
@@ -300,15 +306,21 @@ void WINDSGeneralData::applyWindProfile(const InflowCondition &inflow)
 
   auto start_InputWindProfile = std::chrono::high_resolution_clock::now();// Finish recording execution time
 
-  applyLogProfile(inflow, this);
+  if (inflow.profile_kind == dtcc_qes::ProfileKind::Log) applyLogProfile(inflow, this);
+  else applyLayerProfile(inflow, this);
 
   max_velmag = 0.0;
-  for (auto i = 0; i < domain.nx(); i++) {
-    for (auto j = 0; j < domain.ny(); j++) {
-      // int icell_face = i + j * nx + (nz - 2) * nx * ny;
-      long icell_face = domain.face(i, j, domain.nz() - 2);
-      max_velmag = MAX_S(max_velmag, sqrt(pow(u0[icell_face], 2.0) + pow(v0[icell_face], 2.0)));
+  if (inflow.profile_kind == dtcc_qes::ProfileKind::Log) {
+    // Keep the legacy top-layer expressions, order and operand types.
+    for (auto i = 0; i < domain.nx(); i++) {
+      for (auto j = 0; j < domain.ny(); j++) {
+        long icell_face = domain.face(i, j, domain.nz() - 2);
+        max_velmag = MAX_S(max_velmag, sqrt(pow(u0[icell_face], 2.0) + pow(v0[icell_face], 2.0)));
+      }
     }
+  } else {
+    for (std::size_t k = 0; k < inflow.layer_u.size(); ++k)
+      max_velmag = std::max(max_velmag, static_cast<float>(std::hypot(double(inflow.layer_u[k]), double(inflow.layer_v[k]))));
   }
   max_velmag *= 1.2;
 
@@ -321,6 +333,8 @@ void WINDSGeneralData::applyWindProfile(const InflowCondition &inflow)
 
 void WINDSGeneralData::applyParametrizations()
 {
+  parameterizations.validateWakeDependencies();
+  for (auto *building : allBuildingsV) building->resetConditionState();
 
   auto start_param = std::chrono::high_resolution_clock::now();// Start recording execution time
   qes::log::info() << "[QES-WINDS]\t Applying parameterizations...\n";
@@ -447,6 +461,9 @@ void WINDSGeneralData::mergeSort(std::vector<float> &effective_height, std::vect
 
 void WINDSGeneralData::validateInflow(const InflowCondition &inflow) const
 {
+  if (inflow.profile_kind != dtcc_qes::ProfileKind::Log
+      && inflow.profile_kind != dtcc_qes::ProfileKind::LayerTable)
+    throw qes::InputError("Unsupported profile kind");
   const float x = inflow.site_xcoord, y = inflow.site_ycoord;
   if (!std::isfinite(x) || !std::isfinite(y) || x < 0 || y < 0
       || x >= (domain.nx() - 1) * domain.dx()

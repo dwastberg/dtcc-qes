@@ -1,0 +1,13 @@
+{
+  "dtcc_core_version": "0.9.8dev",
+  "dtcc_core_direct_url": {
+    "url": "https://github.com/dtcc-platform/dtcc-core.git",
+    "vcs_info": {
+      "vcs": "git",
+      "commit_id": "80a4bbae2760e891e2a0be4175d67bf3340a8e67",
+      "requested_revision": "dev/footprint-cleaning-update"
+    }
+  },
+  "numpy_version": "2.5.4",
+  "qualification": "Native/compiler/source identity and full default metadata/field parity passed against S7; installed-wheel runtime passed. Live project dependency-source edit excluded."
+}

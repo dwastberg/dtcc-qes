@@ -266,6 +266,40 @@ in [`dataset-verification.json`](data/building-contacts/dataset-verification.jso
 Earlier baseline and resolved comparison artifacts below retain their original
 capture counts and provenance.
 
+## End-to-end review and integration
+
+The feature was reviewed against committed main `3ae4157`. The merge preserves
+wind profiles, speedup export, bounded/adaptive solver controls, sampling and
+their existing validation. Profile tables are evaluated after canonical geometry
+and the final grid stabilize, in both the public and dataset paths.
+
+The review fixed dataset preparation silently omitting unsupported nested
+buildings/parts. Source-tree validation and world-ring validation are now shared,
+including rejection before cleaning. Preparation borrows unrelated city context
+read-only instead of deep-copying terrain, point clouds and unused building
+geometry. Error attribution preserves original source IDs even when they resemble
+internal component names. Regression tests cover those failures and compare
+stepped datasets, direct solves and previews with profiles and bounded controls
+on uniform and automatic grids.
+
+Adaptive-policy qualification from main is bound to a frozen native fingerprint.
+These native changes invalidate that fingerprint; this build correctly remains
+`unqualified_build`. The frozen qualification is unchanged. The private native
+`solver_policy_build_supported` flag exposes the existing policy decision, and
+`versions.native_build` records it. Acceptance tests and wheel smoke checks use
+the actual gate, rather than inferring qualification from compiler identity.
+Requalifying the policy is separate work and is not a generic geometry check.
+
+Review verification passed **1,274 Python tests**, with **24 existing conditional
+skips**, and **290 OpenMP integration tests**. Native suites passed **47 serial**,
+**50 OpenMP** and **47 address/undefined-behavior sanitizer checks**. Serial and
+OpenMP symbol audits passed. A wheel built from the source distribution passed
+package/license checks and runtime smoke checks, including podium/tower ring
+occupancy, owned output, profiles, bounded errors and adaptive qualification.
+See [`review-verification.json`](data/building-contacts/review-verification.json).
+Earlier comparison and dataset artifacts retain their original capture counts
+and source hashes. No AIJ conversion, case run or physical validation was added.
+
 ## Checks
 
 `tests/test_contact_artifacts.py` exercises the metric on manufactured data,

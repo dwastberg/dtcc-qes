@@ -1,0 +1,5452 @@
+{
+  "request": {
+    "case": "val_staggered_240",
+    "variant": "invalid_receptor",
+    "rep": 0,
+    "threads": 4,
+    "budget": 5.0,
+    "iterations": 2000,
+    "id": "online-34"
+  },
+  "status": "completed",
+  "api_seconds": 0.028341291996184736,
+  "diagnostics": {
+    "iterations": 1,
+    "max_lagrange_multiplier_change": 19.10873031616211,
+    "tolerance": 9.999999747378752e-06,
+    "converged": false,
+    "max_divergence": 7.167710542678833,
+    "rms_divergence": 0.47905496547692117,
+    "top_band_max_divergence": 0.0,
+    "divergence_cell_count": 177664,
+    "top_band_cell_count": 6084,
+    "precision": "float32"
+  },
+  "control": {
+    "mode": "adaptive",
+    "termination_reason": "invalid_support",
+    "accuracy_status": "unaccepted",
+    "phase": "",
+    "iterations": 1,
+    "actual_threads": 4,
+    "policy": "pedestrian-v1",
+    "method": "s5c-rb-sor-float-omega-v1-omega-1.90",
+    "assessment_scope": "pedestrian_roi_and_required_receptors",
+    "assessment_reason": "invalid_required_or_empty_support",
+    "accepted": false,
+    "assessment_count": 1,
+    "assessment": {
+      "iteration": 1,
+      "consecutive": 0,
+      "safeguards_passed": false,
+      "candidate": false,
+      "ready": false,
+      "accepted": false,
+      "prediction": {
+        "available": false,
+        "reason": "warming_up",
+        "current_tail_reason": "warming_up",
+        "fresh_tail_available": false,
+        "anchor_iteration": null,
+        "vector_p95": null,
+        "vector_maximum": null,
+        "speed_p95": null,
+        "speed_maximum": null,
+        "required_maximum": null,
+        "hotspot_maximum": null,
+        "q_minimum": null,
+        "q_maximum": null
+      },
+      "relative_residual_maximum": 2.2350445000768717,
+      "relative_residual_rms": 2.289124920832973,
+      "scaled_mass_maximum": 33.97494797229767,
+      "scaled_mass_rms": 4.296136074427205,
+      "residual_cells": 183748,
+      "mass_regions": 3
+    },
+    "assessment_history": [
+      {
+        "iteration": 1,
+        "consecutive": 0,
+        "safeguards_passed": false,
+        "candidate": false,
+        "ready": false,
+        "accepted": false,
+        "prediction": {
+          "available": false,
+          "reason": "warming_up",
+          "current_tail_reason": "warming_up",
+          "fresh_tail_available": false,
+          "anchor_iteration": null,
+          "vector_p95": null,
+          "vector_maximum": null,
+          "speed_p95": null,
+          "speed_maximum": null,
+          "required_maximum": null,
+          "hotspot_maximum": null,
+          "q_minimum": null,
+          "q_maximum": null
+        },
+        "relative_residual_maximum": 2.2350445000768717,
+        "relative_residual_rms": 2.289124920832973,
+        "scaled_mass_maximum": 33.97494797229767,
+        "scaled_mass_rms": 4.296136074427205,
+        "residual_cells": 183748,
+        "mass_regions": 3
+      }
+    ],
+    "policy_parameters": {
+      "safety_factor": 8.0,
+      "minimum_iterations": 150,
+      "maximum_ratio": 0.8,
+      "anchor_maximum_sweeps": 100,
+      "consecutive_checkpoints": 3,
+      "vector_p95": 0.0005,
+      "vector_maximum": 0.001,
+      "speed_p95": 0.0005,
+      "speed_maximum": 0.001,
+      "mass_length_m": 23.7,
+      "scaled_mass_maximum": 0.001,
+      "scaled_mass_rms": 0.0001,
+      "relative_residual_maximum": 0.001,
+      "relative_residual_rms": 0.0001
+    },
+    "legacy_tolerance_satisfied": false,
+    "history_truncated": false,
+    "checkpoint_count": 2,
+    "monitor_bytes": 2205946,
+    "regions": [
+      {
+        "name": "global",
+        "bounds": [
+          1,
+          79,
+          1,
+          79,
+          0,
+          31
+        ],
+        "excluded_lateral_cells": 10112,
+        "excluded_highest_cells": 6084
+      },
+      {
+        "name": "height:0",
+        "bounds": [
+          4,
+          76,
+          4,
+          76,
+          0,
+          2
+        ],
+        "excluded_lateral_cells": 0,
+        "excluded_highest_cells": 0
+      },
+      {
+        "name": "height:1",
+        "bounds": [
+          4,
+          76,
+          4,
+          76,
+          0,
+          2
+        ],
+        "excluded_lateral_cells": 0,
+        "excluded_highest_cells": 0
+      }
+    ],
+    "checkpoint_history": [
+      {
+        "iteration": 0,
+        "initial": true,
+        "required_receptors_valid": false,
+        "elapsed_seconds": 0.004891041084192693,
+        "heights": [
+          {
+            "height_agl": 1.5,
+            "points": 5184,
+            "valid": 4482,
+            "peak": {
+              "valid": true,
+              "point": 1602,
+              "location": {
+                "x": 45.0,
+                "y": 53.0,
+                "height_agl": 1.5
+              },
+              "speed": 5.072889754573242,
+              "speed_factor": 1.0145779509146484
+            },
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "height_agl": 1.75,
+            "points": 5184,
+            "valid": 4482,
+            "peak": {
+              "valid": true,
+              "point": 1602,
+              "location": {
+                "x": 45.0,
+                "y": 53.0,
+                "height_agl": 1.75
+              },
+              "speed": 5.088912454907973,
+              "speed_factor": 1.0177824909815947
+            },
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          }
+        ],
+        "receptors": [
+          {
+            "receptor": 0,
+            "required": true,
+            "location": {
+              "x": 29.0,
+              "y": 29.0,
+              "height_agl": 1.5
+            },
+            "sample": {
+              "valid": false,
+              "velocity": [
+                null,
+                null,
+                null
+              ]
+            },
+            "speed": null,
+            "speed_factor": null,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 1,
+            "required": true,
+            "location": {
+              "x": 19.0,
+              "y": 31.0,
+              "height_agl": 1.5
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                2.4928479194641113,
+                1.4392464756965637,
+                0.0
+              ]
+            },
+            "speed": 2.8784928638753873,
+            "speed_factor": 0.5756985727750774,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 2,
+            "required": true,
+            "location": {
+              "x": 19.0,
+              "y": 31.0,
+              "height_agl": 1.75
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                2.6143617630004883,
+                1.5094025433063507,
+                0.0
+              ]
+            },
+            "speed": 3.0188049730942708,
+            "speed_factor": 0.6037609946188541,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 3,
+            "required": true,
+            "location": {
+              "x": 44.0,
+              "y": 53.0,
+              "height_agl": 1.5
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                -4.211169004440308,
+                -2.053660526871681,
+                0.13572297400969546
+              ]
+            },
+            "speed": 4.687204568744965,
+            "speed_factor": 0.9374409137489931,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 4,
+            "required": true,
+            "location": {
+              "x": 44.0,
+              "y": 53.0,
+              "height_agl": 1.75
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                -4.211169004440308,
+                -2.0929261967539787,
+                0.149295271410665
+              ]
+            },
+            "speed": 4.704952021762116,
+            "speed_factor": 0.9409904043524232,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 5,
+            "required": true,
+            "location": {
+              "x": 69.0,
+              "y": 77.0,
+              "height_agl": 1.5
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                0.9433666467666626,
+                1.1014170944690704,
+                0.0
+              ]
+            },
+            "speed": 1.450193175484034,
+            "speed_factor": 0.29003863509680683,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 6,
+            "required": true,
+            "location": {
+              "x": 69.0,
+              "y": 77.0,
+              "height_agl": 1.75
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                0.9903622269630432,
+                1.1562338918447495,
+                0.0
+              ]
+            },
+            "speed": 1.522397501720774,
+            "speed_factor": 0.30447950034415483,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 7,
+            "required": true,
+            "location": {
+              "x": 94.0,
+              "y": 101.0,
+              "height_agl": 1.5
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                2.2911441922187805,
+                1.3007349967956543,
+                0.0
+              ]
+            },
+            "speed": 2.6346258256964763,
+            "speed_factor": 0.5269251651392952,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 8,
+            "required": true,
+            "location": {
+              "x": 94.0,
+              "y": 101.0,
+              "height_agl": 1.75
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                2.405631512403488,
+                1.3660545647144318,
+                0.0
+              ]
+            },
+            "speed": 2.7664359828569736,
+            "speed_factor": 0.5532871965713947,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 9,
+            "required": true,
+            "location": {
+              "x": 125.0,
+              "y": 125.0,
+              "height_agl": 1.5
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                2.4928479194641113,
+                1.4392464756965637,
+                0.0
+              ]
+            },
+            "speed": 2.8784928638753873,
+            "speed_factor": 0.5756985727750774,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 10,
+            "required": true,
+            "location": {
+              "x": 125.0,
+              "y": 125.0,
+              "height_agl": 1.75
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                2.6143617630004883,
+                1.5094025433063507,
+                0.0
+              ]
+            },
+            "speed": 3.0188049730942708,
+            "speed_factor": 0.6037609946188541,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          }
+        ],
+        "mass": [
+          {
+            "region": 0,
+            "divergence": {
+              "interior_max": 3.2069653682410717,
+              "interior_rms": 0.20927427730156561,
+              "top_band_max": 0.0,
+              "cells": 177664,
+              "top_band_cells": 6084
+            },
+            "interior": {
+              "net_cell_flux": -183.54284477233887,
+              "boundary_flux": -183.54284477233887,
+              "absolute_cell_flux": 60130.52139664441,
+              "throughflow": 5588617.71950133,
+              "low_flow_cells": 0,
+              "resolved_cells": 0,
+              "unassessed_cells": 177664,
+              "relative_max": null,
+              "relative_rms": null
+            },
+            "top_band": {
+              "net_cell_flux": 0.0,
+              "boundary_flux": 0.0,
+              "absolute_cell_flux": 0.0,
+              "throughflow": 231045.83792495728,
+              "low_flow_cells": 0,
+              "resolved_cells": 0,
+              "unassessed_cells": 6084,
+              "relative_max": null,
+              "relative_rms": null
+            }
+          },
+          {
+            "region": 1,
+            "divergence": {
+              "interior_max": 3.2069653682410717,
+              "interior_rms": 0.39620052840167697,
+              "top_band_max": 0.0,
+              "cells": 8964,
+              "top_band_cells": 0
+            },
+            "interior": {
+              "net_cell_flux": -216.6981081198901,
+              "boundary_flux": -216.6981081198901,
+              "absolute_cell_flux": 13906.423041256145,
+              "throughflow": 122928.12521647569,
+              "low_flow_cells": 0,
+              "resolved_cells": 0,
+              "unassessed_cells": 8964,
+              "relative_max": null,
+              "relative_rms": null
+            },
+            "top_band": {
+              "net_cell_flux": 0.0,
+              "boundary_flux": 0.0,
+              "absolute_cell_flux": 0.0,
+              "throughflow": 0.0,
+              "low_flow_cells": 0,
+              "resolved_cells": 0,
+              "unassessed_cells": 0,
+              "relative_max": null,
+              "relative_rms": null
+            }
+          },
+          {
+            "region": 2,
+            "divergence": {
+              "interior_max": 3.2069653682410717,
+              "interior_rms": 0.39620052840167697,
+              "top_band_max": 0.0,
+              "cells": 8964,
+              "top_band_cells": 0
+            },
+            "interior": {
+              "net_cell_flux": -216.6981081198901,
+              "boundary_flux": -216.6981081198901,
+              "absolute_cell_flux": 13906.423041256145,
+              "throughflow": 122928.12521647569,
+              "low_flow_cells": 0,
+              "resolved_cells": 0,
+              "unassessed_cells": 8964,
+              "relative_max": null,
+              "relative_rms": null
+            },
+            "top_band": {
+              "net_cell_flux": 0.0,
+              "boundary_flux": 0.0,
+              "absolute_cell_flux": 0.0,
+              "throughflow": 0.0,
+              "low_flow_cells": 0,
+              "resolved_cells": 0,
+              "unassessed_cells": 0,
+              "relative_max": null,
+              "relative_rms": null
+            }
+          }
+        ],
+        "residual_trend": null
+      },
+      {
+        "iteration": 1,
+        "initial": false,
+        "required_receptors_valid": false,
+        "elapsed_seconds": 0.010890666046179831,
+        "heights": [
+          {
+            "height_agl": 1.5,
+            "points": 5184,
+            "valid": 4482,
+            "peak": {
+              "valid": true,
+              "point": 1675,
+              "location": {
+                "x": 47.0,
+                "y": 55.0,
+                "height_agl": 1.5
+              },
+              "speed": 5.078792891598109,
+              "speed_factor": 1.015758578319622
+            },
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "height_agl": 1.75,
+            "points": 5184,
+            "valid": 4482,
+            "peak": {
+              "valid": true,
+              "point": 1675,
+              "location": {
+                "x": 47.0,
+                "y": 55.0,
+                "height_agl": 1.75
+              },
+              "speed": 5.102768460589558,
+              "speed_factor": 1.0205536921179115
+            },
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          }
+        ],
+        "receptors": [
+          {
+            "receptor": 0,
+            "required": true,
+            "location": {
+              "x": 29.0,
+              "y": 29.0,
+              "height_agl": 1.5
+            },
+            "sample": {
+              "valid": false,
+              "velocity": [
+                null,
+                null,
+                null
+              ]
+            },
+            "speed": null,
+            "speed_factor": null,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 1,
+            "required": true,
+            "location": {
+              "x": 19.0,
+              "y": 31.0,
+              "height_agl": 1.5
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                2.4443846940994263,
+                1.4392464756965637,
+                0.0
+              ]
+            },
+            "speed": 2.836625980024953,
+            "speed_factor": 0.5673251960049905,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 2,
+            "required": true,
+            "location": {
+              "x": 19.0,
+              "y": 31.0,
+              "height_agl": 1.75
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                2.5416669249534607,
+                1.5094025433063507,
+                0.0
+              ]
+            },
+            "speed": 2.956072867021728,
+            "speed_factor": 0.5912145734043456,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 3,
+            "required": true,
+            "location": {
+              "x": 44.0,
+              "y": 53.0,
+              "height_agl": 1.5
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                -3.2749650478363037,
+                -2.05229389667511,
+                0.03434300050139427
+              ]
+            },
+            "speed": 3.865033731361576,
+            "speed_factor": 0.7730067462723152,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 4,
+            "required": true,
+            "location": {
+              "x": 44.0,
+              "y": 53.0,
+              "height_agl": 1.75
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                -3.25114244222641,
+                -2.063121974468231,
+                0.05872741714119911
+              ]
+            },
+            "speed": 3.850954215607305,
+            "speed_factor": 0.770190843121461,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 5,
+            "required": true,
+            "location": {
+              "x": 69.0,
+              "y": 77.0,
+              "height_agl": 1.5
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                0.4945974051952362,
+                1.2124584317207336,
+                0.5091354846954346
+              ]
+            },
+            "speed": 1.4049558653753564,
+            "speed_factor": 0.28099117307507127,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 6,
+            "required": true,
+            "location": {
+              "x": 69.0,
+              "y": 77.0,
+              "height_agl": 1.75
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                0.6693782359361649,
+                1.319930523633957,
+                0.3699052929878235
+              ]
+            },
+            "speed": 1.5254880319904287,
+            "speed_factor": 0.30509760639808575,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 7,
+            "required": true,
+            "location": {
+              "x": 94.0,
+              "y": 101.0,
+              "height_agl": 1.5
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                1.5816607549786568,
+                1.4757287800312042,
+                -0.09253022074699402
+              ]
+            },
+            "speed": 2.1651762094119564,
+            "speed_factor": 0.4330352418823913,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 8,
+            "required": true,
+            "location": {
+              "x": 94.0,
+              "y": 101.0,
+              "height_agl": 1.75
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                1.725615944713354,
+                1.5448508709669113,
+                -0.07631562650203705
+              ]
+            },
+            "speed": 2.3173559668347425,
+            "speed_factor": 0.46347119336694853,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 9,
+            "required": true,
+            "location": {
+              "x": 125.0,
+              "y": 125.0,
+              "height_agl": 1.5
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                2.4904582500457764,
+                1.383291780948639,
+                -0.01923500746488571
+              ]
+            },
+            "speed": 2.848903022563826,
+            "speed_factor": 0.5697806045127651,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          },
+          {
+            "receptor": 10,
+            "required": true,
+            "location": {
+              "x": 125.0,
+              "y": 125.0,
+              "height_agl": 1.75
+            },
+            "sample": {
+              "valid": true,
+              "velocity": [
+                2.610777258872986,
+                1.450779765844345,
+                -0.01923500746488571
+              ]
+            },
+            "speed": 2.9868528269641756,
+            "speed_factor": 0.5973705653928352,
+            "short_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            },
+            "long_change": {
+              "available": false,
+              "from_iteration": 0,
+              "to_iteration": 0,
+              "common_valid": 0,
+              "validity_changes": 0,
+              "vector_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "vector_over_uref": {
+                "p95": null,
+                "maximum": null
+              },
+              "speed_factor_change": {
+                "p95": null,
+                "maximum": null
+              },
+              "ratios": {
+                "vector_p95": null,
+                "vector_max": null,
+                "speed_p95": null,
+                "speed_max": null
+              },
+              "hotspots": [
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                },
+                {
+                  "present": false,
+                  "point": 0,
+                  "location": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "height_agl": 0.0
+                  },
+                  "before": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "current": {
+                    "valid": false,
+                    "velocity": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  },
+                  "vector_change": null,
+                  "speed_change": null
+                }
+              ]
+            }
+          }
+        ],
+        "mass": [
+          {
+            "region": 0,
+            "divergence": {
+              "interior_max": 7.167710542678833,
+              "interior_rms": 0.47905496547692117,
+              "top_band_max": 0.0,
+              "cells": 177664,
+              "top_band_cells": 6084
+            },
+            "interior": {
+              "net_cell_flux": -216.82539463043202,
+              "boundary_flux": -216.82539463043213,
+              "absolute_cell_flux": 160147.6774135395,
+              "throughflow": 5603379.864458243,
+              "low_flow_cells": 0,
+              "resolved_cells": 0,
+              "unassessed_cells": 177664,
+              "relative_max": null,
+              "relative_rms": null
+            },
+            "top_band": {
+              "net_cell_flux": 0.0,
+              "boundary_flux": 0.0,
+              "absolute_cell_flux": 0.0,
+              "throughflow": 231045.83792495728,
+              "low_flow_cells": 0,
+              "resolved_cells": 0,
+              "unassessed_cells": 6084,
+              "relative_max": null,
+              "relative_rms": null
+            }
+          },
+          {
+            "region": 1,
+            "divergence": {
+              "interior_max": 5.5462706089019775,
+              "interior_rms": 0.9063578216091149,
+              "top_band_max": 0.0,
+              "cells": 8964,
+              "top_band_cells": 0
+            },
+            "interior": {
+              "net_cell_flux": -251.68401257693768,
+              "boundary_flux": -251.68401257693768,
+              "absolute_cell_flux": 35279.32127866894,
+              "throughflow": 124981.44440907985,
+              "low_flow_cells": 0,
+              "resolved_cells": 0,
+              "unassessed_cells": 8964,
+              "relative_max": null,
+              "relative_rms": null
+            },
+            "top_band": {
+              "net_cell_flux": 0.0,
+              "boundary_flux": 0.0,
+              "absolute_cell_flux": 0.0,
+              "throughflow": 0.0,
+              "low_flow_cells": 0,
+              "resolved_cells": 0,
+              "unassessed_cells": 0,
+              "relative_max": null,
+              "relative_rms": null
+            }
+          },
+          {
+            "region": 2,
+            "divergence": {
+              "interior_max": 5.5462706089019775,
+              "interior_rms": 0.9063578216091149,
+              "top_band_max": 0.0,
+              "cells": 8964,
+              "top_band_cells": 0
+            },
+            "interior": {
+              "net_cell_flux": -251.68401257693768,
+              "boundary_flux": -251.68401257693768,
+              "absolute_cell_flux": 35279.32127866894,
+              "throughflow": 124981.44440907985,
+              "low_flow_cells": 0,
+              "resolved_cells": 0,
+              "unassessed_cells": 8964,
+              "relative_max": null,
+              "relative_rms": null
+            },
+            "top_band": {
+              "net_cell_flux": 0.0,
+              "boundary_flux": 0.0,
+              "absolute_cell_flux": 0.0,
+              "throughflow": 0.0,
+              "low_flow_cells": 0,
+              "resolved_cells": 0,
+              "unassessed_cells": 0,
+              "relative_max": null,
+              "relative_rms": null
+            }
+          }
+        ],
+        "residual_trend": null
+      }
+    ],
+    "monitor": {
+      "region": [
+        8.0,
+        152.0,
+        8.0,
+        152.0
+      ],
+      "heights": [
+        1.5,
+        1.75
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "crs": "",
+      "reference_speed": 5.0,
+      "short_window": 1,
+      "long_window": 4,
+      "history_limit": 16,
+      "memory_limit_bytes": 67108864,
+      "global_mass": true,
+      "low_flow_fraction": null,
+      "frame": "local",
+      "receptors": [
+        {
+          "x": 29.0,
+          "y": 29.0,
+          "height_agl": 1.5,
+          "id": "solid",
+          "required": true
+        },
+        {
+          "x": 19.0,
+          "y": 31.0,
+          "height_agl": 1.5,
+          "id": "r0-h1.5",
+          "required": true
+        },
+        {
+          "x": 19.0,
+          "y": 31.0,
+          "height_agl": 1.75,
+          "id": "r0-h1.75",
+          "required": true
+        },
+        {
+          "x": 44.0,
+          "y": 53.0,
+          "height_agl": 1.5,
+          "id": "r1-h1.5",
+          "required": true
+        },
+        {
+          "x": 44.0,
+          "y": 53.0,
+          "height_agl": 1.75,
+          "id": "r1-h1.75",
+          "required": true
+        },
+        {
+          "x": 69.0,
+          "y": 77.0,
+          "height_agl": 1.5,
+          "id": "r2-h1.5",
+          "required": true
+        },
+        {
+          "x": 69.0,
+          "y": 77.0,
+          "height_agl": 1.75,
+          "id": "r2-h1.75",
+          "required": true
+        },
+        {
+          "x": 94.0,
+          "y": 101.0,
+          "height_agl": 1.5,
+          "id": "r3-h1.5",
+          "required": true
+        },
+        {
+          "x": 94.0,
+          "y": 101.0,
+          "height_agl": 1.75,
+          "id": "r3-h1.75",
+          "required": true
+        },
+        {
+          "x": 125.0,
+          "y": 125.0,
+          "height_agl": 1.5,
+          "id": "r4-h1.5",
+          "required": true
+        },
+        {
+          "x": 125.0,
+          "y": 125.0,
+          "height_agl": 1.75,
+          "id": "r4-h1.75",
+          "required": true
+        }
+      ],
+      "mass_regions": []
+    },
+    "requested": {
+      "max_solve_seconds": 5.0,
+      "checkpoint_interval": 25,
+      "residual_interval": 0,
+      "policy": "pedestrian-v1"
+    },
+    "timings": {
+      "preparation_seconds": 0.00350175,
+      "mutex_wait_seconds": 1.5409896150231361e-06,
+      "initialization_seconds": 0.003996291081421077,
+      "workspace_seconds": 1.795799471437931e-05,
+      "rhs_seconds": 0.0007289580535143614,
+      "sweeps_seconds": 0.0001504579558968544,
+      "monitoring_seconds": 0.013991167885251343,
+      "finalization_seconds": 0.0018945829942822456,
+      "postprocessing_seconds": 1.208973117172718e-06,
+      "output_transfer_seconds": 0.000402917,
+      "solve_seconds": 0.01888745801988989,
+      "native_total_seconds": 0.02078837505541742,
+      "deadline_overshoot_seconds": 0.0
+    },
+    "execution": {
+      "precision": "float32",
+      "backend": "OpenMP CPU",
+      "sweep_order": "red_black",
+      "native_build": {
+        "compiler_id": "AppleClang",
+        "compiler_version": "17.0.0.17000404",
+        "build_type": "Release",
+        "openmp_enabled": true,
+        "fp_contract": "on"
+      },
+      "source_revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71",
+      "shape": [
+        32,
+        80,
+        80
+      ]
+    }
+  },
+  "shape": [
+    32,
+    80,
+    80
+  ],
+  "plane_points": 5184,
+  "field_hashes": {
+    "velocity": "8d69a07f19c929b116611b9a6b937924b6126a0090f33c01519d12115b3671d3",
+    "cell_flags": "70d890f6397775cea7936b0fe683dcffadc7c273fa417bf917dd58c6951320f6",
+    "x": "59a205543445c79593beb3319df7becfc2572092a937747857a2ff57e4966637",
+    "y": "59a205543445c79593beb3319df7becfc2572092a937747857a2ff57e4966637",
+    "z": "e114a6317c0168dbcb229a2355aead0ebfb5c5cb656d4d1f845976790ad475d4",
+    "z_faces": "c79c0d9918e60281293523f8b18c1dbe36a9b392162a93af70c51b2c75ace9b0"
+  },
+  "peak_rss_bytes": 233586688,
+  "native_build": {
+    "compiler_id": "AppleClang",
+    "compiler_version": "17.0.0.17000404",
+    "build_type": "Release",
+    "openmp_enabled": true,
+    "fp_contract": "on"
+  },
+  "extension_sha256": "67a6b2cc372d6d51c7065ed15478137fe517474edc16850ea462c79944777084",
+  "transfer_included": true,
+  "owned_outputs": true
+}

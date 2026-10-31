@@ -3,6 +3,7 @@
 import argparse
 import gzip
 import hashlib
+import io
 import json
 from email.parser import BytesParser
 from pathlib import Path
@@ -37,7 +38,8 @@ def check_wheel(path):
         require(any(name.startswith("dtcc_qes/_qes.") and name.endswith((".so", ".pyd")) for name in names),
                 "Wheel omits native extension")
         for name in ("wind.py", "result.py", "_city.py", "footprints.py", "_footprints.py", "vertical_grid.py", "_auto_grid.py",
-                     "_turbulence_domain.py", "turbulence.py", "comfort.py", "_qes_revision.txt"):
+                     "_turbulence_domain.py", "turbulence.py", "comfort.py", "datasets.py",
+                     "_dataset_city.py", "solver_control.py", "profiles.py", "_qes_revision.txt"):
             require("dtcc_qes/" + name in names, f"Wheel omits {name}")
         require(len(archive.read("dtcc_qes/_qes_revision.txt").strip()) == 40, "Missing source revision")
 
@@ -48,10 +50,23 @@ def check_sdist(path):
         for name in (
             "LICENSE", "NOTICE", "README.md", "pyproject.toml", "uv.lock", "CMakeLists.txt",
             "src/qes_core/LICENSE", "src/qes_core/PROVENANCE.md", "src/qes_core/CMakeLists.txt",
-            "src/qes_core/winds/Solver_CPU.cpp", "src/qes_core/winds/Solver_CPU_RB.cpp",
-            "src/qes_core/winds/Solver_CPU_RB.h", "src/qes_core/qes/Domain.cpp",
+            "docs/solver-control-contract.md", "docs/solver-control-s0.md", "docs/solver-control-s1.md",
+            "docs/solver-control-s1a.md", "tests/test_condition_state.py",
+            "tools/profile_solver_baseline.py", "tools/solver_profile_hooks.h",
+            "tests/test_solver_baseline_profile.py", "docs/data/solver-control-s0/manifest.json",
+            "src/qes_core/solver/solver.h", "src/qes_core/solver/solver.cpp",
+            "src/qes_core/solver/cpu_float32.cpp", "src/qes_core/solver/cpu_float64.cpp",
+            "src/qes_core/solver/mass_diagnostics.h", "tests/native/check_solver_phases.cpp",
+            "src/qes_core/qes/Domain.cpp",
             "src/qes_core/winds/WindModelInputs.h", "src/qes_core/winds/LogProfile.cpp",
+            "src/qes_core/winds/LayerProfile.cpp", "src/qes_core/winds/LayerProfile.h",
+            "src/qes_core/dtcc/api/profile_types.h", "src/dtcc_qes/profiles.py",
+            "WIND_PROFILES.md", "docs/wind-profiles.md", "tests/test_profiles.py",
+            "tests/native/check_profiles.cpp", "tools/verify_wind_profiles.py", "examples/wind_profiles.py",
+            "tools/check_wind_profile_policy.py", "docs/wind-profiles-verification.md",
             "src/cpp/bindings.cpp", "src/qes_core/dtcc/wind_runner.cpp", "src/qes_core/dtcc/model_inputs.cpp",
+            "src/dtcc_qes/datasets.py", "src/dtcc_qes/_dataset_city.py", "tests/test_datasets.py",
+            "tests/test_dataset_vertical_grid.py", "examples/city_dataset.py",
             "src/qes_core/dtcc/divergence.cpp", "src/qes_core/dtcc/divergence.h",
             "src/qes_core/dtcc/api/stress_validity.h", "tests/native/check_turbulence.cpp",
             "src/qes_core/dtcc/turbulence.h", "src/qes_core/dtcc/turbulence.cpp",
@@ -65,7 +80,7 @@ def check_sdist(path):
             "docs/turbulence-benchmark.md", "docs/data/turbulence-benchmark/benchmark.json",
             "docs/data/turbulence-benchmark/benchmark-runs.json.gz",
             "docs/data/turbulence-benchmark/verification.json",
-            "src/qes_core/dtcc/precision_solver.cpp", "src/qes_core/dtcc/precision_solver.h", "tests/native/check_precision.cpp",
+            "tests/native/check_precision.cpp",
             "tests/test_precision.py", "tests/test_precision_verification.py", "tools/run_precision_verification.py",
             "tools/audit_precision_verification.py", "tools/plot_precision_verification.py",
             "docs/data/precision-remedy/audit.json", "docs/data/precision-remedy/verification.png",
@@ -121,7 +136,15 @@ def check_sdist(path):
             "docs/data/horizontal-sensitivity/serial/summary.json",
             "docs/data/horizontal-sensitivity/openmp/raw.json.gz",
             "docs/data/horizontal-sensitivity/openmp/summary.json",
-            "DYNAMIC_VERTICAL_GRID.md", "docs/vertical-grid-gate.md",
+            "DYNAMIC_VERTICAL_GRID.md", "SOLVER_CONTROL_REFACTOR.md", "docs/vertical-grid-gate.md",
+            "tools/run_practical_vertical_grid.py", "tests/test_practical_vertical_grid.py",
+            "tests/test_practical_vertical_grid_audit.py",
+            "docs/data/practical-vertical-grid/protocol.json",
+            "docs/data/practical-vertical-grid/references.json.gz",
+            "docs/data/practical-vertical-grid/executions.json",
+            "docs/data/practical-vertical-grid/summary.json", "docs/data/practical-vertical-grid/audit.json",
+            "docs/data/practical-vertical-grid/cases/generated-2000.json.gz",
+            "docs/data/practical-vertical-grid/cases/uniform-2000.json.gz",
             "docs/data/vertical-grid-gate/raw.json.gz", "docs/data/vertical-grid-gate/summary.json",
             "tools/vertical_grid_study.cpp", "tools/run_vertical_grid_study.py",
             "tools/vertical_grid_diagnostics.cpp", "tools/vertical_grid_diagnostics.h",
@@ -291,6 +314,137 @@ def check_sdist(path):
         evidence.extend(study + "sources/" + name for name in manifest["source_sha256"])
         for name in evidence:
             require(name in members, f"Source distribution omits finest-reference evidence {name}")
+        study = "docs/data/solver-control-s0/"
+        manifest = json.load(archive.extractfile(members[study + "manifest.json"]))
+        summary = json.load(archive.extractfile(members[study + "summary.json"]))
+        require(summary["completed"] and summary["parity_passed"], "Incomplete solver-control baseline profile")
+        for name, sha in manifest["files"].items():
+            require(study + name in members, f"Source distribution omits solver-control baseline {name}")
+            require(hashlib.sha256(archive.extractfile(members[study + name]).read()).hexdigest() == sha,
+                    f"Solver-control baseline evidence changed: {name}")
+        study = "docs/data/solver-control-s1/"
+        require(study + "manifest.json" in members, "Source distribution omits S1 manifest")
+        manifest = json.load(archive.extractfile(members[study + "manifest.json"]))
+        for name, sha in manifest["files"].items():
+            require(study + name in members, f"Source distribution omits S1 evidence {name}")
+            require(hashlib.sha256(archive.extractfile(members[study + name]).read()).hexdigest() == sha,
+                    f"S1 evidence changed: {name}")
+        with tarfile.open(fileobj=io.BytesIO(archive.extractfile(members[study + "sources.tar.gz"]).read())) as snapshot:
+            for name, sha in manifest["sources"].items():
+                require(hashlib.sha256(snapshot.extractfile(name).read()).hexdigest() == sha,
+                        f"S1 source snapshot changed: {name}")
+        parity = json.loads(gzip.decompress(archive.extractfile(members[study + "parity.json.gz"]).read()))
+        strict = [r for r in parity["comparisons"] if r["kind"] in ("revision", "team")]
+        require(len(strict) == 8 and all(not r["differences"] for r in strict), "S1 bitwise comparison failed")
+        require(all(r["cases"] == 429 for r in strict if r["kind"] == "revision"), "S1 comparison matrix incomplete")
+        study = "docs/data/solver-control-s1a/"
+        require(study + "manifest.json" in members, "Source distribution omits S1a manifest")
+        manifest = json.load(archive.extractfile(members[study + "manifest.json"]))
+        for name, sha in manifest["files"].items():
+            require(study + name in members, f"Source distribution omits S1a evidence {name}")
+            require(hashlib.sha256(archive.extractfile(members[study + name]).read()).hexdigest() == sha,
+                    f"S1a evidence changed: {name}")
+        with tarfile.open(fileobj=io.BytesIO(archive.extractfile(members[study + "sources.tar.gz"]).read())) as snapshot:
+            for name, sha in manifest["sources"].items():
+                require(hashlib.sha256(snapshot.extractfile(name).read()).hexdigest() == sha,
+                        f"S1a source snapshot changed: {name}")
+        changes = json.loads(gzip.decompress(archive.extractfile(members[study + "changes-from-s1.json.gz"]).read()))
+        for record in changes["comparisons"]:
+            if record["kind"] == "revision":
+                require(record["differences"] == manifest["expected_changed_records"][record["backend"]],
+                        "S1a changed records differ from the reviewed condition-state correction")
+            elif record["kind"] == "team":
+                require(not record["differences"], "S1a differs between OpenMP teams")
+        parity = json.loads(gzip.decompress(archive.extractfile(members[study + "baseline-parity.json.gz"]).read()))
+        strict = [r for r in parity["comparisons"] if r["kind"] in ("revision", "team")]
+        require(parity["passed"] and len(strict) == 8 and all(not r["differences"] for r in strict),
+                "Corrected S1a baseline comparison failed")
+        require(parity["baseline_revision"] == "sha256:" + manifest["files"]["sources.tar.gz"],
+                "S1a comparison used a different corrected source snapshot")
+        require(all(r["cases"] == 429 for r in strict if r["kind"] == "revision"), "S1a comparison matrix incomplete")
+        study = "docs/data/solver-control-s2/"
+        for name in ("docs/solver-control-s2.md", "tools/profile_solver_s2.py", "tools/check_solver_study_parity.py",
+                     "tests/test_solver_s2_profile.py", study + "manifest.json"):
+            require(name in members, f"Source distribution omits S2 source/evidence {name}")
+        manifest = json.load(archive.extractfile(members[study + "manifest.json"]))
+        require(manifest["baseline_source_id"] == "sha256:6fcdfab1abe30e254721495d2fe453f9e4c7eb89be89421df29eb44663e08d76",
+                "S2 used a different corrected baseline")
+        for name, sha in manifest["files"].items():
+            require(study + name in members, f"Source distribution omits S2 evidence {name}")
+            require(hashlib.sha256(archive.extractfile(members[study + name]).read()).hexdigest() == sha,
+                    f"S2 evidence changed: {name}")
+        for name, index in manifest["sources"].items():
+            with tarfile.open(fileobj=io.BytesIO(archive.extractfile(members[study + name]).read())) as snapshot:
+                for path, sha in index["files"].items():
+                    require(hashlib.sha256(snapshot.extractfile(path).read()).hexdigest() == sha,
+                            f"S2 source snapshot changed: {name}/{path}")
+        for stage in ("baseline-corrected", "norm", "operator", "allocation", "ordering"):
+            summary = json.load(archive.extractfile(members[study + stage + "/summary.json"]))
+            require(summary["completed"] and summary["parity_passed"], f"S2 profile incomplete: {stage}")
+        for stage in ("norm", "operator", "allocation"):
+            parity = json.loads(gzip.decompress(archive.extractfile(members[study + stage + "-parity.json.gz"]).read()))
+            strict = [r for r in parity["comparisons"] if r["kind"] in ("revision", "team")]
+            require(parity["passed"] and len(strict) == 8 and all(not r["differences"] for r in strict),
+                    f"S2 strict numerical gate failed: {stage}")
+        parity = json.loads(gzip.decompress(archive.extractfile(members[study + "ordering-parity.json.gz"]).read()))
+        migration = [r for r in parity["comparisons"] if r["kind"] == "ordering_migration"]
+        require(parity["passed"] and parity["ordering_migration"] and len(migration) == 4
+                and all(r["passed"] and r["exact_serial_change_set"] for r in migration),
+                "S2 serial ordering migration failed")
+        for stage in ("norm", "ordering"):
+            parity = json.loads(gzip.decompress(archive.extractfile(members[study + stage + "-study-parity.json.gz"]).read()))
+            require(parity["passed"] and all(r["passed"] for r in parity["comparisons"]),
+                    f"S2 study/lexicographic gate failed: {stage}")
+        study = "docs/data/solver-control-s3/"
+        for name in ("docs/solver-control-s3.md", "src/qes_core/dtcc/api/monitor_types.h",
+                     "src/qes_core/dtcc/monitor.h", "src/qes_core/dtcc/monitor.cpp",
+                     "tests/native/check_monitor.cpp", "tests/test_monitor.py",
+                     "tools/solver_monitor_probe.cpp", "tools/profile_solver_monitor.py", study + "manifest.json"):
+            require(name in members, f"Source distribution omits S3 source/evidence {name}")
+        manifest = json.load(archive.extractfile(members[study + "manifest.json"]))
+        require(manifest["baseline_source_id"] == "sha256:931408afbf86a578b978f17dc15b8bb9f8fdccc9522ebe86da8c6c499f13d803",
+                "S3 used a different S2 baseline")
+        for name, sha in manifest["files"].items():
+            require(study + name in members, f"Source distribution omits S3 evidence {name}")
+            require(hashlib.sha256(archive.extractfile(members[study + name]).read()).hexdigest() == sha,
+                    f"S3 evidence changed: {name}")
+        with tarfile.open(fileobj=io.BytesIO(archive.extractfile(members[study + "sources.tar.gz"]).read())) as snapshot:
+            for name, sha in manifest["sources"].items():
+                require(hashlib.sha256(snapshot.extractfile(name).read()).hexdigest() == sha,
+                        f"S3 source snapshot changed: {name}")
+        parity = json.loads(gzip.decompress(archive.extractfile(members[study + "parity.json.gz"]).read()))
+        require(parity["passed"] and not parity["ordering_migration"]
+                and parity["baseline_revision"] == manifest["baseline_source_id"]
+                and parity["candidate"] == manifest["source_id"], "S3 strict baseline/candidate identity failed")
+        require(len(parity["comparisons"]) == 12 and all(not r["differences"] for r in parity["comparisons"]),
+                "S3 revision/team/backend comparison failed")
+        require(all(r["cases"] == 429 for r in parity["comparisons"] if r["kind"] == "revision"),
+                "S3 comparison matrix incomplete")
+        summary = json.load(archive.extractfile(members[study + "profile/summary.json"]))
+        require(summary["completed"] and summary["parity_passed"], "S3 bounded overhead matrix incomplete")
+        for name in ("src/qes_core/dtcc/api/control_types.h", "src/qes_core/dtcc/api/diagnostic_types.h",
+                     "src/qes_core/dtcc/solver_control.h", "src/qes_core/dtcc/solver_control.cpp",
+                     "src/cpp/control_bindings.h", "src/dtcc_qes/solver_control.py", "tests/test_solver_control.py",
+                     "tests/native/check_solver_control.cpp", "tools/benchmark_urban_wind.py", "tools/urban_wind_cases.py",
+                     "docs/urban-wind-benchmarks.md", "docs/solver-control-s4.md"):
+            require(name in members, f"Source distribution omits S4 source/documentation {name}")
+        for name in (
+            "SOLVER_CONTROL_REFACTOR.md", "docs/solver-control-s5.md", "docs/solver-control-s6.md",
+            "docs/solver-control-s7.md", "docs/solver-control-s8a.md", "docs/solver-control-s9.md",
+            "src/qes_core/dtcc/api/policy_types.h", "src/qes_core/dtcc/pedestrian_policy.h",
+            "src/qes_core/dtcc/pedestrian_policy.cpp", "src/qes_core/dtcc/pedestrian_qualification.h",
+            "tests/native/check_equation_residual.cpp", "tests/native/check_pedestrian_policy.cpp",
+            "tests/test_adaptive_control.py", "tests/test_solver_policy_audit.py",
+            "tests/test_urban_campaign.py", "tests/test_prepared_wind_study.py", "tests/test_solver_release.py",
+            "tools/run_urban_benchmarks.py", "tools/reproduce_solver_policy.py", "tools/audit_solver_policy.py",
+            "tools/benchmark_prepared_wind.py", "tools/reproduce_prepared_wind.py", "tools/audit_prepared_wind.py",
+            "tools/validate_solver_release.py", "tools/audit_solver_release.py", "tools/wheel_runtime_smoke.py",
+            "tools/publish_solver_release.py",
+            "docs/data/solver-control-s9/scope.json",
+        ):
+            require(name in members, f"Source distribution omits final solver-control source/documentation {name}")
+        for stage in ('s5', 's6', 's7', 's8a'):
+            require(f'docs/data/solver-control-{stage}/manifest.json' in members, f"Source distribution omits {stage} evidence")
         require(not any(name.startswith((".idea/", "build/", ".venv/", ".pytest_cache/")) for name in members),
                 "Private build/environment/cache files in sdist")
         require(not any(name.startswith("QES-Public/") for name in members),

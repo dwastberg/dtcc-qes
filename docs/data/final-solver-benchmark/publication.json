@@ -1,0 +1,18 @@
+{
+  "schema": "final-solver-benchmark-publication-v1",
+  "original_manifest_sha256": "78be268280b72bb9276db1625c2fd78c3b5bf198d95e101e07eaecb79c15ebab",
+  "files": {
+    "controls-pilot.tar.gz": "0640b530f02d347a1a3582e263224c7d7318ab8d4916eefb5cefbd31a6bc1421",
+    "final-results.tar.gz": "3ada41995b2725499b786d9e01e7416ea248b38c429defc89f3ad252b46ddae5",
+    "overall-core-long-runs-00-05.tar.gz": "4770665c8f05f450f03027386069c1d8052d6c5470d1cfa474e0e6005a3bd90a",
+    "overall-core-long-runs-06-11.tar.gz": "84ca40da4abf3a7fe263e415f1cb27d084693a9c70eb2fee1b48fb54c05c07c7",
+    "overall-core-long-runs-12-17.tar.gz": "dd6a4a8f8a8099fa182d14ccd4c366e5452caa9d1c37b24976d299c2f073dbb6",
+    "overall-core-long.tar.gz": "3238f7788fbdb60c97f3214b934fbc9a457d68e141c1be0a3c091f9ff1b4b872",
+    "overall-pilot.tar.gz": "3d7327118efb3c0d59728dd291e2c938e315b3be5b6de5bdede5b4311050ca7f",
+    "performance.png": "43000fd08212cf4da357b89ae78fcf7598f4eb56619cc949163f5b38455da837",
+    "performance.svg": "1b264a128b8f17270cc080d411fa439343473963f395161bebbbfed392b622be",
+    "protocol.json": "34de3964610475d21906b6d9838925939cc9f54749ea7c198d936c486bdf03d1",
+    "results.json": "84117494ed809bea612bd16bfbc425e67eb86a83a3a3cf7ddbf9c91a15323d7c"
+  },
+  "report_sha256": "1ff6f977e840f4bf9b48985867c60074e3ded3eb35cc21262de7865edb5b78ea"
+}

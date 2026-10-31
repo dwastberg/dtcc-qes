@@ -1,0 +1,9 @@
+[10:24:24] [dtcc-qes] [info] Wind grid 80 x 80 x 32, 4 buildings: 250 
+iterations, converged=False, max_divergence=1.3113021850585938e-05 s^-1
+[10:24:24] [dtcc-qes] [info] Wind grid 12 x 12 x 16, 0 buildings: 1 iterations, 
+converged=True, max_divergence=0.0 s^-1
+[10:24:24] [dtcc-qes] [info] Wind grid 12 x 12 x 16, 0 buildings: 1 iterations, 
+converged=True, max_divergence=0.0 s^-1
+[10:24:24] [dtcc-qes] [info] Wind grid 12 x 12 x 16, 0 buildings: 1 iterations, 
+converged=True, max_divergence=0.0 s^-1
+{"passed": true, "package": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/wheel-envs/765d5cf4/lib/python3.13/site-packages/dtcc_qes", "module": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/wheel-envs/765d5cf4/lib/python3.13/site-packages/dtcc_qes/_qes.cpython-313-darwin.so", "policy_revision": "d0775583915762bbe2accfcad81d38e21b4c79037ea2dd0fa4c6c7cd5a24fde3", "adaptive_accepted": true, "actual_threads": 4, "checks": ["owned_output", "sampling", "adaptive_vs_legacy_status", "history_bounds", "float64", "two_turbulence_methods", "zero_work_error"]}

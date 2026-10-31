@@ -1,13 +1,15 @@
 # Touching and overlapping buildings: findings and implementation plan
 
-**Status:** implementation plan, dated 2026-10-30; scope revised 2026-10-31.
+**Status:** implemented and reviewed; plan dated 2026-10-30, scope revised
+2026-10-31. Integrated with committed main `3ae4157` during end-to-end review.
 Steps 1–4 are implemented: reproducible baseline, Python preparation, native
 rings/exposure, and public `Footprints` wiring in `run` and `preview_grid`.
 The dataset-adapter migration in step 6 is also implemented: it reuses prepared
 canonical cells, preserves height steps and records versioned provenance.
-Generic acceptance verification passes: 959 Python tests and 123 native checks
-across serial, OpenMP and sanitizer configurations. Current dataset verification
-is recorded in `docs/building-contacts.md`.
+End-to-end verification passes: 1,274 Python tests (24 conditional skips),
+290 OpenMP integration tests and 144 native checks across serial, OpenMP and
+sanitizer configurations. Review fixes, package checks and the unchanged adaptive
+qualification limit are recorded in `docs/building-contacts.md`.
 
 
 **Scope:** generic support for touching, overlapping, stepped, multipart and

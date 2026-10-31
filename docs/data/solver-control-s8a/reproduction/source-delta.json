@@ -1,0 +1,9 @@
+{
+  "changes": {
+    "tools/audit_prepared_wind.py": {
+      "replayed": "307f16386ed16215c3b3a8a6254add4192ba531f7d012d16d909aa3628c63bb6",
+      "final": "49ee07c9ba3c6312fc45f87c0e8c44deb391b23200f6fd2d1ccd735836af374f"
+    }
+  },
+  "scope": "After successful replay, add the replay-evidence audit check. Benchmark, reproduction helper and all production/runtime sources unchanged. Final archive has a new digest; S7 native policy identity remains unchanged."
+}

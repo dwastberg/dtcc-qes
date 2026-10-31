@@ -1,23 +1,51 @@
 # dtcc-qes
 
 Run QES-Winds' CPU solver on a DTCC city and receive georeferenced
-NumPy arrays in memory. The solver supports one steady neutral logarithmic
-wind profile, uniform horizontal spacing, uniform or explicit vertical layers,
+NumPy arrays in memory. The default approach is a steady neutral logarithmic
+profile; experimental measured, power-law and uniform horizontal profiles are
+also available. The solver supports uniform horizontal spacing, uniform or explicit vertical layers,
 flat ground and simple LOD0 building extrusions.
 Python supplies geometry and wind inputs; the native core performs no file I/O.
 
 Version `0.1.0b1` is the initial beta. The Python API may change before a stable
 release; supported inputs and solver limitations are documented below.
 
+## Wind profiles
+
+Legacy calls such as `wind.run(city, 5.0, 270.0)` retain their numerical path.
+Alternatively, supply an immutable profile:
+
+```python
+from dtcc_qes import wind
+
+profile = wind.MeasuredProfile(
+    heights=[2, 5, 10, 20, 40], speeds=[2.1, 3.0, 4.2, 5.6, 7.0],
+    direction=270.0, reference_height=10.0,
+    below="log", above="constant",
+)
+result = wind.run(city, profile=profile, resolution=2.0, roughness_length=0.1)
+```
+
+`LogProfile`, `PowerLawProfile` and `UniformProfile` use the same reference
+convention. Measured data can supply `directions=[...]` or
+`MeasuredProfile.from_components(heights, u, v, ...)`. Measured vectors
+interpolate in log height by default; `interpolation="linear"` selects physical
+height. The upper default holds the last vector; the lower default raises.
+For non-log profiles, `roughness_length` stays a run argument and supplies the
+lower log tail and ground roughness. Turning and `turbulence=True` are supported,
+with documented roof-direction and morphometric-friction-velocity limitations.
+See the [API guide](docs/wind-profiles.md), [verification report](docs/wind-profiles-verification.md),
+and runnable [measured/power-law example](examples/wind_profiles.py).
+
 ## Build and install
 
-Requirements are Python 3.13+, a C++17 compiler, CMake 3.18+ and Git.
-OpenMP is detected automatically, with a serial CPU fallback
-when unavailable. The library requires no GDAL, NetCDF, Boost or CUDA
+Requirements are Python 3.13+, a C++17 compiler, CMake 3.18+, Git and an
+OpenMP compiler/runtime. OpenMP is required and enabled by
+default. The library requires no GDAL, NetCDF, Boost or CUDA
 libraries. DTCC's Python dependencies include their usual GIS wheels; those
 are separate from the native QES build requirements.
 
-On macOS, install native tools with `brew install cmake ninja`.
+On macOS, install native tools with `brew install cmake ninja libomp`.
 On Debian/Ubuntu use
 `sudo apt-get install build-essential cmake ninja-build git`.
 Install [uv](https://docs.astral.sh/uv/) and start from a checkout:
@@ -47,10 +75,71 @@ Set the CMake option `DTCC_QES_OPENMP` to select the CPU build:
 | Value | Behavior |
 | --- | --- |
 | `OFF` | Serial CPU solver; no OpenMP runtime dependency |
-| `ON` | OpenMP red-black CPU solver; configuration fails if OpenMP is unavailable |
-| `AUTO` (default) | Use OpenMP when CMake finds it; otherwise build the serial solver |
+| `ON` (default) | OpenMP red-black CPU solver; configuration fails if OpenMP is unavailable |
+| `AUTO` | Use OpenMP when CMake finds it; otherwise warn and build the serial solver |
 
-On macOS, install `libomp` and tell CMake where to find it:
+Both CPU builds use red/black sweep ordering. S2 deliberately changes the
+serial build's former lexicographic trajectory: its wind, turbulence and
+iteration diagnostics now agree bitwise with OpenMP on the same compiler and
+floating-point configuration. Internal studies can still select lexicographic
+ordering. Historical study drivers explicitly request their archived ordering;
+their old serial reference fields remain unchanged. See the
+[S2 implementation and validation](docs/solver-control-s2.md).
+
+Optional bounded Python controls return a stopping reason, timing evidence and
+bounded pedestrian/receptor diagnostic history. See the
+[S4 API and deadline contract](docs/solver-control-s4.md) and the
+[urban benchmark suite](docs/urban-wind-benchmarks.md).
+
+Run the complete urban pilot comparison against S1a with the same numerical mask correction:
+
+```sh
+.venv/bin/python tools/run_urban_benchmarks.py
+```
+
+The runner prepares inputs, reuses verified cached builds or rebuilds them,
+runs all cases, and prints timing, memory and field-comparison results. Use
+`--tier core` for the full 2 m matrix or `--comparison controls` to compare S3
+with the frozen S9 release candidate and the same mask correction. Every campaign saves
+a fresh report under `build/urban-benchmarks/`.
+
+Completed-iterate residual diagnostics, bounded hotspot investigation and two
+qualified small same-grid references are documented in the
+[S5 completion report](docs/solver-control-s5.md). The oblique urban solid-mask
+defect is corrected and independently frozen. Large urban accuracy remains
+unqualified, and the disabled-controls performance review target was missed;
+bounded results still report unassessed accuracy.
+
+The [S6 method study](docs/solver-control-s6.md) selects internal SOR relaxation
+`1.90f` for the qualified opt-in policy on its measured small-grid scope.
+Public legacy and bounded calls retain `1.78f`.
+
+[S7's opt-in pedestrian policy](docs/solver-control-s7.md) is now qualified on
+its declared small-domain scope. Use `SolverControl(..., mode="adaptive")`
+with an explicit ROI and required receptors at both 1.5 and 1.75 m. Acceptance
+is separate from legacy convergence and covers only those outputs. Larger or
+unsupported configurations remain unaccepted; full-volume, turbulence and
+physical/model accuracy are not qualified by this policy. Qualification is tied
+to a frozen native source/arithmetic identity. The footprint-enabled build changes
+that identity, so adaptive results remain unaccepted (`unqualified_build`) until
+a separate qualification is completed. Result metadata records the current
+decision under `versions.native_build.solver_policy_build_supported`.
+
+The [S9 closure report](docs/solver-control-s9.md) closes the solver-control
+refactor within that qualified numerical scope and records the release checks,
+defaults, errors, dataset cache identity and remaining limitations. No default
+policy is promoted. [S8a](docs/solver-control-s8a.md) measured modest preparation
+reuse savings and deferred a public reuse API; S8b comfort sensitivity is
+explicitly deferred. Large-domain accuracy, grid independence and physical
+comfort/gust qualification remain separate work.
+
+```sh
+# Build and run the complete release verification in a new directory.
+.venv/bin/python tools/validate_solver_release.py --output build/solver-release-check
+```
+
+On macOS, standard Apple Silicon and Intel Homebrew `libomp` installations are
+discovered automatically. For a custom installation, provide its prefix:
 
 ```sh
 brew install libomp
@@ -58,14 +147,17 @@ export OpenMP_ROOT="$(brew --prefix libomp)"
 ```
 
 GCC on Debian/Ubuntu supports OpenMP with the compiler installed above. Rebuild
-the Python package with OpenMP enabled:
+an existing installation explicitly to replace a previously serial extension:
 
 ```sh
 uv sync --frozen --group dev --reinstall-package dtcc-qes -Ccmake.define.DTCC_QES_OPENMP=ON
 OMP_NUM_THREADS=4 uv run --frozen --no-sync python examples/single_building.py
 ```
 
-For a direct CMake build, pass `-DDTCC_QES_OPENMP=ON`. Standard OpenMP settings
+Fresh direct CMake builds also default to `ON`. Existing CMake build directories
+retain their cached selection; pass `-DDTCC_QES_OPENMP=ON` to override it.
+Use `-Ccmake.define.DTCC_QES_OPENMP=OFF` for an explicitly serial Python build.
+Standard OpenMP settings
 such as `OMP_NUM_THREADS` control the thread team. The GIL is released during
 native work; the process-wide QES mutex still serializes separate solves.
 OpenMP accelerates the numerical solve within that mutex.
@@ -209,7 +301,7 @@ serial case, median peak process RSS is about 399 MiB for wind-only, 637–638 M
 after native turbulence extraction and 729–786 MiB after Python statistics.
 These figures include Python/imports and are not a universal memory budget.
 
-The automatic generator is available as an **unvalidated prototype**, opt-in
+The automatic generator is available as an **experimental prototype**, opt-in
 through `VerticalGrid.auto(...)`:
 
 ```python
@@ -236,8 +328,9 @@ bracketing/profile bias. The planned top fits the requested local height;
 effective float32 faces can differ slightly, and their actual extent is retained.
 `solver_layer_thicknesses` records the native layer widths, which can differ
 from accumulated face separations. These checks establish construction and
-coordinate correctness. C2 still needs boundary, resolution, accuracy and cost
-studies before any automatic comfort-analysis preset is selected. See the
+coordinate correctness. The numerical review is closed for experimental use;
+local model/grid sensitivity prevents recommending an automatic comfort preset.
+Further physical and grid-independence qualification is a separate follow-up. See the
 [C1 report](docs/stagec1-validation.md) and executable
 [automatic-grid example](examples/automatic_vertical_grid.py).
 
@@ -266,7 +359,33 @@ independent zero-start checkpoints for resumable verification.
 All 16 new CPU cases pass the solve gate; near-wall horizontal changes keep
 automatic preset selection gated despite passing aggregate comparison budgets.
 
-Dataset options for vertical layers remain later work.
+The [near-wall diagnosis](docs/near-wall-validation.md) verifies raw face
+extraction and finds that direct staggered sampling does not resolve the
+failure. It identifies a sharp sidewall initialization transition at one
+affected point. The current sampler is retained. The completed
+[generated-grid pilot](docs/generated-grid-pilot.md) passes its vertical and
+lateral comparisons at both pedestrian heights using 28.1% fewer cells than
+uniform 0.5 m layers. The subsequent [refinement and alignment assessment](docs/vertical-refinement.md)
+finds accepted local speed changes of 13–18% at additional fixed points and
+source-driven initialization sensitivity. Its finest grid remains uncertified. The [runtime review](docs/finest-reference.md)
+stops the hours-long fixed-sweep escalation: fast approximate wind analysis
+requires a practical runtime/accuracy assessment. Grid planning is already
+below a millisecond on the small fixture. Normal 500-iteration serial API cases
+finish in 26–28 s for 9.42 million cells but do not converge, so they establish
+neither accuracy nor a preset. The subsequent float32/OpenMP comparison completes
+2000-iteration automatic/uniform API calls in 20.9/27.1 s on this fixture.
+Both pass the predeclared sampled iterative-error checks against their own
+accepted references, while strict residual bounds remain unmet. At two sensitive
+locations, the accepted automatic/uniform fields differ by 21–30% (about 0.2 m/s
+for Uref=5 m/s). These spatial differences persist with longer solves.
+
+**Numerical-review closure:** explicit grids, previews and height sampling are
+supported as implemented; automatic generation remains experimental with
+`policy_status="prototype_unvalidated"`. No automatic comfort preset or general
+grid-independent accuracy claim is made. Physical comfort qualification, broader
+preset studies and the finest-dependent comparisons remain follow-ups, rather
+than requirements for using the grid API. All historical failures are retained
+in the [vertical-grid plan](DYNAMIC_VERTICAL_GRID.md).
 See the [Stage A validation report](docs/stagea-validation.md).
 The [sensitivity/cost study](docs/vertical-grid-gate.md) compares explicit grids
 at 1.5 m. A fine-grid tower solve fails the common residual target. The
@@ -277,10 +396,10 @@ still require further validation.
 The executable [example](examples/single_building.py) constructs its own `City`
 and has no input files or external datasets.
 
-### Optional wind dataset
+### Wind dataset
 
-Import `dtcc_qes` to register `qes_wind` with DTCC Core. Importing
-`dtcc_qes.datasets` also works. Core does not depend on or import QES.
+Importing `dtcc_qes` registers `qes_wind` with DTCC Core; explicitly importing
+`dtcc_qes.datasets` also works and is idempotent. Core does not depend on or import QES.
 The dataset implementation stays in this GPL-3.0-only package.
 
 ```python
@@ -321,14 +440,17 @@ the domain top from building heights and clearance. Six-coordinate bounds
 `[xmin, ymin, zmin, xmax, ymax, zmax]` specify flat ground and the domain top;
 insufficient roof clearance raises an error. `Bounds` objects are also accepted.
 
-Use `product="slice"` to return a native `dtcc_core.model.FieldSlice` with the
-same three fields associated with samples. `slice_axis="z"`,
+Use `product="slice"` to return a native `dtcc_core.model.FieldSlice` with
+`velocity`, `speed`, `speedup` (speed divided by `wind_speed`; NaN when
+`wind_speed` is 0), `cell_flags` and boolean `valid` fields associated with samples. `slice_axis="z"`,
 `slice_position=0.5`, and `slice_resolution=128` select a plane and square sample
 grid within the solver's cell-centre extent. Sampling uses the nearest cell,
 with ties choosing the lower index; metadata records the actual plane coordinate.
 Slice points use global coordinates. The field uses local coordinates with its
-origin and CRS in its transform. Solid cells retain their values and are
-identified by `cell_flags` 0 or 2.
+origin and CRS in its transform. Invalid slice vectors and speeds are NaN;
+`valid` is false for solid contributors (flags 0/2) or nonfinite velocities.
+Slice `cell_flags` always come from the nearest source cell and are categorical
+provenance; use `valid` to decide whether an interpolated vector is usable.
 
 Set `slice_height` to request a horizontal slice in metres above the flat
 ground plane. It selects `slice_axis="z"` and takes precedence over
@@ -343,14 +465,52 @@ through the domain top are accepted; heights above the domain raise an error.
 `slice.metadata_payload["slice_height"]` records the sampled height above ground,
 and `slice_coordinate` records its global elevation.
 
+For pedestrian-height interpolation and experimental automatic layers:
+
+```python
+pedestrian = datasets.qes_wind(
+    bounds=bounds,
+    product="slice",
+    vertical_grid="auto",       # experimental, explicit opt-in
+    pedestrian_height=1.5,       # near-ground grid target; not the output height
+    growth_rate=1.15,
+    slice_height=1.75,           # output height above flat ground
+    slice_sampling="linear",
+    solver_precision="float32",
+)
+```
+
+`slice_sampling="linear"` interpolates velocity components vertically at the
+requested height, followed by nearest-cell sampling in x/y for the display
+grid. Points stay at the requested global elevation. Every contributing cell
+must be fluid with finite velocity; unsupported heights within the physical
+domain have NaN values, `valid=False` and `sampled_height=None`. This includes
+heights below the first or above the last cell centre; there is no extrapolation.
+Without `slice_height`, the height is derived from `slice_position` within the
+cell-centre extent. Linear sampling is supported only for horizontal z slices;
+an explicit height applies the z-axis override before validation.
+
+`vertical_grid="uniform"` and `slice_sampling="nearest"` remain defaults.
+Automatic grids require `product="slice"`; full `VolumeGrid` output is rejected
+before fetching a city because it cannot represent stretched cells. Nearest
+x/y slices remain available for either grid mode. Dataset options, including
+precision, grid settings and sampling method, participate in serialized request
+identity. Automatic requests carry an experimental warning and retain generator
+settings, effective faces and the unchanged policy-status marker in provenance.
+
 `result.dataset_context` contains request parameters, upstream lineage,
-preparation details, effective solver bounds, versions, and diagnostics.
+preparation details, effective solver bounds, versions, sampling and diagnostics.
+Its `health` includes convergence, precision, interior/upper-band divergence,
+and slice valid/invalid counts. Multiplier convergence and valid interpolation
+do not establish physical wind-comfort accuracy.
 Rendering and serialized dataset formats are not part of this API yet.
 Use `datasets.qes_wind.info()` for options or run the network-backed
 [dataset example](examples/city_dataset.py):
 
 ```sh
 uv run --frozen python examples/city_dataset.py 319720 6397660 319820 6397760 --product slice
+# Experimental automatic layers sampled at 1.75 m:
+uv run --frozen python examples/city_dataset.py 319720 6397660 319820 6397760 --product slice --vertical-grid auto --slice-height 1.75 --slice-sampling linear
 ```
 
 For a wind speed map and streamlines around three rectangular buildings, run

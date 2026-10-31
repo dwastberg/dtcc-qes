@@ -30,9 +30,9 @@ def test_bound_runner_turbulence_matches_audited_reference(spec):
             or toolchain["compiler_version"] != _qes.compiler_version
             or toolchain["build_type"] != _qes.build_type
             or toolchain["machine"] != platform.machine()
-            or toolchain["platform"] != platform.platform() or _qes.openmp_enabled):
-        pytest.skip("Exact serial fixtures require their recorded toolchain/platform; generate local baselines "
-                    "and set DTCC_QES_TURBULENCE_REFERENCE_DIR to compare another configuration exactly")
+            or toolchain["platform"] != platform.platform() or _qes.cpu_sweep_order != "lexicographic"):
+        pytest.skip("Archived exact fixtures require lexicographic ordering and their recorded toolchain; "
+                    "S2 red/black parity is checked against the immutable S1a OpenMP oracle")
     grid, model, condition, solver, arrays = inputs(spec.case)
     settings = _qes.TurbulenceSettings()
     settings.enabled = True

@@ -1,0 +1,6 @@
+* Getting build dependencies for wheel...
+
+ERROR Unmet dependencies (checked against /Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python):
+	ninja>=1.5
+		wanted: >=1.5
+		found: not installed

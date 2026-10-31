@@ -1,0 +1,64 @@
+{
+  "checks": {
+    "native": {
+      "passed": true,
+      "test_counts": {
+        "openmp": 48,
+        "serial": 45,
+        "sanitizers": 6
+      },
+      "policy_identity": {
+        "openmp": "d0775583915762bbe2accfcad81d38e21b4c79037ea2dd0fa4c6c7cd5a24fde3",
+        "serial": "d0775583915762bbe2accfcad81d38e21b4c79037ea2dd0fa4c6c7cd5a24fde3",
+        "sanitizers": "d0775583915762bbe2accfcad81d38e21b4c79037ea2dd0fa4c6c7cd5a24fde3"
+      }
+    },
+    "python": {
+      "passed": true,
+      "tests": 1111,
+      "skipped": 16
+    },
+    "parity": {
+      "passed": true,
+      "comparisons": 12,
+      "cases": 429,
+      "baseline": "unchanged frozen S5c arrays; original S7 manifest records per-array identities"
+    },
+    "policy": {
+      "passed": true,
+      "workers": 24,
+      "exact_workers": 24,
+      "frozen_policy_manifest_sha256": "7f973e28ca61d72b72c058fab598e82814c9444b166449322999defac16cc23d"
+    },
+    "campaign": {
+      "passed": true,
+      "reused": true,
+      "damaged_package_rebuilt": true,
+      "fresh_results": true,
+      "campaigns": [
+        "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-first",
+        "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-reuse",
+        "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/campaign-repair"
+      ],
+      "cache_matrix": "Full Python tests additionally vary source/toolchain/backend/ABI/runtime/manifest and failed builds."
+    },
+    "artifacts": {
+      "passed": true,
+      "sdist": {
+        "name": "dtcc_qes-0.1.0b1.tar.gz",
+        "path": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/artifact-attempts/765d5cf4/dtcc_qes-0.1.0b1.tar.gz",
+        "sha256": "b84c87812d1d0422db1e302413d60c58e22cd87ca27d072e474c4f4940aa4830",
+        "bytes": 1119043706
+      },
+      "wheel": {
+        "name": "dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl",
+        "path": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/artifact-attempts/765d5cf4/dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl",
+        "sha256": "96a17805e8a5e2ae619d63431ad89d7c90bfed34a66864cd321490cadaebf2ac",
+        "bytes": 390091
+      },
+      "wheel_built_from_sdist": true,
+      "installed_wheel_runtime": true
+    }
+  },
+  "native_policy_revision": "d0775583915762bbe2accfcad81d38e21b4c79037ea2dd0fa4c6c7cd5a24fde3"
+}

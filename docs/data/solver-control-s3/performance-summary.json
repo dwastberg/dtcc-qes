@@ -1,0 +1,229 @@
+{
+  "matrix_rows": 60,
+  "elapsed_seconds": 59.55742908298271,
+  "completed": true,
+  "parity_passed": true,
+  "four_thread_medians": [
+    {
+      "precision": "float32",
+      "revision": "s2",
+      "mode": "disabled",
+      "repeats": 3,
+      "threads": 4,
+      "seconds": {
+        "prepare": 0.220284666,
+        "initialize": 0.055825666,
+        "monitor_compile_and_initial": 4.1e-08,
+        "sweeps": 0.187433,
+        "checkpoints": 8.3e-08,
+        "finalize": 0.090228334,
+        "total": 0.554883708
+      },
+      "total_percent_vs_s2_disabled": 0.0,
+      "total_percent_vs_s3_disabled": -5.142935877289068,
+      "peak_rss_bytes": 715177984,
+      "monitor_allocated_bytes": 0,
+      "monitor_planned_bytes": 0,
+      "slab_layers": 0
+    },
+    {
+      "precision": "float32",
+      "revision": "s3",
+      "mode": "disabled",
+      "repeats": 3,
+      "threads": 4,
+      "seconds": {
+        "prepare": 0.233920917,
+        "initialize": 0.061513708,
+        "monitor_compile_and_initial": 2.08e-07,
+        "sweeps": 0.19050441499999998,
+        "checkpoints": 8.2e-08,
+        "finalize": 0.096401084,
+        "total": 0.58496825
+      },
+      "total_percent_vs_s2_disabled": 5.421774250398426,
+      "total_percent_vs_s3_disabled": 0.0,
+      "peak_rss_bytes": 719142912,
+      "monitor_allocated_bytes": 0,
+      "monitor_planned_bytes": 0,
+      "slab_layers": 0
+    },
+    {
+      "precision": "float32",
+      "revision": "s3",
+      "mode": "planes",
+      "repeats": 3,
+      "threads": 4,
+      "seconds": {
+        "prepare": 0.230401709,
+        "initialize": 0.055539208,
+        "monitor_compile_and_initial": 0.006545084,
+        "sweeps": 0.191298458,
+        "checkpoints": 0.026521126000000003,
+        "finalize": 0.095102084,
+        "total": 0.604766541
+      },
+      "total_percent_vs_s2_disabled": 8.989781512922,
+      "total_percent_vs_s3_disabled": 3.384506936914966,
+      "peak_rss_bytes": 724860928,
+      "monitor_allocated_bytes": 8719574,
+      "monitor_planned_bytes": 8719574,
+      "slab_layers": 2
+    },
+    {
+      "precision": "float32",
+      "revision": "s3",
+      "mode": "trend-checkpoint",
+      "repeats": 3,
+      "threads": 4,
+      "seconds": {
+        "prepare": 0.220786583,
+        "initialize": 0.054992125,
+        "monitor_compile_and_initial": 0.006527083,
+        "sweeps": 0.245643958,
+        "checkpoints": 0.026592418,
+        "finalize": 0.094461417,
+        "total": 0.645461542
+      },
+      "total_percent_vs_s2_disabled": 16.3237508497907,
+      "total_percent_vs_s3_disabled": 10.341294933528467,
+      "peak_rss_bytes": 724058112,
+      "monitor_allocated_bytes": 8719574,
+      "monitor_planned_bytes": 8719574,
+      "slab_layers": 2
+    },
+    {
+      "precision": "float32",
+      "revision": "s3",
+      "mode": "trend-continuous",
+      "repeats": 3,
+      "threads": 4,
+      "seconds": {
+        "prepare": 0.231461959,
+        "initialize": 0.059753166,
+        "monitor_compile_and_initial": 0.006507459,
+        "sweeps": 0.711091166,
+        "checkpoints": 0.026965249,
+        "finalize": 0.094022542,
+        "total": 1.129475958
+      },
+      "total_percent_vs_s2_disabled": 103.55183288243164,
+      "total_percent_vs_s3_disabled": 93.0832926402416,
+      "peak_rss_bytes": 726794240,
+      "monitor_allocated_bytes": 8719574,
+      "monitor_planned_bytes": 8719574,
+      "slab_layers": 2
+    },
+    {
+      "precision": "float64",
+      "revision": "s2",
+      "mode": "disabled",
+      "repeats": 3,
+      "threads": 4,
+      "seconds": {
+        "prepare": 0.224792292,
+        "initialize": 0.0731895,
+        "monitor_compile_and_initial": 0,
+        "sweeps": 0.201541917,
+        "checkpoints": 8.4e-08,
+        "finalize": 0.1017905,
+        "total": 0.605591625
+      },
+      "total_percent_vs_s2_disabled": 0.0,
+      "total_percent_vs_s3_disabled": -2.8676182088042346,
+      "peak_rss_bytes": 867696640,
+      "monitor_allocated_bytes": 0,
+      "monitor_planned_bytes": 0,
+      "slab_layers": 0
+    },
+    {
+      "precision": "float64",
+      "revision": "s3",
+      "mode": "disabled",
+      "repeats": 3,
+      "threads": 4,
+      "seconds": {
+        "prepare": 0.220494916,
+        "initialize": 0.073922791,
+        "monitor_compile_and_initial": 8.3e-08,
+        "sweeps": 0.21987262400000002,
+        "checkpoints": 8.4e-08,
+        "finalize": 0.102759125,
+        "total": 0.623470375
+      },
+      "total_percent_vs_s2_disabled": 2.9522782782869683,
+      "total_percent_vs_s3_disabled": 0.0,
+      "peak_rss_bytes": 870809600,
+      "monitor_allocated_bytes": 0,
+      "monitor_planned_bytes": 0,
+      "slab_layers": 0
+    },
+    {
+      "precision": "float64",
+      "revision": "s3",
+      "mode": "planes",
+      "repeats": 3,
+      "threads": 4,
+      "seconds": {
+        "prepare": 0.225154209,
+        "initialize": 0.072520834,
+        "monitor_compile_and_initial": 0.006612166,
+        "sweeps": 0.206541458,
+        "checkpoints": 0.026101917,
+        "finalize": 0.101979125,
+        "total": 0.639038125
+      },
+      "total_percent_vs_s2_disabled": 5.5229462593707535,
+      "total_percent_vs_s3_disabled": 2.4969510379703186,
+      "peak_rss_bytes": 879853568,
+      "monitor_allocated_bytes": 8719574,
+      "monitor_planned_bytes": 8719574,
+      "slab_layers": 2
+    },
+    {
+      "precision": "float64",
+      "revision": "s3",
+      "mode": "trend-checkpoint",
+      "repeats": 3,
+      "threads": 4,
+      "seconds": {
+        "prepare": 0.22297675,
+        "initialize": 0.073726833,
+        "monitor_compile_and_initial": 0.006508375,
+        "sweeps": 0.218999874,
+        "checkpoints": 0.025728041,
+        "finalize": 0.099272375,
+        "total": 0.653089792
+      },
+      "total_percent_vs_s2_disabled": 7.843266821928063,
+      "total_percent_vs_s3_disabled": 4.750733665573104,
+      "peak_rss_bytes": 877592576,
+      "monitor_allocated_bytes": 8719574,
+      "monitor_planned_bytes": 8719574,
+      "slab_layers": 2
+    },
+    {
+      "precision": "float64",
+      "revision": "s3",
+      "mode": "trend-continuous",
+      "repeats": 3,
+      "threads": 4,
+      "seconds": {
+        "prepare": 0.222857375,
+        "initialize": 0.076869708,
+        "monitor_compile_and_initial": 0.006331958,
+        "sweeps": 0.344124125,
+        "checkpoints": 0.025790125,
+        "finalize": 0.107539458,
+        "total": 0.784172459
+      },
+      "total_percent_vs_s2_disabled": 29.488656485300634,
+      "total_percent_vs_s3_disabled": 25.775416193592182,
+      "peak_rss_bytes": 878985216,
+      "monitor_allocated_bytes": 8719574,
+      "monitor_planned_bytes": 8719574,
+      "slab_layers": 2
+    }
+  ],
+  "notes": "Native matched-work timings, not Python API or matched-error qualification; three repetitions at four threads, one elsewhere. Initial competing-workload matrix retained and excluded. Monitor buffer capacity is unchanged across all five captures."
+}

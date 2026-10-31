@@ -294,7 +294,7 @@ void PolyBuilding::rooftop(WINDSGeneralData *WGD)
     // Vortex parameterization
     if (rooftop_method == 2) {
       for (size_t id = 0; id < polygonVertices.size() - 1; id++) {
-    if (!isFace(id)) continue;
+        if (!isFace(id)) continue;
         // Calculate upwind reletive direction for each face
         upwind_rel_dir[id] = atan2(yi[id + 1] - yi[id], xi[id + 1] - xi[id]) + 0.5 * M_PI;
 
@@ -329,15 +329,15 @@ void PolyBuilding::rooftop(WINDSGeneralData *WGD)
                 }
               }
               if (WGD->parameterizations.exposedFaces || ringOffsets.size()>2) {
-            const bool own=containsXY((i+.5)*dx,(j+.5)*dy);
-            u_flag &= own || containsXY((i-.5)*dx,(j+.5)*dy);
-            v_flag &= own || containsXY((i+.5)*dx,(j-.5)*dy);
-            w_flag &= own;
-          }
-          icell_cent = WGD->domain.cell(i, j, k_end);
+                const bool own=containsXY((i+.5)*dx,(j+.5)*dy);
+                u_flag &= own || containsXY((i-.5)*dx,(j+.5)*dy);
+                v_flag &= own || containsXY((i+.5)*dx,(j-.5)*dy);
+                w_flag &= own;
+              }
+              icell_cent = WGD->domain.cell(i, j, k_end);
               // If cell at building height is street canyon or wake behind building
               if (WGD->icellflag[icell_cent] == 4 || WGD->icellflag[icell_cent] == 6
-              || (WGD->parameterizations.exposedFaces && WGD->icellflag[icell_cent] == 3)) {
+                  || (WGD->parameterizations.exposedFaces && WGD->icellflag[icell_cent] == 3)) {
                 u_flag = 0;
                 v_flag = 0;
                 w_flag = 0;

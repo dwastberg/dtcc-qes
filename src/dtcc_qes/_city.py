@@ -90,17 +90,17 @@ def near_contacts(city, resolution):
     """Report strict-mode pairs separated by less than one horizontal cell."""
     if not city.rings:
         return ()
-    anchor=np.min(np.concatenate(city.rings),axis=0)
-    polygons=[Polygon(r-anchor) for r in city.rings]
-    tree=STRtree(polygons)
-    rows=[]
-    for i,polygon in enumerate(polygons):
+    anchor = np.min(np.concatenate(city.rings), axis=0)
+    polygons = [Polygon(ring - anchor) for ring in city.rings]
+    tree = STRtree(polygons)
+    rows = []
+    for i, polygon in enumerate(polygons):
         for j in tree.query(polygon.buffer(resolution).envelope):
-            if j<=i:
+            if j <= i:
                 continue
-            distance=polygon.distance(polygons[j])
-            if distance<resolution:
-                rows.append(dict(source_ids=[city.source_ids[i],city.source_ids[j]],distance=distance))
+            distance = polygon.distance(polygons[j])
+            if distance < resolution:
+                rows.append(dict(source_ids=[city.source_ids[i], city.source_ids[j]], distance=distance))
     return tuple(rows)
 
 

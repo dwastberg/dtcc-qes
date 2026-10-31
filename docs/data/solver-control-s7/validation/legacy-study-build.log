@@ -1,0 +1,48 @@
+[ 15%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/Triangle.cpp.o
+[ 15%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/BVH.cpp.o
+[ 15%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/Mesh.cpp.o
+[ 15%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/HitRecord.cpp.o
+[ 15%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/SphereDirections.cpp.o
+[ 15%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/QESLog.cpp.o
+[ 15%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/Ray.cpp.o
+[ 18%] Linking CXX static library libqesutil.a
+[ 18%] Built target qesutil
+[ 31%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/LocalMixingSerial.cpp.o
+[ 31%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/Cell.cpp.o
+[ 34%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/CutCell.cpp.o
+[ 34%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/qes/Domain.cpp.o
+[ 34%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/LocalMixingDefault.cpp.o
+[ 36%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/PolyBuilding.cpp.o
+[ 36%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/CutBuilding.cpp.o
+[ 36%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/LocalMixingOptix.cpp.o
+[ 38%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/solver/solver.cpp.o
+[ 40%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/solver/cpu_float32.cpp.o
+[ 43%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/solver/cpu_float64.cpp.o
+[ 45%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/TURBGeneralData.cpp.o
+[ 47%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/TURBWall.cpp.o
+[ 50%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/TURBWallBuilding.cpp.o
+[ 52%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/TURBWallTerrain.cpp.o
+[ 54%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/LogProfile.cpp.o
+[ 56%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/WINDSGeneralData.cpp.o
+[ 59%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/Wall.cpp.o
+[ 61%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/UpwindCavity.cpp.o
+[ 63%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/NonLocalMixing.cpp.o
+[ 65%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/PolygonWake.cpp.o
+[ 68%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/StreetCanyon.cpp.o
+[ 70%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/StreetCanyonModified.cpp.o
+[ 72%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/Sidewall.cpp.o
+[ 75%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/Rooftop.cpp.o
+[ 77%] Linking CXX static library libqeswindscore.a
+[ 77%] Built target qeswindscore
+[ 81%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/monitor.cpp.o
+[ 84%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/wind_runner.cpp.o
+[ 95%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/build_info.cpp.o
+[ 95%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/divergence.cpp.o
+[ 95%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/log_sink.cpp.o
+[ 95%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/turbulence.cpp.o
+[ 95%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/solver_control.cpp.o
+[ 95%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/model_inputs.cpp.o
+[ 95%] Built target qesbridge
+[ 97%] Building CXX object CMakeFiles/solver_numerics_probe.dir/tools/solver_numerics_probe.cpp.o
+[100%] Linking CXX executable solver_numerics_probe
+[100%] Built target solver_numerics_probe

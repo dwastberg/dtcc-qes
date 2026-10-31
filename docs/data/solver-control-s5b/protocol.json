@@ -1,0 +1,224 @@
+{
+  "stage": "S5b",
+  "base_source_sha256": "b2d4cd6e8708a4058187a8284195a67805f78b226e156a3f13981b903a8d63fe",
+  "source_sha256": "26a643a6d2bfc6d3dd6574847fde1403942f1177ce5d4c0593a4d179cc1b5606",
+  "overlay_sha256": {
+    "src/qes_core/solver/solver.h": "645c6f8d670f735282013b7bc8ae2bd169cf9e19cd161be009f26ac6bb327abe",
+    "src/qes_core/solver/solver.cpp": "d379a6cd5225ab44d8268bfceb383700cadbf63529cf81823dcb6d0e2c086557",
+    "tools/solver_numerics_probe.cpp": "00ebb88fbb68f770bad8b01cddcaff292ef29f96408f43fa299e0213e02b4145",
+    "tests/native/check_equation_residual.cpp": "b1e4c0bec83dca9b74e417036c8350bbc755aaad904c5cd0856c04aee45f1210"
+  },
+  "matrix": [
+    {
+      "case": "mixed_downtown_core",
+      "direction": 225,
+      "precision": "float32",
+      "iterations": 2000,
+      "cadence": 500,
+      "locate": true,
+      "purpose": "historical_hotspot",
+      "id": "00",
+      "shard": 0
+    },
+    {
+      "case": "mixed_downtown_core",
+      "direction": 270,
+      "precision": "float32",
+      "iterations": 2000,
+      "cadence": 500,
+      "locate": true,
+      "purpose": "historical_hotspot",
+      "id": "01",
+      "shard": 0
+    },
+    {
+      "case": "mixed_downtown_core",
+      "direction": 315,
+      "precision": "float32",
+      "iterations": 2000,
+      "cadence": 500,
+      "locate": true,
+      "purpose": "historical_hotspot",
+      "id": "02",
+      "shard": 0
+    },
+    {
+      "case": "perimeter_neighbourhood_core",
+      "direction": 225,
+      "precision": "float32",
+      "iterations": 2000,
+      "cadence": 500,
+      "locate": true,
+      "purpose": "historical_hotspot",
+      "id": "03",
+      "shard": 0
+    },
+    {
+      "case": "mixed_downtown_pilot",
+      "direction": 225,
+      "precision": "float32",
+      "iterations": 2000,
+      "cadence": 500,
+      "locate": true,
+      "purpose": "precision_control",
+      "id": "04",
+      "shard": 0
+    },
+    {
+      "case": "mixed_downtown_pilot",
+      "direction": 225,
+      "precision": "float64",
+      "iterations": 2000,
+      "cadence": 500,
+      "locate": true,
+      "purpose": "precision_control",
+      "id": "05",
+      "shard": 0
+    },
+    {
+      "case": "mixed_downtown_pilot",
+      "direction": 225,
+      "precision": "float32",
+      "iterations": 2000,
+      "cadence": 500,
+      "locate": true,
+      "street_canyon": 0,
+      "purpose": "counterfactual_canyon_off",
+      "id": "06",
+      "shard": 1
+    },
+    {
+      "case": "perimeter_neighbourhood_pilot",
+      "direction": 225,
+      "precision": "float32",
+      "iterations": 2000,
+      "cadence": 500,
+      "locate": true,
+      "purpose": "precision_control",
+      "id": "07",
+      "shard": 1
+    },
+    {
+      "case": "perimeter_neighbourhood_pilot",
+      "direction": 225,
+      "precision": "float64",
+      "iterations": 2000,
+      "cadence": 500,
+      "locate": true,
+      "purpose": "precision_control",
+      "id": "08",
+      "shard": 1
+    },
+    {
+      "case": "perimeter_neighbourhood_pilot",
+      "direction": 225,
+      "precision": "float32",
+      "iterations": 2000,
+      "cadence": 500,
+      "locate": true,
+      "street_canyon": 0,
+      "purpose": "counterfactual_canyon_off",
+      "id": "09",
+      "shard": 1
+    },
+    {
+      "case": "tower_2m",
+      "direction": 270,
+      "precision": "float64",
+      "iterations": 500,
+      "cadence": 25,
+      "locate": false,
+      "purpose": "reference_triple",
+      "id": "10",
+      "shard": 1
+    },
+    {
+      "case": "tower_2m",
+      "direction": 270,
+      "precision": "float64",
+      "iterations": 1000,
+      "cadence": 25,
+      "locate": false,
+      "purpose": "reference_triple",
+      "id": "11",
+      "shard": 1
+    },
+    {
+      "case": "tower_2m",
+      "direction": 270,
+      "precision": "float64",
+      "iterations": 2000,
+      "cadence": 25,
+      "locate": false,
+      "purpose": "reference_triple",
+      "id": "12",
+      "shard": 2
+    },
+    {
+      "case": "passages_2m",
+      "direction": 270,
+      "precision": "float64",
+      "iterations": 500,
+      "cadence": 25,
+      "locate": false,
+      "purpose": "reference_triple",
+      "id": "13",
+      "shard": 2
+    },
+    {
+      "case": "passages_2m",
+      "direction": 270,
+      "precision": "float64",
+      "iterations": 1000,
+      "cadence": 25,
+      "locate": false,
+      "purpose": "reference_triple",
+      "id": "14",
+      "shard": 2
+    },
+    {
+      "case": "passages_2m",
+      "direction": 270,
+      "precision": "float64",
+      "iterations": 2000,
+      "cadence": 25,
+      "locate": false,
+      "purpose": "reference_triple",
+      "id": "15",
+      "shard": 2
+    }
+  ],
+  "workers": 16,
+  "worker_seconds": 30,
+  "shard_seconds": 180,
+  "threads": 4,
+  "normalization": {
+    "maximum_floor": 1e-30,
+    "rms_floor": 1e-30,
+    "units": "native RHS; no row scaling; initial lambda=0"
+  },
+  "reference_gate": {
+    "length_m": 23.7,
+    "uref_mps": 5.0,
+    "scaled_mass_maximum": 0.001,
+    "scaled_mass_rms": 0.0001,
+    "successive_vector_maximum_over_uref": 0.001,
+    "successive_vector_p95_over_uref": 0.0005,
+    "unchanged_validity": true,
+    "all_three_mass_checks": true,
+    "both_successive_pairs": true
+  },
+  "reference_scope": "New same-grid 2m calibration scope; not the historical 0.5m/92-layer tower or urban core. L=23.7m declared before measurements, reused for both cases.",
+  "history": "Stream every declared checkpoint from 0, max 81 frames per triple worker. Production monitor ring remains 4.",
+  "policy": "No acceptance implementation. Unqualified triples produce iterate differences, never reference errors.",
+  "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+  "inputs_sha256": {
+    "tower_2m.json": "8416ffdc4f53f21a773b24a03ebb482d60c3f1f3b4e2bcfe0b7c1a6660d4348a",
+    "perimeter_neighbourhood_pilot.json": "734e061bfa5fc77e076f8613e16161142d19b18914480316db5994b68c4f779d",
+    "mixed_downtown_pilot.json": "2032d4b87aefd212b4c9e450692145dc929c10b171ae3d6c437b54fa94827cc8",
+    "mixed_downtown_core.json": "b4f6de11533dbe9a886d4836cc40300c0e25ee3839ad418b08102cfdce81992b",
+    "passages_2m.json": "8ef1ba0ddd7b1e297a7542ad987d6074aeb6be7985a732d6acee9d5507c33238",
+    "perimeter_neighbourhood_core.json": "6efe8c4bd30983834adda313294626d4314a498294fe3b350b9381be255a7b11"
+  },
+  "driver_sha256": "5e3d1c0824fe8ffcf61a2f0043c6b2bbad0d46790017d414582b901fffec142b"
+}

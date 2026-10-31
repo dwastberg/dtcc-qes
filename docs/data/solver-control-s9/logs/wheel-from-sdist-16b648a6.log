@@ -1,0 +1,88 @@
+* Getting build dependencies for wheel...
+* Building wheel...
+*** scikit-build-core 1.1.1 using CMake 4.2.1 (wheel)
+*** Configuring CMake...
+loading initial cache file build/cp313-cp313-macosx_15_0_arm64/CMakeInit.txt
+-- The CXX compiler identification is AppleClang 17.0.0.17000404
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- dtcc-qes OpenMP CPU solver: ON (requested ON)
+-- Found Python: /Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/bin/python (found suitable version "3.13.11", minimum required is "3.13") found components: Interpreter Development.Module
+-- Found OpenMP_CXX: -Xclang -fopenmp (found version "5.1")
+-- Found OpenMP: TRUE (found version "5.1") found components: CXX
+-- dtcc-qes floating-point contraction: on
+-- Configuring done (1.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s9/sdist-attempts/765d5cf4/dtcc_qes-0.1.0b1/build/cp313-cp313-macosx_15_0_arm64
+*** Building project with Unix Makefiles...
+[  1%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/Mesh.cpp.o
+[ 12%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/QESLog.cpp.o
+[ 12%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_internals.cpp.o
+[ 12%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/HitRecord.cpp.o
+[ 12%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/BVH.cpp.o
+[ 12%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_func.cpp.o
+[ 12%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_type.cpp.o
+[ 14%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/Triangle.cpp.o
+[ 19%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_ndarray.cpp.o
+[ 19%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/Ray.cpp.o
+[ 19%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_enum.cpp.o
+[ 21%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_static_property.cpp.o
+[ 22%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/nb_datetime.cpp.o
+[ 24%] Building CXX object src/qes_core/CMakeFiles/qesutil.dir/util/SphereDirections.cpp.o
+[ 26%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/common.cpp.o
+[ 28%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/error.cpp.o
+[ 29%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/trampoline.cpp.o
+[ 31%] Building CXX object CMakeFiles/nanobind-static.dir/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/nanobind/src/implicit.cpp.o
+[ 33%] Linking CXX static library libqesutil.a
+[ 33%] Built target qesutil
+[ 38%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/Cell.cpp.o
+[ 38%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/CutCell.cpp.o
+[ 38%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/qes/Domain.cpp.o
+[ 40%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/CutBuilding.cpp.o
+[ 42%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/LocalMixingDefault.cpp.o
+[ 43%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/LocalMixingSerial.cpp.o
+[ 45%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/LocalMixingOptix.cpp.o
+[ 47%] Linking CXX static library libnanobind-static.a
+[ 47%] Built target nanobind-static
+[ 49%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/PolyBuilding.cpp.o
+[ 50%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/solver/solver.cpp.o
+[ 52%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/solver/cpu_float32.cpp.o
+[ 54%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/solver/cpu_float64.cpp.o
+[ 56%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/TURBGeneralData.cpp.o
+[ 57%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/TURBWall.cpp.o
+[ 59%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/TURBWallBuilding.cpp.o
+[ 61%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/TURBWallTerrain.cpp.o
+[ 63%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/LogProfile.cpp.o
+[ 64%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/WINDSGeneralData.cpp.o
+[ 66%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/Wall.cpp.o
+[ 68%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/UpwindCavity.cpp.o
+[ 70%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/NonLocalMixing.cpp.o
+[ 71%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/PolygonWake.cpp.o
+[ 73%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/StreetCanyon.cpp.o
+[ 75%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/StreetCanyonModified.cpp.o
+[ 77%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/Sidewall.cpp.o
+[ 78%] Building CXX object src/qes_core/CMakeFiles/qeswindscore.dir/winds/Rooftop.cpp.o
+[ 80%] Linking CXX static library libqeswindscore.a
+[ 80%] Built target qeswindscore
+[ 91%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/build_info.cpp.o
+[ 91%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/monitor.cpp.o
+[ 91%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/pedestrian_policy.cpp.o
+[ 91%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/divergence.cpp.o
+[ 91%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/model_inputs.cpp.o
+[ 91%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/solver_control.cpp.o
+[ 94%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/log_sink.cpp.o
+[ 94%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/wind_runner.cpp.o
+[ 96%] Building CXX object src/qes_core/CMakeFiles/qesbridge.dir/dtcc/turbulence.cpp.o
+[ 96%] Built target qesbridge
+[ 98%] Building CXX object CMakeFiles/_qes.dir/src/cpp/bindings.cpp.o
+[100%] Linking CXX shared module _qes.cpython-313-darwin.so
+[100%] Built target _qes
+*** Installing project into wheel...
+-- Install configuration: "Release"
+-- Installing: /var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/tmph93r3fg4/wheel/platlib/dtcc_qes/_qes.cpython-313-darwin.so
+*** Making wheel...
+*** Created dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl
+Successfully built dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl

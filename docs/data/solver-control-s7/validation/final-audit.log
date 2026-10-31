@@ -1,0 +1,41 @@
+{
+  "stage": "S7",
+  "policy": "pedestrian-v1",
+  "method": "s5c-rb-sor-float-omega-v1-omega-1.90",
+  "implementation": "d0775583915762bbe2accfcad81d38e21b4c79037ea2dd0fa4c6c7cd5a24fde3",
+  "fixed_workers": 33,
+  "api_workers": 67,
+  "total_workers": 100,
+  "qualified_reference_triples": 9,
+  "unqualified_reference_triples": 1,
+  "held_out_full_budget_acceptances": 34,
+  "false_acceptances": 0,
+  "missed_acceptances": 0,
+  "predictor_underestimates": 0,
+  "replayed_prediction_checkpoints": 344,
+  "provenance_changes_field_exact": [
+    "release-online-00",
+    "release-online-01",
+    "release-online-02",
+    "release-online-03",
+    "release-online-04",
+    "release-online-05",
+    "release-online-06",
+    "release-online-07",
+    "release-online-08",
+    "release-online-09",
+    "release-online-10",
+    "release-online-11",
+    "release-online-12",
+    "release-online-13"
+  ],
+  "serial_policy_cases_exact": [
+    "val_staggered_240",
+    "val_courtyards_315",
+    "val_mixed_195",
+    "val_staggered_graded_150",
+    "val_courtyards_210_u2",
+    "val_courtyards_210_u10"
+  ],
+  "default_comparisons": 12
+}

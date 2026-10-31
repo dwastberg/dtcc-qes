@@ -1,6 +1,21 @@
 # Dynamic vertical grid for pedestrian wind analysis
 
-Status: Stages 0, A, B1 and C1 implemented and validated locally on 2026-10-26.
+Product objective: fast approximate urban wind fields for pedestrian comfort
+and related analysis, with reliable sampling at 1.5/1.75 m. Grid planning should
+remain around 0.1 seconds or less for representative inputs. Treat hours-long
+wind solves as a solver/grid performance problem to diagnose within bounded
+experiments; do not normalize them by repeatedly raising iteration budgets.
+
+**Release scope, 2026-10-28:** the numerical review is closed with explicit
+limitations. Explicit vertical grids, previews and physical-height sampling
+are supported; automatic generation remains experimental, with no recommended
+comfort-analysis preset. B2 integrates experimental automatic slices under
+that scope. Full spatial/physical qualification and further preset selection
+are follow-ups, not prerequisites for this feature's release. The closure
+decision and retained failures are recorded below. The following paragraphs
+retain the implementation and validation history.
+
+Stages 0, A, B1 and C1 were implemented and validated locally on 2026-10-26.
 The sensitivity/cost study identified a failing fine-grid solve. The focused
 diagnosis is now complete: study-only double-precision refinement substantially
 reduces the interior residual on both CPU backends. B1 sampling and explicit-grid
@@ -17,17 +32,44 @@ accepted references. The joint 160/240 m extent and 1/0.5 m x/y assessment is
 complete locally on 2026-10-27: all 16 new CPU cases pass the solve gate and
 finer-grid lateral comparisons pass, but added near-wall checks fail 13 of the
 16 horizontal comparison planes on each backend. The expanded full-region
-scope is not qualified. Next, review a bounded near-wall scope/sampling
-protocol before C2c policy tuning, automatic preset selection or B2 integration.
+scope is not qualified. The bounded near-wall review is now complete: 40
+diagnostic cases reproduce the accepted fields, rule out a general direct-
+sampling remedy, and identify a sharp sidewall-initialization branch at the
+worst point. The bounded C2c vertical-discretization pilot is complete locally
+on 2026-10-28: all four cases and six full-region comparisons per backend pass,
+including the generated-grid lateral control. The bounded refinement/alignment
+assessment is also complete: three new solves pass, while the finest exhausts
+its certification budget. Accepted comparisons fail added local checks, and a
+source reconstruction identifies upwind-cavity initialization jumps. The
+higher-budget reference attempt has been stopped following the user's runtime
+clarification: hours-long wind solves conflict with the fast-approximation goal.
+The later bounded float32/OpenMP runtime assessment completes the immediate
+performance review. Numerical closure retains the known failures and keeps
+automatic generation experimental; B2 proceeds under that explicit scope.
+Full comfort qualification and preset promotion remain separate follow-ups.
 Configurable allocation ceilings and atomic zero-start checkpoints support
 the assessment; no supported automatic preset follows from its aggregate passes.
+Grid planning must be fast: target roughly 0.1 seconds or less for selecting
+z layers from prepared building heights and constructing preview coordinates.
+Do not run a wind solve, iterative accuracy study, or full-volume allocation
+inside automatic-grid selection. Geometry extraction cost should be reported
+separately for large cities; native 3-D allocation/initialization is also a
+separate cost. Local warm measurements on 2026-10-28 were about 0.36 ms for
+layer generation and 0.79 ms for a four-building preview; a 1,000-building preview
+was about 69 ms. See `tools/benchmark_grid_planning.py` and
+`docs/data/finest-reference/planning-timings.json` for reproducible timings,
+source hashes and measurement scope. Treat these as observations, not universal
+performance guarantees or tight wall-clock test assertions.
+
 Treat cell-count budgets as soft planning targets: preserve the accuracy study
 when a useful comparison slightly exceeds a target, subject to available
 hardware and the resource guidance below.
 Automatic presets remain gated by accepted accuracy/cost comparisons and
 boundary/horizontal-resolution checks. Explicit vertical layers are available
 through `VerticalGrid.from_faces`; `VerticalGrid.auto(...)` resolves provisional
-settings through preview/run. Dataset APIs for vertical grids remain proposed.
+settings through preview/run. The dataset adapter supports uniform fields and
+uniform or experimental automatic slices, with nearest or vertical-linear
+horizontal sampling and recorded validity.
 The current QES commit is
 `e0fb62e9fe5fffc8b4aef8f250f75f929ad27c13` on `dtcc-embed`, following the
 Stage 0 correction `046eb799`. The submodule checkout and package revision file
@@ -558,7 +600,7 @@ Retain this negative full-region result and keep C2c gated. Do not automatically
 start a new refinement study or tune the automatic policy to hide a failed local
 check.
 
-The expanded local gate fails, so the next action is a bounded near-wall
+The expanded local gate failed, so the subsequent action was a bounded near-wall
 scope/sampling review before C2c. Use the saved profile, initialized field,
 native-corner support and final vectors to distinguish representation and
 initialization effects from the converged projection. Define the intended
@@ -576,6 +618,344 @@ its own prospective acceptance contract and evidence; the exploratory 4 m
 setback is not a ready-made urban comfort preset. Retain all present failures
 and keep empirical parameterization/profile tuning separate from numerical
 qualification. Cell targets remain soft throughout this decision.
+
+### Near-wall review outcome and revised next validation
+
+The bounded review is complete locally on 2026-10-27; see
+[`docs/near-wall-validation.md`](docs/near-wall-validation.md). It includes 36
+initialization probes (1/0.5/0.25 m x/y, both frozen z families and CPU backends,
+plus selected initialization ablations) and four accepted-budget final reruns.
+Raw-face extraction and centring pass 189,000 independent component checks;
+the final planes reproduce the historical archive within its decimal precision.
+At the fixed diagnostic points both CPU backends give identical final vectors.
+
+Retain the public point sampler. Direct staggered interpolation still fails
+four of six final local checks in the selected case; the worst 1.75 m relative
+change increases from 17.32% to 18.09%. The 0.5-to-0.25 m initialized discrepancy
+at (27,21,1.75) remains about 13.5% with the existing sampler and 13.9% with
+direct reconstruction. An exploratory reconstruction of the native sidewall
+branches agrees with exported face values within 1.42e-8 in u/profile-u:
+the initialized velocity jumps at wall distance 0.97366 m, only 0.02634 m from
+the fixed point. The projected field retains a substantial initial-vector
+discrepancy. These results identify an initialization/model representation
+limitation; they do not establish physical accuracy or authorize smoothing the
+empirical model. A separate formulation review is needed before changing it.
+
+Do not launch a full finer-x/y solve matrix to seek a sampler-only remedy.
+Preserve the failed full-region contract. The diagnostic 4 m region remains
+unqualified for general use; the versioned new summary separates its regional
+budget from full-region checks at points only 1 m from walls.
+
+**Revised execution decision:** permit a bounded C2c pilot to measure the
+additional vertical-discretization error and cost at fixed horizontal spacing.
+This supersedes the blanket hold on all C2c measurements, while retaining the
+gates on full comfort qualification and preset promotion. A fixed-x/y vertical
+comparison can answer the feature's numerical question without claiming that
+the underlying horizontal model is grid independent.
+
+Before new C2c measurements, freeze the generated policy at x/y=0.5 m, tower
+geometry/270-degree wind, 160/240 m extents and both pedestrian heights. Compare
+with the existing accepted uniform-z=0.5 m references. Preserve production
+physics, all three near-wall points, frozen critical locations and the existing
+vertical error budgets. Include the common solve gate and the generated-grid
+lateral comparison. Report horizontal limitations next to the vertical result;
+neither a vertical pass nor an aggregate pass cancels the observed local failure.
+Broader growth/centre-alignment/geometry studies and cost repetitions follow
+only if this pilot supports them. B2 and an automatic comfort preset still need
+the remaining C2 coverage and an explicit supported-scope decision. Experimental
+mean-speed validation remains a separate requirement for physical claims.
+
+The largest initialization probe used 52.43 million cells and 5.74 GB peak RSS,
+within a 60-million allocation guard and a 7.23 GB process estimate. These
+initialization runs are not accepted 0.25 m solved references. The new study
+snapshots analysis sources and supports a data-only audit without historical
+binaries; its isolated-copy audit passes. Historical studies remain immutable.
+
+### C2c generated-grid pilot: locally complete
+
+The frozen protocol and current results are in
+[`docs/generated-grid-pilot.md`](docs/generated-grid-pilot.md). The actual
+default generator at x/y=0.5 m produces 92 layers, with 1.5 m at the fourth
+centre and 1.75 m between the fourth and fifth centres. The previous 42-layer
+family was frozen from the 2 m horizontal preview and is not substituted here.
+At 160/240 m extent the generated grids contain 9.42/21.20 million cells,
+28.125% fewer than uniform z=0.5 m. Keep the larger case above the soft target;
+the recorded 40-million allocation ceiling and process estimates accommodate it.
+
+Completed locally on 2026-10-28: all four CPU cases pass the common solve gate,
+using 12 independent zero-start checkpoints without rejected budget triples.
+All six full-region comparisons per backend pass, as do the separately labelled
+setback-region diagnostics. The largest mandatory local vertical change is
+0.902%, and the largest local lateral change is 0.456%. Maximum final CPU vector
+difference is 2.39e-8 of Uref. The 103 focused checks and the complete saved-data
+audit pass; an isolated data-only copy reproduces the audit without binaries.
+
+This establishes the declared vertical comparison for this tower/wind case at
+fixed x/y. The largest lattice vertical delta K is still 0.04041 (0.202 m/s),
+and the largest vector difference is 0.05018 Uref. The acceptance budget combines
+percentile, peak and selected local checks; it is not an everywhere-relative
+5% bound. Preserve the observed worst-error points (15,47,1.5) and (15,29,1.75)
+in the next predeclared refinement study. Historical horizontal failures and
+the gates on full comfort qualification and preset selection remain.
+
+Repeated host sleep is recorded in the execution-environment artifact. Native
+elapsed costs include these interruptions and cannot support runtime ratios.
+The driver has finished. Maximum observed study-worker RSS is 1.207/2.694 GB
+at 160/240 m, below the recorded process estimates; public full-volume output
+copies need additional memory. The completed audit and figure preserve costs
+without making a speedup claim.
+
+The pilot led to the bounded subdivision/alignment assessment below, retaining
+both heights, original checks and observed worst-error locations. That assessment
+separates systematic subdivision from generator-setting changes and records
+float32 faces, roofs, resources and solve budgets before new measurements.
+
+### C2c vertical refinement and centre alignment: assessment locally complete
+
+The predeclared protocol and preflight are in
+[`docs/vertical-refinement.md`](docs/vertical-refinement.md). Subdivide every
+layer of the actual 92-layer grid into two and four equal parts, giving 184/368
+layers at the accepted 160 m extent and 0.5 m x/y. This is systematic explicit
+subdivision, not generator-setting tuning. The finest grid has 37.68 million
+cells and a 5.94 GB process estimate; retain it above the soft target under the
+40-million allocation ceiling. Parent-face accumulation changes stay below
+0.0000382 m. Refinement changes represented roofs and must not be treated as
+evidence of a smooth asymptotic convergence order without examining the results.
+
+A same-count control aligns the fifth native centre to 1.75 m while preserving
+all native faces/operands above face eight and identical roof representation.
+Use analytical log-profile interpolation to measure sampling bias independently;
+the solved control also changes lower-cell operators. Both heights retain
+sampling support at or above the third cell. The matrix uses OpenMP for the two
+refinements and the control, plus a selected serial alignment confirmation;
+no serial validation of the refined grids is claimed by this bounded stage.
+
+Keep the original critical/near-wall checks and add (15,47) and (15,29) at both
+heights. The two added points belong in the 4 m diagnostic region; the three
+near-wall points remain full-region checks. All existing residual, iterative
+stability and spatial budgets remain. Maximum N is 16000, with failed triples
+retained and dependent comparisons withheld. All four cases have now passed or
+exhausted that cap: the 184-layer solve and both alignment controls pass, while
+the finest selected triple fails its earlier residual checks. Fifteen unique
+zero-start checkpoints are audited; three intermediate rejected triples and one
+terminal failed case remain recorded. The 115 focused tests pass, and both data
+and source-reconstruction audits reproduce without binaries or a build tree.
+
+The accepted 184-layer result fails the added-location comparison with
+the baseline at both heights: relative speed changes are 13.2–18.3%, despite
+passing percentile, peak and original near-wall checks. Both added locations
+are 7 m from walls, so the diagnostic setback also retains this failure.
+These differences establish sensitivity; they do not identify the more accurate
+grid without the accepted third-level reference.
+
+An explicitly exploratory source reconstruction matches all 16 initialized
+checks within 1.49e-8 in K. At the affected points, the upwind-cavity outer
+ellipse switches initialized u from 0.4 of the profile to the full profile.
+Moving vertical stencils across that jump gives a non-monotonic 1.5 m
+initialized response under subdivision. The same-count centre control also
+fails local comparisons with the baseline. Preserve these observations and
+the distinction between initialized fields, analytical interpolation and
+certified projected solutions; no empirical-model smoothing is authorized
+by a numerical comparison alone.
+
+The alignment controls agree exactly across CPU backends on the common final
+lattice, and their spatial decisions agree. Their comparisons with the baseline
+still fail added local checks: 33.56% at (15,29,1.5) and 28.67% at (15,47,1.75).
+The analytical zero-bias height therefore does not select a reliable policy by
+itself. The actual base-to-184 speed differences at the failed locations are
+about 0.10–0.12 m/s for Uref=5 m/s; report absolute and relative changes together.
+
+At 64,000 sweeps, the finest field meets even ten-times tighter residual bounds
+and both successive velocity-stability checks pass. Its 16,000-sweep residuals
+fail, and its 32,000-sweep RMS is 1.3718e-4 against 1e-4. A good last checkpoint
+does not satisfy the frozen three-checkpoint contract. Keep all finest-dependent
+accuracy comparisons withheld. Observed worker RSS is 4.785 GB, below the
+5.94 GB estimate; no memory failure or numerical stagnation is established.
+
+**Runtime correction — higher-budget attempt stopped:** the proposed
+40,000/80,000/160,000 triple was a validation overreach. It forces 280,000
+sweeps across 37.68 million cells and bypasses normal early stopping. Raising
+this budget further is not an acceptable route to delivering a fast urban-wind
+approximation. Both attempt processes are stopped. The first execution lost
+its tool session; the detached retry survived host sleep but was explicitly
+terminated after the user's clarification. Neither saved a completed reference.
+Preserve their frozen inputs, interruption/stop records and unknown-cost bounds
+in [the runtime review](docs/finest-reference.md). Do not resume this matrix as
+the next step or reinterpret the stop as a numerical pass/fail.
+
+The grid planner is already fast. Local warm measurements are about 0.3–0.4 ms
+for layer selection, below 1 ms even for the synthetic 100,000-height test,
+about 0.8 ms for a four-building preview, and about 67 ms for 1,000 buildings.
+The historical 37.68-million-cell native preparation took 1.47 s, including
+allocation and parameterization initialization. These are separate from solving.
+
+Two normal-API diagnostics were then capped at 30 seconds each, with the normal
+500-iteration limit and tolerance 1e-5. On the installed **serial CPU Release**
+binding, the actual 92-layer / 9.42-million-cell tower case took 28.0 s in
+float32 and 26.1 s in float64. Both exhausted 500 iterations without convergence;
+maximum/RMS divergence was approximately 0.0441/0.00242 s^-1. These are timing
+observations, not accuracy acceptance. Extra precision alone does not remedy
+the short-budget convergence deficit. The old study's separate two-thread
+OpenMP executable is not the installed Python backend.
+
+**Revised next step — bounded fast-solver assessment:**
+
+1. Keep planning geometry-only and around 0.1 s or less for representative
+   inputs, reporting geometry extraction separately for large cities. Never
+   run a wind solve to select a vertical grid.
+2. Profile the production API with explicit hardware, Release build, backend,
+   thread count, cell count and phase timings. Check a Release OpenMP binding
+   using the existing `DTCC_QES_OPENMP` option before attributing all cost to
+   vertical stretching. Do not assume more threads fix convergence or promise
+   a speedup from these single serial measurements.
+3. Use a predeclared practical wall-time/iteration cap per case; start with
+   diagnostics bounded to seconds/tens of seconds on the declared setup.
+   Keep 20M as a soft cell target and retain useful 40M/100M configurations on
+   suitable hardware. Cell count alone is not the runtime budget. Obtain a
+   clear runtime/accuracy decision before authorizing any longer matrix.
+4. Compare pedestrian vectors/speed factors at 1.5/1.75 m, fixed critical/local
+   points, validity and mass-consistency diagnostics with already accepted
+   references. Separate scientific reference certification from acceptance of
+   a fast approximation. Define any product-specific error contract before
+   new comparisons; preserve every old failure and do not relax residuals
+   merely to call a cheap result accurate. A stopped/nonconverged solve is not
+   automatically useful for comfort analysis.
+5. If adequate accuracy needs impractical iteration counts, treat that as a
+   solver/grid compatibility or conditioning problem. Inspect anisotropy,
+   unnecessary subdivision above the pedestrian/building band, relaxation and
+   convergence behavior; consider a bounded solver-acceleration experiment
+   only after profiling identifies the bottleneck. The float64 remedy addressed
+   a precision floor, not a guarantee of fast convergence. Do not silently
+   smooth empirical model branches or rewrite the solver as part of mesh
+   generation.
+6. Return to broader geometry/wind/policy coverage and B2 only with an explicit
+   supported scope and acceptable practical accuracy/cost. Finest-dependent
+   comparisons remain withheld; physical comfort qualification and automatic
+   preset promotion remain pending.
+
+### Practical float32/OpenMP vertical comparison: locally complete
+
+The OpenMP build/default work and the subsequent bounded comparison complete
+the immediate production-runtime assessment. Fresh builds require OpenMP unless
+explicitly configured otherwise; float32 remains the default. The separate
+[native solver-control plan](SOLVER_CONTROL_REFACTOR.md) follows vertical-grid
+closure and is not part of this validation stage.
+
+The new [frozen protocol](docs/data/practical-vertical-grid/protocol.json) compares
+the actual 92-layer automatic grid with uniform 0.5 m vertical cells at fixed
+0.5 m x/y, 160 m lateral extent, top 64 m, tower geometry and 270-degree wind.
+Both heights retain support at or above the third cell. Four independent normal
+API runs use float32, four requested OpenMP threads, tolerance 1e-5 and maximum
+iterations 1000/2000. Every worker has a 30 s subprocess deadline, with a 140 s
+matrix cap and no retries or budget expansion. The requested thread environment
+is recorded; actual team size is not measured inside these binding calls.
+
+Before execution, freeze candidate **iterative-error** budgets against each
+grid's own accepted same-grid reference: p95 absolute delta K and p95 vector
+error/Uref <= 0.01; each frozen critical point, both current/reference peak
+locations and all five mandatory points <= 2% relative error for reference
+K >= 0.1, otherwise absolute delta K <= 0.005; unchanged valid support.
+These are provisional engineering checks on the common physical lattice, not
+production acceptance or revisions to the historical reference criteria. The
+reference extract retains all three independent checkpoints and reproduces
+their original gate. Public/reference sensor positions differ; a single-sensor
+profile is horizontally uniform, but initial-field equality was not directly
+measured in this API comparison.
+
+All four workers finish within the cap:
+
+| Grid | Maximum iterations | API time | Largest p95 speed error, either height | Largest mandatory relative error | Candidate iterative-error checks |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Automatic, 92 layers | 1000 | 10.31 s | 0.04401 m/s | 2.236% | Fail at (21,23), both heights |
+| Uniform, 128 layers | 1000 | 13.50 s | 0.04333 m/s | 2.198% | Fail at (21,23), both heights |
+| Automatic, 92 layers | 2000 | 20.92 s | 0.007515 m/s | 0.412% | Pass at both heights |
+| Uniform, 128 layers | 2000 | 27.05 s | 0.007626 m/s | 0.417% | Pass at both heights |
+
+API times include preparation, solve, conservative diagnostics and full-volume
+output; they exclude imports, City creation, reference reads and sampling.
+Worker times include those costs and range from 11.53 to 28.63 s. At 2000
+iterations, p95 vector error is at most 0.00770 m/s. All comparisons retain
+1300 common fluid lattice points with no validity changes. The automatic grid
+has 28.125% fewer physical cells (9.42 versus 13.11 million); the observed
+uniform/automatic API ratio is 1.29 at 2000 iterations. These single sequential
+measurements do not establish a general speedup or select the cheapest
+qualifying grid across the remaining scope.
+
+All four runs still fail the legacy multiplier-change tolerance and the old
+interior residual bounds. At 2000 iterations, automatic maximum/RMS divergence
+is 0.006945/0.001490 s^-1, versus 0.006184/0.001523 s^-1 for uniform cells.
+The separately reported top-band maxima are 0.04981/0.17371 s^-1. No calibrated
+production mass-consistency threshold exists, so passing the sampled iterative
+checks does not qualify an entire wind field or a comfort result.
+
+**Spatial limitation confirmed:** expanded automatic-versus-uniform comparisons
+fail the five-point spatial budget at both heights. At (15,47) and (15,29), the
+accepted reference fields differ by 20.9–29.7%, or approximately 0.193–0.202 m/s
+at Uref=5 m/s. Both cheap 2000-iteration fields reproduce this sensitivity;
+further iterations would not remove the difference between their accepted
+same-grid references. Aggregate/peak checks and the original three local points
+still pass. The pilot's original pass remains valid under its original point
+set; it does not establish a pass under the subsequently expanded set.
+
+The [summary](docs/data/practical-vertical-grid/summary.json),
+[reference extract](docs/data/practical-vertical-grid/references.json.gz),
+[execution records](docs/data/practical-vertical-grid/executions.json) and
+[data-only audit](docs/data/practical-vertical-grid/audit.json) retain the raw
+sampled planes, source snapshots/hashes, resource measurements, residuals and
+all failed checks. The audit reproduces with wind-package imports blocked in
+an isolated copy. Reproduce it without a native executable:
+
+```sh
+.venv/bin/python docs/data/practical-vertical-grid/sources/tools/run_practical_vertical_grid.py --audit --output docs/data/practical-vertical-grid
+```
+
+### Numerical review closed: experimental automatic scope
+
+The user-approved completion scope on 2026-10-28 closes the numerical review
+without selecting an automatic comfort preset. Further geometry/wind/roof and
+generator-setting studies are deferred qualification work; they do not block
+dataset integration of the existing experimental generator.
+
+The release supports the construction and API contracts already verified:
+uniform horizontal spacing, explicit or generated vertical layers over flat
+ground, effective coordinates and layer metadata, geometry-only preview, and
+strict component sampling at physical heights. The generator's pedestrian
+constraint provides support at or above the third cell for its target height;
+adequate placement is not an accuracy guarantee. Explicitly chosen grids also
+require application-specific spatial and physical accuracy assessment.
+
+Retain these limitations in documentation, dataset discovery and provenance:
+
+- No general three-dimensional grid-independence, physical wind-comfort
+  accuracy, gust/GEM prediction or automatic-policy qualification follows from
+  the numerical construction tests.
+- Accepted horizontal comparisons fail additional local checks, and accepted
+  vertical comparisons retain 13–18% subdivision sensitivity and 21–30%
+  automatic/uniform differences at known locations. Empirical sidewall and
+  upwind-cavity initialization branches are implicated. No smoothing, special
+  sampling exclusion or change of physics is part of closure.
+- Practical float32/OpenMP fields meet candidate sampled iterative-error checks
+  on one fixture at 2000 iterations; they still fail legacy convergence and
+  historical reference residual bounds. No universal iteration budget,
+  production residual threshold or accuracy-based stop is introduced.
+- The finest three-checkpoint reference remains uncertified and its dependent
+  comparisons withheld. All stopped runs, failed gates and original criteria
+  remain unchanged; do not resume hours-long budget escalation.
+
+Keep `VerticalGrid.auto` opt-in and retain the existing
+`policy_status="prototype_unvalidated"` metadata for compatibility. Dataset
+`vertical_grid="auto"` is an explicit experimental option for slice products,
+with a warning and health/provenance marker. Uniform grids remain the default;
+float32 and OpenMP defaults remain. A full stretched `VolumeGrid` conversion
+is rejected rather than changing its coordinates.
+
+The separate [native solver-control plan](SOLVER_CONTROL_REFACTOR.md), automatic
+preset qualification and physical/model validation are follow-ups. This feature
+is complete once B2's output, request-identity, documentation and packaging
+checks pass under the scope above. These release checks are now complete:
+713 Python tests pass (2 skipped), all 14 native checks pass, and rebuilt wheel
+and source artifacts pass their checks. The installed wheel retains OpenMP and
+float32 defaults. The vertical-grid task is closed under this restricted scope.
 
 ## Findings from the source review
 
@@ -1305,10 +1685,13 @@ existing uniform grid and must be addressed before stretching is added.
    **7.5 `_logging.py`.** Include the maximum interior divergence in the
    `_log_solve` message alongside iterations and `converged`.
 
-   **7.6 `datasets.py` and `_dataset_city.py` (Stage B2, after C2).**
+   **7.6 `datasets.py` and `_dataset_city.py` (Stage B2, after numerical closure).**
 
-   This integration depends on the B1 sampler and the validated automatic
-   generator. Do not expose a dataset `"auto"` option before those exist.
+   The user-approved release scope supersedes the earlier requirement to
+   select a validated automatic comfort preset before B2. Integration uses the
+   verified B1 sampler and construction-tested C1 generator. A dataset `"auto"`
+   option is explicitly experimental, with the existing unqualified status
+   retained in provenance, discovery and warnings.
 
    - Add typed, serializable options to `QESWindArgs`:
      `vertical_grid: Literal["uniform", "auto"]`, `pedestrian_height`,
@@ -1341,6 +1724,16 @@ existing uniform grid and must be addressed before stretching is added.
    - Use the shared default-top helper in `_dataset_city.py`.
    - Integrate with the existing uncommitted dataset work without overwriting
      unrelated changes.
+
+   Implemented B2 behavior adds a boolean `valid` sample field for every slice.
+   Invalid vectors/speeds are NaN for both nearest and linear methods;
+   nearest categorical `cell_flags` cannot replace the validity field. Linear
+   samples keep the requested height even when outside the centre support,
+   recording `sampled_height=None` without extrapolation. Dataset context
+   includes all solver diagnostics, valid/invalid counts and experimental
+   status; all new serializable options participate in request identity.
+   Dataset registration on package import is retained from the existing user
+   change; the discovery test and documentation follow that behavior.
 
 8. **Handle DTCC output without misrepresenting the grid.**
 
@@ -1590,12 +1983,19 @@ existing uniform grid and must be addressed before stretching is added.
     | Accepted-reference precision remedy — locally complete | Default QES float32 CPU paths unchanged | Separate bridge `PrecisionSolver`, `solver_precision`, from-zero CPU matrices, provenance and measured workspace/RSS/cost; report in `docs/precision-and-horizontal-verification.md` | All 32 float64 cases pass the full gate; all 16 declared tighter cases pass, with 25 tighter passes overall; restored references are explicitly float64 |
     | Lateral/horizontal verification — assessment locally complete | Production flags retained; accepted opt-in float64 references | Fixed points/critical locations, 2-to-1-to-0.5 m x/y at 80 m and 80-to-160-to-240 m extents at 1 m, both z families and winds | Report each axis using accepted solves, retain near-wall maxima and failed 80-to-160/coarse-grid comparisons; joint scope remains a separate prerequisite |
     | Joint extent/finer-x/y assessment — locally complete; full-region scope fails | Same production flags, precision and z operands | Combined 160/240 m extent and 1/0.5 m x/y controls; fixed points plus mandatory near-wall checks; configurable cell ceiling and reusable independent checkpoints; report in `docs/joint-grid-verification.md` | All 16 new CPU cases accepted; all 64 decisions agree across backends; fine-grid lateral checks pass, but 13/16 horizontal planes per backend fail added local checks; 29.49-million-cell cases retained with measured resources |
-    | Near-wall scope/sampling review — next | Production physics and existing results retained | Review initialized/corner/final fields and the intended sampling observable; predeclare any alternate-sampler tests, selected finer references or narrower scope and their resource cost | A concrete bounded qualification protocol precedes new measurements; current failures remain recorded; the 4 m diagnostic region is not promoted to a preset |
-    | C2c: Remaining automatic validation and preset selection — gated by joint-scope closure | Retain validated precision/provenance on supported CPU backends | Generated-grid refinement, centre alignment, shallow/roof sensitivity, policy and cost studies | Accepted references and lateral/horizontal verification establish scope; compare with cheapest qualifying uniform grid and select settings only from measured evidence |
-    | B2: Dataset integration and release documentation | — | Section 7.6 options, cache identity, slice output, provenance, examples and documented presets | B1 and C2 complete; coordinates and validity survive dataset output; unsupported field conversions fail early; integration and packaging checks pass |
+    | Near-wall scope/sampling review — locally complete | Production physics and existing results retained | 40 raw-face diagnostics; manufactured sampling and independent extraction audit; source-branch check | Direct sampling fails to remedy near-wall changes; initialized sidewall jump identified; full-region failure retained; report in `docs/near-wall-validation.md` |
+    | C2c: Bounded generated-grid pilot — locally complete | Validated precision, fixed x/y, production physics and explicit horizontal limitations | Actual 92-layer generated z at 0.5 m x/y, tower/270 degrees, 160/240 m extents, both heights; accepted uniform-z references; all fixed checks and lateral control; report in `docs/generated-grid-pilot.md` | All four cases and six full-region comparisons per backend pass; 28.125% cell reduction; 0.902% maximum mandatory local vertical change; complete portable audit; sleep-interrupted costs support no speedup claim |
+    | C2c: Bounded refinement/alignment — assessed; expanded local scope fails | Accepted pilot and explicit horizontal limitations | 92/184/368-layer subdivision at 160 m / 0.5 m x/y; same-count 1.75 m centre control; OpenMP refinement and selected serial control; original checks plus observed worst-error points; report in `docs/vertical-refinement.md` | Three new solves accepted, finest certification budget exhausted; accepted base-to-184 local changes 13.2–18.3%; source initialization jump reconstructed; 15 audited executions and 115 focused tests; no preset selected |
+    | C2c: Higher-budget finest attempt — stopped for runtime review | Historical inputs, gates and failures preserved | Frozen attempt/interruption/stop records; fast planning benchmarks and two normal API cases with 30 s caps; report in `docs/finest-reference.md` | No new accepted reference; do not resume hours-long fixed-sweep escalation; ordinary 500-iteration serial cases finish in 26–28 s but do not converge |
+    | Bounded practical-runtime/accuracy assessment — locally complete | OpenMP default build and float32 preserved; historical reference gates unchanged | Four capped API cases, automatic/uniform z at fixed x/y, same-grid references, frozen critical and five mandatory points, portable audit | At 2000 iterations both pass candidate sampled iterative-error checks in 20.92/27.05 s; neither passes old residual bounds; expanded spatial checks still fail by 20.9–29.7%; no preset selected |
+    | C2 numerical-scope review — closed with limitations | All historical gates, failures and model/grid sensitivity retained | Explicit construction/sampling support; automatic generation experimental; user-approved restricted release scope | No automatic comfort preset, global grid-independence claim or resumed finest-reference escalation; remaining qualification is follow-up work |
+    | B2: Dataset integration and release documentation — implemented | Production solver unchanged | Section 7.6 options, request identity, exact-height slices, validity, health/provenance, discovery and examples | Uniform fields and uniform/experimental automatic slices; linear z only; unsupported combinations fail before fetch; integration and packaging verified for the restricted release scope |
+    | Follow-up: Automatic validation and preset selection | New bounded scope and accepted references required for every future claim | Additional wind/geometry/roof coverage, generator-setting sensitivity and controlled cost studies | Compare with cheapest qualifying uniform grid; retain historical failures; no preset promotion without appropriate coverage; not a prerequisite for experimental release |
     | Deferred: Uniform resampling | — | Separate explicit interchange/display operation, if needed | Sampling, solid-mask, provenance and independent allocation contracts defined; not required for B2 |
 
-    This table defines the execution order: diagnosis → B1 → C1 → C2 → B2.
+    This table defines the execution order: diagnosis → B1 → C1 → C2 numerical
+    closure → B2. Under the user-approved release scope, automatic preset
+    qualification follows separately rather than blocking B2.
     Do not turn the diagnostic milestone into an open-ended solver rewrite.
     A remaining numerical failure blocks reference comparisons or preset claims
     that rely on that configuration, not independent API correctness work.

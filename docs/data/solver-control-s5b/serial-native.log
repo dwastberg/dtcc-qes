@@ -1,0 +1,91 @@
+Test project /Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s5b/serial
+      Start  1: noio_core
+ 1/43 Test  #1: noio_core ..............................   Passed    0.13 sec
+      Start  2: native_success
+ 2/43 Test  #2: native_success .........................   Passed    0.16 sec
+      Start  3: native_failures
+ 3/43 Test  #3: native_failures ........................   Passed    0.02 sec
+      Start  4: native_nonconvergence
+ 4/43 Test  #4: native_nonconvergence ..................   Passed    0.00 sec
+      Start  5: native_messages
+ 5/43 Test  #5: native_messages ........................   Passed    0.00 sec
+      Start  6: runner_lifecycle
+ 6/43 Test  #6: runner_lifecycle .......................   Passed    0.35 sec
+      Start  7: staggered_flux
+ 7/43 Test  #7: staggered_flux .........................   Passed    2.42 sec
+      Start  8: native_turbulence_low_top
+ 8/43 Test  #8: native_turbulence_low_top ..............   Passed    0.14 sec
+      Start  9: native_turbulence_ref_in_top_cell
+ 9/43 Test  #9: native_turbulence_ref_in_top_cell ......   Passed    0.00 sec
+      Start 10: native_turbulence_ref_above_top
+10/43 Test #10: native_turbulence_ref_above_top ........   Passed    0.00 sec
+      Start 11: native_turbulence_reference_boundary
+11/43 Test #11: native_turbulence_reference_boundary ...   Passed    0.00 sec
+      Start 12: native_turbulence_methods
+12/43 Test #12: native_turbulence_methods ..............   Passed    0.00 sec
+      Start 13: native_turbulence_ownership
+13/43 Test #13: native_turbulence_ownership ............   Passed    0.00 sec
+      Start 14: native_turbulence_references
+14/43 Test #14: native_turbulence_references ...........   Passed    0.00 sec
+      Start 15: native_turbulence_lifecycle
+15/43 Test #15: native_turbulence_lifecycle ............   Passed    0.03 sec
+      Start 16: native_turbulence_rotation
+16/43 Test #16: native_turbulence_rotation .............   Passed    0.01 sec
+      Start 17: native_turbulence_rotation_fallback
+17/43 Test #17: native_turbulence_rotation_fallback ....   Passed    0.01 sec
+      Start 18: native_turbulence_calm
+18/43 Test #18: native_turbulence_calm .................   Passed    0.01 sec
+      Start 19: native_turbulence_validity
+19/43 Test #19: native_turbulence_validity .............   Passed    0.00 sec
+      Start 20: native_turbulence_building_validity
+20/43 Test #20: native_turbulence_building_validity ....   Passed    0.02 sec
+      Start 21: native_turbulence_wall_thin
+21/43 Test #21: native_turbulence_wall_thin ............   Passed    0.02 sec
+      Start 22: native_turbulence_wall_upper_bound
+22/43 Test #22: native_turbulence_wall_upper_bound .....   Passed    0.02 sec
+      Start 23: native_turbulence_wall_geometry
+23/43 Test #23: native_turbulence_wall_geometry ........   Passed    0.16 sec
+      Start 24: native_turbulence_wall_nonuniform
+24/43 Test #24: native_turbulence_wall_nonuniform ......   Passed    0.02 sec
+      Start 25: native_turbulence_wall_transition
+25/43 Test #25: native_turbulence_wall_transition ......   Passed    0.00 sec
+      Start 26: native_turbulence_wall_underside
+26/43 Test #26: native_turbulence_wall_underside .......   Passed    0.01 sec
+      Start 27: native_turbulence_wall_empty
+27/43 Test #27: native_turbulence_wall_empty ...........   Passed    0.01 sec
+      Start 28: native_turbulence_flat_analytic
+28/43 Test #28: native_turbulence_flat_analytic ........   Passed    0.01 sec
+      Start 29: native_turbulence_bridge_calm
+29/43 Test #29: native_turbulence_bridge_calm ..........   Passed    0.01 sec
+      Start 30: native_turbulence_scaling
+30/43 Test #30: native_turbulence_scaling ..............   Passed    0.02 sec
+      Start 31: native_turbulence_repeat
+31/43 Test #31: native_turbulence_repeat ...............   Passed    0.05 sec
+      Start 32: native_turbulence_wall_distance
+32/43 Test #32: native_turbulence_wall_distance ........   Passed    0.28 sec
+      Start 33: native_turbulence_margin
+33/43 Test #33: native_turbulence_margin ...............   Passed    0.01 sec
+      Start 34: native_turbulence_bridge_methods
+34/43 Test #34: native_turbulence_bridge_methods .......   Passed    0.00 sec
+      Start 35: native_turbulence_invalid_stress
+35/43 Test #35: native_turbulence_invalid_stress .......   Passed    0.00 sec
+      Start 36: explicit_vertical_grid
+36/43 Test #36: explicit_vertical_grid .................   Passed    0.43 sec
+      Start 37: precision_solver
+37/43 Test #37: precision_solver .......................   Passed    0.28 sec
+      Start 38: solver_phases
+38/43 Test #38: solver_phases ..........................   Passed    0.30 sec
+      Start 39: solver_monitor
+39/43 Test #39: solver_monitor .........................   Passed    0.37 sec
+      Start 40: solver_control
+40/43 Test #40: solver_control .........................   Passed    0.19 sec
+      Start 41: study_sampler
+41/43 Test #41: study_sampler ..........................   Passed    0.13 sec
+      Start 42: study_solver_diagnostics
+42/43 Test #42: study_solver_diagnostics ...............   Passed    0.00 sec
+      Start 43: equation_residual
+43/43 Test #43: equation_residual ......................   Passed    0.14 sec
+
+100% tests passed, 0 tests failed out of 43
+
+Total Test time (real) =   5.79 sec

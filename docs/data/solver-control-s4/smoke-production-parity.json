@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "files": 107,
+  "smoke_source_id": "sha256:5c27cd7363e5a2975cb17e288f3576408489ac50e69ba93be05f8c58556e47ec",
+  "final_source_id": "sha256:b2d4cd6e8708a4058187a8284195a67805f78b226e156a3f13981b903a8d63fe",
+  "scope": "Every production native and Python source matches the smoke-build snapshot; final changes are benchmark freezing and regression tests."
+}

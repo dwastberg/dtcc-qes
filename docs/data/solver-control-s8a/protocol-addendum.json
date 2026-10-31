@@ -1,0 +1,13 @@
+{
+  "decision_gate_unchanged": true,
+  "additional_workers": {
+    "profile": 4,
+    "memory": 8
+  },
+  "correction": "Initial summary mistakenly compared adaptive checkpoint elapsed_seconds. Raw workers unchanged; recursive exclusion of only elapsed_seconds restores exact fields/diagnostics/control parity. Original summary retained at primary/summary.json. No numerical or threshold changes.",
+  "instrumentation": "Separate legacy-only source build; constructor, operator and float workspace object counts, owned flat numeric vector bytes/capacities and phase RSS. Not complete malloc-event accounting.",
+  "memory": "Separate untimed tracemalloc workers. Primary timing workers have tracing disabled. Native high-water RSS includes imports, transient setup and output copies.",
+  "output": "One uncompressed full-field NPZ with fsync per condition, streamed and removed. Primary end-to-end timings include fingerprint calculation for the audit.",
+  "scope": "Single affordable 20-building neighbourhood, four/eight fixed directions, current local machine. Reuse parity is not new physical or numerical policy qualification.",
+  "production_changes": "None. Public reuse API deferred by predeclared measured gate. S8b/S9 remain separate."
+}

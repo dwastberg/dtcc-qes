@@ -1,0 +1,12 @@
+{
+  "pyproject.toml": {
+    "validated_snapshot_sha256": "4d530ec2fa53950df8fbe5b1b21d52bb3eabba6f35eb21ddbe69487ad7fe85fa",
+    "live_workspace_sha256": "dfd6c7156470a80d50a8bf2746d717a2702e983fefc42a300f279713711c74ce",
+    "reason": "Unrelated live dependency-source edit appeared after the isolated source freeze; preserved without incorporating it into this release."
+  },
+  "uv.lock": {
+    "validated_snapshot_sha256": "1aaa71aaead422645b9e2e849d06d5a8c6c266a59ea38ab1c8ec46d2267c4684",
+    "live_workspace_sha256": "11e58cd561c4f92ccae2569a2370ae8224801e5005c3ebf0ebc877e54213d5f3",
+    "reason": "Unrelated live dependency-source edit appeared after the isolated source freeze; preserved without incorporating it into this release."
+  }
+}

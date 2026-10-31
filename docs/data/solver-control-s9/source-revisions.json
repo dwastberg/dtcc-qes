@@ -1,0 +1,10 @@
+{
+  "validation_start_source_sha256": "6f2bdb188e160afffe5d00095a922583ab8e56fd43ac592c2a99ee832f492bfd",
+  "changes": {
+    "tools/validate_solver_release.py": {
+      "before": "5b01a6af0556fadaf6503038701943364d462aad12744c957d672c652c426b6e",
+      "after": "0043b4da25105bf1088a112e56da5cd545108265f9adb3d06d150871c0c2de43"
+    }
+  },
+  "scope": "Stronger release checks for actual native identity, fresh fixtures and immutable prior outcomes; runtime untouched."
+}
