@@ -1,0 +1,1846 @@
+{
+  "protocol": {
+    "iterations": 80,
+    "physical_cells": 9420800,
+    "updated_cells": 9202284,
+    "native_build": {
+      "compiler_id": "AppleClang",
+      "compiler_version": "17.0.0.17000404",
+      "build_type": "Release",
+      "openmp_enabled": true,
+      "fp_contract": "on"
+    },
+    "cpu_count": 14,
+    "host_identity": "Apple M4 Pro from preserved S0 protocol; S2 records platform and CPU count; direct CPU-brand re-query unavailable in sandbox.",
+    "model": "Logical coefficient, RHS, neighbor/self/output reads/writes, old-iterate passes when present, ground mirror, and compact mask/factor lookups. Counts table reads even when cached; assumes shared mask-index reuse; excludes cache-line/write-allocation effects and control overhead. Effective GB/s is not measured DRAM bandwidth."
+  },
+  "stages": {
+    "baseline-corrected": {
+      "matrix_elapsed_seconds": 103.60679662501207,
+      "groups": [
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 3.6427605419885367,
+          "native_prepare_seconds": 0.23183233401505277,
+          "sweep_seconds": 0.0385776135375,
+          "logical_bytes_per_sweep": 704508240,
+          "effective_logical_gb_per_second": 18.26210009893876,
+          "peak_rss_bytes": 1641807872,
+          "wind_operator_workspace_bytes": 995962620,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 114278400
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 2,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 1.995104291010648,
+          "native_prepare_seconds": 0.2234688340104185,
+          "sweep_seconds": 0.019497328124999998,
+          "logical_bytes_per_sweep": 704508240,
+          "effective_logical_gb_per_second": 36.13357868746439,
+          "peak_rss_bytes": 1633845248,
+          "wind_operator_workspace_bytes": 995962620,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 114278400
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 4,
+          "turbulence": false,
+          "repeats": 2,
+          "api_seconds": 1.2485042920161504,
+          "native_prepare_seconds": 0.22084391649696045,
+          "sweep_seconds": 0.010731497925,
+          "logical_bytes_per_sweep": 704508240,
+          "effective_logical_gb_per_second": 65.64863963294295,
+          "peak_rss_bytes": 1640701952.0,
+          "wind_operator_workspace_bytes": 995962620,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 114278400
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 4,
+          "turbulence": true,
+          "repeats": 1,
+          "api_seconds": 4.121795665996615,
+          "native_prepare_seconds": 0.5999959170003422,
+          "sweep_seconds": 0.0104652854125,
+          "logical_bytes_per_sweep": 704508240,
+          "effective_logical_gb_per_second": 67.31858828795224,
+          "peak_rss_bytes": 2991685632,
+          "wind_operator_workspace_bytes": 995962620,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 114278400
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 8,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 0.8965951250283979,
+          "native_prepare_seconds": 0.22122891701292247,
+          "sweep_seconds": 0.0056122822875,
+          "logical_bytes_per_sweep": 704508240,
+          "effective_logical_gb_per_second": 125.52972283114154,
+          "peak_rss_bytes": 1638940672,
+          "wind_operator_workspace_bytes": 995962620,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 114278400
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 2.541350124985911,
+          "native_prepare_seconds": 0.221603708982002,
+          "sweep_seconds": 0.0256026364625,
+          "logical_bytes_per_sweep": 885057664,
+          "effective_logical_gb_per_second": 34.56900484824435,
+          "peak_rss_bytes": 1668661248,
+          "wind_operator_workspace_bytes": 1034055420,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 152371200
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 2,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 1.47451191698201,
+          "native_prepare_seconds": 0.2202301659854129,
+          "sweep_seconds": 0.0131505151125,
+          "logical_bytes_per_sweep": 885057664,
+          "effective_logical_gb_per_second": 67.30212896061565,
+          "peak_rss_bytes": 1675870208,
+          "wind_operator_workspace_bytes": 1034055420,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 152371200
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 4,
+          "turbulence": false,
+          "repeats": 2,
+          "api_seconds": 0.9920819584804121,
+          "native_prepare_seconds": 0.22041152100428008,
+          "sweep_seconds": 0.0073501070374999995,
+          "logical_bytes_per_sweep": 885057664,
+          "effective_logical_gb_per_second": 120.41425512369622,
+          "peak_rss_bytes": 1672552448.0,
+          "wind_operator_workspace_bytes": 1034055420,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 152371200
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 4,
+          "turbulence": true,
+          "repeats": 1,
+          "api_seconds": 3.6382436249987222,
+          "native_prepare_seconds": 0.5092348750331439,
+          "sweep_seconds": 0.007487636975000001,
+          "logical_bytes_per_sweep": 885057664,
+          "effective_logical_gb_per_second": 118.2025339843616,
+          "peak_rss_bytes": 3619487744,
+          "wind_operator_workspace_bytes": 1034055420,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 152371200
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 8,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 0.855434334021993,
+          "native_prepare_seconds": 0.22057200002018362,
+          "sweep_seconds": 0.0059192333375000005,
+          "logical_bytes_per_sweep": 885057664,
+          "effective_logical_gb_per_second": 149.52234749607047,
+          "peak_rss_bytes": 1676296192,
+          "wind_operator_workspace_bytes": 1034055420,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 152371200
+        },
+        {
+          "backend": "serial",
+          "precision": "float32",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 5.148650332994293,
+          "native_prepare_seconds": 0.2252858750289306,
+          "sweep_seconds": 0.0577366276,
+          "logical_bytes_per_sweep": 704508240,
+          "effective_logical_gb_per_second": 12.202102361794335,
+          "peak_rss_bytes": 1641234432,
+          "wind_operator_workspace_bytes": 995962620,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 114278400
+        },
+        {
+          "backend": "serial",
+          "precision": "float64",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 6.4876776250312105,
+          "native_prepare_seconds": 0.2183974999934435,
+          "sweep_seconds": 0.0758234901125,
+          "logical_bytes_per_sweep": 885057664,
+          "effective_logical_gb_per_second": 11.672605187216151,
+          "peak_rss_bytes": 1675821056,
+          "wind_operator_workspace_bytes": 1034055420,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 152371200
+        }
+      ]
+    },
+    "norm": {
+      "matrix_elapsed_seconds": 100.90453424997395,
+      "groups": [
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 3.3314493750222027,
+          "native_prepare_seconds": 0.2513353329850361,
+          "sweep_seconds": 0.0353324890625,
+          "logical_bytes_per_sweep": 552956240,
+          "effective_logical_gb_per_second": 15.650078855805209,
+          "peak_rss_bytes": 1600061440,
+          "wind_operator_workspace_bytes": 957869820,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 76185600
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 2,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 2.4912774579715915,
+          "native_prepare_seconds": 0.260027208016254,
+          "sweep_seconds": 0.017815043750000002,
+          "logical_bytes_per_sweep": 552956240,
+          "effective_logical_gb_per_second": 31.03872478561833,
+          "peak_rss_bytes": 1597685760,
+          "wind_operator_workspace_bytes": 957869820,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 76185600
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 4,
+          "turbulence": false,
+          "repeats": 2,
+          "api_seconds": 1.147536707983818,
+          "native_prepare_seconds": 0.230160208477173,
+          "sweep_seconds": 0.00939252656875,
+          "logical_bytes_per_sweep": 552956240,
+          "effective_logical_gb_per_second": 58.87193780635639,
+          "peak_rss_bytes": 1599995904.0,
+          "wind_operator_workspace_bytes": 957869820,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 76185600
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 4,
+          "turbulence": true,
+          "repeats": 1,
+          "api_seconds": 3.872330125013832,
+          "native_prepare_seconds": 0.5877046670066193,
+          "sweep_seconds": 0.009130642712500001,
+          "logical_bytes_per_sweep": 552956240,
+          "effective_logical_gb_per_second": 60.56049474403305,
+          "peak_rss_bytes": 3554754560,
+          "wind_operator_workspace_bytes": 957869820,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 76185600
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 8,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 1.0004531249869615,
+          "native_prepare_seconds": 0.22076137497788295,
+          "sweep_seconds": 0.0049787354125,
+          "logical_bytes_per_sweep": 552956240,
+          "effective_logical_gb_per_second": 111.06359229528547,
+          "peak_rss_bytes": 1594392576,
+          "wind_operator_workspace_bytes": 957869820,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 76185600
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 2.5313895419822074,
+          "native_prepare_seconds": 0.22191520797787234,
+          "sweep_seconds": 0.0251739895875,
+          "logical_bytes_per_sweep": 885057664,
+          "effective_logical_gb_per_second": 35.15762413914202,
+          "peak_rss_bytes": 1672019968,
+          "wind_operator_workspace_bytes": 1034055420,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 152371200
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 2,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 1.4546323340036906,
+          "native_prepare_seconds": 0.21622695901896805,
+          "sweep_seconds": 0.0128221927125,
+          "logical_bytes_per_sweep": 885057664,
+          "effective_logical_gb_per_second": 69.02545327814188,
+          "peak_rss_bytes": 1669300224,
+          "wind_operator_workspace_bytes": 1034055420,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 152371200
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 4,
+          "turbulence": false,
+          "repeats": 2,
+          "api_seconds": 1.071306354511762,
+          "native_prepare_seconds": 0.23657958302646875,
+          "sweep_seconds": 0.00727556640625,
+          "logical_bytes_per_sweep": 885057664,
+          "effective_logical_gb_per_second": 121.64793977273033,
+          "peak_rss_bytes": 1672527872.0,
+          "wind_operator_workspace_bytes": 1034055420,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 152371200
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 4,
+          "turbulence": true,
+          "repeats": 1,
+          "api_seconds": 3.563749916967936,
+          "native_prepare_seconds": 0.4959345000097528,
+          "sweep_seconds": 0.0077272598875,
+          "logical_bytes_per_sweep": 885057664,
+          "effective_logical_gb_per_second": 114.53706448151347,
+          "peak_rss_bytes": 3628335104,
+          "wind_operator_workspace_bytes": 1034055420,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 152371200
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 8,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 1.0603462500148453,
+          "native_prepare_seconds": 0.25297133304411545,
+          "sweep_seconds": 0.0051095395875,
+          "logical_bytes_per_sweep": 885057664,
+          "effective_logical_gb_per_second": 173.216715291767,
+          "peak_rss_bytes": 1678606336,
+          "wind_operator_workspace_bytes": 1034055420,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 152371200
+        },
+        {
+          "backend": "serial",
+          "precision": "float32",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 4.701276750012767,
+          "native_prepare_seconds": 0.2250727079808712,
+          "sweep_seconds": 0.052899091662499995,
+          "logical_bytes_per_sweep": 552956240,
+          "effective_logical_gb_per_second": 10.453038466669721,
+          "peak_rss_bytes": 1596735488,
+          "wind_operator_workspace_bytes": 957869820,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 76185600
+        },
+        {
+          "backend": "serial",
+          "precision": "float64",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 6.530604708997998,
+          "native_prepare_seconds": 0.21782045799773186,
+          "sweep_seconds": 0.07445999375,
+          "logical_bytes_per_sweep": 885057664,
+          "effective_logical_gb_per_second": 11.8863515752041,
+          "peak_rss_bytes": 1668546560,
+          "wind_operator_workspace_bytes": 1034055420,
+          "operator_owned_bytes": 0,
+          "solver_workspace_bytes": 152371200
+        }
+      ]
+    },
+    "operator": {
+      "matrix_elapsed_seconds": 92.16679591702996,
+      "groups": [
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 2.0561455829883926,
+          "native_prepare_seconds": 0.31413812504615635,
+          "sweep_seconds": 0.0189819052125,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 31.554664997777287,
+          "peak_rss_bytes": 1458077696,
+          "wind_operator_workspace_bytes": 739002876,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 2,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 1.210047458007466,
+          "native_prepare_seconds": 0.26676504203351215,
+          "sweep_seconds": 0.0089749849,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 66.73745601510706,
+          "peak_rss_bytes": 1460846592,
+          "wind_operator_workspace_bytes": 739002876,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 4,
+          "turbulence": false,
+          "repeats": 2,
+          "api_seconds": 0.787364375020843,
+          "native_prepare_seconds": 0.24016945803305134,
+          "sweep_seconds": 0.004698946875,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 127.46848941551397,
+          "peak_rss_bytes": 1454292992.0,
+          "wind_operator_workspace_bytes": 739002876,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 4,
+          "turbulence": true,
+          "repeats": 1,
+          "api_seconds": 3.417973625008017,
+          "native_prepare_seconds": 0.5469685000134632,
+          "sweep_seconds": 0.005108278125,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 117.25431649240907,
+          "peak_rss_bytes": 3157557248,
+          "wind_operator_workspace_bytes": 739002876,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 8,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 0.6195732500054874,
+          "native_prepare_seconds": 0.2389707500115037,
+          "sweep_seconds": 0.0027261151125,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 219.71473517518237,
+          "peak_rss_bytes": 1459257344,
+          "wind_operator_workspace_bytes": 739002876,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 2.0904717500088736,
+          "native_prepare_seconds": 0.25206441699992865,
+          "sweep_seconds": 0.019300552074999998,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 50.14769609899877,
+          "peak_rss_bytes": 1608400896,
+          "wind_operator_workspace_bytes": 815212284,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 2,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 1.2266617079731077,
+          "native_prepare_seconds": 0.23468433297239244,
+          "sweep_seconds": 0.009717514574999999,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 99.60141685714942,
+          "peak_rss_bytes": 1605140480,
+          "wind_operator_workspace_bytes": 815212284,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 4,
+          "turbulence": false,
+          "repeats": 2,
+          "api_seconds": 0.8341630205104593,
+          "native_prepare_seconds": 0.23904949997086078,
+          "sweep_seconds": 0.00508112604375,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 190.48498534897223,
+          "peak_rss_bytes": 1604812800.0,
+          "wind_operator_workspace_bytes": 815212284,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 4,
+          "turbulence": true,
+          "repeats": 1,
+          "api_seconds": 3.3558102499810047,
+          "native_prepare_seconds": 0.5355008750339039,
+          "sweep_seconds": 0.0051122948,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 189.32363211918062,
+          "peak_rss_bytes": 3404431360,
+          "wind_operator_workspace_bytes": 815212284,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 8,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 0.861576082999818,
+          "native_prepare_seconds": 0.25354987499304116,
+          "sweep_seconds": 0.003113820825,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 310.8329844251716,
+          "peak_rss_bytes": 1608581120,
+          "wind_operator_workspace_bytes": 815212284,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "serial",
+          "precision": "float32",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 5.497696083970368,
+          "native_prepare_seconds": 0.24221583298640326,
+          "sweep_seconds": 0.06446105625000001,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 9.291930583281435,
+          "peak_rss_bytes": 1456750592,
+          "wind_operator_workspace_bytes": 739002876,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "serial",
+          "precision": "float64",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 6.69317162502557,
+          "native_prepare_seconds": 0.2356180420028977,
+          "sweep_seconds": 0.07387910625,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 13.100838235979607,
+          "peak_rss_bytes": 1607598080,
+          "wind_operator_workspace_bytes": 815212284,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        }
+      ]
+    },
+    "allocation": {
+      "matrix_elapsed_seconds": 96.95218845794443,
+      "groups": [
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 2.336854916997254,
+          "native_prepare_seconds": 0.2404049169854261,
+          "sweep_seconds": 0.017844455725,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 33.566036937783934,
+          "peak_rss_bytes": 1155956736,
+          "wind_operator_workspace_bytes": 434260476,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 2,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 1.1926674999995157,
+          "native_prepare_seconds": 0.22657429199898615,
+          "sweep_seconds": 0.009102110937500001,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 65.80535703342167,
+          "peak_rss_bytes": 1153302528,
+          "wind_operator_workspace_bytes": 434260476,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 4,
+          "turbulence": false,
+          "repeats": 2,
+          "api_seconds": 0.7860024375258945,
+          "native_prepare_seconds": 0.22918702100287192,
+          "sweep_seconds": 0.0047233442687500005,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 126.81007902871168,
+          "peak_rss_bytes": 1153671168.0,
+          "wind_operator_workspace_bytes": 434260476,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 4,
+          "turbulence": true,
+          "repeats": 1,
+          "api_seconds": 3.850248124974314,
+          "native_prepare_seconds": 0.6652464580256492,
+          "sweep_seconds": 0.0047783677125,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 125.34984665017029,
+          "peak_rss_bytes": 2801057792,
+          "wind_operator_workspace_bytes": 510446076,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 8,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 0.6696679160231724,
+          "native_prepare_seconds": 0.23208220797823742,
+          "sweep_seconds": 0.0033586958375000004,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 178.33340349325394,
+          "peak_rss_bytes": 1152974848,
+          "wind_operator_workspace_bytes": 434260476,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 2.1108640000456944,
+          "native_prepare_seconds": 0.22757816704688594,
+          "sweep_seconds": 0.019388135937500002,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 49.921159162493616,
+          "peak_rss_bytes": 1303691264,
+          "wind_operator_workspace_bytes": 510469884,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 2,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 1.2357202079729177,
+          "native_prepare_seconds": 0.22849358298117295,
+          "sweep_seconds": 0.0099062671875,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 97.70362556153295,
+          "peak_rss_bytes": 1302724608,
+          "wind_operator_workspace_bytes": 510469884,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 4,
+          "turbulence": false,
+          "repeats": 2,
+          "api_seconds": 0.8470317079918459,
+          "native_prepare_seconds": 0.22735495850793086,
+          "sweep_seconds": 0.00527905234375,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 183.3431754367609,
+          "peak_rss_bytes": 1303732224.0,
+          "wind_operator_workspace_bytes": 510469884,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 4,
+          "turbulence": true,
+          "repeats": 1,
+          "api_seconds": 3.452780249994248,
+          "native_prepare_seconds": 0.5179706659982912,
+          "sweep_seconds": 0.0057096447875,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 169.5163632804189,
+          "peak_rss_bytes": 3171336192,
+          "wind_operator_workspace_bytes": 586655484,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 8,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 0.7424171249731444,
+          "native_prepare_seconds": 0.23153004102641717,
+          "sweep_seconds": 0.0033733349000000003,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 286.9202876951233,
+          "peak_rss_bytes": 1307197440,
+          "wind_operator_workspace_bytes": 510469884,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "serial",
+          "precision": "float32",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 5.815888166020159,
+          "native_prepare_seconds": 0.22805095795774832,
+          "sweep_seconds": 0.06959605937499999,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 8.606344459427234,
+          "peak_rss_bytes": 1152581632,
+          "wind_operator_workspace_bytes": 434260476,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "serial",
+          "precision": "float64",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 6.800577167014126,
+          "native_prepare_seconds": 0.23002770903985947,
+          "sweep_seconds": 0.079517603125,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 12.171873672783066,
+          "peak_rss_bytes": 1304379392,
+          "wind_operator_workspace_bytes": 510469884,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        }
+      ]
+    },
+    "ordering": {
+      "matrix_elapsed_seconds": 78.92205729201669,
+      "groups": [
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 1.9438287920202129,
+          "native_prepare_seconds": 0.26413837500149384,
+          "sweep_seconds": 0.0183025171875,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 32.7259717263959,
+          "peak_rss_bytes": 1157316608,
+          "wind_operator_workspace_bytes": 434260476,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 2,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 1.152858333021868,
+          "native_prepare_seconds": 0.22726666601374745,
+          "sweep_seconds": 0.009245580724999999,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 64.78421181055667,
+          "peak_rss_bytes": 1150517248,
+          "wind_operator_workspace_bytes": 434260476,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 4,
+          "turbulence": false,
+          "repeats": 2,
+          "api_seconds": 0.7833000414830167,
+          "native_prepare_seconds": 0.22779195799375884,
+          "sweep_seconds": 0.00507011979375,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 118.13678657817019,
+          "peak_rss_bytes": 1152548864.0,
+          "wind_operator_workspace_bytes": 434260476,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 4,
+          "turbulence": true,
+          "repeats": 1,
+          "api_seconds": 3.61104750004597,
+          "native_prepare_seconds": 0.6040586670278572,
+          "sweep_seconds": 0.0046961578125,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 127.5441933415648,
+          "peak_rss_bytes": 2812624896,
+          "wind_operator_workspace_bytes": 510446076,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float32",
+          "threads": 8,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 0.6221823749947362,
+          "native_prepare_seconds": 0.22815404197899625,
+          "sweep_seconds": 0.0038541026,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 155.410408638317,
+          "peak_rss_bytes": 1153941504,
+          "wind_operator_workspace_bytes": 434260476,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 2.1155755830113776,
+          "native_prepare_seconds": 0.23694441700354218,
+          "sweep_seconds": 0.0195123421875,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 49.60338490886257,
+          "peak_rss_bytes": 1306148864,
+          "wind_operator_workspace_bytes": 510469884,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 2,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 1.2731163330026902,
+          "native_prepare_seconds": 0.23257587500847876,
+          "sweep_seconds": 0.00992008125,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 97.56756982207176,
+          "peak_rss_bytes": 1302118400,
+          "wind_operator_workspace_bytes": 510469884,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 4,
+          "turbulence": false,
+          "repeats": 2,
+          "api_seconds": 0.8566757704829797,
+          "native_prepare_seconds": 0.22914435449638404,
+          "sweep_seconds": 0.00526305286875,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 183.90053152361278,
+          "peak_rss_bytes": 1305354240.0,
+          "wind_operator_workspace_bytes": 510469884,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 4,
+          "turbulence": true,
+          "repeats": 1,
+          "api_seconds": 3.5045014999923296,
+          "native_prepare_seconds": 0.548141208011657,
+          "sweep_seconds": 0.005210627075,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 185.7508138787691,
+          "peak_rss_bytes": 3175546880,
+          "wind_operator_workspace_bytes": 586655484,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "openmp",
+          "precision": "float64",
+          "threads": 8,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 0.6832460419973359,
+          "native_prepare_seconds": 0.228726250003092,
+          "sweep_seconds": 0.0037714125,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 256.6354701322117,
+          "peak_rss_bytes": 1302839296,
+          "wind_operator_workspace_bytes": 510469884,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        },
+        {
+          "backend": "serial",
+          "precision": "float32",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 1.9373829999822192,
+          "native_prepare_seconds": 0.22445845801848918,
+          "sweep_seconds": 0.017640944787499998,
+          "logical_bytes_per_sweep": 598967660,
+          "effective_logical_gb_per_second": 33.95326425058685,
+          "peak_rss_bytes": 1158709248,
+          "wind_operator_workspace_bytes": 434260476,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 76209408
+        },
+        {
+          "backend": "serial",
+          "precision": "float64",
+          "threads": 1,
+          "turbulence": false,
+          "repeats": 1,
+          "api_seconds": 2.0528098329668865,
+          "native_prepare_seconds": 0.22554287500679493,
+          "sweep_seconds": 0.020912249475,
+          "logical_bytes_per_sweep": 967878220,
+          "effective_logical_gb_per_second": 46.28283634226298,
+          "peak_rss_bytes": 1303789568,
+          "wind_operator_workspace_bytes": 510469884,
+          "operator_owned_bytes": 9666048,
+          "solver_workspace_bytes": 152418816
+        }
+      ]
+    }
+  },
+  "cross_stage_numerical_parity": [
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/00-openmp-plain-float32-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/01-openmp-profile-float32-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/02-openmp-plain-float32-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/03-openmp-profile-float32-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/04-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/05-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/06-openmp-plain-float32-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/07-openmp-profile-float32-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/08-openmp-plain-float64-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/09-openmp-profile-float64-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/10-openmp-plain-float64-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/11-openmp-profile-float64-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/12-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/13-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/14-openmp-plain-float64-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/15-openmp-profile-float64-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/16-serial-plain-float32-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/17-serial-profile-float32-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/18-serial-plain-float64-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/19-serial-profile-float64-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/20-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/21-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/22-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/23-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/24-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/25-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/26-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "baseline-corrected",
+      "record": "runs/27-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/00-openmp-plain-float32-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/01-openmp-profile-float32-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/02-openmp-plain-float32-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/03-openmp-profile-float32-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/04-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/05-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/06-openmp-plain-float32-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/07-openmp-profile-float32-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/08-openmp-plain-float64-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/09-openmp-profile-float64-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/10-openmp-plain-float64-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/11-openmp-profile-float64-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/12-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/13-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/14-openmp-plain-float64-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/15-openmp-profile-float64-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/16-serial-plain-float32-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/17-serial-profile-float32-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/18-serial-plain-float64-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/19-serial-profile-float64-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/20-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/21-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/22-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/23-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/24-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/25-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/26-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "norm",
+      "record": "runs/27-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/00-openmp-plain-float32-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/01-openmp-profile-float32-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/02-openmp-plain-float32-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/03-openmp-profile-float32-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/04-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/05-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/06-openmp-plain-float32-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/07-openmp-profile-float32-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/08-openmp-plain-float64-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/09-openmp-profile-float64-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/10-openmp-plain-float64-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/11-openmp-profile-float64-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/12-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/13-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/14-openmp-plain-float64-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/15-openmp-profile-float64-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/16-serial-plain-float32-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/17-serial-profile-float32-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/18-serial-plain-float64-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/19-serial-profile-float64-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/20-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/21-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/22-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/23-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/24-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/25-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/26-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "operator",
+      "record": "runs/27-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/00-openmp-plain-float32-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/01-openmp-profile-float32-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/02-openmp-plain-float32-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/03-openmp-profile-float32-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/04-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/05-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/06-openmp-plain-float32-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/07-openmp-profile-float32-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/08-openmp-plain-float64-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/09-openmp-profile-float64-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/10-openmp-plain-float64-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/11-openmp-profile-float64-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/12-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/13-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/14-openmp-plain-float64-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/15-openmp-profile-float64-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/16-serial-plain-float32-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/17-serial-profile-float32-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/18-serial-plain-float64-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/19-serial-profile-float64-1t.json",
+      "reference_backend": "serial",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/20-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/21-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/22-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/23-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/24-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/25-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/26-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "allocation",
+      "record": "runs/27-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/00-openmp-plain-float32-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/01-openmp-profile-float32-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/02-openmp-plain-float32-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/03-openmp-profile-float32-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/04-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/05-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/06-openmp-plain-float32-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/07-openmp-profile-float32-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/08-openmp-plain-float64-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/09-openmp-profile-float64-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/10-openmp-plain-float64-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/11-openmp-profile-float64-2t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/12-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/13-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/14-openmp-plain-float64-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/15-openmp-profile-float64-8t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/16-serial-plain-float32-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/17-serial-profile-float32-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/18-serial-plain-float64-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/19-serial-profile-float64-1t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/20-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/21-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/22-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/23-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/24-openmp-plain-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/25-openmp-profile-float32-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/26-openmp-plain-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    },
+    {
+      "stage": "ordering",
+      "record": "runs/27-openmp-profile-float64-4t.json",
+      "reference_backend": "openmp",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "stage": "S0",
+  "utc": "2026-10-29T09:31:37.424207+00:00",
+  "baseline_revision": "bbfd20005e0bd7d7e648438a1bc8d5a9a4358a71",
+  "solver_extraction_started": false,
+  "checks": {
+    "parity": {
+      "cases_per_matrix": 429,
+      "openmp_teams": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "serial_teams": [
+        1
+      ],
+      "passed": true,
+      "allowed_metadata_additions": [
+        "fp_contract"
+      ],
+      "expected_backend_differences": 888
+    },
+    "pytest_openmp": {
+      "passed": 953,
+      "skipped": 18
+    },
+    "pytest_serial": {
+      "passed": 971,
+      "skipped": 0
+    },
+    "focused": {
+      "passed": 15
+    },
+    "ctest_openmp": {
+      "passed": 42
+    },
+    "ctest_serial": {
+      "passed": 39
+    },
+    "ctest_asan_ubsan_openmp": {
+      "passed": 42,
+      "seconds": 267.63
+    },
+    "native_symbols": {
+      "openmp": true,
+      "serial": true,
+      "sanitizers": true
+    },
+    "artifacts": {
+      "wheel": true,
+      "sdist": true,
+      "generator": "Unix Makefiles"
+    },
+    "wheel_smoke": true,
+    "archive_audit": true
+  },
+  "limits": {
+    "per_profile_worker_seconds": 30,
+    "total_profile_matrix_seconds": 180,
+    "actual_profile_matrix_seconds": 85.51455649995478
+  },
+  "limitations": [
+    "Compiler execution validated on AppleClang 17 only",
+    "Bandwidth is modeled logical traffic, not a DRAM counter",
+    "Vector allocation sizes and process high-water RSS are distinct",
+    "Automatic grid remains experimental; no reference or accuracy acceptance claims"
+  ],
+  "validation_source_sha256": {
+    "CMakeLists.txt": "98ca79bb77ed6258fca19ea3177393e54a0b9ee1510817b9a8c4f4ac9a5f9785",
+    "src/cpp/bindings.cpp": "da2ed219cd8ec6ea02b460005bc09ea817b9fc36e86d9c46ff94509a859a0681",
+    "src/dtcc_qes/wind.py": "519ccb6eaebd9146f5dea0a1e59f1dae141cffcdc79711c3156141802e674ba7",
+    "src/qes_core/dtcc/api/build_info.h": "b112d799173e80b6805ed44f7f5ffd82aafdbb47fa9c75b0609795d3cc812bd1",
+    "src/qes_core/dtcc/build_info.cpp": "82aad035f4d298aa9bfc66ebfa16cb013a3e19e2bee62dfa7f2aae6784e7bfcc",
+    "tools/compare_native_builds.py": "24ca142db212dba73f564c094708bf34841bc87c235826331abcb6727230c02f",
+    "tools/profile_solver_baseline.py": "e24292150c56781150351be5bf5fbe4c5db29e7dbfe90b4f8255c8fac0c17059",
+    "tools/solver_profile_hooks.h": "eda3f0a4f287e9454c98d15d445c05e5e47f0a36e3af83ff98bf042eaabd8153",
+    "tools/check_artifacts.py": "a36165d1b06f80268b337d3a5fc55aa9571f3603227fa4e88748ada18e2d0145",
+    "tests/test_build.py": "439df1770658dbaab9af85344de8f577867e8c3a31d3a52dd25ce7ba45b6bb6b",
+    "tests/test_compare_native_builds.py": "bca7941aa00123dde0253498f61860424ee8e37a8349ad766aa9fe1c9e7b2b2e",
+    "tests/test_openmp_configuration.py": "1f1a25deff00960923200521ed6890b13ec9b6dc4f964161ce587768ad725351",
+    "tests/test_solver_baseline_profile.py": "e25e41ff364a288246d0bfa04e63bb4dd0334133b4f73332a3322b7bec5ed1c8",
+    "docs/solver-control-contract.md": "7cb73874825f20f3a4f071d8c2e825b716c97b24759fc22d73a3013a0a83d2ab",
+    "docs/solver-control-s0.md": "27397e34f7fc0b377700daa9691b9871bfeb3c8aed86bc8235b0403318bd89f7",
+    "SOLVER_CONTROL_REFACTOR.md": "183eada1d95c543150bf330fc1a21bb79b76eeba62e522d60b9694c167c3b169"
+  }
+}

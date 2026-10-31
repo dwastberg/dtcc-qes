@@ -1,0 +1,113 @@
+{
+  "comparisons": [
+    {
+      "case": "slab_estate",
+      "direction": 270.0,
+      "repeat": 0,
+      "variant": "disabled",
+      "same_grid": true,
+      "same_completed_work": true,
+      "api_ratio": 1.068318923529571,
+      "field_bitwise_equal": true,
+      "reference_qualification": "not_assessed",
+      "planes": [
+        {
+          "common_valid": 2455,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        },
+        {
+          "common_valid": 2455,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        }
+      ]
+    },
+    {
+      "case": "slab_estate",
+      "direction": 270.0,
+      "repeat": 0,
+      "variant": "bounded",
+      "same_grid": true,
+      "same_completed_work": true,
+      "api_ratio": 1.1881287500264976,
+      "field_bitwise_equal": true,
+      "reference_qualification": "not_assessed",
+      "planes": [
+        {
+          "common_valid": 2455,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        },
+        {
+          "common_valid": 2455,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        }
+      ]
+    },
+    {
+      "case": "industrial_residential",
+      "direction": 270.0,
+      "repeat": 0,
+      "variant": "disabled",
+      "same_grid": true,
+      "same_completed_work": true,
+      "api_ratio": 1.0823918341875345,
+      "field_bitwise_equal": true,
+      "reference_qualification": "not_assessed",
+      "planes": [
+        {
+          "common_valid": 2367,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        },
+        {
+          "common_valid": 2367,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        }
+      ]
+    },
+    {
+      "case": "industrial_residential",
+      "direction": 270.0,
+      "repeat": 0,
+      "variant": "bounded",
+      "same_grid": true,
+      "same_completed_work": true,
+      "api_ratio": 1.0926976756928994,
+      "field_bitwise_equal": true,
+      "reference_qualification": "not_assessed",
+      "planes": [
+        {
+          "common_valid": 2367,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        },
+        {
+          "common_valid": 2367,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        }
+      ]
+    }
+  ],
+  "qualification": "Baseline differences only. Completed-work counts, grid and validity must be inspected. No adaptive accuracy acceptance or physical validation."
+}

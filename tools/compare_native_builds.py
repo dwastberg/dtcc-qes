@@ -14,14 +14,17 @@ The case matrix covers the public ``wind.run`` paths (float32/float64, uniform,
 explicit and automatic vertical grids, both mixing-length methods, nonconverged
 and calm runs) and the native runner directly: every supported combination of
 the parameterization flags and one runner reused for several directions, which
-pins any state carried between solves. ``wake_flag=0`` is excluded because it
-leaves sidewall and rooftop inputs undefined.
+pins any state carried between solves. The historical 429-case matrix excludes
+``wake_flag=0``; S1a tests its dependency rejection and independent cavity runs
+separately. ``--baseline-archive`` uses a source snapshot identified by SHA-256
+when the reviewed baseline has not yet been committed.
 """
 
 from __future__ import annotations
 
 import argparse
 import filecmp
+import hashlib
 import itertools
 import json
 import os
@@ -29,6 +32,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import tarfile
 
 import numpy as np
 
@@ -38,7 +42,15 @@ NATIVE_TARGETS = ("qesutil", "qeswindscore", "qesbridge", "_qes")
 
 
 def run(cmd, **kwargs):
-    return subprocess.run(cmd, check=True, text=True, **kwargs)
+    kwargs.setdefault("timeout", 180)
+    try:
+        return subprocess.run(cmd, check=True, text=True, **kwargs)
+    except subprocess.CalledProcessError as error:
+        if error.stdout:
+            print(error.stdout[-8000:], file=sys.stderr)
+        if error.stderr:
+            print(error.stderr[-8000:], file=sys.stderr)
+        raise
 
 
 def export_tree(ref, work_dir):
@@ -55,6 +67,22 @@ def export_tree(ref, work_dir):
             raise RuntimeError(f"git archive of {ref} failed")
         (dest / ".exported").write_text(commit + "\n")
     return dest, commit[:12]
+
+
+def export_archive(path, work_dir):
+    """Use an immutable source snapshot as a baseline before it has a git commit."""
+    identity = hashlib.sha256(path.read_bytes()).hexdigest()
+    dest = work_dir / "trees" / ("archive-" + identity)
+    if not (dest / ".exported").exists():
+        shutil.rmtree(dest, ignore_errors=True)
+        dest.mkdir(parents=True)
+        with tarfile.open(path) as archive:
+            archive.extractall(dest, filter="data")
+        for name in ("CMakeLists.txt", "pyproject.toml", "src/qes_core/CMakeLists.txt"):
+            if not (dest / name).is_file():
+                raise ValueError(f"Baseline source archive omits {name}")
+        (dest / ".exported").write_text(identity + "\n")
+    return dest, "archive-" + identity[:12], "sha256:" + identity
 
 
 def build(tree, build_dir, backend):
@@ -74,6 +102,18 @@ def stage_package(tree, module, pkg_dir):
     shutil.copytree(tree / "src/dtcc_qes", pkg_dir / "dtcc_qes",
                     ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "_qes*.so", "_qes*.pyd"))
     shutil.copy2(module, pkg_dir / "dtcc_qes" / module.name)
+    # Editable scikit-build finders precede PathFinder and can otherwise ignore
+    # PYTHONPATH, importing the live workspace in an archived-build comparison.
+    # Only this package's redirector is removed; dependency installs stay intact.
+    (pkg_dir / "sitecustomize.py").write_text('''import sys
+def _redirects_qes(finder):
+    for attribute in ("known_source_files", "known_wheel_files"):
+        names = getattr(finder, attribute, {})
+        if any(name == "dtcc_qes" or name.startswith("dtcc_qes.") for name in names):
+            return True
+    return False
+sys.meta_path[:] = [finder for finder in sys.meta_path if not _redirects_qes(finder)]
+''')
 
 
 def objects(build_dir):
@@ -99,7 +139,7 @@ def compare_binaries(a, b, module_a, module_b):
     return problems, len(oa)
 
 
-def compare_results(a, b):
+def compare_results(a, b, *, backend_pair=False, allow_added_contraction=False):
     """Return the keys whose values differ; arrays must match dtype, shape and bytes."""
     with np.load(a) as x, np.load(b) as y:
         keys = set(x.files) - {"_module"}
@@ -107,9 +147,43 @@ def compare_results(a, b):
         problems = [f"only in one result: {k}" for k in sorted(keys ^ other)]
         for key in sorted(keys & other):
             u, v = x[key], y[key]
+            if key.endswith("/metadata/versions/native_build/scalars"):
+                left, right = json.loads(str(u)), json.loads(str(v))
+                if allow_added_contraction and "fp_contract" not in left:
+                    right.pop("fp_contract", None)
+                if backend_pair:
+                    left.pop("openmp_enabled", None)
+                    right.pop("openmp_enabled", None)
+                u, v = np.array(json.dumps(left, sort_keys=True)), np.array(json.dumps(right, sort_keys=True))
+            if backend_pair and key.endswith("/metadata/model/scalars"):
+                left, right = json.loads(str(u)), json.loads(str(v))
+                left.pop("backend", None)
+                right.pop("backend", None)
+                u, v = np.array(json.dumps(left, sort_keys=True)), np.array(json.dumps(right, sort_keys=True))
             if u.dtype != v.dtype or u.shape != v.shape or u.tobytes() != v.tobytes():
                 problems.append(f"differs: {key}")
         return problems, len(keys)
+
+
+def compare_ordering_migration(baseline_serial, baseline_openmp, candidate_serial, candidate_openmp):
+    """S2 only: allow exactly the old serial trajectory to become red/black.
+
+    Matching changed keys alone is insufficient: both candidates must also equal
+    the complete OpenMP oracle, so a wrong value in an expected key still fails.
+    """
+    expected, _ = compare_results(baseline_serial, baseline_openmp, backend_pair=True)
+    actual, _ = compare_results(baseline_serial, candidate_serial)
+    checks = []
+    for label, a, b, backend_pair in (
+        ("unchanged_openmp", baseline_openmp, candidate_openmp, False),
+        ("serial_against_openmp_oracle", baseline_openmp, candidate_serial, True),
+        ("candidate_backend_pair", candidate_serial, candidate_openmp, True),
+    ):
+        diffs, records = compare_results(a,b,backend_pair=backend_pair)
+        checks.append(dict(kind=label, differences=diffs, records=records))
+    return dict(expected_serial_differences=expected, actual_serial_differences=actual,
+                exact_serial_change_set=actual == expected, checks=checks,
+                passed=actual == expected and all(not c["differences"] for c in checks))
 
 
 # --------------------------------------------------------------------------
@@ -172,6 +246,12 @@ def public_runs():
                                   {**common, "vertical_grid": VerticalGrid.from_faces(np.arange(0, 62, 2.0))}),
         "stretched_turbulence": (city, 4.0, 10.0,
                                  {**tall, "vertical_grid": VerticalGrid.from_faces(stretched), "turbulence": True}),
+        "stretched_float64": (city, 4.0, 10.0,
+                              {**tall, "vertical_grid": VerticalGrid.from_faces(stretched), "solver_precision": "float64"}),
+        "long_float32": (small, 5.0, 33.0, dict(bounds=(0, 0, 0, 80, 60, 40),
+                                              max_iterations=2000, tolerance=float(np.finfo(np.float32).eps))),
+        "long_float64": (small, 5.0, 33.0, dict(bounds=(0, 0, 0, 80, 60, 40),
+                                              max_iterations=2000, tolerance=1e-12, solver_precision="float64")),
         "fine": (city, 5.0, 45.0, {**common, "resolution": 1.0, "bounds": (0, 0, 0, 110, 90, 40)}),
     }
     for direction in (0.0, 90.0, 180.0, 270.0, 33.0, 247.5):
@@ -262,10 +342,10 @@ def run_cases(output):
     print(json.dumps(dict(cases=count, module=_qes.__file__)))
 
 
-def evaluate(pkg_dir, output, threads):
+def evaluate(pkg_dir, output, threads, timeout=180):
     env = {**os.environ, "PYTHONPATH": str(pkg_dir), "OMP_NUM_THREADS": str(threads), "OMP_DYNAMIC": "FALSE"}
     completed = run([sys.executable, str(Path(__file__).resolve()), "--run-cases", str(output)],
-                    capture_output=True, env=env, cwd=str(pkg_dir))
+                    capture_output=True, env=env, cwd=str(pkg_dir), timeout=timeout)
     report = json.loads(completed.stdout.strip().splitlines()[-1])
     if not Path(report["module"]).resolve().is_relative_to(pkg_dir.resolve()):
         raise RuntimeError(f"Cases imported {report['module']} instead of the staged package")
@@ -274,21 +354,49 @@ def evaluate(pkg_dir, output, threads):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--baseline", default="HEAD", help="baseline git revision (default: %(default)s)")
-    ap.add_argument("--candidate", default=None, help="candidate git revision (default: working tree)")
+    baseline_args = ap.add_mutually_exclusive_group()
+    baseline_args.add_argument("--baseline", default=None, help="baseline git revision (default: HEAD)")
+    baseline_args.add_argument("--baseline-archive", type=Path, help="baseline source snapshot; identified by its SHA-256")
+    candidate_args = ap.add_mutually_exclusive_group()
+    candidate_args.add_argument("--candidate", default=None, help="candidate git revision (default: working tree)")
+    candidate_args.add_argument("--candidate-archive", type=Path, help="candidate source snapshot; identified by SHA-256")
     ap.add_argument("--backends", nargs="+", choices=sorted(BACKENDS), default=["openmp", "serial"])
     ap.add_argument("--binaries", action="store_true", help="also require byte-identical objects and modules")
     ap.add_argument("--threads", type=int, default=4, help="OpenMP team size for the case runs")
+    ap.add_argument("--thread-counts", type=int, nargs="+", help="compare every requested OpenMP team against the baseline and each other")
+    ap.add_argument("--backend-pair", action="store_true", help="report candidate serial/OpenMP differences (expected before S2)")
+    ap.add_argument("--require-backend-parity", action="store_true", help="also fail if the backend pair differs (S2 gate)")
+    ap.add_argument("--serial-red-black-migration", action="store_true", help="S2 only: require serial to match the unchanged OpenMP oracle and the exact expected serial change set")
+    ap.add_argument("--allow-added-contraction", action="store_true", help="S0 only: allow the new fp_contract provenance field against the old baseline")
+    ap.add_argument("--report", type=Path, help="write a machine-readable comparison report")
     ap.add_argument("--work-dir", type=Path, default=ROOT / "build/compare-native")
     ap.add_argument("--run-cases", type=Path, help=argparse.SUPPRESS)
     args = ap.parse_args()
     if args.run_cases:
         run_cases(args.run_cases)
         return
+    teams = args.thread_counts or [args.threads]
+    if any(n < 1 for n in teams) or len(set(teams)) != len(teams):
+        ap.error("thread counts must be positive and distinct")
+    if (args.backend_pair or args.require_backend_parity or args.serial_red_black_migration) and set(args.backends) != set(BACKENDS):
+        ap.error("backend-pair comparison requires both backends")
     work = args.work_dir.resolve()
-    baseline, baseline_id = export_tree(args.baseline, work)
-    candidate, candidate_id = export_tree(args.candidate, work) if args.candidate else (ROOT, "worktree")
+    if args.baseline_archive:
+        baseline, baseline_id, baseline_revision = export_archive(args.baseline_archive.resolve(), work)
+    else:
+        baseline, baseline_id = export_tree(args.baseline or "HEAD", work)
+        baseline_revision = run(["git", "rev-parse", args.baseline or "HEAD"], capture_output=True).stdout.strip()
+    if args.candidate_archive:
+        candidate, candidate_id, candidate_revision = export_archive(args.candidate_archive.resolve(), work)
+    else:
+        candidate, candidate_id = export_tree(args.candidate, work) if args.candidate else (ROOT, "worktree")
+        candidate_revision = candidate_id
     failed = False
+    report = dict(baseline_revision=baseline_revision,
+                  candidate=candidate_revision, allow_added_contraction=args.allow_added_contraction,
+                  ordering_migration=args.serial_red_black_migration, comparisons=[])
+    candidate_results = {}
+    baseline_results = {}
     for backend in args.backends:
         built = {}
         for label, tree, tree_id in (("baseline", baseline, baseline_id), ("candidate", candidate, candidate_id)):
@@ -299,12 +407,30 @@ def main():
             module = build(tree, build_dir, backend)
             pkg = work / "packages" / f"{tree_id}-{backend}"
             stage_package(tree, module, pkg)
-            result = work / "results" / f"{tree_id}-{backend}.npz"
-            result.parent.mkdir(parents=True, exist_ok=True)
-            cases = evaluate(pkg, result, args.threads)
-            built[label] = (build_dir, module, result)
-        problems, records = compare_results(built["baseline"][2], built["candidate"][2])
-        print(f"{backend}: {cases} cases, {records} records compared, {len(problems)} differences")
+            results = {}
+            for threads in teams if backend == "openmp" else [1]:
+                result = work / "results" / f"{tree_id}-{backend}-{threads}threads.npz"
+                result.parent.mkdir(parents=True, exist_ok=True)
+                cases = evaluate(pkg, result, threads)
+                results[threads] = result
+            built[label] = (build_dir, module, results)
+        problems = []
+        for threads, result in built["candidate"][2].items():
+            diffs, records = compare_results(built["baseline"][2][threads], result,
+                                            allow_added_contraction=args.allow_added_contraction)
+            report["comparisons"].append(dict(kind="revision", backend=backend, threads=threads,
+                cases=cases, records=records, differences=diffs,
+                required=not (args.serial_red_black_migration and backend == "serial")))
+            print(f"{backend}/{threads}: {cases} cases, {records} records compared, {len(diffs)} differences", flush=True)
+            if not (args.serial_red_black_migration and backend == "serial"):
+                problems += diffs
+            candidate_results[backend, threads] = result
+            baseline_results[backend, threads] = built["baseline"][2][threads]
+        if backend == "openmp":
+            for threads in teams[1:]:
+                diffs, records = compare_results(candidate_results[backend, teams[0]], candidate_results[backend, threads])
+                report["comparisons"].append(dict(kind="team", threads=[teams[0], threads], records=records, differences=diffs))
+                problems += diffs
         if args.binaries:
             binary_problems, count = compare_binaries(built["baseline"][0], built["candidate"][0],
                                                       built["baseline"][1], built["candidate"][1])
@@ -313,9 +439,27 @@ def main():
         for problem in problems[:50]:
             print("  " + problem)
         failed = failed or bool(problems)
+    if args.backend_pair or args.require_backend_parity:
+        for threads in teams:
+            diffs, records = compare_results(candidate_results["serial", 1], candidate_results["openmp", threads], backend_pair=True)
+            report["comparisons"].append(dict(kind="backend", threads=threads, records=records, differences=diffs,
+                                             required=args.require_backend_parity))
+            print(f"serial/OpenMP/{threads}: {len(diffs)} differences (required={args.require_backend_parity})", flush=True)
+            failed |= args.require_backend_parity and bool(diffs)
+    if args.serial_red_black_migration:
+        for threads in teams:
+            migration = compare_ordering_migration(baseline_results["serial",1], baseline_results["openmp",threads],
+                                                  candidate_results["serial",1], candidate_results["openmp",threads])
+            report["comparisons"].append(dict(kind="ordering_migration", threads=threads, **migration))
+            print(f"serial ordering migration/{threads}: passed={migration['passed']}, exact expected changes={len(migration['expected_serial_differences'])}", flush=True)
+            failed |= not migration["passed"]
+    report["passed"] = not failed
+    if args.report:
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(json.dumps(report, indent=2) + "\n")
     if failed:
         raise SystemExit(f"Native builds differ from baseline {baseline_id}")
-    print(f"Bitwise identical to baseline {baseline_id}")
+    print(f"Passed ordering migration against {baseline_id}" if args.serial_red_black_migration else f"Bitwise identical to baseline {baseline_id}")
 
 
 if __name__ == "__main__":

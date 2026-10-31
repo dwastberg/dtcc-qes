@@ -1,0 +1,23 @@
+[10:31:48] [dtcc-qes] [info] Wind grid 10 x 10 x 10, 0 buildings: 1 iterations, 
+converged=True, max_divergence=0.0 s^-1
+Traceback (most recent call last):
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/benchmark_urban_wind.py", line 333, in <module>
+    if __name__=='__main__': main()
+                             ~~~~^^
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/benchmark_urban_wind.py", line 330, in main
+    args=parser.parse_args();analyze(args.output) if args.action=='analyze' else globals()[args.action](args)
+                                                                                 ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/tools/benchmark_urban_wind.py", line 217, in worker
+    preview=wind.preview_grid(value,**options)
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/urban-s4-builds/baseline-package/dtcc_qes/wind.py", line 182, in preview_grid
+    geometry, prepared = _prepare_city(city, condition, grid, terrain, height_policy,
+                         ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                        turbulence=turbulence_spec is not None)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/urban-s4-builds/baseline-package/dtcc_qes/wind.py", line 202, in _prepare_city
+    prepared = prepare_domain(geometry, reference_height=condition["reference_height"],
+                              roughness_length=condition["roughness_length"], **grid, terrain=terrain,
+                              turbulence=turbulence)
+  File "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/urban-s4-builds/baseline-package/dtcc_qes/_city.py", line 282, in prepare_domain
+    raise ValueError("Explicit z_faces top must match bounds height above flat ground")
+ValueError: Explicit z_faces top must match bounds height above flat ground

@@ -1,0 +1,113 @@
+{
+  "comparisons": [
+    {
+      "case": "perimeter_neighbourhood",
+      "direction": 270.0,
+      "repeat": 0,
+      "variant": "disabled",
+      "same_grid": true,
+      "same_completed_work": true,
+      "api_ratio": 2.4182148273634483,
+      "field_bitwise_equal": true,
+      "reference_qualification": "not_assessed",
+      "planes": [
+        {
+          "common_valid": 1776,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        },
+        {
+          "common_valid": 1776,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        }
+      ]
+    },
+    {
+      "case": "perimeter_neighbourhood",
+      "direction": 270.0,
+      "repeat": 0,
+      "variant": "bounded",
+      "same_grid": true,
+      "same_completed_work": true,
+      "api_ratio": 1.2934308454627512,
+      "field_bitwise_equal": true,
+      "reference_qualification": "not_assessed",
+      "planes": [
+        {
+          "common_valid": 1776,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        },
+        {
+          "common_valid": 1776,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        }
+      ]
+    },
+    {
+      "case": "mixed_downtown",
+      "direction": 270.0,
+      "repeat": 0,
+      "variant": "disabled",
+      "same_grid": true,
+      "same_completed_work": true,
+      "api_ratio": 1.026763307178629,
+      "field_bitwise_equal": true,
+      "reference_qualification": "not_assessed",
+      "planes": [
+        {
+          "common_valid": 1897,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        },
+        {
+          "common_valid": 1897,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        }
+      ]
+    },
+    {
+      "case": "mixed_downtown",
+      "direction": 270.0,
+      "repeat": 0,
+      "variant": "bounded",
+      "same_grid": true,
+      "same_completed_work": true,
+      "api_ratio": 1.1139733418058366,
+      "field_bitwise_equal": true,
+      "reference_qualification": "not_assessed",
+      "planes": [
+        {
+          "common_valid": 1897,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        },
+        {
+          "common_valid": 1897,
+          "validity_changes": 0,
+          "vector_difference_over_uref_p95": 0.0,
+          "vector_difference_over_uref_max": 0.0,
+          "speed_factor_difference_p95": 0.0
+        }
+      ]
+    }
+  ],
+  "qualification": "Baseline differences only. Completed-work counts, grid and validity must be inspected. No adaptive accuracy acceptance or physical validation."
+}

@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "extension": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/solver-control-s1/wheel-smoke/dtcc_qes/_qes.cpython-313-darwin.so",
+  "solves": [
+    {
+      "precision": "float32",
+      "iterations": 1,
+      "shape": [
+        20,
+        30,
+        40,
+        3
+      ]
+    },
+    {
+      "precision": "float64",
+      "iterations": 1,
+      "shape": [
+        20,
+        30,
+        40,
+        3
+      ]
+    }
+  ]
+}

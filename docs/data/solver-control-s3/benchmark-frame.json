@@ -1,0 +1,76 @@
+{
+  "frame": "Local, metres AGL",
+  "origin": [
+    0,
+    0,
+    0
+  ],
+  "crs": null,
+  "physical_bounds": [
+    0,
+    0,
+    0,
+    160,
+    160,
+    64.00000762939453
+  ],
+  "roi": [
+    0,
+    80,
+    0,
+    80
+  ],
+  "receptors": [
+    [
+      27,
+      21,
+      1.5
+    ],
+    [
+      21,
+      23,
+      1.5
+    ],
+    [
+      51,
+      35,
+      1.5
+    ],
+    [
+      15,
+      47,
+      1.5
+    ],
+    [
+      15,
+      29,
+      1.5
+    ],
+    [
+      27,
+      21,
+      1.75
+    ],
+    [
+      21,
+      23,
+      1.75
+    ],
+    [
+      51,
+      35,
+      1.75
+    ],
+    [
+      15,
+      47,
+      1.75
+    ],
+    [
+      15,
+      29,
+      1.75
+    ]
+  ],
+  "placement_note": "Four-building tower layout from S0; this native probe uses [0,160) lateral bounds. S0 public API profiling used [-40,120), placing buildings differently relative to lateral boundaries. Only identical native S2/S3 inputs are compared here."
+}

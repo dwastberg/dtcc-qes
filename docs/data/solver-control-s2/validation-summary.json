@@ -1,0 +1,37 @@
+{
+  "native_openmp": 43,
+  "native_serial": 40,
+  "asan_ubsan_openmp": 43,
+  "python_openmp": {
+    "passed": 988,
+    "skipped": 16
+  },
+  "python_serial": {
+    "passed": 988,
+    "skipped": 16
+  },
+  "wheel_runtime": 46,
+  "symbol_audits": [
+    "openmp",
+    "serial",
+    "openmp-sanitizers"
+  ],
+  "historical_skip_reason": "Exact archived turbulence fixtures require lexicographic ordering and their recorded toolchain; S2 exact red/black parity uses the S1a OpenMP oracle.",
+  "study_sampler": "Current native red/black study vs public sampler, both backends, uniform/stretched; 8 sweeps",
+  "studies": {
+    "norm_comparisons": 8,
+    "ordering_comparisons": 16,
+    "per_worker_seconds": 30,
+    "matrix_seconds": 180
+  },
+  "preserved": {
+    "s0": "106d6faafb35031466820df104e3d797e22e90a924b1eb067cf5e7d31ac31593",
+    "s1": "5e3d941e4efbaac2612438ed82afc8cbbd222652f96721f7241a263daa0f17af",
+    "s1a": "6f5dae06001c56f6a5d30db25bee93e1cfa59f0ea6096d34bf99ff1465487824"
+  },
+  "limitations": [
+    "Same compiler/configuration bitwise contract; no cross-compiler bitwise promise",
+    "Bounded performance measurements do not qualify physical accuracy or automatic acceptance",
+    "No S3 monitoring/controller work or long reference trajectory"
+  ]
+}
