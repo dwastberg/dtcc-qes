@@ -43,6 +43,11 @@ dev = [
 reference = [
     "netcdf4>=1.7.5.1.post1",
 ]
+validate = [
+    "ezdxf>=1.4.5",
+    "matplotlib>=3.11.2",
+    "xlrd>=2.0.2",
+]
 
 [tool.pytest.ini_options]
 # Frozen study sources are audit inputs, not additional test suites.
