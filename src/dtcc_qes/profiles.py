@@ -12,6 +12,7 @@ import math
 from types import MappingProxyType
 
 import numpy as np
+from ._log import shifted_log as _shifted_log
 
 __all__ = ["LogProfile", "MeasuredProfile", "PowerLawProfile", "UniformProfile",
            "evaluate", "profile_from_dict"]
@@ -80,13 +81,6 @@ def _vector(speed, direction):
     return np.stack((-np.asarray(speed) * np.sin(angle), -np.asarray(speed) * np.cos(angle)), axis=-1)
 
 
-def _shifted_log(z, roughness):
-    # log1p preserves tiny ratios; the fallback avoids overflow for large ones.
-    with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
-        ratio = np.asarray(z) / roughness
-        return np.where(np.isfinite(ratio), np.log1p(ratio), np.log(z) - math.log(roughness))
-
-
 class _Profile:
     @property
     def kind(self):
@@ -140,6 +134,25 @@ class _Profile:
                 values = payload[name]
                 payload[name] = ([v * factor for v in values] if isinstance(values, list)
                                  else values * factor)
+        return profile_from_dict(payload)
+
+    def with_direction(self, direction):
+        """Rigidly rotate the reference to direction modulo 360; reject calm."""
+        direction = _number(direction, "direction") % 360.
+        reference = self.reference
+        if not reference["speed"]:
+            raise ValueError("Cannot rotate a calm reference")
+        payload = self.to_dict()
+        delta = direction-reference["direction"]
+        if "direction" in payload:
+            payload["direction"] = (payload["direction"]+delta) % 360.
+        elif "directions" in payload:
+            payload["directions"] = [(d+delta) % 360. for d in payload["directions"]]
+        else:
+            angle = np.deg2rad(delta)
+            u, v = np.asarray(payload["u"]), np.asarray(payload["v"])
+            payload["u"] = (u*np.cos(angle)+v*np.sin(angle)).tolist()
+            payload["v"] = (v*np.cos(angle)-u*np.sin(angle)).tolist()
         return profile_from_dict(payload)
 
 

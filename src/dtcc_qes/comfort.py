@@ -22,9 +22,10 @@ from copy import deepcopy
 from typing import NamedTuple
 
 import numpy as np
+from ._log import shifted_log
 
 __all__ = ["Rule", "Rating", "Criterion", "ComfortResult", "NEN8100", "CITY_OF_LONDON",
-           "assess", "exceedance", "speed_at_exceedance", "log_law_transfer", "gust_equivalent_mean"]
+           "assess", "assess_results", "exceedance", "speed_at_exceedance", "log_law_transfer", "gust_equivalent_mean"]
 
 SEASONS = {"winter": (12, 1, 2), "spring": (3, 4, 5), "summer": (6, 7, 8), "autumn": (9, 10, 11)}
 
@@ -176,7 +177,7 @@ def gust_equivalent_mean(speed, streamwise_std, *, peak_factor: float,
 
 
 def assess(speeds, directions, fields, field_directions, reference_speed, criterion=NEN8100, *,
-           gem_fields=None, gem_metadata=None, times=None, height=None) -> ComfortResult:
+           gem_fields=None, gem_metadata=None, run_metadata=None, times=None, height=None) -> ComfortResult:
     """Classify comfort and safety for every field cell.
 
     ``speeds`` and ``directions`` are hourly (T,) arrays; ``fields`` is a
@@ -208,6 +209,8 @@ def assess(speeds, directions, fields, field_directions, reference_speed, criter
     if gem_metadata is not None and not isinstance(gem_metadata, Mapping):
         raise ValueError("gem_metadata must be a mapping")
     provenance = deepcopy(dict(gem_metadata)) if gem_metadata is not None else {}
+    if run_metadata is not None and not isinstance(run_metadata, Mapping):
+        raise ValueError("run_metadata must be a mapping")
     if gem_fields is not None and not criterion.gust_equivalent:
         raise ValueError(f"{criterion.name} is defined on mean speeds; gem_fields is not used")
     hourly = _Hourly(speeds, directions, field_directions, times)
@@ -264,7 +267,92 @@ def assess(speeds, directions, fields, field_directions, reference_speed, criter
     )
     if gem_metadata is not None:
         metadata["gem"] = provenance
+    if run_metadata is not None:
+        metadata["runs"] = deepcopy(dict(run_metadata))
     return ComfortResult(criterion, comfort, safety, fractions, seasonal, tuple(warnings), metadata)
+
+
+def assess_results(results, speeds, directions, criterion=NEN8100, *, height=None,
+                   method="linear", peak_factor=None, gust_ratio=1.85, times=None):
+    """Assess matching wind results using declared references and owned samples.
+
+    No exposure transfer is implicit. Mean-only criteria retain run provenance
+    independently of GEM. Supplying a peak factor for a gust criterion enables
+    algebraic screening GEM, preserving invalid stress-contributor masks.
+    """
+    if not isinstance(criterion, Criterion):
+        raise ValueError("criterion must be a comfort.Criterion")
+    height = criterion.height if height is None else _number(height, "height")
+    fields, gems, angles, references, runs, actual = _prepare_results(
+        results, height, method, criterion.gust_equivalent and peak_factor is not None,
+        peak_factor, gust_ratio)
+    gem_metadata = None if gems is None else dict(source="dtcc_qes / QES-Turb",
+        model="algebraic mixing-length screening", peak_factor=peak_factor, gust_ratio=gust_ratio,
+        peak_factor_basis="user-selected screening assumption; no QES calibration",
+        mean_averaging_time="unspecified", gust_averaging_time="unspecified",
+        limitations=["No independent validation for pedestrian gusts; factors are user assumptions"])
+    return assess(speeds,directions,fields,angles,references,criterion,gem_fields=gems,
+        gem_metadata=gem_metadata,run_metadata=runs,times=times,height=actual)
+
+
+def _prepare_results(results, height, method, use_gem, peak_factor, gust_ratio):
+    results = tuple(results)
+    if not results:
+        raise ValueError("results must be nonempty")
+    if method not in ("linear", "nearest"):
+        raise ValueError("method must be linear or nearest")
+    fields, gems, angles, references, records = [], [], [], [], []
+    common = None
+    actual = height
+    for result in results:
+        reference = (result.metadata.get("profile") or {}).get("reference")
+        if reference is None or result.reference_speed is None or result.reference_speed <= 0 or result.reference_direction is None:
+            raise ValueError("Comfort requires a non-calm declared profile reference")
+        direction = result.reference_direction % 360.
+        if any(np.isclose((direction-d+180.) % 360.-180.,0.,rtol=0,atol=1e-10) for d in angles):
+            raise ValueError("Result directions must be distinct modulo 360")
+        profile = result.metadata["profile"]
+        roughness = profile["requested"]["roughness_length"]
+        sample = result.sample(height,method=method)
+        if sample.method != method or sample.requested_height != height:
+            raise ValueError("Sample method and requested height must match the request")
+        for axis in ("x", "y"):
+            if not np.array_equal(getattr(sample,axis),getattr(result,axis)):
+                raise ValueError("Sample coordinates must match result coordinates")
+        if sample.origin != result.origin or sample.crs != result.crs:
+            raise ValueError("Sample frame must match result origin and crs")
+        if method == "linear" and sample.sampled_height is not None and sample.sampled_height != height:
+            raise ValueError("Linear sample must use the requested height")
+        if sample.sampled_height is None and (np.any(sample.valid) or np.any(np.isfinite(sample.velocity))):
+            raise ValueError("Unavailable sample support must retain NaN fields and invalid masks")
+        if method == "nearest" and sample.sampled_height is None:
+            raise ValueError("Nearest samples require an actual sampled height")
+        signature = (tuple(result.origin), result.crs, reference["height"], roughness)
+        if common is None:
+            common = (signature,np.array(sample.x,copy=True),np.array(sample.y,copy=True),sample.speed.shape)
+            if method == "nearest":
+                actual = sample.sampled_height
+        elif signature != common[0] or not np.array_equal(sample.x,common[1]) or not np.array_equal(sample.y,common[2]) or sample.speed.shape != common[3]:
+            raise ValueError("Results must share coordinates, origin, crs, reference height and roughness")
+        if method == "nearest" and sample.sampled_height != actual:
+            raise ValueError("Nearest samples must share the same actual sampled height")
+        fields.append(np.array(sample.speed,dtype=np.float64,copy=True))
+        if use_gem:
+            if result.turbulence is None:
+                raise ValueError("GEM requires turbulence in every result")
+            gems.append(gust_equivalent_mean(fields[-1],sample.streamwise_std,
+                peak_factor=peak_factor,gust_ratio=gust_ratio))
+        angles.append(direction)
+        references.append(result.reference_speed)
+        contributors = getattr(sample,"_stress_contributors_valid",None)
+        records.append(dict(direction=direction,reference=deepcopy(reference),roughness_length=roughness,
+            qualification=result.qualification,caveats=deepcopy(profile.get("caveats",[])),
+            turbulence=deepcopy(result.metadata.get("turbulence")),
+            sampling=dict(method=method,requested_height=height,sampled_height=sample.sampled_height,
+                cells=int(sample.valid.size),valid_cells=int(sample.valid.sum()),
+                valid_stress_contributors=None if contributors is None else int(contributors.sum()))))
+    runs = dict(directions=records,sampling=dict(method=method,requested_height=height,field_height=actual))
+    return np.stack(fields),np.stack(gems) if use_gem else None,angles,references,runs,actual
 
 
 def exceedance(speeds, directions, fields, field_directions, reference_speed, threshold):
@@ -303,7 +391,8 @@ def speed_at_exceedance(speeds, directions, fields, field_directions, reference_
     return np.where(invalid, np.nan, high)
 
 
-def log_law_transfer(speeds, from_height, from_roughness, to_height, to_roughness, blending_height=60.0):
+def log_law_transfer(speeds, from_height, from_roughness, to_height, to_roughness, blending_height=60.0,
+                     *, from_law="standard", to_law="shifted"):
     """Transfer hourly speeds between heights and roughness lengths (metres).
 
     Neutral logarithmic profiles without displacement height, matched at a
@@ -314,13 +403,18 @@ def log_law_transfer(speeds, from_height, from_roughness, to_height, to_roughnes
         to_roughness=to_roughness, blending_height=blending_height).items()}
     if any(value <= 0 for value in values.values()):
         raise ValueError("Heights and roughness lengths must be positive")
-    if (values["from_height"] <= values["from_roughness"] or values["to_height"] <= values["to_roughness"]
-            or values["blending_height"] <= max(values["from_roughness"], values["to_roughness"])):
-        raise ValueError("Heights must exceed the corresponding roughness lengths")
-    factor = (np.log(values["blending_height"] / values["from_roughness"])
-              / np.log(values["from_height"] / values["from_roughness"])
-              * np.log(values["to_height"] / values["to_roughness"])
-              / np.log(values["blending_height"] / values["to_roughness"]))
+    terms=[]
+    for side, law in (("from",from_law),("to",to_law)):
+        if law not in ("standard","shifted"):
+            raise ValueError("from_law and to_law must be standard or shifted")
+        z,z0,hb=values[side+"_height"],values[side+"_roughness"],values["blending_height"]
+        if law=="standard":
+            if min(z,hb)<=z0:
+                raise ValueError("Heights must exceed the corresponding roughness lengths for standard laws")
+            terms.append((np.log(z)-np.log(z0),np.log(hb)-np.log(z0)))
+        else:
+            terms.append((shifted_log(z,z0),shifted_log(hb,z0)))
+    factor = terms[0][1]/terms[0][0]*terms[1][0]/terms[1][1]
     return np.asarray(speeds, dtype=np.float64) * factor
 
 

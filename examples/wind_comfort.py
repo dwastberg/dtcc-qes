@@ -38,29 +38,14 @@ def example_city():
     return city
 
 
-def pedestrian_speeds(city, directions):
-    """Mean/GEM fields at 1.5 m plus copied QES model/assumption provenance."""
-    fields, gems, runs = [], [], []
-    for direction in directions:
-        result = wind.run(city, speed=REFERENCE_SPEED, direction=float(direction), resolution=2.0, bounds=(0, 0, 0, 80, 60, 40), vertical_grid=wind.VerticalGrid.from_faces(FACES), turbulence=wind.Turbulence(), solver=wind.Solver(raise_on_failure=True))
-        sample = result.sample(PEDESTRIAN_HEIGHT, method="linear")
-        fields.append(sample.speed)
-        gems.append(comfort.gust_equivalent_mean(sample.speed, sample.streamwise_std,
-                                                peak_factor=PEAK_FACTOR, gust_ratio=GUST_RATIO))
-        model = result.metadata["turbulence"]
-        runs.append(dict(direction=float(direction), reference=model["reference"],
-                         cap=model["cap"], validity=model["validity"],
-                         sample_cells=sample.valid.size, sample_mean_valid=int(sample.valid.sum()),
-                         sample_gem_valid=int(np.isfinite(gems[-1]).sum())))
-    provenance = dict(source="dtcc_qes.wind / QES-Turb", model=model["model"],
-        numerics_version=model["numerics_version"], mixing_length=model["mixing_length"],
-        qes_revision=result.metadata["versions"]["qes"]["revision"],
-        peak_factor=PEAK_FACTOR, gust_ratio=GUST_RATIO,
-        peak_factor_basis="user-selected screening assumption; no QES calibration",
-        mean_averaging_time="unspecified", gust_averaging_time="unspecified",
-        validity_policy="raw_and_mask; invalid source tensors and undefined mean directions remain NaN",
-        limitations=model["limitations"], runs=runs)
-    return np.stack(fields), np.stack(gems), sample.sampled_height, provenance
+def directional_results(city, directions):
+    """One bounded solve per rotated profile; turbulence remains screening."""
+    profile = wind.LogProfile(REFERENCE_SPEED, 270)
+    solver = wind.Solver(max_solve_seconds=10, monitor=wind.MonitorSpec((0,80,0,60)),
+                         raise_on_failure=True)
+    return [wind.run(city, profile.with_direction(float(direction)), resolution=2.,
+        bounds=(0,0,0,80,60,40), vertical_grid=wind.VerticalGrid.from_faces(FACES),
+        turbulence=wind.Turbulence(), solver=solver) for direction in directions]
 
 
 def synthetic_climate(years=1, seed=1):
@@ -73,13 +58,13 @@ def synthetic_climate(years=1, seed=1):
 
 
 def main(directions=np.arange(0.0, 360.0, 30.0)):
-    fields, gems, height, provenance = pedestrian_speeds(example_city(), directions)
+    results = directional_results(example_city(), directions)
     speeds, wind_directions, times = synthetic_climate()
-    nen = comfort.assess(speeds, wind_directions, fields, directions, REFERENCE_SPEED,
-                         comfort.NEN8100, height=height)
-    london = comfort.assess(speeds, wind_directions, fields, directions, REFERENCE_SPEED,
-                            comfort.CITY_OF_LONDON, times=times, height=height,
-                            gem_fields=gems, gem_metadata=provenance)
+    nen = comfort.assess_results(results, speeds, wind_directions, comfort.NEN8100,
+                                 height=PEDESTRIAN_HEIGHT)
+    london = comfort.assess_results(results, speeds, wind_directions, comfort.CITY_OF_LONDON,
+        times=times, height=PEDESTRIAN_HEIGHT, peak_factor=PEAK_FACTOR, gust_ratio=GUST_RATIO)
+    height = PEDESTRIAN_HEIGHT
     logger = get_python_logger("dtcc-qes")
     for result in (nen, london):
         labels = result.criterion.comfort.labels

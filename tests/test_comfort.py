@@ -393,20 +393,38 @@ def test_criteria_tables_validate_and_are_immutable():
 
 def test_log_law_transfer():
     speeds = np.array([0.0, 3.0, np.nan])
-    np.testing.assert_array_equal(comfort.log_law_transfer(speeds, 10, 0.03, 10, 0.03), speeds)
+    np.testing.assert_allclose(comfort.log_law_transfer(speeds, 10, 0.03, 10, 0.03,
+                                                     to_law="standard"), speeds)
     factor = np.log(60 / 0.03) / np.log(10 / 0.03) * np.log(10 / 0.5) / np.log(60 / 0.5)
-    np.testing.assert_allclose(comfort.log_law_transfer(speeds, 10, 0.03, 10, 0.5), speeds * factor)
-    back = comfort.log_law_transfer(comfort.log_law_transfer(speeds, 10, 0.03, 60, 0.5), 60, 0.5, 10, 0.03)
+    np.testing.assert_allclose(comfort.log_law_transfer(speeds, 10, 0.03, 10, 0.5,to_law="standard"), speeds * factor)
+    back = comfort.log_law_transfer(comfort.log_law_transfer(speeds, 10, 0.03, 60, 0.5),
+                                    60, 0.5, 10, 0.03,from_law="shifted",to_law="standard")
     np.testing.assert_allclose(back, speeds)
     with pytest.raises(ValueError, match="exceed"):
         comfort.log_law_transfer(speeds, 0.01, 0.03, 10, 0.5)
 
 
 def test_module_depends_only_on_numpy_and_standard_library():
-    tree = ast.parse(Path(comfort.__file__).read_text())
-    modules = {alias.name.split(".")[0] for node in ast.walk(tree) if isinstance(node, ast.Import)
-               for alias in node.names}
-    modules |= {node.module.split(".")[0] for node in ast.walk(tree)
-                if isinstance(node, ast.ImportFrom) and node.level == 0}
-    assert not any(isinstance(node, ast.ImportFrom) and node.level for node in ast.walk(tree))
-    assert modules - set(sys.stdlib_module_names) == {"numpy"}
+    pending,seen=[Path(comfort.__file__)],set()
+    while pending:
+        path=pending.pop()
+        if path in seen:
+            continue
+        seen.add(path)
+        tree=ast.parse(path.read_text())
+        for node in ast.walk(tree):
+            if isinstance(node,ast.ImportFrom) and node.level:
+                assert node.level==1 and node.module is not None
+                pending.append(path.parent/(node.module+".py"))
+            elif isinstance(node,(ast.Import,ast.ImportFrom)):
+                names=[a.name for a in node.names] if isinstance(node,ast.Import) else [node.module]
+                assert all(n.split('.')[0] in set(sys.stdlib_module_names)|{"numpy"} for n in names)
+    import subprocess
+    subprocess.run([sys.executable,"-c",f'''
+import sys,types,importlib
+pkg=types.ModuleType("isolated_comfort");pkg.__path__=[{str(Path(comfort.__file__).parent)!r}]
+sys.modules[pkg.__name__]=pkg
+module=importlib.import_module("isolated_comfort.comfort")
+assert module.log_law_transfer([5],10,.1,10,.1).shape==(1,)
+assert not any(n.startswith(("dtcc_core","dtcc_qes")) for n in sys.modules)
+'''],check=True,capture_output=True,text=True)

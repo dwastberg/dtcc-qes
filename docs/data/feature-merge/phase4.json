@@ -1,0 +1,104 @@
+{
+  "status": "Phase 4 complete",
+  "verification": {
+    "passed": true,
+    "phase": "phase4",
+    "python_tests": {
+      "serial": {
+        "passed": 1413,
+        "skipped": 50,
+        "seconds": 65.94,
+        "log": "build/feature-merge-baseline/phase4-serial-tests.log"
+      },
+      "openmp": {
+        "passed": 1413,
+        "skipped": 50,
+        "seconds": 66.0,
+        "log": "build/feature-merge-baseline/phase4-openmp-tests.log"
+      }
+    },
+    "native_revision": "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+    "frozen_workers": 24
+  },
+  "baseline": {
+    "cases": 31,
+    "passed": true,
+    "differences": []
+  },
+  "transfer_impact": {
+    "station_height": 10,
+    "station_roughness": 0.03,
+    "target_height": 10,
+    "target_roughness": 0.1,
+    "blending_height": 60,
+    "speed_factor_old": 0.9419485938616713,
+    "speed_factor_new": 0.943738171406828,
+    "criteria": {
+      "NEN 8100": {
+        "valid_cells": 1175,
+        "comfort_class_changes": 2,
+        "safety_class_changes": 0,
+        "old_counts": [
+          1110,
+          57,
+          7,
+          1,
+          0
+        ],
+        "new_counts": [
+          1108,
+          59,
+          7,
+          1,
+          0
+        ]
+      },
+      "City of London Lawson (2019)": {
+        "valid_cells": 1039,
+        "comfort_class_changes": 0,
+        "safety_class_changes": 1,
+        "old_counts": [
+          0,
+          0,
+          1019,
+          17,
+          3
+        ],
+        "new_counts": [
+          0,
+          0,
+          1019,
+          17,
+          3
+        ]
+      }
+    }
+  },
+  "changes": [
+    "Shared shifted-log helper; rigid with_direction rotations across all profile encodings",
+    "Comfort result adapter validates coordinates, references and actual sample heights; preserves unavailable support and independent run/GEM provenance",
+    "Explicit standard-source/shifted-target transfer laws; analytic identity, reciprocity and target-profile agreement gates",
+    "Example demonstrates bounded solves, rotated profiles, turbulence and both comfort criteria"
+  ],
+  "source_index": {
+    "src/dtcc_qes/_footprints.py": "854d04923f5e1878b184bd0899c4b70b5a85944be2bb7fc0ab8e495f0551c4ef",
+    "src/dtcc_qes/turbulence.py": "fe2f4a4df13aae266618ffdcb3623ccf079db84e5b52d828e96d051cb886302f",
+    "src/dtcc_qes/_logging.py": "1896cb16e46006494eb84d09b34153f15f68dc9418c536675319836092c0d44b",
+    "src/dtcc_qes/_turbulence_domain.py": "8a6c7655eaa421bf05eb6e0873e07ef37c33866929ee193ab84d39ac7c13843c",
+    "src/dtcc_qes/comfort.py": "755de67aaee1bfd89a4c17f71aec9e4dd0202d5fc5116454fe200c95315c16b4",
+    "src/dtcc_qes/_dataset_city.py": "ebf7c928a82239fba97bdd0aca74d5bb54935f189c1c2583261d1a95fa14e504",
+    "src/dtcc_qes/vertical_grid.py": "392f465b183b9d75ca0e9297967688db68db1964757adeb384287179d722884b",
+    "src/dtcc_qes/datasets.py": "0ddc9580065cbc6ee6e041aa8e091271c2878358d81857264e72e94e21f81604",
+    "src/dtcc_qes/wind.py": "763f8fd260d93ddf9c8b94e132631077cbf7ade7b137720f2a045aba5a92e16e",
+    "src/dtcc_qes/__init__.py": "af01eab80634bc9480e23334d9cb76bf68ae65d46a9dfdd6b48aee7d96b62619",
+    "src/dtcc_qes/footprints.py": "d13255b633761545a24f6d483a6b951a19181752a715b6bd617fcebb1df74c52",
+    "src/dtcc_qes/result.py": "7a4425de5fc53f0128abd3c19a92dcc709c1f61b4f96f1165d908e1a8064d614",
+    "src/dtcc_qes/_auto_grid.py": "98527ff0692c52989d1c5168160fada4f83f1262c05bfd515eaf8ab3e8a607c9",
+    "src/dtcc_qes/solver_control.py": "3a5001c7a062175dd5ad0fa9ecef48eb78e5119fda7f406a41779b37de6c9d10",
+    "src/dtcc_qes/_city.py": "ceb28fc2f4cb8f07531b57a33e1c44a723ade9765e7c799c16ada8077286bea4",
+    "src/dtcc_qes/profiles.py": "16dda01f0cd1e9bf5abc3a20943893bacc6cd1dc294db2f6b7f949dca1b39c54",
+    "src/dtcc_qes/_log.py": "f6e2d6a038e428a18aa5d9c1d27bcb6ea60440d5d6ace0310fd4ecc292d1a8ca",
+    "examples/wind_comfort.py": "326d0f923f82a722a7e675c4f4b97652b8516bdda7f9d157432e2919fbc6909a",
+    "tests/test_comfort_results.py": "151d622d6f274a33424e69521a19830a78d98cd3fb459906b6eb12ea99b9c38e"
+  }
+}

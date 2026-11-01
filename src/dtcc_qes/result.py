@@ -257,6 +257,12 @@ class WindResult:
         return None
 
     @property
+    def reference_direction(self):
+        """Declared meteorological direction, or None for a calm reference."""
+        reference = (self.metadata.get("profile") or {}).get("reference")
+        return reference.get("direction") if reference is not None and reference["speed"] > 0 else None
+
+    @property
     def speedup(self):
         """Mean speed / declared reference speed; NaN for calm/missing reference."""
         reference = self.reference_speed

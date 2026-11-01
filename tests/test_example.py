@@ -77,11 +77,15 @@ def test_wind_comfort_example():
     assert (london.comfort == -1).sum() > 25  # also uncomputed/invalid QES stress
     assert london.metadata["speed_measure"] == "mean and GEM"
     gem = london.metadata["gem"]
-    assert "QES-Turb" in gem["source"] and gem["numerics_version"] == "dtcc-qes-turbulence-v1"
+    assert "QES-Turb" in gem["source"]
+    for result in (nen,london):
+        assert len(result.metadata["runs"]["directions"]) == 12
+        assert all(row["qualification"]["turbulence"]["numerics_version"] == "dtcc-qes-turbulence-v1"
+                   for row in result.metadata["runs"]["directions"])
     assert gem["peak_factor"] == 3 and gem["gust_ratio"] == 1.85
     assert "user-selected" in gem["peak_factor_basis"]
     assert gem["mean_averaging_time"] == gem["gust_averaging_time"] == "unspecified"
-    assert len(gem["runs"]) == 12
+    assert len(london.metadata["runs"]["directions"]) == 12
     assert not any("Mean speeds only" in warning for warning in london.warnings)
     assert any("not validated for pedestrian gusts" in warning for warning in london.warnings)
     assert any("1.75 m" in warning for warning in nen.warnings)
