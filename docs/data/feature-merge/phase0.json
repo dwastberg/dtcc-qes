@@ -1,0 +1,211 @@
+{
+  "passed": true,
+  "cases": 31,
+  "case_names": [
+    "scalar",
+    "log",
+    "log-bounded-height",
+    "log-explicit-double-wall",
+    "uniform",
+    "uniform-bounded-height",
+    "uniform-explicit-double-wall",
+    "power",
+    "power-bounded-height",
+    "power-explicit-double-wall",
+    "turning",
+    "turning-bounded-height",
+    "turning-explicit-double-wall",
+    "jet",
+    "jet-bounded-height",
+    "jet-explicit-double-wall",
+    "calm",
+    "calm-bounded-height",
+    "calm-explicit-double-wall",
+    "auto",
+    "empty",
+    "empty-turbulence",
+    "canonical-footprints",
+    "turbulence-extended",
+    "adaptive",
+    "adaptive-profile",
+    "adaptive-turbulence",
+    "adaptive-double",
+    "dataset-field",
+    "dataset-linear",
+    "dataset-auto"
+  ],
+  "captures": [
+    "build/feature-merge-baseline/final-old-a",
+    "build/feature-merge-baseline/final-old-b"
+  ],
+  "independent_processes": true,
+  "comparison": {
+    "passed": true,
+    "differences": []
+  },
+  "source_head": "889c629d745ade9ff7c519019806cd5a31bb84fd",
+  "native_revision": "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+  "extension_sha256": "64f2cd44ce7af1053c8e55aafe989e525f01b0a0e8a3b1b10bde43075afbf6a0",
+  "lock_sha256": "e452a3a5d59a9a0fd09685aaaef6d87fcd955750a8408e4883096acd6deb632f",
+  "backend": "serial CPU",
+  "omp_num_threads": "2",
+  "frozen_policy_workers": 24,
+  "comparator_tests": 3,
+  "focused_costs": {
+    "repetitions": 5,
+    "warmups": 1,
+    "backend": "serial CPU",
+    "policy_revision": "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+    "omp_num_threads": "2",
+    "clock": "time.perf_counter; durations include the entire named public operation",
+    "review_rule": "Investigate median regression exceeding both 10 percent and 0.01 seconds; report all observations and range",
+    "default_study": {
+      "reference_precision": "float64",
+      "initial_reference_tolerance": 1e-07,
+      "stability_tolerance": 1e-08,
+      "stability_p95_K": 1e-05,
+      "stability_max_K": 0.0001,
+      "candidate_p95_K": 0.0005,
+      "candidate_max_K": 0.001,
+      "selection": "Fastest median public call among candidates passing both error limits on both cities; require reference convergence and tightening stability"
+    },
+    "measurements": {
+      "wind-only": {
+        "work": {
+          "request": {
+            "id": "scalar",
+            "profile": "scalar",
+            "grid": "uniform",
+            "mode": "legacy",
+            "precision": "float32",
+            "turbulence": null
+          },
+          "shape": [
+            32,
+            40,
+            40
+          ],
+          "iterations": 30,
+          "diagnostics": {
+            "iterations": 30,
+            "max_lagrange_multiplier_change": 0.04438591003417969,
+            "tolerance": 9.999999747378752e-06,
+            "converged": false,
+            "max_divergence": 0.016425609588623047,
+            "rms_divergence": 0.004557330673784753,
+            "top_band_max_divergence": 0.004350582137703896,
+            "divergence_cell_count": 43120,
+            "top_band_cell_count": 1444,
+            "precision": "float32"
+          }
+        },
+        "seconds": [
+          0.0057721249759197235,
+          0.005836124997586012,
+          0.006029999989550561,
+          0.005655040964484215,
+          0.005422125046607107
+        ],
+        "median_seconds": 0.0057721249759197235,
+        "minimum_seconds": 0.005422125046607107,
+        "maximum_seconds": 0.006029999989550561
+      },
+      "combined": {
+        "work": {
+          "request": {
+            "id": "cost-combined",
+            "profile": "turning",
+            "grid": "uniform",
+            "mode": "bounded",
+            "precision": "float32",
+            "turbulence": "height"
+          },
+          "shape": [
+            32,
+            40,
+            40
+          ],
+          "iterations": 30,
+          "diagnostics": {
+            "iterations": 30,
+            "max_lagrange_multiplier_change": 0.06592845916748047,
+            "tolerance": 9.999999747378752e-06,
+            "converged": false,
+            "max_divergence": 0.025478124618530273,
+            "rms_divergence": 0.006658473980521753,
+            "top_band_max_divergence": 0.004109636414796114,
+            "divergence_cell_count": 43120,
+            "top_band_cell_count": 1444,
+            "precision": "float32"
+          }
+        },
+        "seconds": [
+          0.0259142080321908,
+          0.025735958013683558,
+          0.026221042033284903,
+          0.027323540998622775,
+          0.027322500012815
+        ],
+        "median_seconds": 0.026221042033284903,
+        "minimum_seconds": 0.025735958013683558,
+        "maximum_seconds": 0.027323540998622775
+      },
+      "export": {
+        "work": {
+          "request": {
+            "id": "cost-combined",
+            "profile": "turning",
+            "grid": "uniform",
+            "mode": "bounded",
+            "precision": "float32",
+            "turbulence": "height"
+          },
+          "shape": [
+            32,
+            40,
+            40
+          ],
+          "iterations": 30,
+          "diagnostics": {
+            "iterations": 30,
+            "max_lagrange_multiplier_change": 0.06592845916748047,
+            "tolerance": 9.999999747378752e-06,
+            "converged": false,
+            "max_divergence": 0.025478124618530273,
+            "rms_divergence": 0.006658473980521753,
+            "top_band_max_divergence": 0.004109636414796114,
+            "divergence_cell_count": 43120,
+            "top_band_cell_count": 1444,
+            "precision": "float32"
+          },
+          "outputs": [
+            "velocity",
+            "speed",
+            "cell_flags",
+            "speedup",
+            "stress",
+            "tke",
+            "streamwise_std",
+            "turbulence_intensity",
+            "stress_valid"
+          ]
+        },
+        "seconds": [
+          0.047503458976279944,
+          0.04618454200681299,
+          0.04593174997717142,
+          0.04621791699901223,
+          0.04589937499258667
+        ],
+        "median_seconds": 0.04618454200681299,
+        "minimum_seconds": 0.04589937499258667,
+        "maximum_seconds": 0.047503458976279944
+      }
+    }
+  },
+  "capture_manifests_sha256": {
+    "final-old-a": "40d6df191f08d2d7be3677911849e104ac1910a95c01b52f2a97fa656407135a",
+    "final-old-b": "d690e334a6d34eea374beb60e34e7f5628692bbde31be8d08f5848bb3644a86e"
+  },
+  "predeclared_changes": "COMBINED_FEATURE_PLAN.md Phase 0 acceptance table; baseline archive comparison must gain explicit normalization for declared schema changes as each implementation phase lands."
+}

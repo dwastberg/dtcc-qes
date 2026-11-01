@@ -1,0 +1,51 @@
+{
+  "status": "Profile/specification substep verified; Phase 1 still in progress",
+  "changes": [
+    "Profiles schema_version=2 and self-contained ground roughness for all four families",
+    "Removed reference_at and external roughness arguments to evaluate",
+    "Strict dataset profile-v2 payloads and migrated callers",
+    "Strict versioned Turbulence and VerticalGrid JSON round trips"
+  ],
+  "python_tests": {
+    "passed": 1261,
+    "skipped": 50,
+    "warnings": "error"
+  },
+  "focused_tests": 197,
+  "frozen_policy_workers": 24,
+  "baseline": {
+    "cases": 31,
+    "passed": true,
+    "differences": [],
+    "declared_normalization": "Only profile record/payload schema_version 1 to 2, inserting the recorded ground roughness into v1 non-log payloads. Raw archives retained.",
+    "manifest_sha256": "b690fe9c0e0d25cb5f866e81ee25f966e8d1c0c55952fcad24d0c91c1afe08d3",
+    "candidate": "build/feature-merge-baseline/phase1a-final",
+    "baseline": "build/feature-merge-baseline/final-old-a"
+  },
+  "native_revision": "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+  "source_index": {
+    "src/dtcc_qes/__init__.py": "af01eab80634bc9480e23334d9cb76bf68ae65d46a9dfdd6b48aee7d96b62619",
+    "src/dtcc_qes/_auto_grid.py": "98527ff0692c52989d1c5168160fada4f83f1262c05bfd515eaf8ab3e8a607c9",
+    "src/dtcc_qes/_city.py": "37542db19c4d6bc5f9e4c800f09fe5c93aefdc8c0afb48fd9aba50a9a2a27369",
+    "src/dtcc_qes/_dataset_city.py": "ebf7c928a82239fba97bdd0aca74d5bb54935f189c1c2583261d1a95fa14e504",
+    "src/dtcc_qes/_footprints.py": "854d04923f5e1878b184bd0899c4b70b5a85944be2bb7fc0ab8e495f0551c4ef",
+    "src/dtcc_qes/_logging.py": "1896cb16e46006494eb84d09b34153f15f68dc9418c536675319836092c0d44b",
+    "src/dtcc_qes/_turbulence_domain.py": "8a6c7655eaa421bf05eb6e0873e07ef37c33866929ee193ab84d39ac7c13843c",
+    "src/dtcc_qes/comfort.py": "b237c9a6ed2230d4a97ed30f5115af9ead893f5e8054de26173cfe2c51c9133d",
+    "src/dtcc_qes/datasets.py": "b9a3173dd95adeeee7a70896e062f5bcea2e96d18c9faf1eb4277639a1b79d47",
+    "src/dtcc_qes/footprints.py": "d13255b633761545a24f6d483a6b951a19181752a715b6bd617fcebb1df74c52",
+    "src/dtcc_qes/profiles.py": "7bd211c97e29fa58a87b3f401f6ee73ad6cfd4de14e242e0074cbc3891cdc548",
+    "src/dtcc_qes/result.py": "20e29fd8650e722403c24ebbec7f35bcc0ba82336c878f8eb5f7401ce00700a3",
+    "src/dtcc_qes/solver_control.py": "259bb9cb4441234bbb38c5506cc52a1c3c67949a9cc38a6ff64d1499e7c70e90",
+    "src/dtcc_qes/turbulence.py": "305996d7877f5077b5605bb7f43e727fc6eeb0e63e1ee8b60172440b63e79c95",
+    "src/dtcc_qes/vertical_grid.py": "392f465b183b9d75ca0e9297967688db68db1964757adeb384287179d722884b",
+    "src/dtcc_qes/wind.py": "ac6098fbf29362a7b69b3fee0840fa3f40593e889d2aa92f824745e31b7576bc"
+  },
+  "pending": [
+    "Unified Solver and its option matrix",
+    "Final run/preview_grid entry-point signatures",
+    "Authoritative solver metadata and exception changes",
+    "Remaining Phase 1 call-site and naming migration",
+    "Phases 2 through 9"
+  ]
+}

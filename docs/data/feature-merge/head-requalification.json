@@ -1,0 +1,361 @@
+{
+  "passed": true,
+  "native_revision": "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+  "previous_revision": "d0775583915762bbe2accfcad81d38e21b4c79037ea2dd0fa4c6c7cd5a24fde3",
+  "frozen_manifest_sha256": "7f973e28ca61d72b72c058fab598e82814c9444b166449322999defac16cc23d",
+  "lock_sha256": "e452a3a5d59a9a0fd09685aaaef6d87fcd955750a8408e4883096acd6deb632f",
+  "workers": [
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-00"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_315",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-01"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_mixed_195",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-02"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_graded_150",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-03"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_mixed_graded_domain_300",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-04"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_210_u2",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-05"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_210_u10",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-06"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-07"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_315",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-08"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_mixed_195",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-09"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_graded_150",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-10"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_mixed_graded_domain_300",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-11"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_210_u2",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-12"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_210_u10",
+        "variant": "legacy",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-13"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "invalid_receptor",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-14"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "unqualified_precision",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 2000,
+        "id": "release-online-15"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "early_limit",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 1,
+        "id": "release-online-16"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "legacy_converged_unaccepted",
+        "rep": 0,
+        "threads": 4,
+        "budget": 5.0,
+        "iterations": 1,
+        "id": "release-online-17"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_240",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 1,
+        "budget": 5.0,
+        "iterations": 2000,
+        "backend": "serial",
+        "id": "release-online-18"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_315",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 1,
+        "budget": 5.0,
+        "iterations": 2000,
+        "backend": "serial",
+        "id": "release-online-19"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_mixed_195",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 1,
+        "budget": 5.0,
+        "iterations": 2000,
+        "backend": "serial",
+        "id": "release-online-20"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_staggered_graded_150",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 1,
+        "budget": 5.0,
+        "iterations": 2000,
+        "backend": "serial",
+        "id": "release-online-21"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_210_u2",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 1,
+        "budget": 5.0,
+        "iterations": 2000,
+        "backend": "serial",
+        "id": "release-online-22"
+      },
+      "differences": []
+    },
+    {
+      "request": {
+        "case": "val_courtyards_210_u10",
+        "variant": "adaptive",
+        "rep": 0,
+        "threads": 1,
+        "budget": 5.0,
+        "iterations": 2000,
+        "backend": "serial",
+        "id": "release-online-23"
+      },
+      "differences": []
+    }
+  ],
+  "source_head": "889c629d745ade9ff7c519019806cd5a31bb84fd",
+  "source_archive_sha256": "8caa348cace454fadc154aee401429713a4e52f7de80947d16cbd574a9fce429",
+  "dependency_overlay": {
+    "pyproject.toml": "a991163adefa8987b21844619acedd13f18297a82b7a5c54ec8d4f25ffe7759c",
+    "uv.lock": "e452a3a5d59a9a0fd09685aaaef6d87fcd955750a8408e4883096acd6deb632f"
+  },
+  "compiler": "AppleClang 17.0.0.17000404; Release; arm64; fp_contract=on",
+  "native_tests": {
+    "serial": 47,
+    "openmp": 50,
+    "asan_ubsan": 47
+  },
+  "python_tests": {
+    "serial": {
+      "passed": 1248,
+      "skipped": 50,
+      "warnings": "error"
+    },
+    "openmp": {
+      "passed": 1248,
+      "skipped": 50,
+      "warnings": "error"
+    }
+  },
+  "symbol_audits": [
+    "serial",
+    "openmp",
+    "sanitizers"
+  ],
+  "artifact_checks": [
+    "sdist",
+    "wheel-from-sdist",
+    "wheel-runtime-smoke"
+  ],
+  "wheel_smoke": {
+    "passed": true,
+    "package": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/feature-merge-baseline/head-requalification/wheel-package",
+    "module": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/feature-merge-baseline/head-requalification/wheel-package/dtcc_qes/_qes.cpython-313-darwin.so",
+    "policy_revision": "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+    "adaptive_accepted": true,
+    "actual_threads": 2,
+    "checks": [
+      "owned_output",
+      "sampling",
+      "adaptive_vs_legacy_status",
+      "history_bounds",
+      "float64",
+      "two_turbulence_methods",
+      "zero_work_error",
+      "canonical_footprints_with_partition_hole"
+    ]
+  },
+  "artifacts": {
+    "dtcc_qes-0.1.0b1.tar.gz": "c621b339a3c74ab92d270321ebec59edeedb662b4b437f7ce18a5d5f41c86804",
+    "dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl": "82a8b474d473948bbb7b7c2452b2dbf23ef9ed1fbae59877c8cf8b6c8c8d220f"
+  },
+  "scope": "Existing pedestrian-v1 scope only. No new qualification for canonical or touching footprints.",
+  "reproduction": "Build an isolated git archive of source_head, overlay recorded pyproject.toml/uv.lock, change only the excluded qualification header to native_revision; build serial/OpenMP Release and Debug ASan/UBSan; run tools/check_wind_profile_policy.py, CTest, symbol audits, pytest -W error, and wheel-from-sdist artifact/smoke checks. Local raw evidence: build/feature-merge-baseline/head-requalification."
+}

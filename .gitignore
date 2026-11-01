@@ -218,4 +218,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-/docs/
+/docs/*
+!/docs/data/
+/docs/data/*
+!/docs/data/feature-merge/
+/docs/data/feature-merge/*
+!/docs/data/feature-merge/head-requalification.json
+!/docs/data/feature-merge/phase0.json
+!/docs/data/feature-merge/phase1a.json
+!/docs/data/feature-merge/phase1b.json
+!/docs/data/feature-merge/phase1c.json
+!/docs/data/feature-merge/phase2.json
+!/docs/data/feature-merge/phase3.json
