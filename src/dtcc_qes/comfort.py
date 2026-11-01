@@ -23,6 +23,7 @@ from typing import NamedTuple
 
 import numpy as np
 from ._log import shifted_log
+from ._validation import real as _number
 
 __all__ = ["Rule", "Rating", "Criterion", "ComfortResult", "NEN8100", "CITY_OF_LONDON",
            "assess", "assess_results", "exceedance", "speed_at_exceedance", "log_law_transfer", "gust_equivalent_mean"]
@@ -153,7 +154,7 @@ def gust_equivalent_mean(speed, streamwise_std, *, peak_factor: float,
     for name, value in (("peak_factor", peak_factor), ("gust_ratio", gust_ratio)):
         if np.ndim(value) != 0 or np.asarray(value).dtype.kind in ("b", "c"):
             raise ValueError(f"{name} must be a positive finite scalar")
-        value = _number(value, name)
+        value = _number(value, name, nonnegative=True)
         if value <= 0:
             raise ValueError(f"{name} must be a positive finite scalar")
         factors.append(value)
@@ -282,7 +283,7 @@ def assess_results(results, speeds, directions, criterion=NEN8100, *, height=Non
     """
     if not isinstance(criterion, Criterion):
         raise ValueError("criterion must be a comfort.Criterion")
-    height = criterion.height if height is None else _number(height, "height")
+    height = criterion.height if height is None else _number(height, "height", nonnegative=True)
     fields, gems, angles, references, runs, actual = _prepare_results(
         results, height, method, criterion.gust_equivalent and peak_factor is not None,
         peak_factor, gust_ratio)
@@ -357,7 +358,7 @@ def _prepare_results(results, height, method, use_gem, peak_factor, gust_ratio):
 
 def exceedance(speeds, directions, fields, field_directions, reference_speed, threshold):
     """Fraction of valid hours with pedestrian speed above ``threshold`` m/s; NaN where invalid."""
-    threshold = _number(threshold, "threshold")
+    threshold = _number(threshold, "threshold", nonnegative=True)
     hourly = _Hourly(speeds, directions, field_directions)
     ratios = _ratios(fields, hourly.field_directions, reference_speed)
     climate = _Climate(hourly.speeds, hourly.sectors, len(hourly.field_directions))
@@ -371,7 +372,7 @@ def speed_at_exceedance(speeds, directions, fields, field_directions, reference_
     Uses bisection over the total exceedance of all directions; results lie
     within ``tolerance`` m/s above the exact value. NaN where invalid.
     """
-    fraction, tolerance = _number(fraction, "fraction"), _number(tolerance, "tolerance")
+    fraction, tolerance = _number(fraction, "fraction", nonnegative=True), _number(tolerance, "tolerance", positive=True)
     if not 0 < fraction < 1 or tolerance <= 0:
         raise ValueError("fraction must be within (0, 1) and tolerance positive")
     hourly = _Hourly(speeds, directions, field_directions)
@@ -398,7 +399,7 @@ def log_law_transfer(speeds, from_height, from_roughness, to_height, to_roughnes
     Neutral logarithmic profiles without displacement height, matched at a
     blending height where speed is taken as independent of surface roughness.
     """
-    values = {name: _number(value, name) for name, value in dict(
+    values = {name: _number(value, name, nonnegative=True) for name, value in dict(
         from_height=from_height, from_roughness=from_roughness, to_height=to_height,
         to_roughness=to_roughness, blending_height=blending_height).items()}
     if any(value <= 0 for value in values.values()):
@@ -513,15 +514,3 @@ def _nearest_direction(directions, field_directions):
         closer = distance < best
         best[closer], sectors[closer] = distance[closer], index
     return sectors
-
-
-def _number(value, name):
-    if isinstance(value, (bool, np.bool_)):
-        raise ValueError(f"{name} must be a finite number")
-    try:
-        value = float(value)
-    except (TypeError, ValueError, OverflowError) as error:
-        raise ValueError(f"{name} must be a finite number") from error
-    if not np.isfinite(value) or value < 0:
-        raise ValueError(f"{name} must be a finite nonnegative number")
-    return value

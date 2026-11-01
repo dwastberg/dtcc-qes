@@ -1,32 +1,11 @@
 """Bounded execution and versioned, opt-in pedestrian numerical assessment."""
 from dataclasses import asdict, dataclass
-import math
-from numbers import Integral, Real
 from typing import Literal
+from ._validation import real as _number, integer as _integer
 
 
 # Native legacy/bounded method id; Phase 9 exposes the shared native constant.
 LEGACY_METHOD = "s5c-rb-sor-float-omega-v1-omega-1.78"
-
-
-def _number(value, name, *, positive=False):
-    if isinstance(value, bool) or not isinstance(value, Real):
-        raise ValueError(f"{name} must be finite")
-    try:
-        value = float(value)
-    except (OverflowError, ValueError) as error:
-        raise ValueError(f"{name} must be finite") from error
-    if not math.isfinite(value):
-        raise ValueError(f"{name} must be finite")
-    if value < 0 or (positive and value == 0):
-        raise ValueError(f"{name} must be {'positive' if positive else 'nonnegative'}")
-    return float(value)
-
-
-def _integer(value, name, *, minimum=1):
-    if isinstance(value, bool) or not isinstance(value, Integral) or not minimum <= value <= 2**31-1:
-        raise ValueError(f"{name} must be an integer in [{minimum}, {2**31-1}]")
-    return int(value)
 
 
 @dataclass(frozen=True)
@@ -41,11 +20,8 @@ class Receptor:
         if not isinstance(self.id, str) or not self.id:
             raise ValueError("Receptor ID must be a nonempty string")
         for name in ("x", "y"):
-            v = getattr(self, name)
-            if isinstance(v, bool) or not isinstance(v, Real) or not math.isfinite(v):
-                raise ValueError(f"Receptor {name} must be finite")
-            object.__setattr__(self, name, float(v))
-        object.__setattr__(self, "height_agl", _number(self.height_agl, "height_agl"))
+            object.__setattr__(self, name, _number(getattr(self,name),f"Receptor {name}"))
+        object.__setattr__(self, "height_agl", _number(self.height_agl, "height_agl", nonnegative=True))
         if not isinstance(self.required, bool):
             raise ValueError("required must be boolean")
 
@@ -89,13 +65,13 @@ class MonitorSpec:
 
     def __post_init__(self):
         region = tuple(self.region)
-        if len(region) != 4 or any(isinstance(v, bool) or not isinstance(v, Real) or not math.isfinite(v) for v in region):
+        if len(region) != 4:
             raise ValueError("Monitor region requires four finite coordinates")
-        region = tuple(map(float, region))
+        region = tuple(_number(v,"Monitor region coordinate") for v in region)
         if region[0] >= region[1] or region[2] >= region[3]:
             raise ValueError("Monitor region requires increasing x/y bounds")
         object.__setattr__(self, "region", region)
-        heights = tuple(_number(v, "monitor height") for v in self.heights)
+        heights = tuple(_number(v, "monitor height", nonnegative=True) for v in self.heights)
         if len(set(heights)) != len(heights):
             raise ValueError("Monitor heights must be unique")
         object.__setattr__(self, "heights", heights)

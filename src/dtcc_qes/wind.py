@@ -6,7 +6,6 @@ import time
 import json
 from dataclasses import replace
 import math
-from numbers import Integral
 from typing import Literal
 import numpy as np
 
@@ -19,6 +18,7 @@ from .result import ConvergenceError, SolveDiagnostics, TurbulenceFields, WindRe
 from .turbulence import Turbulence, _resolve_turbulence, _turbulence_metadata
 from .vertical_grid import GridPreview, VerticalGrid
 from .footprints import Footprints
+from ._validation import integer
 from .solver_control import (Solver, MonitorSpec, Receptor, MassRegion, BudgetExhaustedError,
                              NumericalFailureError, UnacceptedResultError)
 from .profiles import (LogProfile, MeasuredProfile, PowerLawProfile, UniformProfile,
@@ -410,10 +410,7 @@ def _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, m
             raise ValueError(f"{name} must be nonnegative")
         values[name] = value
     resolution = values["resolution"]
-    if (isinstance(max_cells, (bool, np.bool_)) or not isinstance(max_cells, Integral)
-            or not 1 <= max_cells <= np.iinfo(np.int64).max):
-        raise ValueError("max_cells must be a positive int64 integer")
-    max_cells = int(max_cells)
+    max_cells = integer(max_cells,"max_cells",maximum=np.iinfo(np.int64).max)
     # Match the native coefficient check without overflowing float casts.
     limit = float(np.finfo(np.float32).max)
     if not math.sqrt(1 / limit) <= resolution <= math.sqrt(limit):

@@ -7,9 +7,9 @@ prototype candidates, pending accuracy/cost validation.
 
 from dataclasses import asdict, dataclass
 import math
-from numbers import Real
 
 import numpy as np
+from ._validation import real
 
 GENERATOR_VERSION = "explicit-v1"
 AUTO_GENERATOR_VERSION = "auto-v1-prototype"
@@ -29,14 +29,7 @@ class _AutoSettings:
         for name, value in asdict(self).items():
             if value is None:
                 continue
-            if isinstance(value, (bool, np.bool_)) or not isinstance(value, Real):
-                raise ValueError(f"{name} must be a finite positive number")
-            try:
-                value = float(value)
-            except (OverflowError, ValueError) as error:
-                raise ValueError(f"{name} must be a finite positive number") from error
-            if not math.isfinite(value) or value <= 0:
-                raise ValueError(f"{name} must be a finite positive number")
+            value = real(value,name,positive=True)
             object.__setattr__(self, name, value)
         if self.pedestrian_height is None or self.growth_rate is None or self.max_aspect_ratio is None:
             raise ValueError("pedestrian_height, growth_rate and max_aspect_ratio cannot be None")

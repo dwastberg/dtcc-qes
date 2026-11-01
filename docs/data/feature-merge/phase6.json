@@ -1,0 +1,55 @@
+{
+  "status": "Phase 6 complete",
+  "verification": {
+    "passed": true,
+    "phase": "phase6",
+    "python_tests": {
+      "serial": {
+        "passed": 1462,
+        "skipped": 50,
+        "seconds": 63.58,
+        "log": "build/feature-merge-baseline/phase6-serial-tests.log"
+      },
+      "openmp": {
+        "passed": 1462,
+        "skipped": 50,
+        "seconds": 63.44,
+        "log": "build/feature-merge-baseline/phase6-openmp-tests.log"
+      }
+    },
+    "native_revision": "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+    "frozen_workers": 24
+  },
+  "baseline": {
+    "cases": 31,
+    "passed": true,
+    "differences": []
+  },
+  "changes": [
+    "One NumPy/standard-library scalar/integer validation module replaces local helpers in geometry, profiles, solver controls, comfort and vertical grids",
+    "Strict Python/NumPy scalar acceptance; bool, complex, strings and ndarray scalars rejected",
+    "Signed coordinates, nonnegative heights, positive lengths and precision-specific representability remain separate caller constraints",
+    "Int32 defaults and explicit int64 capacity bounds; float32 max/subnormal/underflow gates",
+    "Comfort helper dependency closure loads in isolation without native or DTCC imports"
+  ],
+  "source_index": {
+    "src/dtcc_qes/_footprints.py": "854d04923f5e1878b184bd0899c4b70b5a85944be2bb7fc0ab8e495f0551c4ef",
+    "src/dtcc_qes/turbulence.py": "7874a64e4dff3d165cb72e5fbecbbbdc9fe4074139c53aa06aed5029cef97bec",
+    "src/dtcc_qes/_logging.py": "1896cb16e46006494eb84d09b34153f15f68dc9418c536675319836092c0d44b",
+    "src/dtcc_qes/_turbulence_domain.py": "8a6c7655eaa421bf05eb6e0873e07ef37c33866929ee193ab84d39ac7c13843c",
+    "src/dtcc_qes/comfort.py": "946c214ae920ed7f32ba336a0a9d1eb1a951c13e3e7543c28bd6525db6da094a",
+    "src/dtcc_qes/_dataset_city.py": "2d351e914776b3a2932da72b2c3325746a45a722f2adb32c19a4fd98d66bc7a1",
+    "src/dtcc_qes/vertical_grid.py": "0d97bcbbc4bd2eeee385e165904f03bbbbd80fc8277aa8dade2c7dc2c7d377f0",
+    "src/dtcc_qes/datasets.py": "d2dc67197b5d2a53d92560ee34bcbc76a72449ce3341d6553088ae46e80cb8b5",
+    "src/dtcc_qes/wind.py": "d2ed00a55cc2dae2097b57d570c010c4fd7e10838a75d3512dfe9a10828e16f9",
+    "src/dtcc_qes/__init__.py": "af01eab80634bc9480e23334d9cb76bf68ae65d46a9dfdd6b48aee7d96b62619",
+    "src/dtcc_qes/footprints.py": "d13255b633761545a24f6d483a6b951a19181752a715b6bd617fcebb1df74c52",
+    "src/dtcc_qes/result.py": "0c8a09be97df4dda7cef210005f777e3ba8cc11dd8bc3b3620693009854f0584",
+    "src/dtcc_qes/_validation.py": "671c8e6320348c78bc02c88d2d69b6336cfeff13ec8875fbe410ca86b993d7c9",
+    "src/dtcc_qes/_auto_grid.py": "98527ff0692c52989d1c5168160fada4f83f1262c05bfd515eaf8ab3e8a607c9",
+    "src/dtcc_qes/solver_control.py": "85ac089a556ae67ef7b797dbf59e521d101b4df0b9505309725b031978fdb63a",
+    "src/dtcc_qes/_city.py": "128d9df2e2d3ff1b9bf12db72d599c13b7393575212def03ba0df1aec43f1bc9",
+    "src/dtcc_qes/profiles.py": "b0234b76a5eb83c148be44c9bc692dff6b248a8422ec83a15d62f73521912737",
+    "src/dtcc_qes/_log.py": "f6e2d6a038e428a18aa5d9c1d27bcb6ea60440d5d6ace0310fd4ecc292d1a8ca"
+  }
+}

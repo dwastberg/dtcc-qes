@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass
 import math
-from numbers import Real
 
 import numpy as np
 from pyproj import CRS
@@ -14,23 +13,10 @@ from shapely.validation import explain_validity
 from dtcc_core.model import Building, BuildingPart, City, Surface, Terrain
 
 from . import _qes
+from ._validation import real as number
 from .vertical_grid import effective_faces
 from ._turbulence_domain import (check_turbulence_faces, extend_turbulence_faces,
                                 turbulence_reference_height, turbulence_top)
-
-
-def number(value, name, *, positive=False):
-    if isinstance(value, (bool, np.bool_)) or not isinstance(value, Real):
-        raise ValueError(f"{name} must be a finite number")
-    try:
-        value = float(value)
-    except (OverflowError, ValueError) as error:
-        raise ValueError(f"{name} must be a finite number") from error
-    if not math.isfinite(value):
-        raise ValueError(f"{name} must be a finite number")
-    if positive and value <= 0:
-        raise ValueError(f"{name} must be positive")
-    return value
 
 
 def _frame(transform, label):

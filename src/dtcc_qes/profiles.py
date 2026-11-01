@@ -13,27 +13,10 @@ from types import MappingProxyType
 
 import numpy as np
 from ._log import shifted_log as _shifted_log
+from ._validation import real as _number
 
 __all__ = ["LogProfile", "MeasuredProfile", "PowerLawProfile", "UniformProfile",
            "evaluate", "profile_from_dict"]
-
-
-def _number(value, name, *, positive=False, native=False):
-    if isinstance(value, (bool, np.bool_, str, complex)) or np.ndim(value) != 0:
-        raise ValueError(f"{name} must be a finite real scalar")
-    try:
-        value = float(value)
-    except (TypeError, ValueError, OverflowError) as error:
-        raise ValueError(f"{name} must be a finite real scalar") from error
-    valid = math.isfinite(value) and (not positive or value > 0)
-    if native:
-        with np.errstate(over="ignore", under="ignore"):
-            narrowed = np.float32(value)
-        valid = valid and np.isfinite(narrowed) and (not positive or narrowed > 0)
-    if not valid:
-        raise ValueError(f"{name} must be {'positive and ' if positive else ''}finite" +
-                         (" in float32" if native else ""))
-    return value
 
 
 def _array(values, name):
@@ -218,12 +201,12 @@ class PowerLawProfile(_Profile):
 
 def _analytic(profile):
     for name in ("speed", "direction", "reference_height"):
-        value = _number(getattr(profile, name), name, positive=name == "reference_height", native=True)
+        value = _number(getattr(profile, name), name, positive=name == "reference_height", float32=True)
         object.__setattr__(profile, name, value)
     if profile.speed < 0 or not 0 <= profile.direction < 360:
         raise ValueError("speed must be nonnegative and direction must be in [0, 360)")
     object.__setattr__(profile, "roughness_length",
-                       _number(profile.roughness_length, "roughness_length", positive=True, native=True))
+                       _number(profile.roughness_length, "roughness_length", positive=True, float32=True))
     object.__setattr__(profile, "metadata", _metadata(profile.metadata))
 
 
@@ -274,8 +257,8 @@ class MeasuredProfile(_Profile):
             raise ValueError("Unsupported measured profile extrapolation policy")
         if interpolation not in ("log_height", "linear"):
             raise ValueError("interpolation must be log_height or linear")
-        height = _number(reference_height, "reference_height", positive=True, native=True)
-        roughness = _number(roughness_length, "roughness_length", positive=True, native=True)
+        height = _number(reference_height, "reference_height", positive=True, float32=True)
+        roughness = _number(roughness_length, "roughness_length", positive=True, float32=True)
         if (height < heights[0] and below == "error") or (height > heights[-1] and above == "error"):
             raise ValueError("Profile coverage does not include the reference height")
         for name, value in dict(heights=heights, u=u, v=v, reference_height=height, roughness_length=roughness, below=below,
