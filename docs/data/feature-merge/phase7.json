@@ -1,0 +1,337 @@
+{
+  "status": "Phase 7 complete",
+  "verification": {
+    "passed": true,
+    "phase": "phase7",
+    "python_tests": {
+      "serial": {
+        "passed": 1515,
+        "skipped": 16,
+        "seconds": 70.47,
+        "log": "build/feature-merge-baseline/phase7-serial-tests.log"
+      },
+      "openmp": {
+        "passed": 1515,
+        "skipped": 16,
+        "seconds": 70.47,
+        "log": "build/feature-merge-baseline/phase7-openmp-tests.log"
+      }
+    },
+    "native_revision": "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+    "frozen_workers": 24
+  },
+  "baseline": {
+    "cases": 31,
+    "passed": true,
+    "differences": []
+  },
+  "native_ctest": {
+    "serial": 47,
+    "openmp": 50,
+    "passed": true
+  },
+  "costs": {
+    "wind-only": {
+      "baseline_seconds": 0.0057721249759197235,
+      "candidate_seconds": 0.005737749976105988,
+      "ratio": 0.9940446542725354,
+      "delta_seconds": -3.4374999813735485e-05,
+      "needs_review": false,
+      "baseline_range": [
+        0.005422125046607107,
+        0.006029999989550561
+      ],
+      "candidate_range": [
+        0.005652874999213964,
+        0.00596275000134483
+      ]
+    },
+    "combined": {
+      "baseline_seconds": 0.026221042033284903,
+      "candidate_seconds": 0.028343624959234148,
+      "ratio": 1.0809496023558045,
+      "delta_seconds": 0.0021225829259492457,
+      "needs_review": false,
+      "baseline_range": [
+        0.025735958013683558,
+        0.027323540998622775
+      ],
+      "candidate_range": [
+        0.027501749980729073,
+        0.028851917013525963
+      ]
+    },
+    "export": {
+      "baseline_seconds": 0.04618454200681299,
+      "candidate_seconds": 0.026918332965578884,
+      "ratio": 0.5828429122802167,
+      "delta_seconds": -0.019266209041234106,
+      "needs_review": false,
+      "baseline_range": [
+        0.04589937499258667,
+        0.047503458976279944
+      ],
+      "candidate_range": [
+        0.026709916011895984,
+        0.027857374981977046
+      ]
+    }
+  },
+  "measurements": {
+    "repetitions": 5,
+    "warmups": 1,
+    "backend": "serial CPU",
+    "policy_revision": "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+    "omp_num_threads": "2",
+    "clock": "time.perf_counter; durations include the entire named public operation",
+    "review_rule": "Investigate median regression exceeding both 10 percent and 0.01 seconds; report all observations and range",
+    "default_study": {
+      "reference_precision": "float64",
+      "initial_reference_tolerance": 1e-07,
+      "stability_tolerance": 1e-08,
+      "stability_p95_K": 1e-05,
+      "stability_max_K": 0.0001,
+      "candidate_p95_K": 0.0005,
+      "candidate_max_K": 0.001,
+      "selection": "Fastest median public call among candidates passing both error limits on both cities; require reference convergence and tightening stability"
+    },
+    "measurements": {
+      "wind-only": {
+        "work": {
+          "request": {
+            "id": "scalar",
+            "profile": "scalar",
+            "grid": "uniform",
+            "mode": "legacy",
+            "precision": "float32",
+            "turbulence": null
+          },
+          "shape": [
+            32,
+            40,
+            40
+          ],
+          "iterations": 30,
+          "diagnostics": {
+            "iterations": 30,
+            "max_lagrange_multiplier_change": 0.04438591003417969,
+            "tolerance": 9.999999747378752e-06,
+            "converged": false,
+            "max_divergence": 0.016425609588623047,
+            "rms_divergence": 0.004557330673784753,
+            "top_band_max_divergence": 0.004350582137703896,
+            "divergence_cell_count": 43120,
+            "top_band_cell_count": 1444,
+            "precision": "float32"
+          }
+        },
+        "seconds": [
+          0.00596275000134483,
+          0.005758665967732668,
+          0.0056772499810904264,
+          0.005737749976105988,
+          0.005652874999213964
+        ],
+        "median_seconds": 0.005737749976105988,
+        "minimum_seconds": 0.005652874999213964,
+        "maximum_seconds": 0.00596275000134483
+      },
+      "combined": {
+        "work": {
+          "request": {
+            "id": "cost-combined",
+            "profile": "turning",
+            "grid": "uniform",
+            "mode": "bounded",
+            "precision": "float32",
+            "turbulence": "height"
+          },
+          "shape": [
+            32,
+            40,
+            40
+          ],
+          "iterations": 30,
+          "diagnostics": {
+            "iterations": 30,
+            "max_lagrange_multiplier_change": 0.06592845916748047,
+            "tolerance": 9.999999747378752e-06,
+            "converged": false,
+            "max_divergence": 0.025478124618530273,
+            "rms_divergence": 0.006658473980521753,
+            "top_band_max_divergence": 0.004109636414796114,
+            "divergence_cell_count": 43120,
+            "top_band_cell_count": 1444,
+            "precision": "float32"
+          }
+        },
+        "seconds": [
+          0.027946624963078648,
+          0.028343624959234148,
+          0.028851917013525963,
+          0.028735833009704947,
+          0.027501749980729073
+        ],
+        "median_seconds": 0.028343624959234148,
+        "minimum_seconds": 0.027501749980729073,
+        "maximum_seconds": 0.028851917013525963
+      },
+      "export": {
+        "work": {
+          "request": {
+            "id": "cost-combined",
+            "profile": "turning",
+            "grid": "uniform",
+            "mode": "bounded",
+            "precision": "float32",
+            "turbulence": "height"
+          },
+          "shape": [
+            32,
+            40,
+            40
+          ],
+          "iterations": 30,
+          "diagnostics": {
+            "iterations": 30,
+            "max_lagrange_multiplier_change": 0.06592845916748047,
+            "tolerance": 9.999999747378752e-06,
+            "converged": false,
+            "max_divergence": 0.025478124618530273,
+            "rms_divergence": 0.006658473980521753,
+            "top_band_max_divergence": 0.004109636414796114,
+            "divergence_cell_count": 43120,
+            "top_band_cell_count": 1444,
+            "precision": "float32"
+          },
+          "outputs": [
+            "velocity",
+            "speed",
+            "cell_flags",
+            "speedup",
+            "stress",
+            "tke",
+            "streamwise_std",
+            "turbulence_intensity",
+            "stress_valid"
+          ]
+        },
+        "seconds": [
+          0.026709916011895984,
+          0.026751334022264928,
+          0.027857374981977046,
+          0.027384083019569516,
+          0.026918332965578884
+        ],
+        "median_seconds": 0.026918332965578884,
+        "minimum_seconds": 0.026709916011895984,
+        "maximum_seconds": 0.027857374981977046
+      }
+    }
+  },
+  "changes": [
+    "All test-to-test imports removed; reusable city, synthetic output, dataset and archived-audit helpers moved into tests/fixtures",
+    "One registered/cached tool-module loader; shared keyword-only synthetic result constructors",
+    "Independent covariance, eigensolver validity and audited archive oracles consolidated without production stress-helper dependencies",
+    "Shared native building fixture header used by physics, runner, grid, profile, contact and turbulence tests without CMake/policy-source changes",
+    "Combined feature suite verifies frozen-grid turbulence/monitor invariance and reused Log/LayerTable runners, disabled options, pre-solve exclusions and Python deadline/wind_basis mapping",
+    "Native-backed monitor, safety and study integration tests enabled in Python gates, reducing skips from 50 to 16",
+    "Denominator inspection: p95 delta-K already uses the shared Uref=5 denominator; corrected the inconsistent relative-peak denominator to the comparison reference kb, matching other tools",
+    "Live removed-name audit reviewed legitimate profile parameters, native control APIs and explicit historical adapters; archived campaigns and pinned hashes untouched"
+  ],
+  "invariant_inventory": {
+    "1": [
+      "test_phase1_contract.py"
+    ],
+    "2": [
+      "test_feature_combinations.py"
+    ],
+    "3": [
+      "test_feature_combinations.py"
+    ],
+    "4": [
+      "test_profile_pipeline.py",
+      "test_phase1_contract.py"
+    ],
+    "5": [
+      "test_solver_spec.py",
+      "test_feature_combinations.py"
+    ],
+    "6": [
+      "test_monitor.py"
+    ],
+    "7": [
+      "test_turbulence.py",
+      "test_sampling.py"
+    ],
+    "8": [
+      "test_comfort_results.py",
+      "test_dataset_turbulence.py",
+      "test_profiles.py"
+    ],
+    "9": [
+      "test_feature_combinations.py"
+    ],
+    "10": [
+      "test_qualification.py",
+      "test_comfort_results.py",
+      "test_dataset_turbulence.py"
+    ],
+    "11": [
+      "test_dataset_turbulence.py"
+    ],
+    "12": [
+      "test_comfort_results.py"
+    ],
+    "13": [
+      "test_comfort_results.py"
+    ],
+    "14": [
+      "phase4.json",
+      "phase5.json"
+    ],
+    "15": [
+      "test_feature_combinations.py",
+      "test_runner.py"
+    ],
+    "16": [
+      "test_solver_spec.py",
+      "test_feature_combinations.py"
+    ],
+    "17": [
+      "test_solver_spec.py",
+      "test_feature_combinations.py"
+    ]
+  },
+  "phase9_obligations": [
+    "Native full exclusion lists and coordinate-only preflight",
+    "Native legacy timings and shared method constants",
+    "Real pure-C++ deterministic zero-work/mid-solve/convergence-at-deadline tests"
+  ],
+  "source_index": {
+    "tests/fixtures/turbulence_domain.py": "4f657584ee95442a7ab95cd26904e26d30b4ccaa4041dcb8ab76f89891ff0673",
+    "tests/fixtures/oracles.py": "870e404aa6cbec9db37853502d0f44f7a4490e1d592928f42b8b2ba51d959dc2",
+    "tests/fixtures/specs.py": "83058619321bd5831e6f89f847638e2ef9a77e5f6c6ab84cbbcec18ae4b55337",
+    "tests/fixtures/turbulence.py": "3853bc34ce4f15b1b9ea73fa4d70a7be3f46c62d26a91a95fd35a9e0a0d081ae",
+    "tests/fixtures/support.py": "c31f7e1a89045ed701fcea1126872260a379cfa7d2703cdb0132b04915a332e4",
+    "tests/fixtures/auto_grid_controls.py": "2880b5fd1d663f3610f018643f2c439cc4fbafe60fa2c71bb4fe170bf417a13b",
+    "tests/fixtures/joint_grid_verification.py": "7e1f0a374b9a23722cf8dcfd6bbed63cddfa4256e3aea97b87344e7f37fcdba2",
+    "tests/fixtures/results.py": "81892b9048224f82058aa56fcab1cbed7a5141d49dba70c495f0e3916f39ec35",
+    "tests/fixtures/vertical_refinement.py": "cc19e74339adad2ef847e06354019eb6608fd71b6bbebe1452d3840f6a7c9a12",
+    "tests/fixtures/condition_state.py": "3ebf489eed5975a152dcffe1bdc6780d0b69b1e6ed589085797502b0e6bd671f",
+    "tests/fixtures/turbulence_cases.py": "1f0a30c91d0e37b44fb83a6dd4592cc967f269e36c532c2dc49fbf287ecfe441",
+    "tests/fixtures/practical_vertical_grid.py": "d0be586283d6035bb568561c37672d0a3eb5d4c34a1780f997da6bd872b254d6",
+    "tests/fixtures/datasets.py": "631dad0279b096e3201c806ec0e1af4de3455f59fcc06d4f634a128b658b4543",
+    "tests/fixtures/cases.py": "6cf097a80f8b96488e4dd4cf92831cce6f8f7fc3d23fa3b01b1cb789bbff1fd0",
+    "tests/fixtures/footprints.py": "bd2fee365cc4362b8701c839f13fbd1d63e241aea18f463782be1ca64246e8b8",
+    "tests/fixtures/generated_grid_pilot.py": "f9586907188c5e10110fed7608f4283eb21f4df7454cfe6bc10ef49296b09ee9",
+    "tests/fixtures/geometry.py": "7d82cb9f847f5a5907bea1000f97a8139e7bc80b27b7b2285a26140e164c5c74",
+    "tests/fixtures/sampling.py": "37f07e5eae59c448759341146471bbbca3fb1172b0d29ec25725bad83782c130",
+    "tests/fixtures/cities.py": "8f08934f608cfacf045b202fe38003fb72fc9027f030b2e882f997f5d7770ceb",
+    "tests/fixtures/precision_verification.py": "259edb77ac3395f1431e8cf07e9d7cd3abdbd43fd6997463a38668efca61dfd7",
+    "tests/fixtures/turbulence_reference.py": "f0a38c5833d6e3e2befa914d69b4407faa31bd34fe9ee373133112929750defd",
+    "tests/fixtures/near_wall_validation.py": "9a02ec52daca0b3a795ef713a949db34eabac423ab02db885183d2d8d58356bd",
+    "tests/native/building_fixtures.h": "112c740527dca1545533082689ac866faf990ecbcd5c3e00f744f61fb04b6cb7",
+    "tests/test_feature_combinations.py": "343f6f8eb59e3e2a457ac99bb66c61807d8c1af5545bb4478f1af6692ba8be30"
+  }
+}

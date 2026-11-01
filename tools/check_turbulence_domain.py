@@ -22,6 +22,16 @@ from run_auto_grid_controls import make_city, rectangles
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def error_metrics(ka,kb):
+    """Absolute ΔK uses Uref; relative peaks use the comparison reference kb."""
+    delta=np.abs(np.asarray(kb)-np.asarray(ka))
+    reference=float(np.max(kb))
+    peak=abs(float(np.max(kb)-np.max(ka)))/reference if reference>0 else None
+    return dict(p95_abs_delta_K=float(np.quantile(delta,.95)),max_abs_delta_K=float(delta.max()),
+        peak_relative_difference=peak,
+        passed=bool(np.quantile(delta,.95)<=.05 and peak is not None and peak<=.05))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
@@ -68,12 +78,8 @@ def main():
             a,b = samples[baseline][height],samples[name][height]
             assert np.array_equal(a.valid,b.valid)
             ka,kb = a.speed[a.valid]/5,b.speed[b.valid]/5
-            delta = np.abs(kb-ka)
-            peak = abs(float(kb.max()-ka.max()))/float(ka.max())
             comparisons.append(dict(baseline=baseline,control=name,height=height,fluid_points=int(a.valid.sum()),
-                p95_abs_delta_K=float(np.quantile(delta,.95)),max_abs_delta_K=float(delta.max()),
-                peak_relative_difference=peak,
-                passed=bool(np.quantile(delta,.95) <= .05 and peak <= .05)))
+                **error_metrics(ka,kb)))
     files = ("src/dtcc_qes/_city.py","src/dtcc_qes/_turbulence_domain.py",
              "src/dtcc_qes/_auto_grid.py","tools/check_turbulence_domain.py")
     output = dict(case=dict(rectangles=rects,speed=5,direction=270,resolution=2,fine_region_height=40),
