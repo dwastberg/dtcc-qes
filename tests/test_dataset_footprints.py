@@ -367,7 +367,8 @@ def test_stepped_dataset_combines_profiles_controls_and_final_grid(source_city, 
         footprints=wind.Footprints(min_detail=args.min_building_detail, fallback="tallest"),
     )
     assert preview.domain == direct.metadata["domain"]
-    assert prep["bounds"][5] >= 30
+    assert prep["bounds"][5] is None
+    assert direct.z_faces[-1] >= 30
     assert prep["footprints"]["counts"]["solids"] == 2
     assert realization(actual)["simulation"]["profile"] == direct.metadata["profile"]
     assert actual.dataset_context.health["solver"]["record"]["iterations"] == 3

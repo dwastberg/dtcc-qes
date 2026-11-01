@@ -145,14 +145,16 @@ def test_cleaning_preserves_cell_heights_and_records_courtyards(source_city, mon
     assert len(source_city.buildings[1].lod0.holes) == 1
 
 
-def coded_result():
+def coded_result(*,speed=5.):
     z, y, x = np.indices((2, 4, 3))
     codes = (100*z + 10*y + x).astype(np.float32)
     velocity = np.stack([codes, codes+1000, codes+2000], axis=-1)
+    from dtcc_qes.profiles import _profile_record
     return wind.WindResult(velocity, np.arange(3)+0.5, np.arange(4)+0.5, np.arange(2)+0.5,
                            codes.astype(np.int32)+3, (300000, 6400000, 50), "EPSG:3006", 1.0,
                            wind.SolveDiagnostics(1, 0, 1e-5, True),
-                           {"domain": {"effective_bounds": (300000,6400000,50,300003,6400004,52)}})
+                           {"profile":_profile_record(wind.LogProfile(speed,270),None),
+                            "domain": {"effective_bounds": (300000,6400000,50,300003,6400004,52)}})
 
 
 @pytest.mark.parametrize("axis", ["x", "y", "z"])
@@ -184,7 +186,7 @@ def test_slice_sampling_on_unequal_axes(axis, position):
 
 
 def test_slice_speedup_is_nan_for_calm_inflow():
-    obj = _field_slice(coded_result(), QESWindArgs(**request(product="slice", speed=0.0, slice_resolution=3)))
+    obj = _field_slice(coded_result(speed=0), QESWindArgs(**request(product="slice", speed=0.0, slice_resolution=3)))
     assert np.isfinite(obj.field("speed").values).all()
     assert np.isnan(obj.field("speedup").values).all()
 

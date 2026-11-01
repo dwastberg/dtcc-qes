@@ -8,6 +8,8 @@ import numpy as np
 
 from .result import _STRESS_RELATIVE_TOLERANCE, _velocity_magnitude
 
+NUMERICS_VERSION = "dtcc-qes-turbulence-v1"
+
 
 @dataclass(frozen=True)
 class Turbulence:
@@ -62,7 +64,7 @@ def _turbulence_metadata(spec, native, domain_top, velocity, has_buildings):
         fixes += ["bounded_exposed_voxel_face_distances", "minimum_distance_preservation",
                   "physical_3H_to_3.6H_transition"]
     return dict(model="QES-Turb algebraic mixing-length model",mixing_length=spec.mixing_length,caveats=[],
-        qes_method=spec.qes_method,numerics_version="dtcc-qes-turbulence-v1",audited_fixes=fixes,
+        qes_method=spec.qes_method,numerics_version=NUMERICS_VERSION,audited_fixes=fixes,
         upstream_parity="Audited fork parity; oblique rotation and method-1 distances differ from pristine QES",
         stress_components=("txx","txy","txz","tyy","tyz","tzz"),
         units=dict(stress="m^2/s^2",tke="m^2/s^2",co_eps="m^2/s^3",mixing_length="m"),

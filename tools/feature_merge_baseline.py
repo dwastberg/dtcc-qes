@@ -112,7 +112,7 @@ def execute(wind, city, row, api):
         if turbulence is not None:
             options["turbulence"] = turbulence
     else:
-        settings = dict(max_iterations=600 if adaptive else 30, precision=row["precision"])
+        settings = dict(tolerance=1e-5,max_iterations=600 if adaptive else 30, precision=row["precision"])
         if row["mode"] != "legacy":
             settings.update(max_solve_seconds=60., monitor=monitor)
         if adaptive:
@@ -180,6 +180,8 @@ def capture(api, output, select):
     from dtcc_core import datasets
     for kind in (() if select == "adaptive" else ("field", "linear", "auto")):
         args = dict(bounds=[0,0,60,60], horizontal_padding=6., vertical_clearance=6.)
+        if api == "new":
+            args["solver"] = wind.Solver(tolerance=1e-4,max_iterations=1000).to_dict()
         if kind != "field":
             args.update(product="slice", slice_sampling="linear", slice_height=1.5, slice_resolution=12)
         if kind == "auto":
@@ -398,6 +400,20 @@ def comparison_cases(cases):
             if "domain" in metadata:
                 metadata["domain"].setdefault("profile",deepcopy(profile))
         phase3_metadata(row)
+        if "bounds" in request and "id" not in request:
+            old_dataset_schema = "turbulence_numerics_version" not in request
+            request.setdefault("turbulence",None)
+            request.setdefault("turbulence_numerics_version",None)
+            domain=metadata.get("domain",{})
+            # Four-coordinate dataset requests now defer top planning. The
+            # frozen field/face comparison still checks the resulting grid.
+            if old_dataset_schema and len(request["bounds"]) == 4 and domain.get("requested_bounds",[None]*6)[-1] is not None:
+                domain["requested_bounds"][-1]=None
+                requirements=domain["top_requirements"]
+                requirements["fixed_top"]=False
+                requirements["roof_clearance"]["applied"]=True
+                requirements["profile_reference"]["applied"]=True
+                requirements["minimum_cells"]["minimum_top"]=2*domain["resolution"]
     return result
 
 

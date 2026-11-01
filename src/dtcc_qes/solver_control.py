@@ -128,8 +128,8 @@ class Solver:
     budget covers the native solve, including mutex wait and monitoring; city
     preparation and output/turbulence calculation have separate timing scopes.
     """
-    tolerance: float = 1e-5
-    max_iterations: int = 500
+    tolerance: float = 1e-4
+    max_iterations: int = 1000
     precision: Literal["float32", "float64"] = "float32"
     max_solve_seconds: float | None = None
     monitor: MonitorSpec | None = None

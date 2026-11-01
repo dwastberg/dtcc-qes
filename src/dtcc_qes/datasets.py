@@ -17,6 +17,8 @@ from . import __version__, wind
 from ._dataset_city import prepare_city
 from ._footprints import plan_footprint_domain
 from .solver_control import Solver
+from .turbulence import Turbulence, NUMERICS_VERSION
+from .result import _stress_validity, _turbulence_intensity
 
 __all__ = ["QESWindArgs", "QESWindDataset"]
 
@@ -81,6 +83,12 @@ class _SolverPayload(TypedDict):
     raise_on_failure: NotRequired[bool]
 
 
+class _TurbulencePayload(TypedDict):
+    __pydantic_config__ = ConfigDict(extra="forbid", strict=True, allow_inf_nan=False)
+    schema_version: Annotated[int, Argument(strict=True, ge=1, le=1)]
+    mixing_length: NotRequired[Literal["height", "wall_distance"]]
+
+
 class QESWindArgs(DatasetBaseArgs):
     """A city selection in EPSG:3006 and one steady wind condition."""
 
@@ -99,9 +107,12 @@ class QESWindArgs(DatasetBaseArgs):
     growth_rate: float = Argument(1.15, gt=1, le=1.20, description="Maximum adjacent-layer growth for the experimental automatic grid.")
     horizontal_padding: float = Argument(20.0, ge=0)
     vertical_clearance: float = Argument(20.0, ge=0)
-    max_cells: int = Argument(200_000_000, ge=1)
-    solver: _SolverPayload = Argument(default_factory=lambda: Solver(tolerance=1e-4, max_iterations=1000).to_dict(),
-        description="Versioned Solver specification; dataset defaults remain 1e-4/1000 pending the shared-default study.")
+    max_cells: int = Argument(200_000_000, ge=1,
+        description="Memory-capacity guard: dataset default 200M cells, direct wind.run default 20M; not an accuracy setting.")
+    solver: _SolverPayload = Argument(default_factory=lambda: Solver().to_dict(),
+        description="Versioned Solver specification; shared defaults selected by the pedestrian accuracy/latency study.")
+    turbulence: _TurbulencePayload | None = Argument(None,description="Optional algebraic mixing-length turbulence; unvalidated gust screening.")
+    turbulence_numerics_version: str | None = Argument(None,description="Bound turbulence arithmetic identity for cache provenance.")
     solver_policy_revision: str | None = Argument(None, description="Automatically bound native policy/arithmetic identity for cache provenance.")
     product: Literal["field", "slice"] = "field"
     slice_axis: Literal["x", "y", "z"] = "z"
@@ -142,6 +153,14 @@ class QESWindArgs(DatasetBaseArgs):
                             self.vertical_clearance, self.max_cells, vertical_grid=self.vertical_grid_spec())
         solver = Solver.from_dict(self.solver)
         self.solver = solver.to_dict()
+        turbulence = Turbulence.from_dict(self.turbulence) if self.turbulence is not None else None
+        if turbulence is not None:
+            self.turbulence = turbulence.to_dict()
+            if self.turbulence_numerics_version not in (None,NUMERICS_VERSION):
+                raise ValueError("Turbulence numerics changed; re-create the request for this build")
+            self.turbulence_numerics_version = NUMERICS_VERSION
+        elif self.turbulence_numerics_version is not None:
+            raise ValueError("turbulence_numerics_version requires turbulence")
         if solver.mode == "adaptive":
             actual_revision = wind._qes.solver_policy_revision
             if self.solver_policy_revision not in (None, actual_revision):
@@ -149,7 +168,7 @@ class QESWindArgs(DatasetBaseArgs):
             self.solver_policy_revision = actual_revision
         elif self.solver_policy_revision is not None:
             raise ValueError("solver_policy_revision requires adaptive solver")
-        wind._check_solver_inputs(solver, profile, None)
+        wind._check_solver_inputs(solver, profile, turbulence)
         return self
 
     def vertical_grid_spec(self):
@@ -173,7 +192,8 @@ class QESWindArgs(DatasetBaseArgs):
         options = dict(speed=self.speed, direction=self.direction,
                     resolution=self.resolution, horizontal_padding=self.horizontal_padding,
                     vertical_clearance=self.vertical_clearance, max_cells=self.max_cells,
-                    solver=Solver.from_dict(self.solver), vertical_grid=self.vertical_grid_spec())
+                    solver=Solver.from_dict(self.solver), vertical_grid=self.vertical_grid_spec(),
+                    turbulence=Turbulence.from_dict(self.turbulence) if self.turbulence is not None else None)
         if self.profile is not None:
             for name in ("speed", "direction"):
                 options.pop(name)
@@ -206,6 +226,7 @@ class QESWindDataset(DatasetDescriptor):
         "Flat ground and stair-step cells; source/region courtyards are filled, partition holes preserve towers.",
         "Convergence measures multiplier change, not a mass-conservation residual.",
         "Automatic vertical grids are experimental; no automatic comfort-analysis preset is qualified.",
+        "Turbulence is algebraic screening: streamwise_std (m/s), turbulence_intensity (1), stress_valid (0/1); no pedestrian gust qualification.",
     ]
 
     def describe(self):
@@ -219,6 +240,9 @@ class QESWindDataset(DatasetDescriptor):
              "field_names": ["velocity", "speed", "speedup", "cell_flags", "valid"]},
         ]
         metadata["field_names"] = ["velocity", "speed", "speedup", "cell_flags", "valid"]
+        metadata["turbulence_fields"] = dict(streamwise_std="m/s",turbulence_intensity="1",stress_valid="1")
+        metadata["products"][0]["turbulence_field_names"] = ["stress","tke","streamwise_std","turbulence_intensity","stress_valid"]
+        metadata["products"][1]["turbulence_field_names"] = ["streamwise_std","turbulence_intensity","stress_valid"]
         return metadata
 
     def __call__(self, **kwargs):
@@ -239,9 +263,10 @@ class QESWindDataset(DatasetDescriptor):
         options = args.wind_options()
         profile = wind._resolve_condition(options.get("speed"), options.get("direction"), options.get("profile"))
         solver = options["solver"]
-        exclusions = wind._check_solver_inputs(solver, profile, None)
+        turbulence = options["turbulence"]
+        exclusions = wind._check_solver_inputs(solver, profile, turbulence)
         if exclusions:
-            wind._warn_solver_outcome(str(wind.UnacceptedResultError(None, None, exclusions=exclusions)), None)
+            wind._warn_solver_outcome(str(wind.UnacceptedResultError(None, None, exclusions=exclusions)), turbulence)
         xy = list(args.bounds) if len(args.bounds) == 4 else [args.bounds[i] for i in (0, 1, 3, 4)]
         source_city = core_datasets.city(
             bounds=xy, source=args.source, smallest_building_size=args.smallest_building_size,
@@ -259,11 +284,11 @@ class QESWindDataset(DatasetDescriptor):
                                    args.vertical_clearance, args.max_cells, vertical_grid=vertical_grid)
         geometry, domain = plan_footprint_domain(footprints,
             reference_height=profile.reference_height, roughness_length=profile.roughness_length,
-            **grid, terrain=bounds[2])
+            **grid, terrain=bounds[2], turbulence=turbulence is not None)
         wind._prepare_profile(domain, profile)
         preparation_seconds = time.perf_counter()-preparation_started
         solved = wind._solve_prepared(geometry, domain, profile, solver,
-            vertical_grid=vertical_grid, height_policy="allow_estimated",
+            vertical_grid=vertical_grid, height_policy="allow_estimated", turbulence_spec=turbulence,
             _known_exclusions=exclusions)
         solved.metadata["timings"]["city_preparation_seconds"] = preparation_seconds
         preparation["footprints"] = deepcopy(solved.metadata["footprints"])
@@ -284,16 +309,19 @@ class QESWindDataset(DatasetDescriptor):
             step["sampling"] = obj.metadata_payload.copy()
         context.provenance.processing_steps.append(step)
         context.health = asdict(solved.diagnostics)
+        qualification = solved.qualification
+        outcome = qualification["solver"]
+        context.health["qualification"] = qualification
         if solved.solver["record"] is not None:
             context.health["solver"] = deepcopy(solved.solver)
             context.health["execution_deterministic"] = False
-            if solved.solver["record"]["mode"] == "adaptive":
-                context.health["numerically_accepted"] = solved.solver["record"]["accepted"]
-                context.health["numerical_assessment_scope"] = solved.solver["record"]["assessment_scope"]
-                if solved.solver["record"]["accepted"]:
+            if outcome["mode"] == "adaptive":
+                context.health["numerically_accepted"] = outcome["assessment"] == "accepted"
+                context.health["numerical_assessment_scope"] = outcome["assessment_scope"]
+                if outcome["assessment"] == "accepted":
                     context.warnings.append("Numerical acceptance covers only the declared pedestrian ROI/receptors; full-volume and physical/model accuracy remain unassessed.")
                 else:
-                    context.warnings.append(f"QES pedestrian output is unaccepted: {solved.solver["record"]['assessment_reason']}.")
+                    context.warnings.append(f"QES pedestrian output is {outcome['assessment']}: {outcome['assessment_reason']}.")
             else:
                 context.warnings.append("Time-budgeted QES output records actual completed work; accuracy is not assessed.")
         context.health["automatic_grid_experimental"] = args.vertical_grid == "auto"
@@ -314,8 +342,10 @@ class QESWindDataset(DatasetDescriptor):
             valid = obj.field("valid").values
             context.health["valid_samples"] = int(np.count_nonzero(valid))
             context.health["invalid_samples"] = int(valid.size - np.count_nonzero(valid))
-        if not solved.diagnostics.converged and (solved.solver["record"] is None or solved.solver["record"]["mode"] != "adaptive"):
+        if not outcome["legacy_converged"] and outcome["mode"] != "adaptive":
             context.warnings.append("QES solver did not converge; inspect the recorded diagnostics.")
+        if qualification["turbulence"] is not None:
+            context.warnings.append("QES-Turb fields are algebraic screening output based on this mean wind; pedestrian gusts remain unvalidated.")
         obj.dataset_context = context
         return obj
 
@@ -359,8 +389,8 @@ def _field_slice(result, args):
         velocity[~valid] = np.nan
     speed = np.linalg.norm(velocity.astype(np.float64), axis=1)
     # Speed-up is undefined for calm inflow; keep NaN rather than divide by zero.
-    reference_speed = result.reference_speed if args.profile is not None else args.speed
-    speedup = speed / reference_speed if reference_speed > 0 else np.full_like(speed, np.nan)
+    reference_speed = result.reference_speed
+    speedup = speed / reference_speed if reference_speed is not None and reference_speed > 0 else np.full_like(speed, np.nan)
     points += np.asarray(result.origin)
     physical_bounds = result.metadata["domain"]["effective_bounds"]
     field_slice = FieldSlice(
@@ -378,7 +408,7 @@ def _field_slice(result, args):
                           "sampled_height": sample.sampled_height if sample is not None else None,
                           "solid_cell_flags": [0, 2], "cell_flags_sampling": "nearest_cell_categorical",
                           "validity": "All contributing cells must be fluid with finite velocity; invalid vectors are NaN.",
-                          "speedup_reference": {"speed": reference_speed, "height": args.reference_condition()["height"]},
+                          "speedup_reference": {"speed": reference_speed, "height": result.metadata["profile"]["reference"]["height"]},
                           "profile": result.metadata.get("profile"),
                           "qualification": result.qualification,
                           "vertical_grid": result.metadata["domain"].get("vertical_grid", {"mode": "uniform"}),
@@ -393,4 +423,18 @@ def _field_slice(result, args):
         ("valid", valid, 1, "1"),
     ):
         field_slice.add_field(Field(name=name, values=values, dim=dim, unit=unit, association="sample"))
+    if result.turbulence is not None:
+        if sample is not None:
+            std = sample.streamwise_std[indices[1],indices[0]].copy()
+            intensity = sample.turbulence_intensity[indices[1],indices[0]].copy()
+            stress_valid = (sample.stress_valid & sample.valid)[indices[1],indices[0]].copy()
+        else:
+            std = result.streamwise_std[indices[2],indices[1],indices[0]].copy()
+            intensity = _turbulence_intensity(std,velocity)
+            stress_valid = (_stress_validity(result.turbulence.stress)[0] & result.turbulence.computed &
+                            ~result.solid_mask)[indices[2],indices[1],indices[0]].copy()
+        for name,values,unit in (("streamwise_std",std,"m/s"),("turbulence_intensity",intensity,"1"),
+                                 ("stress_valid",stress_valid.astype(np.uint8),"1")):
+            field_slice.add_field(Field(name=name,values=values,unit=unit,association="sample",
+                description="QES-Turb algebraic screening; unvalidated pedestrian gusts"))
     return field_slice

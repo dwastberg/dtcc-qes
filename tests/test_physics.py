@@ -30,7 +30,9 @@ def test_flat_neutral_profile_and_meteorological_cardinal_directions(direction, 
 
 def test_building_occupancy_and_zero_solid_velocity():
     city, condition, grid, _ = city_case(ONE_BUILDING)
-    result = wind.run(city, **condition, **grid)
+    # This diagnostic threshold was qualified at the historical explicit
+    # tolerance; default selection has its own pedestrian-error study.
+    result = wind.run(city, **condition, **grid,solver=wind.Solver(tolerance=1e-5,max_iterations=500))
     z, y, x = np.meshgrid(result.z, result.y, result.x, indexing="ij")
     expected = (x >= 30) & (x < 40) & (y >= 25) & (y < 35) & (z < 8)
     np.testing.assert_array_equal(result.solid_mask, expected)

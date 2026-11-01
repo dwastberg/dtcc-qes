@@ -25,7 +25,8 @@ def city():
 
 def settings(**kwargs):
     monitor=wind.MonitorSpec((0,80,0,80),receptors=tuple(wind.Receptor(f'h{h}',27,21,h) for h in [1.5,1.75]),history_limit=8)
-    return wind.Solver(max_solve_seconds=5, monitor=monitor, policy="pedestrian-v1", **kwargs)
+    # Freeze the legacy-tolerance comparison used by the accepted/false gate.
+    return wind.Solver(max_solve_seconds=5, monitor=monitor, policy="pedestrian-v1", **(dict(tolerance=1e-5)|kwargs))
 
 
 def run(solver=None):

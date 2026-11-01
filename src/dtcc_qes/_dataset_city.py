@@ -15,7 +15,7 @@ from dtcc_core.model import (
     Transform,
 )
 
-from ._city import _frame, _resolve_frame, _validate_city_objects, default_domain_top
+from ._city import _frame, _resolve_frame, _validate_city_objects
 from ._footprints import prepare_footprints, _resolved_surfaces
 from .footprints import Footprints
 
@@ -98,17 +98,7 @@ def prepare_city(source, args):
     spacing = float(np.float32(args.resolution))
     padding = max(args.horizontal_padding, 3 * spacing)
     lower, upper = lower - padding, upper + padding
-    top = (
-        float(args.bounds[5])
-        if len(args.bounds) == 6
-        else ground
-        + default_domain_top(
-            [c.height for c in footprints.cells],
-            args.reference_condition()["height"],
-            args.vertical_clearance,
-            spacing,
-        )
-    )
+    top = float(args.bounds[5]) if len(args.bounds) == 6 else None
     bounds = (
         float(lower[0]),
         float(lower[1]),

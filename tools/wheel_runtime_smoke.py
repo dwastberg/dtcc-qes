@@ -26,7 +26,7 @@ def main():
         b.add_geometry(Surface(vertices=np.array([[x,y,0],[x,y+12,0],[x+12,y+12,0],[x+12,y,0],[x,y,0]],float)),GeometryType.LOD0)
         city.add_building(b)
     monitor=wind.MonitorSpec((0,80,0,80),receptors=tuple(wind.Receptor(f'h{h}',27,21,h) for h in [1.5,1.75]),history_limit=8)
-    result=wind.run(city, bounds=(0,0,0,160,160,64), solver=replace(wind.Solver(max_solve_seconds=5, monitor=monitor, policy="pedestrian-v1"), max_iterations=600), speed=5, direction=270)
+    result=wind.run(city, bounds=(0,0,0,160,160,64), solver=replace(wind.Solver(tolerance=1e-5,max_solve_seconds=5, monitor=monitor, policy="pedestrian-v1"), max_iterations=600), speed=5, direction=270)
     supported = _qes.solver_policy_build_supported
     if supported:assert result.solver["record"]['accepted'] and not result.diagnostics.converged
     else:assert not result.solver["record"]['accepted'] and result.solver["record"]['assessment_reason']=='unqualified_build'

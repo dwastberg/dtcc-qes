@@ -1,0 +1,382 @@
+{
+  "status": "Phase 5 complete",
+  "verification": {
+    "passed": true,
+    "phase": "phase5-verified",
+    "python_tests": {
+      "serial": {
+        "passed": 1430,
+        "skipped": 50,
+        "seconds": 64.24,
+        "log": "build/feature-merge-baseline/phase5-verified-serial-tests.log"
+      },
+      "openmp": {
+        "passed": 1430,
+        "skipped": 50,
+        "seconds": 64.34,
+        "log": "build/feature-merge-baseline/phase5-verified-openmp-tests.log"
+      }
+    },
+    "native_revision": "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+    "frozen_workers": 24
+  },
+  "baseline": {
+    "cases": 31,
+    "passed": true,
+    "differences": []
+  },
+  "defaults_study": {
+    "criteria": {
+      "reference_precision": "float64",
+      "initial_reference_tolerance": 1e-07,
+      "stability_tolerance": 1e-08,
+      "stability_p95_K": 1e-05,
+      "stability_max_K": 0.0001,
+      "candidate_p95_K": 0.0005,
+      "candidate_max_K": 0.001,
+      "selection": "Fastest median public call among candidates passing both error limits on both cities; require reference convergence and tightening stability"
+    },
+    "backend": "serial CPU",
+    "threads": 2,
+    "cities": {
+      "towers": {
+        "reference_iterations": 857,
+        "tighter_iterations": 1001,
+        "stability": {
+          "p95_K": 3.579788383633902e-08,
+          "max_K": 8.347646190974777e-08,
+          "valid_cells": 6256
+        }
+      },
+      "six_blocks": {
+        "reference_iterations": 868,
+        "tighter_iterations": 1010,
+        "stability": {
+          "p95_K": 3.5771173507170694e-08,
+          "max_K": 9.5367431640625e-08,
+          "valid_cells": 6067
+        }
+      }
+    },
+    "candidates": [
+      {
+        "tolerance": 0.0001,
+        "max_iterations": 1000,
+        "cities": {
+          "towers": {
+            "error": {
+              "p95_K": 1.1382018490335906e-05,
+              "max_K": 1.6062354566924045e-05,
+              "valid_cells": 6256
+            },
+            "passed": true,
+            "converged": true,
+            "iterations": 426,
+            "seconds": [
+              0.15632704104064032,
+              0.15655795799102634,
+              0.15526441700058058,
+              0.15464650001376867,
+              0.15580362500622869
+            ],
+            "median_seconds": 0.15580362500622869
+          },
+          "six_blocks": {
+            "error": {
+              "p95_K": 1.1051143743322849e-05,
+              "max_K": 1.4919633893771243e-05,
+              "valid_cells": 6067
+            },
+            "passed": true,
+            "converged": true,
+            "iterations": 448,
+            "seconds": [
+              0.16813654196448624,
+              0.16888787498464808,
+              0.16806674998952076,
+              0.16861362499184906,
+              0.16968816699227318
+            ],
+            "median_seconds": 0.16861362499184906
+          }
+        },
+        "passed": true,
+        "combined_median_seconds": 0.32441724999807775
+      },
+      {
+        "tolerance": 1e-05,
+        "max_iterations": 500,
+        "cities": {
+          "towers": {
+            "error": {
+              "p95_K": 3.816625213711385e-06,
+              "max_K": 5.988959101723919e-06,
+              "valid_cells": 6256
+            },
+            "passed": true,
+            "converged": false,
+            "iterations": 500,
+            "seconds": [
+              0.182163292018231,
+              0.1845068340189755,
+              0.1801723330281675,
+              0.18485399999190122,
+              0.18273845902876928
+            ],
+            "median_seconds": 0.18273845902876928
+          },
+          "six_blocks": {
+            "error": {
+              "p95_K": 5.331793244319175e-06,
+              "max_K": 7.370087823466927e-06,
+              "valid_cells": 6067
+            },
+            "passed": true,
+            "converged": false,
+            "iterations": 500,
+            "seconds": [
+              0.18841620901366696,
+              0.18856429198058322,
+              0.19350975000998005,
+              0.18946629198035225,
+              0.18473749997792765
+            ],
+            "median_seconds": 0.18856429198058322
+          }
+        },
+        "passed": true,
+        "combined_median_seconds": 0.3713027510093525
+      },
+      {
+        "tolerance": 1e-05,
+        "max_iterations": 1000,
+        "cities": {
+          "towers": {
+            "error": {
+              "p95_K": 7.399771331442007e-07,
+              "max_K": 1.5279352523983903e-06,
+              "valid_cells": 6256
+            },
+            "passed": true,
+            "converged": false,
+            "iterations": 1000,
+            "seconds": [
+              0.35719920799601823,
+              0.35631341696716845,
+              0.3641564159770496,
+              0.36186229204759,
+              0.3533064999501221
+            ],
+            "median_seconds": 0.35719920799601823
+          },
+          "six_blocks": {
+            "error": {
+              "p95_K": 1.3171654531579714e-06,
+              "max_K": 2.171159708913719e-06,
+              "valid_cells": 6067
+            },
+            "passed": true,
+            "converged": false,
+            "iterations": 1000,
+            "seconds": [
+              0.366203207988292,
+              0.3545440000016242,
+              0.3564836250152439,
+              0.35648095898795873,
+              0.35569774999748915
+            ],
+            "median_seconds": 0.35648095898795873
+          }
+        },
+        "passed": true,
+        "combined_median_seconds": 0.713680166983977
+      },
+      {
+        "tolerance": 1e-06,
+        "max_iterations": 2000,
+        "cities": {
+          "towers": {
+            "error": {
+              "p95_K": 7.315732816385785e-07,
+              "max_K": 1.5354173866044507e-06,
+              "valid_cells": 6256
+            },
+            "passed": true,
+            "converged": false,
+            "iterations": 2000,
+            "seconds": [
+              0.7026831670082174,
+              0.6916863750084303,
+              0.6938532500062138,
+              0.7021779579808936,
+              0.7095933749806136
+            ],
+            "median_seconds": 0.7021779579808936
+          },
+          "six_blocks": {
+            "error": {
+              "p95_K": 1.3093705668098049e-06,
+              "max_K": 2.237549776043067e-06,
+              "valid_cells": 6067
+            },
+            "passed": true,
+            "converged": false,
+            "iterations": 2000,
+            "seconds": [
+              0.7024456660146825,
+              0.7285781670361757,
+              0.6964154590386897,
+              0.7032872079871595,
+              0.7037435829988681
+            ],
+            "median_seconds": 0.7032872079871595
+          }
+        },
+        "passed": true,
+        "combined_median_seconds": 1.405465165968053
+      },
+      {
+        "tolerance": 1.1920928955078125e-07,
+        "max_iterations": 4000,
+        "cities": {
+          "towers": {
+            "error": {
+              "p95_K": 7.397255556893706e-07,
+              "max_K": 1.554297947529091e-06,
+              "valid_cells": 6256
+            },
+            "passed": true,
+            "converged": false,
+            "iterations": 4000,
+            "seconds": [
+              1.38037249998888,
+              1.3790753749781288,
+              1.3881049159681424,
+              1.4320350409834646,
+              1.4091318330029026
+            ],
+            "median_seconds": 1.3881049159681424
+          },
+          "six_blocks": {
+            "error": {
+              "p95_K": 1.3184677149501162e-06,
+              "max_K": 2.213531884745095e-06,
+              "valid_cells": 6067
+            },
+            "passed": true,
+            "converged": false,
+            "iterations": 4000,
+            "seconds": [
+              1.38680833397666,
+              1.3771471249638125,
+              1.4209808750310913,
+              1.3953276249812916,
+              1.4140180419781245
+            ],
+            "median_seconds": 1.3953276249812916
+          }
+        },
+        "passed": true,
+        "combined_median_seconds": 2.783432540949434
+      }
+    ],
+    "winner": {
+      "tolerance": 0.0001,
+      "max_iterations": 1000,
+      "cities": {
+        "towers": {
+          "error": {
+            "p95_K": 1.1382018490335906e-05,
+            "max_K": 1.6062354566924045e-05,
+            "valid_cells": 6256
+          },
+          "passed": true,
+          "converged": true,
+          "iterations": 426,
+          "seconds": [
+            0.15632704104064032,
+            0.15655795799102634,
+            0.15526441700058058,
+            0.15464650001376867,
+            0.15580362500622869
+          ],
+          "median_seconds": 0.15580362500622869
+        },
+        "six_blocks": {
+          "error": {
+            "p95_K": 1.1051143743322849e-05,
+            "max_K": 1.4919633893771243e-05,
+            "valid_cells": 6067
+          },
+          "passed": true,
+          "converged": true,
+          "iterations": 448,
+          "seconds": [
+            0.16813654196448624,
+            0.16888787498464808,
+            0.16806674998952076,
+            0.16861362499184906,
+            0.16968816699227318
+          ],
+          "median_seconds": 0.16861362499184906
+        }
+      },
+      "passed": true,
+      "combined_median_seconds": 0.32441724999807775
+    }
+  },
+  "runtime_smoke": {
+    "passed": true,
+    "package": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/feature-merge-baseline/phase5-verified-openmp",
+    "module": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/feature-merge-baseline/phase5-verified-openmp/dtcc_qes/_qes.cpython-313-darwin.so",
+    "policy_revision": "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+    "adaptive_accepted": true,
+    "actual_threads": 2,
+    "checks": [
+      "owned_output",
+      "sampling",
+      "adaptive_vs_legacy_status",
+      "derived_qualification",
+      "nested_timings",
+      "history_bounds",
+      "float64",
+      "two_turbulence_methods",
+      "zero_work_error",
+      "canonical_footprints_with_partition_hole"
+    ]
+  },
+  "changes": [
+    "Shared Solver defaults: tolerance=1e-4, max_iterations=1000; selected with predeclared two-city accuracy/latency gates and converged/tightened float64 references",
+    "Versioned normalized turbulence payload and numerics identity in dataset requests; policy identity remains bound for adaptive requests",
+    "Four-coordinate dataset requests defer zmax via None to shared generation and turbulence growth",
+    "Turbulent x/y/z slices preserve component-first stress sampling, covariance validity and independent derived units",
+    "Dataset health/warnings use derived qualification; nonuniform VolumeGrid boundary preserved",
+    "One covariance classification per volume export; no mutable-array caching",
+    "Profile JSON and turbulence choices in city dataset CLI; 20M vs 200M max_cells documented as memory-capacity guards"
+  ],
+  "declared_baseline_changes": [
+    "Fixed-work baseline captures explicitly retain historical tolerance/iteration settings",
+    "Missing turbulence request fields normalize to None for old dataset schemas",
+    "Old four-coordinate dataset top requests migrate from numeric precomputed top to None with matching attribution; effective coordinates and arrays remain exact"
+  ],
+  "source_index": {
+    "src/dtcc_qes/_footprints.py": "854d04923f5e1878b184bd0899c4b70b5a85944be2bb7fc0ab8e495f0551c4ef",
+    "src/dtcc_qes/turbulence.py": "7874a64e4dff3d165cb72e5fbecbbbdc9fe4074139c53aa06aed5029cef97bec",
+    "src/dtcc_qes/_logging.py": "1896cb16e46006494eb84d09b34153f15f68dc9418c536675319836092c0d44b",
+    "src/dtcc_qes/_turbulence_domain.py": "8a6c7655eaa421bf05eb6e0873e07ef37c33866929ee193ab84d39ac7c13843c",
+    "src/dtcc_qes/comfort.py": "755de67aaee1bfd89a4c17f71aec9e4dd0202d5fc5116454fe200c95315c16b4",
+    "src/dtcc_qes/_dataset_city.py": "2d351e914776b3a2932da72b2c3325746a45a722f2adb32c19a4fd98d66bc7a1",
+    "src/dtcc_qes/vertical_grid.py": "392f465b183b9d75ca0e9297967688db68db1964757adeb384287179d722884b",
+    "src/dtcc_qes/datasets.py": "d2dc67197b5d2a53d92560ee34bcbc76a72449ce3341d6553088ae46e80cb8b5",
+    "src/dtcc_qes/wind.py": "763f8fd260d93ddf9c8b94e132631077cbf7ade7b137720f2a045aba5a92e16e",
+    "src/dtcc_qes/__init__.py": "af01eab80634bc9480e23334d9cb76bf68ae65d46a9dfdd6b48aee7d96b62619",
+    "src/dtcc_qes/footprints.py": "d13255b633761545a24f6d483a6b951a19181752a715b6bd617fcebb1df74c52",
+    "src/dtcc_qes/result.py": "0c8a09be97df4dda7cef210005f777e3ba8cc11dd8bc3b3620693009854f0584",
+    "src/dtcc_qes/_auto_grid.py": "98527ff0692c52989d1c5168160fada4f83f1262c05bfd515eaf8ab3e8a607c9",
+    "src/dtcc_qes/solver_control.py": "499b4892f80ffba7bb15d265913f55962d5c0f027dfa651054a625897905a1de",
+    "src/dtcc_qes/_city.py": "ceb28fc2f4cb8f07531b57a33e1c44a723ade9765e7c799c16ada8077286bea4",
+    "src/dtcc_qes/profiles.py": "16dda01f0cd1e9bf5abc3a20943893bacc6cd1dc294db2f6b7f949dca1b39c54",
+    "src/dtcc_qes/_log.py": "f6e2d6a038e428a18aa5d9c1d27bcb6ea60440d5d6ace0310fd4ecc292d1a8ca",
+    "tools/study_solver_defaults.py": "37de45d6742c69df0051594ea87d050f7001720af9c45a78dc5aa05fa475e9d7"
+  }
+}

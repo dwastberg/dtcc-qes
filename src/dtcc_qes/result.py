@@ -75,12 +75,12 @@ def _velocity_magnitude(velocity):
         return np.hypot.reduce(np.asarray(velocity,dtype=np.float64),axis=-1)
 
 
-def _streamwise_std(stress, velocity, covered):
+def _streamwise_std(stress, velocity, covered, *, validity=None):
     """Reclassify current tensors, then project only covered, directed cells."""
     raw,velocity,covered = np.asarray(stress),np.asarray(velocity),np.asarray(covered,dtype=bool)
     if raw.shape != (*covered.shape,6) or velocity.shape != (*covered.shape,3):
         raise ValueError("Stress, velocity and coverage must have matching cell shapes")
-    valid,tolerance = _stress_validity(raw)
+    valid,tolerance = _stress_validity(raw) if validity is None else validity
     speed = _velocity_magnitude(velocity)
     usable = covered & valid & np.isfinite(velocity).all(axis=-1) & np.isfinite(speed) & (speed > 0)
     result = np.full(covered.shape,np.nan,dtype=np.float64)
@@ -443,8 +443,9 @@ class WindResult:
             # Snapshot current tensors, independently of the editable native
             # validity snapshot. Covariance validity does not require a mean
             # direction and is independent of capping.
-            valid = _stress_validity(fields.stress)[0] & computed
-            std = self.streamwise_std
+            validity = _stress_validity(fields.stress)
+            valid = validity[0] & computed
+            std = _streamwise_std(fields.stress,self.velocity,computed & ~self.solid_mask,validity=validity)
             intensity = _turbulence_intensity(std,self.velocity)
             metadata = self.metadata.get("turbulence",{})
             revision = self.metadata.get("versions",{}).get("qes",{}).get("revision","unspecified")

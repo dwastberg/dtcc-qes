@@ -7,6 +7,7 @@ from dtcc_core.model import FieldSlice
 from dtcc_qes import wind
 from dtcc_qes.datasets import QESWindArgs, _field_slice
 from dtcc_qes._dataset_city import prepare_city, _source_city
+from dtcc_qes.profiles import _profile_record
 from test_datasets import fetched, realization, request, source_city
 
 pytestmark = pytest.mark.usefixtures("dtcc_logger")
@@ -25,7 +26,8 @@ def manufactured(flags=None):
         np.ones((4,2,3),dtype=np.int32) if flags is None else flags,
         (300000.,6400000.,100.),"EPSG:3006",1.,
         wind.SolveDiagnostics(5,0,1e-5,True),
-        {"domain":{"effective_bounds":(300000.,6400000.,100.,300003.,6400002.,103.),
+        {"profile":_profile_record(wind.LogProfile(5,270),None),
+         "domain":{"effective_bounds":(300000.,6400000.,100.,300003.,6400002.,103.),
                    "vertical_grid":{"mode":"auto","uniform":False,"policy_status":"prototype_unvalidated"}}},
         z_faces=np.array([0,.5,1,2,3],dtype=np.float32))
 
