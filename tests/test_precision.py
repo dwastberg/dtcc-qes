@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 
 from dtcc_qes import _qes, wind
-from city_cases import city_case
+from fixtures.cities import city_case
 from fixtures.cases import FLAT, ONE_BUILDING
 from runner_cases import prepared
 

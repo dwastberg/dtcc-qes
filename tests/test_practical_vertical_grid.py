@@ -1,4 +1,6 @@
 """Meaningful checks of candidate error budgets and spatial support handling."""
+
+from fixtures.support import load_tool
 import importlib.util
 from pathlib import Path
 import sys
@@ -6,13 +8,7 @@ import sys
 import pytest
 
 TOOLS=Path(__file__).resolve().parents[1]/'tools'
-spec=importlib.util.spec_from_file_location('practical_vertical_grid',TOOLS/'run_practical_vertical_grid.py')
-study=importlib.util.module_from_spec(spec)
-sys.path.insert(0,str(TOOLS))
-try:
-    spec.loader.exec_module(study)
-finally:
-    sys.path.pop(0)
+study=load_tool('practical_vertical_grid', TOOLS/'run_practical_vertical_grid.py')
 
 
 def test_speed_agreement_cannot_hide_vector_error():

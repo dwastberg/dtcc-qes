@@ -1,3 +1,4 @@
+#include "building_fixtures.h"
 #include "solver/solver.h"
 #include "winds/WINDSGeneralData.h"
 #include "model_inputs.h"
@@ -52,7 +53,7 @@ static void guard_checks()
   g.nx = g.ny = 8; g.nz = 4; g.dz_layers = {0.5, 0.75, 1, 2};
   ModelSettings model;
   model.sensor_x = model.sensor_y = 1;
-  ModelInputs inputs(g, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  ModelInputs inputs(g, model, test_fixture::empty_buildings());
   const auto d = make_domain(inputs);
   require(vertical_faces(g) == std::vector<float>(d.z_face.begin() + 1, d.z_face.end()),
           "Preparation and Domain coordinates disagree");
@@ -71,7 +72,7 @@ static void guard_checks()
   SolverState<float> wrong(wrong_operator);
   rejects([&] { solve_wind(wrong,*data,1); });
   g.dz_layers = {1, 2};
-  rejects<std::invalid_argument>([&] { ModelInputs bad(g, model, BuildingArrays{{}, {0}, {}, {}, {}}); });
+  rejects<std::invalid_argument>([&] { ModelInputs bad(g, model, test_fixture::empty_buildings()); });
 }
 
 static std::vector<float> injection(const std::vector<double> &layers, bool serial)
@@ -80,7 +81,7 @@ static std::vector<float> injection(const std::vector<double> &layers, bool seri
   g.nx = g.ny = 24; g.nz = static_cast<int>(layers.size()); g.dz_layers = layers;
   ModelSettings model;
   model.sensor_x = model.sensor_y = 5;
-  ModelInputs inputs(g, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  ModelInputs inputs(g, model, test_fixture::empty_buildings());
   inputs.set_condition({0, 270, 10});
   WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
   data.applyWindProfile(inputs.inflow);
@@ -103,7 +104,7 @@ static void building_checks()
   model.sensor_x = model.sensor_y = 1;
   model.rooftop_flag = 2; // Exercise the vortex branch's bounded shell search.
   for (double height : {7.99, 8.0, 8.25, 8.5}) {
-    BuildingArrays b{{16,16, 16,30, 30,30, 30,16, 16,16}, {0,5}, {0}, {height}, {0}};
+    auto b = test_fixture::rectangle(16,16,14,14,height);
     ModelInputs inputs(g, model, b);
     for (double direction : {0.0, 45.0, 90.0, 270.0}) {
       inputs.set_condition({5, direction, 10});
@@ -133,9 +134,7 @@ static void stretched_canyon(bool report)
   g.nz = static_cast<int>(g.dz_layers.size());
   BuildingArrays b{{}, {0}, {}, {}, {}};
   for (const auto x : {30.0, 52.0}) {
-    b.vertices.insert(b.vertices.end(), {x,20, x,60, x+10,60, x+10,20, x,20});
-    b.offsets.push_back(b.vertices.size() / 2);
-    b.ids.push_back(b.ids.size()); b.heights.push_back(15); b.base_heights.push_back(0);
+    test_fixture::append(b, {x,20, x,60, x+10,60, x+10,20, x,20}, 15);
   }
   ModelSettings model;
   model.sensor_x = model.sensor_y = 5;

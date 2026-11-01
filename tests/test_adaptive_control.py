@@ -14,19 +14,10 @@ from dtcc_qes.datasets import QESWindArgs
 pytestmark = pytest.mark.usefixtures('dtcc_logger')
 
 
-def city():
-    value=City(transform=Transform(srs='EPSG:3006'))
-    for i,(x,y,h) in enumerate([(22,22,7.9),(42,22,7.9),(22,42,7.9),(42,42,23.7)]):
-        b=Building(id=str(i));b.measured_height=b.estimated_height=h
-        b.add_geometry(Surface(vertices=np.array([[x,y,0],[x,y+12,0],[x+12,y+12,0],[x+12,y,0],[x,y,0]],float)),GeometryType.LOD0)
-        value.add_building(b)
-    return value
+from fixtures.geometry import tower_city as city
 
 
-def settings(**kwargs):
-    monitor=wind.MonitorSpec((0,80,0,80),receptors=tuple(wind.Receptor(f'h{h}',27,21,h) for h in [1.5,1.75]),history_limit=8)
-    # Freeze the legacy-tolerance comparison used by the accepted/false gate.
-    return wind.Solver(max_solve_seconds=5, monitor=monitor, policy="pedestrian-v1", **(dict(tolerance=1e-5)|kwargs))
+from fixtures.specs import pedestrian_solver as settings
 
 
 def run(solver=None):

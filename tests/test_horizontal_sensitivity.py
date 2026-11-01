@@ -1,4 +1,6 @@
 """C2b acceptance, sparse support and initialization controls."""
+
+from fixtures.support import load_tool
 import copy
 import importlib.util
 import json
@@ -10,24 +12,12 @@ import sys
 import numpy as np
 import pytest
 
-from test_auto_grid_controls import native_run
+from fixtures.auto_grid_controls import native_run
 
 _tools = Path(__file__).parents[1]/"tools"
-_spec = importlib.util.spec_from_file_location("horizontal_sensitivity", _tools/"run_horizontal_sensitivity.py")
-study = importlib.util.module_from_spec(_spec)
-sys.path.insert(0, str(_tools))
-try:
-    _spec.loader.exec_module(study)
-finally:
-    sys.path.pop(0)
+study = load_tool("horizontal_sensitivity", _tools/"run_horizontal_sensitivity.py")
 
-_continuation_spec = importlib.util.spec_from_file_location("horizontal_continuation", _tools/"continue_horizontal_sensitivity.py")
-continuation = importlib.util.module_from_spec(_continuation_spec)
-sys.path.insert(0, str(_tools))
-try:
-    _continuation_spec.loader.exec_module(continuation)
-finally:
-    sys.path.pop(0)
+continuation = load_tool("horizontal_continuation", _tools/"continue_horizontal_sensitivity.py")
 
 
 def refs():

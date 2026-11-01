@@ -1,3 +1,4 @@
+#include "building_fixtures.h"
 #include "model_inputs.h"
 #include "log_sink.h"
 #include "stress_validity.h"
@@ -716,8 +717,7 @@ void wall_empty()
 
 BuildingArrays bridge_building(bool building = true)
 {
-  if (!building) return {{},{0},{},{},{}};
-  return {{30,25, 30,35, 40,35, 40,25, 30,25}, {0,5}, {0}, {8}, {0}};
+  return building ? test_fixture::rectangle(30,25,10,10,8) : test_fixture::empty_buildings();
 }
 
 SolverOptions bridge_solver()

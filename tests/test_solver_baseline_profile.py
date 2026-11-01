@@ -1,4 +1,6 @@
 """Study integrity and fail-closed instrumentation, without running benchmarks."""
+
+from fixtures.support import load_tool
 import importlib.util
 import json
 from pathlib import Path
@@ -8,9 +10,7 @@ import tarfile
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("solver_baseline_profile",ROOT/"tools/profile_solver_baseline.py")
-profile = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(profile)
+profile = load_tool("solver_baseline_profile", ROOT/"tools/profile_solver_baseline.py")
 
 
 def test_instrumentation_preserves_every_original_numerical_statement(tmp_path):

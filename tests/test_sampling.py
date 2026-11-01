@@ -13,16 +13,7 @@ import pytest
 from dtcc_qes import _qes, wind
 
 
-def manufactured():
-    faces = np.array([0, 0.5, 1.25, 2.25, 4.25, 7.25], dtype=np.float32)
-    centres = np.float32(0.5) * (faces[:-1] + faces[1:])
-    x, y = np.arange(4, dtype=np.float32) + 0.5, np.arange(3, dtype=np.float32) + 0.5
-    z, yy, xx = np.meshgrid(centres, y, x, indexing="ij")
-    velocity = np.stack((1 + 2*z + 0.25*xx, -2 + 0.5*z - 0.5*yy, 3 - 0.75*z), axis=-1)
-    return wind.WindResult(velocity, x, y, centres, np.ones(z.shape, dtype=np.int32),
-                           (1e9, -2e9, 100), "EPSG:3006", 1,
-                           wind.SolveDiagnostics(1, 0, 1e-5, True), {}, z_faces=faces)
-
+from fixtures.sampling import manufactured
 
 def test_affine_vector_on_nonuniform_layers_preserves_axes_height_and_frame():
     result = manufactured()

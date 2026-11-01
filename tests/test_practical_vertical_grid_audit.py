@@ -8,7 +8,7 @@ import sys
 
 import pytest
 
-from test_practical_vertical_grid import study
+from fixtures.practical_vertical_grid import study
 
 ROOT=Path(__file__).resolve().parents[1]/'docs/data/practical-vertical-grid'
 

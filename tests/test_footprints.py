@@ -16,29 +16,7 @@ from dtcc_qes._footprints import prepare_footprints, merge_roof_cells
 from dtcc_qes.footprints import Footprints
 
 
-def surface(polygon, z=0):
-    return Surface(
-        vertices=np.c_[polygon.exterior.coords, np.full(len(polygon.exterior.coords), z)],
-        holes=[np.c_[h.coords, np.full(len(h.coords), z)] for h in polygon.interiors],
-    )
-
-
-def building(name, polygon, height, z=0):
-    value = Building(id=name)
-    value.measured_height = height
-    value.add_geometry(surface(polygon, z), GeometryType.LOD0)
-    return value
-
-
-def city(*buildings):
-    value = City()
-    value.add_buildings(list(buildings))
-    return value
-
-
-def prepare(value, **kwargs):
-    return prepare_footprints(value, settings=Footprints(min_detail=0.01, **kwargs))
-
+from fixtures.footprints import building, city, finalize, prepare, surface
 
 @pytest.mark.parametrize(
     "kwargs",
@@ -249,11 +227,6 @@ def test_strict_wind_path_still_rejects_contact():
 
 # Finalization receives the physical grid after planning, including any extra
 # layers required for turbulence. It does not allocate native flow storage.
-def finalize(prepared, **kwargs):
-    from dtcc_qes._footprints import finalize_footprints
-
-    defaults = dict(effective_faces=np.arange(0, 41), origin=(-20, -20, 0), shape=(40, 60, 80), resolution=1)
-    return finalize_footprints(prepared, **(defaults | kwargs))
 
 
 def test_split_and_single_block_have_identical_canonical_native_arrays():

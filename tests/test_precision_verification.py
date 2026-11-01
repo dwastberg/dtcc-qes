@@ -1,30 +1,19 @@
 """The precision-reference gate must protect subsequent grid comparisons."""
+
+from fixtures.support import load_tool
 import copy
 import importlib.util
 from pathlib import Path
 import sys
 
 import pytest
-from test_auto_grid_controls import native_run
+from fixtures.auto_grid_controls import native_run
 
 _tools = Path(__file__).parents[1]/"tools"
-_spec = importlib.util.spec_from_file_location("precision_verification", _tools/"run_precision_verification.py")
-study = importlib.util.module_from_spec(_spec)
-sys.path.insert(0, str(_tools))
-try:
-    _spec.loader.exec_module(study)
-finally:
-    sys.path.pop(0)
+study = load_tool("precision_verification", _tools/"run_precision_verification.py")
 
 
-def precision_document():
-    runs = []
-    for task in study.tasks("precision"):
-        run = native_run()
-        run.update(task=task, start="zero", precision=task["precision"], solver_workspace_bytes=100)
-        runs.append(run)
-    return dict(metadata=dict(phase="precision"), runs=runs)
-
+from fixtures.precision_verification import precision_document
 
 def test_precision_prerequisite_requires_all_cases_and_full_tighter_checkpoints():
     doc = precision_document()

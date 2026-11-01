@@ -1,15 +1,15 @@
 """Reject altered pilot checkpoint inputs and content before reusing them."""
+
+from fixtures.support import load_tool
 import copy
 import hashlib
 import importlib.util
 from pathlib import Path
 
 import pytest
-from test_generated_grid_pilot import study
+from fixtures.generated_grid_pilot import study
 
-spec=importlib.util.spec_from_file_location('pilot_audit',Path(__file__).parents[1]/'tools/audit_generated_grid_pilot.py')
-audit=importlib.util.module_from_spec(spec)
-spec.loader.exec_module(audit)
+audit=load_tool('pilot_audit', Path(__file__).parents[1]/'tools/audit_generated_grid_pilot.py')
 
 
 @pytest.mark.parametrize('change',['task','input','identity','content'])

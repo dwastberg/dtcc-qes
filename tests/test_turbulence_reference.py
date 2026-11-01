@@ -1,3 +1,4 @@
+from fixtures.oracles import covariance, assert_turbulence_archive
 """Exact audited standalone parity; independent correctness remains mandatory."""
 
 import json
@@ -48,12 +49,7 @@ def test_bound_runner_turbulence_matches_audited_reference(spec):
         np.testing.assert_array_equal(result["velocity"], np.stack([reference[key] for key in ("u", "v", "w")], axis=-1))
         np.testing.assert_array_equal(result["cell_flags"], reference["icell"])
         fields = result["turbulence"]
-        computed = fields["state"] > 0
-        np.testing.assert_array_equal(computed, reference["computed"])
-        for name in ("stress", "tke", "co_eps", "mixing_length"):
-            np.testing.assert_array_equal(fields[name][computed], reference[name][computed])
-            assert np.all(reference[name][~computed] == 0)
-            assert np.isnan(fields[name][~computed]).all()
+        assert_turbulence_archive(fields,reference,fields["state"]>0)
 
 
 @pytest.mark.parametrize("baseline", ["upstream", "audited"])
@@ -128,14 +124,9 @@ def test_oblique_flat_stress_has_the_analytic_streamwise_covariance():
         for k in range(1, after["z"].size-1):
             velocity = np.array([after["u"][k,10,10],after["v"][k,10,10],0.0],dtype=np.float64)
             n = velocity / np.linalg.norm(velocity)
-            m, ez = np.array([-n[1],n[0],0]), np.array([0,0,1])
             gradient = np.hypot(after["u"][k+1,10,10]-after["u"][k-1,10,10],
                                 after["v"][k+1,10,10]-after["v"][k-1,10,10]) / 4.0
-            length = after["mixing_length"][k,10,10]
-            lu = float(length) * float(gradient)
-            covariance = (2.5*lu)**2*np.outer(n,n) + (2*lu)**2*np.outer(m,m) + (1.3*lu)**2*np.outer(ez,ez)
-            covariance -= float(length)**2*float(gradient)**2*(np.outer(n,ez)+np.outer(ez,n))
-            expected = covariance[(0,0,0,1,1,2),(0,1,2,1,2,2)]
+            expected=covariance(n,after["mixing_length"][k,10,10],gradient)
             np.testing.assert_allclose(after["stress"][k,10,10], expected, rtol=1e-5, atol=1e-7)
         # At z=9 m the upstream swapped anisotropy gives sigma 20% too low.
         project = lambda s: 0.5*(s[0]+2*s[1]+s[3])

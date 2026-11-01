@@ -1,14 +1,15 @@
 """Reject changed checkpoint provenance and support relocatable data audits."""
+
+from fixtures.support import load_tool
 import copy
 import hashlib
 import importlib.util
 from pathlib import Path
 
 import pytest
-from test_vertical_refinement import study
+from fixtures.vertical_refinement import study
 
-spec=importlib.util.spec_from_file_location('refinement_audit',Path(__file__).parents[1]/'tools/audit_vertical_refinement.py')
-audit=importlib.util.module_from_spec(spec);spec.loader.exec_module(audit)
+audit=load_tool('refinement_audit', Path(__file__).parents[1]/'tools/audit_vertical_refinement.py');pass
 
 
 @pytest.mark.parametrize('change',['task','input','identity','content'])

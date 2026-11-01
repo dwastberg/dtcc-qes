@@ -1,4 +1,6 @@
 """Independent checks of the C2 collocation and acceptance decisions."""
+
+from fixtures.support import load_tool
 import copy
 import importlib.util
 import json
@@ -11,14 +13,10 @@ import numpy as np
 import pytest
 
 _tools = Path(__file__).parents[1]/"tools"
-_spec = importlib.util.spec_from_file_location("auto_grid_controls", _tools/"run_auto_grid_controls.py")
-controls = importlib.util.module_from_spec(_spec)
-sys.path.insert(0, str(_tools))
-try:
-    _spec.loader.exec_module(controls)
-finally:
-    sys.path.pop(0)
+controls = load_tool("auto_grid_controls", _tools/"run_auto_grid_controls.py")
 
+
+from fixtures.auto_grid_controls import document, native_run, worker
 
 def test_horizontal_collocation_preserves_affine_components():
     axis = np.array([1.5, 2.5, 3.5, 4.5])
@@ -63,22 +61,6 @@ def test_tall_control_preserves_effective_lower_faces():
     np.testing.assert_array_equal(effective_faces(extended)[:len(layers)+1], effective_faces(layers))
     assert extended.sum() == pytest.approx(144)
     assert np.all(extended[len(layers):] >= layers[-1])
-
-
-def native_run(control="base"):
-    n = len(controls.POINTS)**2
-    return dict(geometry="tower", family="auto", control=control, direction=270, repeat=0,
-        backend="manufactured", threads=1, hmax=23.7, layers=64, cells=102400,
-        resolution=2, roof_errors=[0], peak_rss_bytes=1000000, prep_seconds=.1, planning_seconds=.001,
-        sample_x=controls.POINTS.tolist(), sample_y=controls.POINTS.tolist(),
-        checkpoints=[dict(iterations=iteration, max_divergence=1e-6, rms_divergence=1e-7,
-            solve_seconds=1., sampling_seconds=.001, top_band_max_divergence=.1,
-            planes=[dict(height=height, velocity=[[5., 0., 0.]]*n) for height in controls.HEIGHTS])
-            for iteration in (1000, 2000, 4000)])
-
-
-def document(runs):
-    return dict(metadata=dict(repeats=1, geometries=["tower"], directions=[270], families=["auto"]), runs=runs)
 
 
 def test_instability_at_second_height_rejects_the_whole_run():
@@ -166,14 +148,6 @@ def test_duplicate_repeat_ids_do_not_complete_the_matrix():
     doc["metadata"]["repeats"] = 2
     summary = controls.summarize(doc)
     assert not summary["complete"] and not summary["early_controls_within_budget"]
-
-
-@pytest.fixture
-def worker():
-    executable = Path(os.environ.get("DTCC_QES_STUDY_EXECUTABLE", "build/extension/vertical_grid_study"))
-    if not executable.exists():
-        pytest.skip("Build vertical_grid_study or set DTCC_QES_STUDY_EXECUTABLE for worker integration")
-    return executable.resolve()
 
 
 def test_configurable_worker_preserves_legacy_fields_exactly(worker):

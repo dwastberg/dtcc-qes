@@ -1,3 +1,4 @@
+from fixtures.oracles import covariance, assert_turbulence_archive
 """Public turbulence fields, analytic statistics and conservative stress sampling."""
 
 from dataclasses import FrozenInstanceError, replace
@@ -8,40 +9,15 @@ import pytest
 from dtcc_qes import _qes, wind
 from dtcc_qes import result as result_module
 
-from city_cases import city_case
+from fixtures.cities import city_case
 from fixtures.cases import FLAT, ONE_BUILDING
 from fixtures.turbulence_cases import CASES as TURBULENCE_CASES
-from test_sampling import manufactured
+from fixtures.sampling import manufactured
 
 pytestmark = pytest.mark.usefixtures("dtcc_logger")
 
 
-def solve(case=ONE_BUILDING, **options):
-    city,condition,grid,solver = city_case(case)
-    updates = {k:options.pop(k) for k in ("speed","direction","reference_height","roughness_length") if k in options}
-    if updates:
-        condition["profile"] = replace(condition["profile"], **updates)
-    return wind.run(city, **(condition | grid | solver | dict(turbulence=wind.Turbulence()) | options))
-
-
-def synthetic():
-    result = manufactured()
-    shape = result.cell_flags.shape
-    stress = np.zeros((*shape,6),dtype=np.float32)
-    stress[...,0],stress[...,3],stress[...,5] = 4,2,1
-    fields = wind.TurbulenceFields(stress,np.ones(shape,dtype=np.float32),
-        np.ones(shape,dtype=np.float32),np.ones(shape,dtype=np.float32),
-        np.ones(shape,dtype=bool),np.zeros(shape,dtype=bool),np.ones(shape,dtype=bool),
-        .2,5,10,.1,0)
-    return replace(result,turbulence=fields)
-
-
-def uniform_synthetic():
-    source = synthetic()
-    nz = len(source.z)
-    return replace(source, z=np.arange(nz,dtype=np.float32)+.5,
-                   z_faces=np.arange(nz+1,dtype=np.float32))
-
+from fixtures.turbulence import solve, synthetic, uniform_synthetic
 
 def test_to_dtcc_adds_turbulence_fields():
     source = uniform_synthetic()
@@ -255,13 +231,9 @@ def test_flat_streamwise_std_matches_surface_layer_relation(direction):
     k=4
     n=result.velocity[k,10,10].astype(float)
     n/=np.linalg.norm(n)
-    m,z=np.array([-n[1],n[0],0]),np.array([0,0,1])
     length=.4*float(result.z[k])
-    g=gradient[k-1]
-    covariance=((2.5*length*g)**2*np.outer(n,n)+(2*length*g)**2*np.outer(m,m)
-                +(1.3*length*g)**2*np.outer(z,z)-length**2*g**2*(np.outer(n,z)+np.outer(z,n)))
-    np.testing.assert_allclose(result.turbulence.stress[k,10,10],
-        covariance[(0,0,0,1,1,2),(0,1,2,1,2,2)],rtol=1e-5,atol=1e-7)
+    expected=covariance(n,length,gradient[k-1])
+    np.testing.assert_allclose(result.turbulence.stress[k,10,10],expected,rtol=1e-5,atol=1e-7)
 
 
 def test_stretched_grid_matches_nonuniform_gradient():
@@ -517,7 +489,7 @@ def test_full_three_dimensional_projection_matches_factor_oracle(scale):
 @pytest.mark.parametrize("spec",TURBULENCE_CASES.values(),ids=TURBULENCE_CASES)
 def test_public_fields_match_audited_standalone_reference(spec):
     import platform
-    from test_turbulence_reference import DIRECTORY
+    from fixtures.turbulence_reference import DIRECTORY
     path=DIRECTORY/"audited"/f"{spec.case.name}.npz"
     metadata=json.loads(path.with_suffix(".json").read_text())
     toolchain=metadata["toolchain"]
@@ -535,7 +507,4 @@ def test_public_fields_match_audited_standalone_reference(spec):
                     turbulence=wind.Turbulence("wall_distance" if spec.method else "height"))
     assert result.diagnostics.converged
     with np.load(path) as reference:
-        computed=result.turbulence.computed
-        np.testing.assert_array_equal(computed,reference["computed"])
-        for name in ("stress","tke","co_eps","mixing_length"):
-            np.testing.assert_array_equal(getattr(result.turbulence,name)[computed],reference[name][computed])
+        assert_turbulence_archive(result.turbulence,reference,result.turbulence.computed)

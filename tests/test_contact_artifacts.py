@@ -1,5 +1,7 @@
 """Check the synthetic baseline's metrics and contact-check isolation."""
 
+from fixtures.support import load_tool
+
 import importlib.util
 import json
 from pathlib import Path
@@ -11,12 +13,7 @@ import pytest
 
 from dtcc_qes import _city, wind
 
-_spec = importlib.util.spec_from_file_location(
-    "contact_artifacts", Path(__file__).parents[1] / "tools/contact_artifacts.py"
-)
-contacts = importlib.util.module_from_spec(_spec)
-sys.modules[_spec.name] = contacts
-_spec.loader.exec_module(contacts)
+contacts = load_tool("contact_artifacts", Path(__file__).parents[1] / "tools/contact_artifacts.py")
 
 pytestmark = pytest.mark.usefixtures("dtcc_logger")
 

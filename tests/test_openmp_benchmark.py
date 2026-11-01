@@ -1,4 +1,6 @@
 """Independent checks of the bounded benchmark's reported error measures."""
+
+from fixtures.support import load_tool
 import importlib.util
 from pathlib import Path
 import sys
@@ -6,13 +8,7 @@ import sys
 import pytest
 
 TOOLS = Path(__file__).resolve().parents[1] / 'tools'
-spec = importlib.util.spec_from_file_location('openmp_benchmark', TOOLS / 'benchmark_openmp.py')
-benchmark = importlib.util.module_from_spec(spec)
-sys.path.insert(0, str(TOOLS))
-try:
-    spec.loader.exec_module(benchmark)
-finally:
-    sys.path.pop(0)
+benchmark = load_tool('openmp_benchmark', TOOLS / 'benchmark_openmp.py')
 
 
 def test_vector_error_is_distinct_from_speed_error():

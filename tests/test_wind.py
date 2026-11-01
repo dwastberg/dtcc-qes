@@ -1,3 +1,4 @@
+from fixtures.oracles import assert_wind_archive
 import json
 import logging
 from pathlib import Path
@@ -9,7 +10,7 @@ import pytest
 from dtcc_core.model import Bounds
 from dtcc_qes import _qes, wind
 
-from city_cases import city_case
+from fixtures.cities import city_case
 from fixtures.cases import CASES, FLAT, ONE_BUILDING, reference_path
 from reference_checks import assert_reference_velocity
 
@@ -23,11 +24,7 @@ def test_public_api_matches_references(case, translation):
     before = [building.lod0.vertices.copy() for building in city.buildings]
     result = wind.run(city, **condition, **grid, **solver)
     with np.load(reference_path(case)) as reference:
-        for name in ("x", "y", "z"):
-            np.testing.assert_array_equal(getattr(result, name), reference[name])
-        for i, name in enumerate(("u", "v", "w")):
-            assert_reference_velocity(result.velocity[..., i], reference[name])
-        np.testing.assert_array_equal(result.cell_flags, reference["icell"])
+        assert_wind_archive(result,reference)
     assert result.origin == translation
     assert result.diagnostics.converged
     assert result.metadata["domain"]["effective_bounds"] == grid["bounds"]
@@ -172,7 +169,7 @@ sys.path.insert(0, {str(Path(__file__).parent)!r})
 from dtcc_core.common import get_python_logger
 from dtcc_qes import wind
 from fixtures.cases import ONE_BUILDING
-from city_cases import city_case
+from fixtures.cities import city_case
 logger = get_python_logger('dtcc-qes')
 logger.handlers = [logging.NullHandler()]
 city, condition, grid, solver = city_case(ONE_BUILDING)

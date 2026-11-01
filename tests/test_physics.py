@@ -6,7 +6,7 @@ import pytest
 from dtcc_qes import wind
 from dtcc_core.model import Bounds
 
-from city_cases import city_case
+from fixtures.cities import city_case
 from fixtures.cases import FLAT, ONE_BUILDING
 
 pytestmark = pytest.mark.usefixtures("dtcc_logger")

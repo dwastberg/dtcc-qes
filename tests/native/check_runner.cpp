@@ -1,3 +1,4 @@
+#include "building_fixtures.h"
 #include "wind_runner.h"
 #include "util/QESLog.h"
 #include "fixture.h"
@@ -23,14 +24,7 @@ static void rejects(Operation operation)
 
 static BuildingArrays building()
 {
-  BuildingArrays arrays;
-  for (const auto &vertex : fixture::vertices)
-    arrays.vertices.insert(arrays.vertices.end(), {vertex[0], vertex[1]});
-  arrays.offsets = {0, static_cast<std::int64_t>(arrays.vertices.size() / 2)};
-  arrays.ids = {0};
-  arrays.heights = {fixture::height};
-  arrays.base_heights = {fixture::base_height};
-  return arrays;
+  return test_fixture::polygon(fixture::vertices, fixture::height, fixture::base_height);
 }
 
 static void condition_state(GridConfig grid, ModelSettings model, const BuildingArrays &geometry)
@@ -125,7 +119,7 @@ int main()
     require(!runner.solve(condition, solver, messages).converged, "Missing non-convergence status");
     require(runner.solve(condition, options, messages).velocity == retained.velocity,
             "Failed preparation or repeated solve changed prepared state");
-    runner.prepare(grid, model, BuildingArrays{{}, {0}, {}, {}, {}}, messages);
+    runner.prepare(grid, model, test_fixture::empty_buildings(), messages);
     require(runner.solve(condition, options, messages).building_count == 0, "Repreparation retained buildings");
   }
   for (const auto value : retained.velocity)

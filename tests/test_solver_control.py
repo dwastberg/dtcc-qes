@@ -9,10 +9,10 @@ import numpy as np
 import pytest
 
 from dtcc_qes import wind, _qes
-from test_condition_state import configuration, prepare
+from fixtures.condition_state import configuration, prepare
 from fixtures.cases import ONE_BUILDING
-from city_cases import city_case
-from test_datasets import fetched, source_city
+from fixtures.cities import city_case
+from fixtures.datasets import fetched, source_city
 
 
 def settings(**changes):
@@ -104,7 +104,7 @@ def test_native_invalid_config_and_monitor_budget_raise_then_retry():
 def test_dataset_control_identity_and_health(fetched, source_city):
     from dtcc_core import datasets
     from dtcc_qes.datasets import QESWindArgs
-    from test_datasets import request
+    from fixtures.datasets import request
     c = wind.Solver(max_solve_seconds=10, monitor=wind.MonitorSpec((0, 42, 0, 36)), checkpoint_interval=1)
     args = QESWindArgs(**request(solver=replace(c, max_iterations=2, tolerance=1e-4).to_dict()))
     assert args.wind_options()["solver"] == replace(c, tolerance=1e-4, max_iterations=2)

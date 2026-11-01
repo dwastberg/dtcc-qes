@@ -10,7 +10,7 @@ from shapely.geometry import Polygon, box
 from shapely.affinity import rotate
 from dtcc_core.model import GeometryType, MultiSurface
 from dtcc_qes import wind
-from test_footprints import building, city, surface
+from fixtures.footprints import building, city, surface
 
 pytestmark = pytest.mark.usefixtures("dtcc_logger")
 OPTIONS = dict(bounds=(-20, -20, 0, 60, 40, 40), resolution=1, solver=wind.Solver(max_iterations=12))
@@ -91,7 +91,7 @@ def test_preview_and_solve_share_final_solids_and_turbulence_reference(grid):
 
 
 def test_isolated_reference_exposure_switch_preserves_bits():
-    from city_cases import city_case
+    from fixtures.cities import city_case
     from fixtures.cases import ONE_BUILDING
 
     value, condition, grid, solver = city_case(ONE_BUILDING)

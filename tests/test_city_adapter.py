@@ -6,7 +6,7 @@ from dtcc_core.model import BuildingPart, City, CityObject, GeometryType, MultiS
 from dtcc_qes import wind
 from dtcc_qes._city import extract_city, prepare_domain
 
-from city_cases import city_case
+from fixtures.cities import city_case
 from fixtures.cases import ONE_BUILDING
 
 pytestmark = pytest.mark.usefixtures("dtcc_logger")

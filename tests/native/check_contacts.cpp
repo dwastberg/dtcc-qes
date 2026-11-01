@@ -1,3 +1,4 @@
+#include "building_fixtures.h"
 #include "model_inputs.h"
 #include "wind_runner.h"
 #include "winds/WINDSGeneralData.h"
@@ -15,12 +16,7 @@ static void rejects(const BuildingArrays &arrays)
   catch (const std::invalid_argument &) { return; }
   throw std::runtime_error("Malformed rings accepted");
 }
-static void append(BuildingArrays &a, std::initializer_list<double> vertices, double height)
-{
-  a.vertices.insert(a.vertices.end(),vertices);
-  a.offsets.push_back(a.vertices.size()/2);
-  a.ids.push_back(a.ids.size()); a.heights.push_back(height); a.base_heights.push_back(0);
-}
+using test_fixture::append;
 int main()
 {
   GridConfig grid; grid.nx=40; grid.ny=30; grid.nz=24; grid.cell_size=1;

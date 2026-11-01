@@ -1,3 +1,5 @@
+from fixtures.oracles import stress_validity
+from fixtures.oracles import assert_wind_archive
 """Step 4 exercises the private array boundary, without the city adapter."""
 
 import gc
@@ -32,11 +34,7 @@ def test_bound_runner_matches_reference(case):
     runner, condition, solver = prepared(case)
     result = runner.solve(condition, solver)
     with np.load(reference_path(case)) as reference:
-        for name in ("x", "y", "z"):
-            np.testing.assert_array_equal(result[name], reference[name])
-        for component, name in enumerate(("u", "v", "w")):
-            assert_reference_velocity(result["velocity"][..., component], reference[name])
-        np.testing.assert_array_equal(result["cell_flags"], reference["icell"])
+        assert_wind_archive(result,reference)
     g = case.grid
     assert result["velocity"].shape == (g.nz, g.ny, g.nx, 3)
     assert result["cell_flags"].shape == (g.nz, g.ny, g.nx)
@@ -51,11 +49,7 @@ def test_bound_runner_matches_reference(case):
     assert result["turbulence"] is None
 
 
-def turbulence_settings(method=0, enabled=True):
-    settings = _qes.TurbulenceSettings()
-    settings.enabled = enabled
-    settings.mixing_length_method = method
-    return settings
+from fixtures.specs import native_turbulence as turbulence_settings
 
 
 @pytest.mark.parametrize("setting", [None, False])
@@ -108,10 +102,7 @@ def test_turbulence_arrays_masks_metadata_and_ownership(method, precision):
         assert np.isnan(turb[name][~computed]).all()
         assert np.isfinite(turb[name][computed]).all()
     # Independent covariance check on the extracted, stored float32 values.
-    raw = turb["stress"][computed].astype(np.float64)
-    tensor = raw[:, (0, 1, 2, 1, 3, 4, 2, 4, 5)].reshape(-1, 3, 3)
-    eigenvalues = np.linalg.eigvalsh(tensor)
-    valid = eigenvalues[:, 0] >= -32 * np.finfo(np.float32).eps * np.abs(eigenvalues).max(axis=1)
+    valid = stress_validity(turb["stress"][computed])
     np.testing.assert_array_equal(turb["stress_valid"][computed], valid)
     assert (~valid).sum() == turb["invalid_stress_cells"]
     assert turb["reference_height"] == 24

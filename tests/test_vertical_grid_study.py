@@ -1,14 +1,13 @@
 """Guard the study against false acceptance of inaccurate or masked results."""
+
+from fixtures.support import load_tool
 import copy
 import importlib.util
 from pathlib import Path
 
 import pytest
 
-_spec = importlib.util.spec_from_file_location(
-    "vertical_grid_study", Path(__file__).parents[1] / "tools/run_vertical_grid_study.py")
-study = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(study)
+study = load_tool("vertical_grid_study", Path(__file__).parents[1] / "tools/run_vertical_grid_study.py")
 
 
 def stable_run():

@@ -5,7 +5,7 @@ import pytest
 
 from dtcc_qes import _qes, wind
 from dtcc_qes.vertical_grid import effective_faces
-from city_cases import city_case
+from fixtures.cities import city_case
 from fixtures.cases import FLAT, ONE_BUILDING
 from runner_cases import inputs
 

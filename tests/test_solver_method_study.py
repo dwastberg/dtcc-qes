@@ -1,4 +1,6 @@
 """S6 selection fails closed on support, numerical or held-out failures."""
+
+from fixtures.support import load_tool
 import importlib.util
 from pathlib import Path
 import sys
@@ -7,8 +9,7 @@ import pytest
 
 TOOLS=Path(__file__).resolve().parents[1]/'tools'
 sys.path.insert(0,str(TOOLS))
-spec=importlib.util.spec_from_file_location('method_study',TOOLS/'run_solver_method_study.py')
-m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+m=load_tool('method_study', TOOLS/'run_solver_method_study.py');pass
 
 
 def inputs():

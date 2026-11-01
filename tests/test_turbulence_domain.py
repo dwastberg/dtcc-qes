@@ -14,29 +14,7 @@ from runner_cases import inputs
 pytestmark = pytest.mark.usefixtures("dtcc_logger")
 
 
-def blocks(heights=(15, 15, 15, 15), *, base=0, width=12):
-    city = City()
-    for i, height in enumerate(heights):
-        x, y = 22 + (i % 2)*20, 22 + (i // 2)*20
-        building = Building(id=str(i))
-        building.measured_height = float(height)
-        building.add_geometry(Surface(vertices=np.array([
-            [x,y,base], [x,y+width,base], [x+width,y+width,base], [x+width,y,base],
-        ], dtype=float)), GeometryType.LOD0)
-        city.add_building(building)
-    return city
-
-
-def assert_margin(preview, reference):
-    assert preview.z_faces.dtype == np.float32
-    assert len(preview.z_faces) >= 4
-    assert preview.z_faces[-4] >= reference and preview.z_faces[-1] >= 15
-    record = preview.domain["turbulence"]
-    assert record["reference_height"] == reference
-    assert record["effective_top"] == float(preview.z_faces[-1])
-    assert record["required_top"] <= record["effective_top"]
-    json.dumps(preview.domain, allow_nan=False)
-
+from fixtures.turbulence_domain import assert_margin, blocks
 
 def test_uniform_midrise_city_raises_automatic_top():
     city = blocks()

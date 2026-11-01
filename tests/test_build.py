@@ -1,5 +1,7 @@
 """Checks for the private extension and the staged native symbol audit."""
 
+from fixtures.support import load_tool
+
 import importlib.util
 from importlib.resources import files
 from pathlib import Path
@@ -7,9 +9,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("native_symbols", ROOT / "tools/check_native_symbols.py")
-symbols = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(symbols)
+symbols = load_tool("native_symbols", ROOT / "tools/check_native_symbols.py")
 
 
 def test_extension_links_core():

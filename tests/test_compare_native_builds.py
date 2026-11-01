@@ -1,5 +1,7 @@
 """Unit checks for the native build parity harness (the builds themselves are not run)."""
 
+from fixtures.support import load_tool
+
 import importlib.util
 import io
 from pathlib import Path
@@ -9,9 +11,7 @@ import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("compare_native_builds", ROOT / "tools/compare_native_builds.py")
-harness = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(harness)
+harness = load_tool("compare_native_builds", ROOT / "tools/compare_native_builds.py")
 
 
 def save(path, **values):

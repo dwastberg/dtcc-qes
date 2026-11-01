@@ -1,4 +1,6 @@
 """Native S3 observations versus full finalization and public/study sampling."""
+
+from fixtures.support import load_tool
 import importlib.util
 import json
 import os
@@ -12,13 +14,7 @@ from dtcc_qes import _qes
 from dtcc_qes.result import SolveDiagnostics, WindResult
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("monitor_study_collocation",ROOT/"tools/run_auto_grid_controls.py")
-study = importlib.util.module_from_spec(spec)
-sys.path.insert(0, str(ROOT / "tools"))
-try:
-    spec.loader.exec_module(study)
-finally:
-    sys.path.pop(0)
+study = load_tool("monitor_study_collocation", ROOT/"tools/run_auto_grid_controls.py")
 
 
 def executable():

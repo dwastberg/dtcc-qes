@@ -9,7 +9,7 @@ from dtcc_qes import _qes, wind
 from dtcc_qes._auto_grid import generate_auto_layers
 from dtcc_qes.vertical_grid import effective_faces
 
-from city_cases import city_case
+from fixtures.cities import city_case
 from fixtures.cases import ONE_BUILDING
 
 pytestmark = pytest.mark.usefixtures("dtcc_logger")

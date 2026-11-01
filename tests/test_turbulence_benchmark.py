@@ -1,5 +1,7 @@
 """Exercise benchmark accounting and a real isolated native worker."""
 
+from fixtures.support import load_tool
+
 import json
 import importlib.util
 from pathlib import Path
@@ -10,10 +12,7 @@ import numpy as np
 import pytest
 
 
-_spec = importlib.util.spec_from_file_location(
-    "turbulence_benchmark", Path(__file__).parents[1]/"tools/run_turbulence_benchmark.py")
-benchmark = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(benchmark)
+benchmark = load_tool("turbulence_benchmark", Path(__file__).parents[1]/"tools/run_turbulence_benchmark.py")
 
 
 def test_statistics_retain_exclusions_and_zero_denominators():

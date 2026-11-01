@@ -14,9 +14,9 @@ from dtcc_core.model import GeometryType, MultiSurface
 from dtcc_qes import _city, wind
 from dtcc_qes._dataset_city import prepare_city
 from dtcc_qes.datasets import QESWindArgs
-import test_datasets as dataset_fixtures
-from test_datasets import request, realization
-from test_footprints import building, surface
+from fixtures import datasets as dataset_fixtures
+from fixtures.datasets import request, realization
+from fixtures.footprints import building, surface
 
 # Reuse the fetched-city fixtures without registering the other module's tests.
 source_city = dataset_fixtures.source_city

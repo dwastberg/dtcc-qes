@@ -1,4 +1,6 @@
 """Frozen S3 cost evidence must reject edits and incomplete matrices."""
+
+from fixtures.support import load_tool
 import importlib.util
 import json
 from pathlib import Path
@@ -7,13 +9,7 @@ import sys
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "tools"))
-try:
-    spec = importlib.util.spec_from_file_location("profile_solver_monitor", ROOT / "tools/profile_solver_monitor.py")
-    profile = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(profile)
-finally:
-    sys.path.pop(0)
+profile = load_tool("profile_solver_monitor", ROOT / "tools/profile_solver_monitor.py")
 
 
 def test_profile_audit_rejects_modified_or_incomplete_evidence(tmp_path):

@@ -1,3 +1,4 @@
+#include "building_fixtures.h"
 #include "model_inputs.h"
 #include "wind_runner.h"
 #include "winds/WINDSGeneralData.h"
@@ -13,7 +14,7 @@ template<class F> void rejects(F f) {
 int main() {
   GridConfig g; g.nx=6; g.ny=6; g.nz=5; g.dz_layers={1,2,9,8,20};
   ModelSettings m; m.sensor_x=m.sensor_y=3;
-  const BuildingArrays empty{{},{0},{},{},{}};
+  const auto empty = test_fixture::empty_buildings();
   ModelInputs inputs(g,m,empty);
   WindCondition p; p.profile_kind=ProfileKind::LayerTable;
   p.layer_u={1,3,9,4,2}; p.layer_v={0,-1,0,1,0}; p.speed=4;

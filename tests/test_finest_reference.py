@@ -3,7 +3,7 @@ import copy
 import sys
 from pathlib import Path
 import pytest
-from test_vertical_refinement import documents
+from fixtures.vertical_refinement import documents
 
 sys.path.insert(0,str(Path(__file__).parents[1]/'tools'))
 import run_finest_reference as study

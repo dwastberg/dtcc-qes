@@ -1,4 +1,6 @@
 """Guard the numerical archive gate against hiding real changes."""
+
+from fixtures.support import load_tool
 import importlib.util
 import json
 from pathlib import Path
@@ -7,10 +9,7 @@ import numpy as np
 import pytest
 
 
-spec = importlib.util.spec_from_file_location(
-    "feature_merge_baseline", Path(__file__).parents[1]/"tools/feature_merge_baseline.py")
-baseline = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(baseline)
+baseline = load_tool("feature_merge_baseline", Path(__file__).parents[1]/"tools/feature_merge_baseline.py")
 
 
 def archives(tmp_path):

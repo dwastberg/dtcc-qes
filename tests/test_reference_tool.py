@@ -1,3 +1,5 @@
+
+from fixtures.support import load_tool
 import importlib.util
 import json
 from pathlib import Path
@@ -8,9 +10,7 @@ import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("reference_tool", ROOT / "tools/make_reference.py")
-reference_tool = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(reference_tool)
+reference_tool = load_tool("reference_tool", ROOT / "tools/make_reference.py")
 
 
 @pytest.mark.parametrize("field", ["x", "dz_array", "icell", "u"])

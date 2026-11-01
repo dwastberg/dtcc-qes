@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from dtcc_core.model import City
 from dtcc_qes import wind
-from test_turbulence_domain import blocks
+from fixtures.turbulence_domain import blocks
 
 
 def preview(profile=None,**kwargs):

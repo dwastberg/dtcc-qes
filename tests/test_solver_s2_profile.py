@@ -1,4 +1,6 @@
 """S2 snapshot profiling must preserve arithmetic and reject edited evidence."""
+
+from fixtures.support import load_tool
 import importlib.util
 from pathlib import Path
 import sys
@@ -8,9 +10,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"tools"))
-spec = importlib.util.spec_from_file_location("profile_solver_s2",ROOT/"tools/profile_solver_s2.py")
-profile = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(profile)
+profile = load_tool("profile_solver_s2", ROOT/"tools/profile_solver_s2.py")
 
 
 def test_phase_instrumentation_preserves_solver_sources_and_native_calls(tmp_path):

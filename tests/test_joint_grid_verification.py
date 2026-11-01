@@ -1,4 +1,6 @@
 """Prevent false closure and unsafe reuse in the joint spatial study."""
+
+from fixtures.support import load_tool
 import copy
 import importlib.util
 import json
@@ -10,45 +12,16 @@ import sys
 import numpy as np
 import pytest
 
-from test_auto_grid_controls import native_run
-from test_precision_verification import precision_document
+from fixtures.auto_grid_controls import native_run
+from fixtures.precision_verification import precision_document
 
 _tools = Path(__file__).parents[1]/"tools"
-_spec = importlib.util.spec_from_file_location("joint_grid_verification", _tools/"run_joint_grid_verification.py")
-study = importlib.util.module_from_spec(_spec)
-sys.path.insert(0, str(_tools))
-try:
-    _spec.loader.exec_module(study)
-    _publish_spec = importlib.util.spec_from_file_location("joint_precompute", _tools/"precompute_joint_checkpoints.py")
-    precompute = importlib.util.module_from_spec(_publish_spec)
-    _publish_spec.loader.exec_module(precompute)
-    _audit_spec = importlib.util.spec_from_file_location("joint_audit", _tools/"audit_joint_grid_verification.py")
-    audit = importlib.util.module_from_spec(_audit_spec)
-    _audit_spec.loader.exec_module(audit)
-finally:
-    sys.path.pop(0)
+study = load_tool("joint_grid_verification", _tools/"run_joint_grid_verification.py")
+precompute = load_tool("joint_precompute", _tools/"precompute_joint_checkpoints.py")
+audit = load_tool("joint_audit", _tools/"audit_joint_grid_verification.py")
 
 
-def manufactured(task):
-    run = native_run()
-    run.update(task=task, start="zero", precision="float64", disabled_mask=0,
-               solver_workspace_bytes=100, z_faces=[0, 64])
-    for c in run["checkpoints"]:
-        for plane in c["planes"]:
-            plane["flags"] = [[1, 1]]*len(plane["velocity"])
-    run["profile_planes"] = copy.deepcopy(run["checkpoints"][0]["planes"])
-    run["initial_planes"] = copy.deepcopy(run["profile_planes"])
-    return run
-
-
-def joint_documents():
-    refs = {"verification": dict(runs=[manufactured(t) for t in study.previous_tasks("verification")])}
-    frozen = {f"{f}/{w}/{h}/{r}": [0] for f in study.FAMILIES for w in study.DIRECTIONS
-              for h in study.HEIGHTS for r in ("all", "away4m")}
-    doc = dict(metadata=dict(frozen_critical_indices=frozen),
-               runs=[manufactured(t) for t in study.tasks()], attempts=[])
-    return doc, refs
-
+from fixtures.joint_grid_verification import joint_documents, manufactured
 
 def test_matrix_preserves_both_extents_and_fixed_vertical_operands_above_soft_target():
     configs = {f: dict(layers_input=[.5]*128) for f in study.FAMILIES}

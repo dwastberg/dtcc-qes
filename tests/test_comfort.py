@@ -101,7 +101,7 @@ def test_gem_metadata_validation_and_external_sources():
 @pytest.mark.usefixtures("dtcc_logger")
 @pytest.mark.parametrize("method", ["height", "wall_distance"])
 def test_gem_from_runs_scales_with_reference_speed(method):
-    from city_cases import city_case
+    from fixtures.cities import city_case
     from fixtures.cases import ONE_BUILDING
     from dtcc_qes import wind
 
@@ -131,7 +131,7 @@ def test_gem_from_runs_scales_with_reference_speed(method):
 
 
 def test_invalid_stress_and_undefined_direction_remain_unassessed():
-    from test_turbulence import synthetic
+    from fixtures.turbulence import synthetic
 
     source = synthetic()
     source.turbulence.stress[:, 0, 0] = [1, 2, 0, 1, 0, 1]

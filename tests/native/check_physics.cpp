@@ -1,3 +1,4 @@
+#include "building_fixtures.h"
 #include "solver/solver.h"
 #include "model_inputs.h"
 #include "divergence.h"
@@ -26,13 +27,9 @@ static void check(bool with_building, bool report)
   ModelSettings model;
   model.sensor_x = fixture::sensor_x; model.sensor_y = fixture::sensor_y;
   model.roughness_length = fixture::roughness;
-  BuildingArrays geometry{{}, {0}, {}, {}, {}};
-  if (with_building) {
-    for (const auto &vertex : fixture::vertices)
-      geometry.vertices.insert(geometry.vertices.end(), {vertex[0], vertex[1]});
-    geometry.offsets.push_back(geometry.vertices.size() / 2);
-    geometry.ids = {0}; geometry.heights = {fixture::height}; geometry.base_heights = {fixture::base_height};
-  }
+  const auto geometry = with_building
+    ? test_fixture::polygon(fixture::vertices, fixture::height, fixture::base_height)
+    : test_fixture::empty_buildings();
   ModelInputs inputs(grid, model, geometry);
   inputs.set_condition({fixture::speed, fixture::direction, fixture::reference_height});
   WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
@@ -69,7 +66,7 @@ static void injection(bool serial, bool vertical, float spacing, bool report)
   grid.nx = grid.ny = 24; grid.nz = 16; grid.cell_size = spacing;
   ModelSettings model;
   model.sensor_x = model.sensor_y = 2.5 * spacing;
-  ModelInputs inputs(grid, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  ModelInputs inputs(grid, model, test_fixture::empty_buildings());
   inputs.set_condition({0, 270, 10});
   WINDSGeneralData data(make_domain(inputs), inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
   data.applyWindProfile(inputs.inflow);
@@ -98,7 +95,7 @@ static void diagnostic_checks()
   grid.dz_layers = {0.5, 0.75, 1.0, 1.5, 2.0};
   ModelSettings model;
   model.sensor_x = model.sensor_y = 1;
-  ModelInputs inputs(grid, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  ModelInputs inputs(grid, model, test_fixture::empty_buildings());
   const auto domain = make_domain(inputs);
   WINDSGeneralData data(domain, inputs.buildings, inputs.parameterizations, inputs.inflow.site_z0);
   data.applyWindProfile(inputs.inflow);
@@ -138,7 +135,7 @@ static void diagnostic_checks()
 
   GridConfig small;
   small.nx = small.ny = 3; small.nz = 2;
-  ModelInputs small_inputs(small, model, BuildingArrays{{}, {0}, {}, {}, {}});
+  ModelInputs small_inputs(small, model, test_fixture::empty_buildings());
   WINDSGeneralData small_data(make_domain(small_inputs), small_inputs.buildings, small_inputs.parameterizations, small_inputs.inflow.site_z0);
   small_data.applyWindProfile(small_inputs.inflow);
   small_data.applyParametrizations();

@@ -8,7 +8,7 @@ from dtcc_qes import wind
 from dtcc_qes.datasets import QESWindArgs, _field_slice
 from dtcc_qes._dataset_city import prepare_city, _source_city
 from dtcc_qes.profiles import _profile_record
-from test_datasets import fetched, realization, request, source_city
+from fixtures.datasets import fetched, realization, request, source_city
 
 pytestmark = pytest.mark.usefixtures("dtcc_logger")
 

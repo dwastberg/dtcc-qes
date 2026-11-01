@@ -8,7 +8,7 @@ from dtcc_core.model import City
 
 from dtcc_qes import _qes, wind
 from dtcc_qes.datasets import QESWindArgs, _LogPayload, _UniformPayload, _PowerPayload, _MeasuredPayload
-from city_cases import city_case
+from fixtures.cities import city_case
 from fixtures.cases import ONE_BUILDING
 
 
