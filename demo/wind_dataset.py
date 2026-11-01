@@ -1,19 +1,25 @@
-"""Run a steady wind simulation for a 500 m city area (requires network)."""
+"""Fetch and solve a city slice; --no-show runs without an interactive plot."""
+import argparse
+from time import perf_counter
+from dtcc_core import datasets
+import dtcc_qes  # Registers the QES dataset.
 
-from dtcc_core import datasets, Bounds
-import dtcc_qes
 
-import time
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--bounds",nargs=4,type=float,default=[319720,6397660,320720,6398660])
+    parser.add_argument("--resolution",type=float,default=2.)
+    parser.add_argument("--no-show",action="store_true")
+    args=parser.parse_args(argv)
+    start=perf_counter()
+    result=datasets.qes_wind(bounds=args.bounds,speed=5.,direction=225,resolution=args.resolution,
+        product="slice",slice_height=1.75)
+    print(f"{perf_counter()-start:.3f} seconds")
+    print(result)
+    if not args.no_show:
+        result.plot(field_name="speedup",presentation=False)
+    return result
 
-h = 1000
-x_min = 319720
-y_min = 6397660
-bounds = Bounds(x_min, y_min, x_min + h, y_min + h)
 
-# Height steps survive cleaning; source/region courtyards are filled.
-# Inspect result.dataset_context for cleaning provenance and fallback warnings.
-start_time = time.time()
-result = datasets.qes_wind(bounds=bounds, speed=5.0, direction=225, resolution=1.0, product="slice", slice_height=1.75)
-print(f"{time.time() - start_time} seconds")
-print(result)
-result.plot(field_name="speedup", presentation=False)
+if __name__=="__main__":
+    main()

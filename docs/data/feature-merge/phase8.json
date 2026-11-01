@@ -1,0 +1,52 @@
+{
+  "status": "Phase 8 complete; final Python-only baseline before native consolidation",
+  "verification": {
+    "passed": true,
+    "phase": "phase8",
+    "python_tests": {
+      "serial": {
+        "passed": 1525,
+        "skipped": 16,
+        "seconds": 77.33,
+        "log": "build/feature-merge-baseline/phase8-serial-tests.log"
+      },
+      "openmp": {
+        "passed": 1525,
+        "skipped": 16,
+        "seconds": 77.26,
+        "log": "build/feature-merge-baseline/phase8-openmp-tests.log"
+      }
+    },
+    "native_revision": "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+    "frozen_workers": 24
+  },
+  "baseline": {
+    "cases": 31,
+    "passed": true,
+    "differences": []
+  },
+  "documentation_checks": {
+    "current_python_snippet_documents": 5,
+    "all_example_entrypoints": true,
+    "all_demo_entrypoints": true,
+    "network_fetch": "mocked; real conditioning/solves/exports executed",
+    "plots": "headless real figures; explicit 2 m demo grid",
+    "removed_argument_ast_audit": true,
+    "unexpected_solver_warnings": 0
+  },
+  "changes": [
+    "README reorganized into the unified guide, capability matrix, timing scopes and full migration table",
+    "Current profile, comfort and precision examples use versioned specifications; comfort transfer conventions and measured class impact documented",
+    "S5\u2013S9 narrative moved into solver-control guide; historical reports/plans retain snippets with current-guide banners",
+    "Plot demos accept a resolution argument; network demo has an import-safe CLI/main and no-show option",
+    "All current Python docs and live callers audited; archived docs/data snapshots untouched"
+  ],
+  "source_index": {
+    "README.md": "1012af34bdbc4039417e676cab0d5a7bcd51032111d082ab3f589b055950defd",
+    "docs/solver-control.md": "1017e4f8f410fe9e2c641a2742f9a3a8d76528ae0dfe19589b367d26c7021bf6",
+    "docs/wind-profiles.md": "76512b99cb745b4adc2055931e8b3a7eed487f3ed5d90a1fcb9c67cec763dd1d",
+    "docs/wind-comfort.md": "37982ffac90efea1d14d384b747f317698047d5248c71aa46c314e31b617fb37",
+    "docs/precision-and-horizontal-verification.md": "070d16f8f9f6b3070fee1284649bcdbf31396b03a0d1aca90e870d1ce36475c4",
+    "tests/test_user_documentation.py": "bd3e525978cb0fefe606eb9ec612a27e61b63d4f97ddaf4700a0242bc64881ce"
+  }
+}

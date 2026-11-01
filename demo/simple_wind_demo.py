@@ -86,6 +86,7 @@ def main(argv=None):
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--save", type=Path, metavar="PATH", help="save the plot to an image")
     parser.add_argument("--no-show", action="store_true", help="run without opening a plot window")
+    parser.add_argument("--resolution", type=float, default=.5, help="Solver spacing in metres")
     args = parser.parse_args(argv)
 
     if args.no_show:
@@ -95,7 +96,7 @@ def main(argv=None):
     import matplotlib.pyplot as plt
 
     start_time = perf_counter()
-    result = wind.run(make_city(), speed=5.0, direction=270.0, resolution=0.5, bounds=(0, 0, 0, 120, 90, 40), solver=wind.Solver(tolerance=1e-4, max_iterations=2000))
+    result = wind.run(make_city(), speed=5.0, direction=270.0, resolution=args.resolution, bounds=(0, 0, 0, 120, 90, 40), solver=wind.Solver(tolerance=1e-4, max_iterations=2000))
     get_python_logger("dtcc-qes").info("Wind simulation took %.2f seconds", perf_counter() - start_time)
     fig = plot_wind(result)
     if args.save:

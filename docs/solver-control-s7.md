@@ -1,5 +1,7 @@
 # S7 — Qualified opt-in pedestrian numerical acceptance
 
+> Historical stage report: original snippets and identities are preserved. Use the current [migration table](../README.md#api-migration) and [solver guide](solver-control.md) for live calls.
+
 S7 is complete for the `pedestrian-v1` scope below. Existing calls and bounded
 controls retain their default 1.78 relaxation and legacy stopping behavior.
 Qualified adaptive calls use S6's internal 1.90 method and can stop independently

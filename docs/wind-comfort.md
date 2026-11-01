@@ -1,8 +1,8 @@
 # Pedestrian wind comfort
 
 `dtcc_qes.comfort` turns per-direction pedestrian wind speeds and an hourly wind
-climate into comfort and safety classes. It imports only numpy and the standard
-library; a test enforces this. Any source of pedestrian-level mean speeds can
+climate into comfort and safety classes. Its helper dependency closure uses only NumPy and the standard library; an
+isolated-load test enforces this. Any source of pedestrian-level mean speeds can
 be used: QES, other CFD or wind-tunnel probes.
 
 ## Method
@@ -125,16 +125,19 @@ non-finite scalar factors raise `ValueError`; an overflowing estimate also raise
 Do not replace masked values with zero: NaN in any direction leaves that cell
 unassessed (`comfort`/`safety` = -1, exceedance = NaN).
 
-For each direction, solve with `turbulence=True`, sample at the criterion height,
+For each direction, solve with `turbulence=wind.Turbulence()`, sample at the criterion height,
 and build the fields explicitly:
 
 ```python
-sample = result.sample(1.5, method="linear")
-mean_fields.append(sample.speed)
-gem_fields.append(comfort.gust_equivalent_mean(
-    sample.speed, sample.streamwise_std, peak_factor=3.0,
-))
+from dtcc_qes import comfort, wind
+
+gust_result = wind.run(city, speed=5, direction=270,
+    bounds=(0,0,0,80,60,40), turbulence=wind.Turbulence())
+screening = comfort.assess_results([gust_result], [5], [270],
+    comfort.CITY_OF_LONDON, peak_factor=3.0)
+assert any("screening estimate" in warning for warning in screening.warnings)
 ```
+
 
 Pass the stacked arrays as `fields` and `gem_fields` to `assess`, together with
 `gem_metadata`, a mapping copied into `ComfortResult.metadata["gem"]`. Record
@@ -179,30 +182,54 @@ source. It can be defined as a `comfort.Criterion`.
 - [Janssen, Blocken & van Hooff (2013), comparison of wind comfort criteria](https://research.tue.nl/en/publications/pedestrian-wind-comfort-around-buildings-comparison-of-wind-comfo/)
 
 
-## Profile reference normalization
+## Results, references and provenance
 
-Experimental measured, uniform and power-law approaches can supply the existing
-per-direction comfort workflow. Use each result's `reference_speed` (the vector
-speed evaluated at its declared reference height), rather than the highest
-measurement or an unrelated station speed. `result.speedup` supplies normalized
-mean speeds; `result.to_dtcc(include_speedup=True)` optionally exports them.
-A calm reference vector permits a mean-flow solve but yields NaN speedup and
-cannot normalize comfort fields or identify a direction.
+`comfort.assess_results` samples each result at the requested or criterion height.
+It checks x/y coordinates, origin, CRS, reference height and roughness. Each
+run may have a different positive reference speed; direction comes from the
+declared profile reference, never a locally deflected pedestrian vector.
+Calm references and duplicate directions modulo 360 are rejected.
 
-Changing only a positive amplitude preserves profile shape and turning; use
-`profile.scaled(factor)`. Different shear/turning regimes require separate solves
-and explicit climate assignment. Hourly speeds must already describe the same
-reference height and upstream exposure as the simulated profile. No sector
-profile selector or new exposure transfer is added by this change; those remain
-separate follow-up work. The existing `log_law_transfer` is unchanged.
+Nearest sampling must select the same actual height in every direction; that
+actual height is passed to the criterion warning. Linear sampling retains the
+requested height wherever supported; unavailable support remains NaN with
+`sampled_height=None`. Invalid stress contributors remain invalid even if their
+interpolated tensor is positive semidefinite. No missing data are filled by zero.
 
-Turning profiles initialize all background layers. Building wakes follow each
-building's roof-level direction even where lower layers turn; a calm roof vector
-has deterministic `atan2(0,0)=0` orientation and zero sampled magnitude. Turning
-above 45 degrees across physical layers produces a warning. New-profile
-`turbulence=True` remains available, but QES-Turb converts a sampled solved speed
-at its morphometric reference height into friction velocity with a log law.
-That conversion can be inconsistent with jets or strongly sheared profiles;
-metadata records the caveat. Neither these inputs nor algebraic turbulence
-provide new independent physical or gust validation. See the
-[profile guide](wind-profiles.md) and [verification report](wind-profiles-verification.md).
+Both mean-only NEN8100 and GEM City of London results copy per-direction
+qualification, references, caveats and requested/actual sample heights into
+`metadata["runs"]`. `assess(..., run_metadata=...)` supports independent provenance
+for other field sources. GEM-specific factors stay separately in `metadata["gem"]`.
+Only a gust-equivalent criterion with an explicit peak factor computes GEM;
+otherwise the existing single mean-only warning applies. No exposure transfer
+is implicit, and numerical mean-wind acceptance never qualifies gusts.
+
+## Explicit exposure-transfer laws
+
+`log_law_transfer(..., from_law="standard", to_law="shifted")` converts a station
+measurement to the shifted LogProfile convention at a common blending height
+(default 60 m). Standard means ln(z/z0), requiring z>z0; shifted means
+ln(1+z/z0), requiring positive z and z0. Each selected law applies to **both**
+terms on its own side:
+
+`L_from(hb,z0_from)/L_from(z_from,z0_from) * L_to(z_to,z0_to)/L_to(hb,z0_to)`.
+
+Matching laws give identity and reciprocity within float64 roundoff. Standard
+station and shifted target laws intentionally give a convention conversion,
+even with matching nominal heights/roughness. Shifting only the target numerator
+would fail the blending-height agreement with LogProfile. Non-log profiles
+receive no automatic transfer. Rigid profile rotation uses `with_direction`;
+`scaled` changes amplitude while retaining shape.
+
+On the example's seeded 8,760-hour station climate (10 m, z0=.03 m transferred
+to 10 m, z0=.1 m), the old standard/standard factor is 0.9419485938616713;
+the corrected standard/shifted factor is 0.943738171406828. With identical solved
+fields and a 1.5 m sample, 2 of 1,175 valid NEN comfort cells change class and
+none change safety class. None of 1,039 London comfort cells change; one changes
+safety class. This records a convention effect, not physical validation. See
+[reproducible Phase 4 evidence](data/feature-merge/phase4.json).
+
+Turning beyond 45° warns because building wakes follow roof-level direction.
+QES-Turb converts sampled solved speed at its morphometric reference through a
+log law, which can conflict with jets or strong shear. Its output remains
+algebraic screening. See the [profile guide](wind-profiles.md).

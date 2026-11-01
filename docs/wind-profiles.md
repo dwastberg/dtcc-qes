@@ -1,7 +1,7 @@
 # Experimental horizontal background profiles
 
 `dtcc_qes.wind` exports immutable `LogProfile`, `MeasuredProfile`,
-`PowerLawProfile` and `UniformProfile` specifications. Legacy scalar calls
+`PowerLawProfile` and `UniformProfile` specifications. The speed/direction keyword shorthand
 retain the existing neutral shifted-log numerical path. New families describe
 steady horizontal background wind across the domain before building models and
 mass correction. They do not enforce interior observations or add stability,
@@ -35,7 +35,7 @@ knots; it deliberately does not interpolate scalar speed and angle.
 
 Below the first knot, the default `below="error"` rejects evaluation. Explicit
 `below="log"` scales the lowest vector by
-`log1p(z/z0)/log1p(z_low/z0)`, using **the run's roughness_length**. This matches
+`log1p(z/z0)/log1p(z_low/z0)`, using **the profile's roughness_length**. This matches
 the knot, reaches zero at ground and keeps calm knots calm. Above the last knot,
 `above="constant"` holds the last vector by default; `above="error"` rejects
 it. There are no inferred high-altitude slopes or polynomial tails.
@@ -64,19 +64,18 @@ profile = wind.MeasuredProfile(
     [2, 5, 10, 20, 40], [2.1, 3, 4.2, 5.6, 7],
     direction=270, reference_height=10, below="log",
 )
-result = wind.run(city, profile=profile, roughness_length=.1)
-preview = wind.preview_grid(city, profile=profile, roughness_length=.1)
-u, v = wind.evaluate(profile, [1, 5, 10, 20], roughness_length=.1)
-vectors = profile.evaluate([1, 5, 10, 20], roughness_length=.1)
+result = wind.run(city, profile=profile, bounds=(0,0,0,80,60,40))
+preview = wind.preview_grid(city, profile=profile, bounds=(0,0,0,80,60,40))
+u, v = wind.evaluate(profile, [1, 5, 10, 20])
+vectors = profile.evaluate([1, 5, 10, 20])
 restored = wind.profile_from_dict(profile.to_dict())
 faster = profile.scaled(2)  # positive amplitude; same shear and turning
 ```
 
-`speed`/`direction` and explicit `reference_height` conflict with `profile=`.
-For `LogProfile`, supplying run-level roughness also conflicts, because the
-specification carries it. For all other profiles, run-level roughness is
-allowed and retains its preparation-time ground/turbulence meaning as well as
-supplying measured lower log tails. Omitted roughness defaults to .1 m.
+`speed`/`direction` conflict with `profile=`. Every family owns its ground
+roughness; run-level roughness/reference overrides have been removed. Use
+`profile.with_direction(d)` for a rigid rotation preserving speed amplitudes,
+relative turning, tails and metadata; a calm reference cannot rotate.
 
 The declared reference vector supplies monitor normalization, dataset speedup,
 `result.reference_speed`, `result.speedup` and profile metadata. It is evaluated
@@ -88,7 +87,7 @@ default legacy field set.
 `result.metadata["profile"]` records schema version, requested inputs, height
 datum, interpolation/tail policies, float64 layer vectors, effective float32
 layer vectors, the reference, lower/upper tail layer counts and
-`max_turning_deg`. Existing legacy metadata keys remain available. The log
+`max_turning_deg`. Qualification is derived from the authoritative solver/profile evidence; removed condition dictionaries are not retained. The log
 profile uses a scalar metadata record and no Python-generated native table;
 actual legacy arithmetic and its rounding stay native and unchanged.
 
@@ -99,20 +98,18 @@ from dtcc_core import datasets
 
 slice_result = datasets.qes_wind(
     bounds=[0, 0, 0, 80, 60, 40], profile=profile.to_dict(),
-    roughness_length=.1, product="slice", slice_height=1.5,
+    product="slice", slice_height=1.5,
 )
 ```
 
 `QESWindArgs.profile` is a JSON payload discriminated by `kind`: `log`,
-`measured`, `power_law` or `uniform`, with a strict integer `schema_version=1`. The dataset JSON schema exposes all
+`measured`, `power_law` or `uniform`, with a strict integer `schema_version=2`. The dataset JSON schema exposes all
 four variants through a real `kind` discriminator. Validation occurs
 before fetching city data; coverage is rechecked after final grid preparation.
-Explicit `wind_speed`, `wind_direction` and `reference_height` conflict with a
-profile. Explicit roughness conflicts only with a log profile. Canonical request
-serialization includes the complete profile and tails, omits inactive scalar
-defaults and preserves relevant run roughness. Requests round-trip through JSON;
-different shapes/policies cannot share request identity. Dataset slices and
-profile-based field products normalize with the same reference as direct runs.
+Explicit `speed`/`direction` conflict with a profile. Normalized requests include
+self-contained profile, solver and optional turbulence payloads plus active
+numerics/policy identities. Requests round-trip through JSON. Dataset slices
+and direct runs normalize with the same declared reference.
 
 ## Turning, turbulence and scope
 
@@ -123,7 +120,7 @@ roof heights, so wakes use each roof-level direction even where lower layers
 turn. A calm roof vector has deterministic `atan2(0,0)=0` orientation and zero
 sampled magnitude. Rooftop/canyon empirical log-shaped adjustments remain.
 
-`turbulence=True` and the existing `Turbulence` settings work with every family.
+`turbulence=Turbulence()` work with every family.
 QES-Turb derives friction velocity from sampled **solved** wind using its
 morphometric log-law conversion (building-derived roughness/displacement and
 reference height, or configured roughness without buildings). Arbitrary input

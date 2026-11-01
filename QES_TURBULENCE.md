@@ -1,5 +1,7 @@
 # QES Turbulence Binding: Investigation and Implementation Plan
 
+> Historical implementation plan/report. The integrated API and status are in the [user guide](README.md), [migration table](README.md#api-migration) and [combined plan](COMBINED_FEATURE_PLAN.md). Original snippets below retain their stage vocabulary.
+
 > **Execution:** Follow the task order and acceptance gates below, using checkbox (`- [ ]`) tracking. Superpowers execution skills may be used when installed; they are unavailable in the current environment, so this checkout follows the documented implementation and verification steps directly.
 
 **Goal:** `wind.run(city, speed, direction, turbulence=True)` returns the solved

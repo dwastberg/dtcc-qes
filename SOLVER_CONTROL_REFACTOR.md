@@ -1,5 +1,7 @@
 # Native solver-control refactor
 
+> Historical implementation plan/report. The integrated API and status are in the [user guide](README.md), [migration table](README.md#api-migration) and [combined plan](COMBINED_FEATURE_PLAN.md). Original snippets below retain their stage vocabulary.
+
 **Status, closed 2026-10-31: scoped solver-control refactor complete; S8b explicitly deferred.**
 S5a publishes the five campaigns and tolerance study, completes cadence/thread/
 real-deadline studies and explicitly disposes of the missed disabled-controls

@@ -1,5 +1,7 @@
 # S4: bounded native execution through Python
 
+> Historical stage report: original snippets and identities are preserved. Use the current [migration table](../README.md#api-migration) and [solver guide](solver-control.md) for live calls.
+
 This records the S4 implementation. The current adaptive/API/dataset status
 and release scope are documented in the [S9 closure](solver-control-s9.md).
 

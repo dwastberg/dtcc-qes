@@ -6,13 +6,17 @@ The default float32 path remains the original QES CPU implementation. Older
 failed float32 archives retain their original acceptance decisions. Numerical
 acceptance here does not establish experimental pedestrian-wind accuracy.
 
+Current API examples below use the unified specifications; historical numerical
+results retain their original operands and scope. See the [migration table](../README.md#api-migration).
+
 ## Arithmetic and API
 
 ```python
 result = wind.run(city, speed=5, direction=270,
+                  bounds=(0,0,0,80,60,64),
                   vertical_grid=wind.VerticalGrid.auto(pedestrian_height=1.5),
-                  solver_precision="float64", tolerance=1e-10,
-                  max_iterations=8000)
+                  solver=wind.Solver(precision="float64", tolerance=1e-10,
+                                     max_iterations=8000))
 sample = result.sample(1.75, method="linear")
 ```
 
@@ -24,17 +28,17 @@ initial parameterized fields, output face storage and public cell-centred arrays
 remain float32. Cell centring still uses the original float32 operand order;
 vertical and horizontal interpolation still act on vector components.
 
-The serial build uses lexicographic updates. The OpenMP build uses red/black
-updates with barriers between colours and before ground mirroring. Both retain
+The frozen precision study used serial lexicographic updates. Current serial
+and OpenMP builds both use red/black updates with barriers between colours and before ground mirroring. Both retain
 the actual existing relaxation constant `double(1.78f)`, fixed lateral/top
 multipliers, ground mirror, correction-loop extents and solid-face zeroing.
 There is no change to physical boundary conditions, building models or sampling.
 The embedded CPU paths use alpha1 = alpha2 = 1, which the new class also uses.
 The QES submodule remains at `e0fb62e9fe5fffc8b4aef8f250f75f929ad27c13`.
 
-`solver_precision="float32"` is the default and still delegates to
+`Solver(precision="float32")` is the default and still delegates to
 `SolverFactory`; its arrays, arithmetic and stopping rule are unchanged.
-`solver_precision="float64"` has the same multiplier-change stopping rule
+`Solver(precision="float64")` has the same multiplier-change stopping rule
 and iteration limit, evaluated in double. Tolerances must be finite and at
 least epsilon of the selected precision. Float32 tolerances are still narrowed
 at the native boundary; float64 tolerances retain the requested double value.
@@ -42,7 +46,7 @@ A large tolerance still measures one update before declaring convergence.
 Neither mode's convergence flag is a residual or grid-accuracy certificate.
 
 `SolveDiagnostics.precision`, native diagnostics and
-`metadata["solver"]["precision"]` record the selected mode. Native
+`metadata["solver"]["spec"]["precision"]` record the selected mode. Native
 `SolverOptions.precision` accepts the same two strings. Changing precision or
 tolerance reconstructs the appropriate cached solver; every solve starts from
 zero. Only the selected solver workspace is retained. The float64 class uses
@@ -51,8 +55,8 @@ legacy three float buffers (12 bytes per native cell). It measures the largest
 change during the update, avoiding a third double buffer. No float multiplier
 shadow or warm-start field is retained.
 
-Dataset arguments/cache formats remain outside this milestone and use the
-default float32 solver. The automatic policy remains `prototype_unvalidated`.
+Current datasets accept the same versioned Solver payload and shared defaults.
+The numerical tables below retain their original study settings. The automatic policy remains `prototype_unvalidated`.
 
 ## Acceptance and fixed physical comparison region
 

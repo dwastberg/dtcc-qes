@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-31
 - **Reviewed source revision:** `3ae4157ca2ce9dcca90a113a71b8f7651d873b37`
-- **Status:** Phases 0–7 complete; Phases 8–9 pending. The user authorized preserving the footprint changes at `889c629` and first requalifying that revision in isolation. That prerequisite passed. Phase 1 implemented the unified specifications, public API, computed-top bounds and caller migration. Phase 2 resolves canonical profiles, builds one shared record for all four families, keeps Log native/analytic, validates its representability in the constructor, and removes condition/effective-condition metadata and fallbacks. Grid-only preview records unknown inflow without fabricating a calm profile. Phase 3 derives qualification from authoritative execution evidence, adds profile-aware grid diagnostics and height attribution, and reports nested timings without changing native computation. Requalification evidence: [head-requalification.json](docs/data/feature-merge/head-requalification.json). Baseline: [phase0.json](docs/data/feature-merge/phase0.json). Phase 1 checkpoints: [phase1a.json](docs/data/feature-merge/phase1a.json), [phase1b.json](docs/data/feature-merge/phase1b.json), [phase1c.json](docs/data/feature-merge/phase1c.json). Phase 2 verification: [phase2.json](docs/data/feature-merge/phase2.json). Phase 3 verification: [phase3.json](docs/data/feature-merge/phase3.json). Incorporates [COMBINED_FEATURE_PLAN_REVIEW.md](COMBINED_FEATURE_PLAN_REVIEW.md) and the final integration corrections in §9.
+- **Status:** Phases 0–8 complete; Phase 9 pending. The user authorized preserving the footprint changes at `889c629` and first requalifying that revision in isolation. That prerequisite passed. Phase 1 implemented the unified specifications, public API, computed-top bounds and caller migration. Phase 2 resolves canonical profiles, builds one shared record for all four families, keeps Log native/analytic, validates its representability in the constructor, and removes condition/effective-condition metadata and fallbacks. Grid-only preview records unknown inflow without fabricating a calm profile. Phase 3 derives qualification from authoritative execution evidence, adds profile-aware grid diagnostics and height attribution, and reports nested timings without changing native computation. Requalification evidence: [head-requalification.json](docs/data/feature-merge/head-requalification.json). Baseline: [phase0.json](docs/data/feature-merge/phase0.json). Phase 1 checkpoints: [phase1a.json](docs/data/feature-merge/phase1a.json), [phase1b.json](docs/data/feature-merge/phase1b.json), [phase1c.json](docs/data/feature-merge/phase1c.json). Phase 2 verification: [phase2.json](docs/data/feature-merge/phase2.json). Phase 3 verification: [phase3.json](docs/data/feature-merge/phase3.json). Incorporates [COMBINED_FEATURE_PLAN_REVIEW.md](COMBINED_FEATURE_PLAN_REVIEW.md) and the final integration corrections in §9.
 - **Lineage:** Synthesizes [CLAUDE_FEATURE_MERGE_PLAN.md](CLAUDE_FEATURE_MERGE_PLAN.md) (concrete API signatures, schemas, Python-first/native-last phase sequencing, and migration inventory) with [ASTRA_FEATURE_MERGE_PLAN.md](ASTRA_FEATURE_MERGE_PLAN.md) (5-way status separation, 4-state numerical assessment, failure precedence, explicit exposure-transfer laws, mean-only + GEM provenance, and isolated native candidate re-qualification).
 
 ---
@@ -152,8 +152,8 @@ wind.preview_grid(
 ```python
 @dataclass(frozen=True)
 class Solver:
-    tolerance: float = 1e-5          # final shared default selected by Phase 5 measurement
-    max_iterations: int = 500        # final shared default selected by Phase 5 measurement
+    tolerance: float = 1e-4          # selected by the Phase 5 accuracy/latency study
+    max_iterations: int = 1000        # selected by the Phase 5 accuracy/latency study
     precision: Literal["float32", "float64"] = "float32"
     max_solve_seconds: float | None = None
     monitor: MonitorSpec | None = None
@@ -610,6 +610,8 @@ result.qualification == {
 ---
 
 ### Phase 8 — Documentation and examples
+
+**Implementation status:** Complete. Both backends pass 1,525 Python tests (16 historical/toolchain skips), all 24 frozen S7 workers and 31 baseline cases. Every current Python snippet in the five user guides runs, all example/demo entry points execute real solves (city fetching mocked; plots headless), and the live removed-argument AST audit passes without unexpected solver warnings. Historical snippets and scientific evidence remain identified and preserved. The following commit is the immutable Python-only baseline required for Phase 9 comparisons. See [phase8.json](docs/data/feature-merge/phase8.json).
 
 **Likely files:** `README.md`, `docs/solver-control.md` (new), `docs/wind-comfort.md`, `docs/wind-profiles.md`, `docs/precision-and-horizontal-verification.md`, `QES_TURBULENCE.md`, `SOLVER_CONTROL_REFACTOR.md`, `docs/solver-control-s4.md`, `docs/solver-control-s7.md`, `docs/solver-control-s9.md`.
 

@@ -1,5 +1,7 @@
 # Solver-control release closure
 
+> Historical stage report: original snippets and identities are preserved. Use the current [migration table](../README.md#api-migration) and [solver guide](solver-control.md) for live calls.
+
 The solver-control refactor closes within the **qualified pedestrian numerical
 scope**, with legacy/bounded compatibility retained. This is not a claim of
 general urban accuracy, physical validation, grid independence or regulatory
