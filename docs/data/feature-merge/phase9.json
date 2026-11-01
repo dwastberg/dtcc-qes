@@ -1,0 +1,511 @@
+{
+  "status": "Phase 9 complete; combined feature plan complete",
+  "passed": true,
+  "baseline_commit": "b3cbdc45d0c01b30e3146ed8debe0cd28fbeb0e1",
+  "implementation_commit": "0bb7bc1",
+  "baseline_native_revision": "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+  "native_revision": "b26d15fdddf75e672f0bf6f9594e6789c9ae49fe5df49c4153001368591df074",
+  "native_configuration": "AppleClang:17.0.0.17000404:Release::-O3 -DNDEBUG:fp=on",
+  "lock_sha256": "e452a3a5d59a9a0fd09685aaaef6d87fcd955750a8408e4883096acd6deb632f",
+  "changes": [
+    "Shared float32 turbulence reference/margin/constant-tail helpers; unchanged numerical arrays and numerics version",
+    "One native preflight and runtime predicate with shared coordinate narrowing, ordered deduplicated full exclusions, and provisional actual thread checks",
+    "Always-on native timings for all modes; shared native method ids; no legacy control record",
+    "Private pure-C++ monotonic test clock verifies exact completed work, deadlines, convergence and turbulence",
+    "Public wind.run turbulence benchmark with truthful timer scopes and unavailable intermediate memory snapshots",
+    "Existing frozen policy compatibility procedure generalized; production qualification promoted only after isolated artifact and runtime gates"
+  ],
+  "verification": {
+    "python_tests": {
+      "serial": {
+        "passed": 1567,
+        "skipped": 16,
+        "seconds": 77.77,
+        "path": "build/feature-merge-baseline/phase9-serial-tests.log",
+        "sha256": "150b69ab937bd891f2afcf85b63395f8dfd436f1fc2c12ecdcba1d3b5e60a286"
+      },
+      "openmp": {
+        "passed": 1567,
+        "skipped": 16,
+        "seconds": 77.57,
+        "path": "build/feature-merge-baseline/phase9-openmp-tests.log",
+        "sha256": "4e609776337e595980b0bfef47f434ff060b88acb9d3f91ce2a69b8dfe23b302"
+      }
+    },
+    "native": {
+      "serial": {
+        "passed": 47,
+        "symbol_audit": "termination, console, file_io, io_libraries; 11 inputs",
+        "path": "build/feature-merge-baseline/phase9-validation/native-serial-final.log",
+        "sha256": "85df4a0b7cd8bb0db070b9a4306801bc9a950c2fa48a70d363336bf3aebc2afc"
+      },
+      "openmp": {
+        "passed": 50,
+        "symbol_audit": "termination, console, file_io, io_libraries; 11 inputs",
+        "path": "build/feature-merge-baseline/phase9-validation/native-openmp-final.log",
+        "sha256": "85644abb9ed7f1fcf596216a28219229896906694e0e9a7ba6e5640c531cbe14"
+      },
+      "sanitizers": {
+        "passed": 47,
+        "symbol_audit": "termination, console, file_io, io_libraries; 11 inputs",
+        "path": "build/feature-merge-baseline/phase9-validation/native-sanitizers-final.log",
+        "sha256": "77d4339818c96f361628e5507b8062a1089f6cb12dbfee4f86f2d131527de972"
+      }
+    },
+    "frozen_workers": 24,
+    "native_comparison": {
+      "baseline_revision": "b3cbdc45d0c01b30e3146ed8debe0cd28fbeb0e1",
+      "candidate": "worktree",
+      "allow_added_contraction": false,
+      "ordering_migration": false,
+      "comparisons": [
+        {
+          "kind": "revision",
+          "backend": "openmp",
+          "threads": 1,
+          "cases": 429,
+          "records": 4751,
+          "differences": [],
+          "required": true
+        },
+        {
+          "kind": "revision",
+          "backend": "openmp",
+          "threads": 2,
+          "cases": 429,
+          "records": 4751,
+          "differences": [],
+          "required": true
+        },
+        {
+          "kind": "revision",
+          "backend": "openmp",
+          "threads": 4,
+          "cases": 429,
+          "records": 4751,
+          "differences": [],
+          "required": true
+        },
+        {
+          "kind": "revision",
+          "backend": "openmp",
+          "threads": 8,
+          "cases": 429,
+          "records": 4751,
+          "differences": [],
+          "required": true
+        },
+        {
+          "kind": "team",
+          "threads": [
+            1,
+            2
+          ],
+          "records": 4751,
+          "differences": []
+        },
+        {
+          "kind": "team",
+          "threads": [
+            1,
+            4
+          ],
+          "records": 4751,
+          "differences": []
+        },
+        {
+          "kind": "team",
+          "threads": [
+            1,
+            8
+          ],
+          "records": 4751,
+          "differences": []
+        },
+        {
+          "kind": "revision",
+          "backend": "serial",
+          "threads": 1,
+          "cases": 429,
+          "records": 4751,
+          "differences": [],
+          "required": true
+        },
+        {
+          "kind": "backend",
+          "threads": 1,
+          "records": 4751,
+          "differences": [],
+          "required": true
+        },
+        {
+          "kind": "backend",
+          "threads": 2,
+          "records": 4751,
+          "differences": [],
+          "required": true
+        },
+        {
+          "kind": "backend",
+          "threads": 4,
+          "records": 4751,
+          "differences": [],
+          "required": true
+        },
+        {
+          "kind": "backend",
+          "threads": 8,
+          "records": 4751,
+          "differences": [],
+          "required": true
+        }
+      ],
+      "native_consolidation": true,
+      "identity_pair": [
+        "5c0ebc92529d30524fc8ffddd84514b50da01c89617c5b199cefba0e4b94a3ea",
+        "b26d15fdddf75e672f0bf6f9594e6789c9ae49fe5df49c4153001368591df074"
+      ],
+      "passed": true
+    },
+    "combined_baseline": {
+      "nonadaptive_cases": 27,
+      "adaptive_cases": 4,
+      "bitwise_arrays": true,
+      "exact_work_and_decisions": true,
+      "differences": []
+    },
+    "deterministic_deadline_tests": "zero, one, two and three completed sweeps; convergence-at-deadline, failure precedence and bitwise turbulence",
+    "exclusions": "build/profile/actual 8-thread team/precision/turbulence/grid/geometry/observables, native order and no preparation for strict known failures",
+    "metadata_migrations": [
+      "explicit expected identity pair",
+      "native support flag",
+      "new legacy native clocks",
+      "new native full exclusion lists"
+    ],
+    "turbulence_numerics_version": "dtcc-qes-turbulence-v1",
+    "development_environment": {
+      "import_identity": {
+        "package": "/Users/dagwastberg/repos/dtcc/dtcc-qes/src/dtcc_qes/__init__.py",
+        "extension": "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/dtcc_qes/_qes.cpython-313-darwin.so",
+        "native_revision": "b26d15fdddf75e672f0bf6f9594e6789c9ae49fe5df49c4153001368591df074",
+        "supported": true
+      },
+      "passed": 1567,
+      "skipped": 16,
+      "seconds": 72.61,
+      "path": "build/feature-merge-baseline/phase9-development-tests.log",
+      "sha256": "b8ce132bae8687fdcf7eaf618e13c0299eb5741089a10417bfabfd1677e222b2"
+    }
+  },
+  "cost_review": {
+    "rule": "Investigate median regression exceeding both 10 percent and 0.01 seconds; report all observations and range",
+    "measurements": {
+      "wind-only": {
+        "baseline_seconds": 0.0057721249759197235,
+        "candidate_seconds": 0.0053204579744488,
+        "ratio": 0.9217503080139121,
+        "delta_seconds": -0.0004516670014709234,
+        "needs_review": false,
+        "observations": {
+          "work": {
+            "request": {
+              "id": "scalar",
+              "profile": "scalar",
+              "grid": "uniform",
+              "mode": "legacy",
+              "precision": "float32",
+              "turbulence": null
+            },
+            "shape": [
+              32,
+              40,
+              40
+            ],
+            "iterations": 30,
+            "diagnostics": {
+              "iterations": 30,
+              "max_lagrange_multiplier_change": 0.04438591003417969,
+              "tolerance": 9.999999747378752e-06,
+              "converged": false,
+              "max_divergence": 0.016425609588623047,
+              "rms_divergence": 0.004557330673784753,
+              "top_band_max_divergence": 0.004350582137703896,
+              "divergence_cell_count": 43120,
+              "top_band_cell_count": 1444,
+              "precision": "float32"
+            }
+          },
+          "seconds": [
+            0.005291790992487222,
+            0.00578608299838379,
+            0.0053204579744488,
+            0.005085582961328328,
+            0.005432749981991947
+          ],
+          "median_seconds": 0.0053204579744488,
+          "minimum_seconds": 0.005085582961328328,
+          "maximum_seconds": 0.00578608299838379
+        }
+      },
+      "combined": {
+        "baseline_seconds": 0.026221042033284903,
+        "candidate_seconds": 0.02493641700129956,
+        "ratio": 0.9510078573401224,
+        "delta_seconds": -0.0012846250319853425,
+        "needs_review": false,
+        "observations": {
+          "work": {
+            "request": {
+              "id": "cost-combined",
+              "profile": "turning",
+              "grid": "uniform",
+              "mode": "bounded",
+              "precision": "float32",
+              "turbulence": "height"
+            },
+            "shape": [
+              32,
+              40,
+              40
+            ],
+            "iterations": 30,
+            "diagnostics": {
+              "iterations": 30,
+              "max_lagrange_multiplier_change": 0.06592845916748047,
+              "tolerance": 9.999999747378752e-06,
+              "converged": false,
+              "max_divergence": 0.025478124618530273,
+              "rms_divergence": 0.006658473980521753,
+              "top_band_max_divergence": 0.004109636414796114,
+              "divergence_cell_count": 43120,
+              "top_band_cell_count": 1444,
+              "precision": "float32"
+            }
+          },
+          "seconds": [
+            0.02533779200166464,
+            0.024118541972711682,
+            0.02500429202336818,
+            0.02476441697217524,
+            0.02493641700129956
+          ],
+          "median_seconds": 0.02493641700129956,
+          "minimum_seconds": 0.024118541972711682,
+          "maximum_seconds": 0.02533779200166464
+        }
+      },
+      "export": {
+        "baseline_seconds": 0.04618454200681299,
+        "candidate_seconds": 0.02484133403049782,
+        "ratio": 0.5378711783443324,
+        "delta_seconds": -0.02134320797631517,
+        "needs_review": false,
+        "observations": {
+          "work": {
+            "request": {
+              "id": "cost-combined",
+              "profile": "turning",
+              "grid": "uniform",
+              "mode": "bounded",
+              "precision": "float32",
+              "turbulence": "height"
+            },
+            "shape": [
+              32,
+              40,
+              40
+            ],
+            "iterations": 30,
+            "diagnostics": {
+              "iterations": 30,
+              "max_lagrange_multiplier_change": 0.06592845916748047,
+              "tolerance": 9.999999747378752e-06,
+              "converged": false,
+              "max_divergence": 0.025478124618530273,
+              "rms_divergence": 0.006658473980521753,
+              "top_band_max_divergence": 0.004109636414796114,
+              "divergence_cell_count": 43120,
+              "top_band_cell_count": 1444,
+              "precision": "float32"
+            },
+            "outputs": [
+              "velocity",
+              "speed",
+              "cell_flags",
+              "speedup",
+              "stress",
+              "tke",
+              "streamwise_std",
+              "turbulence_intensity",
+              "stress_valid"
+            ]
+          },
+          "seconds": [
+            0.025181124976370484,
+            0.02566387498518452,
+            0.02483770903199911,
+            0.02484133403049782,
+            0.024584750004578382
+          ],
+          "median_seconds": 0.02484133403049782,
+          "minimum_seconds": 0.024584750004578382,
+          "maximum_seconds": 0.02566387498518452
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "isolated": {
+      "smoke": {
+        "passed": true,
+        "package": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/feature-merge-baseline/phase9-validation/isolated-installed",
+        "module": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/feature-merge-baseline/phase9-validation/isolated-installed/dtcc_qes/_qes.cpython-313-darwin.so",
+        "policy_revision": "b26d15fdddf75e672f0bf6f9594e6789c9ae49fe5df49c4153001368591df074",
+        "adaptive_accepted": true,
+        "actual_threads": 2,
+        "checks": [
+          "owned_output",
+          "sampling",
+          "adaptive_vs_legacy_status",
+          "derived_qualification",
+          "nested_timings",
+          "history_bounds",
+          "float64",
+          "two_turbulence_methods",
+          "zero_work_error",
+          "canonical_footprints_with_partition_hole"
+        ]
+      },
+      "audit": {
+        "path": "build/feature-merge-baseline/phase9-validation/isolated-wheel.log",
+        "sha256": "534f9405bb177d4d24a4c82ed08dcb16e9c224057d40ac40b2360d06b307242e"
+      },
+      "files": [
+        {
+          "path": "build/feature-merge-baseline/phase9-validation/isolated-artifacts/dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl",
+          "sha256": "a7ef1cb6429096945e9aa954bbc140ffd75f7a2dd1c948f6ac578ea5a6c694fe"
+        },
+        {
+          "path": "build/feature-merge-baseline/phase9-validation/isolated-artifacts/dtcc_qes-0.1.0b1.tar.gz",
+          "sha256": "74491dff068926761fb90f0bad47e5fedc6f5dcaf554b44827e46ebc11be4fba"
+        }
+      ]
+    },
+    "production": {
+      "smoke": {
+        "passed": true,
+        "package": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/feature-merge-baseline/phase9-validation/production-installed",
+        "module": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/feature-merge-baseline/phase9-validation/production-installed/dtcc_qes/_qes.cpython-313-darwin.so",
+        "policy_revision": "b26d15fdddf75e672f0bf6f9594e6789c9ae49fe5df49c4153001368591df074",
+        "adaptive_accepted": true,
+        "actual_threads": 2,
+        "checks": [
+          "owned_output",
+          "sampling",
+          "adaptive_vs_legacy_status",
+          "derived_qualification",
+          "nested_timings",
+          "history_bounds",
+          "float64",
+          "two_turbulence_methods",
+          "zero_work_error",
+          "canonical_footprints_with_partition_hole"
+        ]
+      },
+      "audit": {
+        "path": "build/feature-merge-baseline/phase9-validation/production-wheel.log",
+        "sha256": "b1f3397a90ca78bf2797bc8fbe3e468ef9777aa976ffccda9f1e1043f63d95d3"
+      },
+      "files": [
+        {
+          "path": "build/feature-merge-baseline/phase9-validation/production-artifacts/dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl",
+          "sha256": "1c0e90b1372678a8502b47f1ecdf3729ab40681478db2be7dcb0affce9411bf0"
+        },
+        {
+          "path": "build/feature-merge-baseline/phase9-validation/production-artifacts/dtcc_qes-0.1.0b1.tar.gz",
+          "sha256": "597dd593e24b28718abef334ec77f35bda661c1347cecc90272c94106e132345"
+        }
+      ]
+    }
+  },
+  "reproducibility": {
+    "procedure": "docs/solver-control-requalification.md",
+    "frozen_source": {
+      "path": "build/feature-merge-baseline/phase9-validation/frozen-source.json",
+      "sha256": "eb7426b9c78013a6225e2c1b1357f6c24806c5866019b08b4c20f2a5fdfc55ef"
+    },
+    "policy": {
+      "path": "build/feature-merge-baseline/phase9-policy/summary.json",
+      "sha256": "f3e51fdbd1099005feb3ccc97b622efd1b40a98603a3d004474bb6743201f6b0"
+    },
+    "comparison": {
+      "path": "build/feature-merge-baseline/phase9-validation/native-comparison.json",
+      "sha256": "5f8147658e4b1ad7a9f14e7f9cb6cc3a77e6b97ced26f630a2cddbcbb7fae317"
+    },
+    "exact_array_storage": {
+      "path": "build/feature-merge-baseline/phase9-validation/compare-native/results/lossless-storage-compression.json",
+      "sha256": "4a9ef176252f6e0789c35f8ead48935bfbd0c5fd5ebe2186bc1a28363a223895"
+    },
+    "retained_validation_directory": "build/feature-merge-baseline/phase9-validation"
+  },
+  "source_index": {
+    ".gitignore": "11bb72dda0206f3d733d70d3a4908aa5bd6fde366d8bfe89466dd062eac39c17",
+    "COMBINED_FEATURE_PLAN.md": "787889212b8d132e034003cfe035e29d7a19523f5a33b936fd9b22fb3a5c148c",
+    "README.md": "75b5d6c11f21e65970c293ff3bafc1f1b8546dd5a12a68074aba9092cad7fba2",
+    "docs/solver-control-requalification.md": "95e0c6659117bdceeab9efd2d13a21bd38ce47bb4080e27874da28f7ad102d51",
+    "docs/solver-control.md": "0b744f3ad84d2088af1248a3d58d897f17ebdaebd7d5fcf6aac9ae772e14dfc1",
+    "docs/turbulence-benchmark.md": "20810476086139caf803a63896a8104240524bd96c372351ef97b739743c4b12",
+    "docs/wind-profiles-verification.md": "4cf64bf8af2faf59fba32ac9ad7ee8a34063e0ecbf699f958f45a6eab342f10e",
+    "src/cpp/bindings.cpp": "522a501ad7c0451259d6313cf7cf75e2025aa39fdf81642c03ee873e4227cd73",
+    "src/cpp/control_bindings.h": "4279254866a65836f12da4325e0ef7bb7e9c1201ceb562b57548f4075cb2d1f1",
+    "src/dtcc_qes/_turbulence_domain.py": "c5eeeaa3b3cc0625317a7bc69d2766840f6785b8325b4437ceeec720279001d2",
+    "src/dtcc_qes/result.py": "7844242298a761c83e22dc032fa9d112bb79b6ba984eb0d35677d42349d410dc",
+    "src/dtcc_qes/solver_control.py": "e0243d46bf0c153eca66cc4de9e0a161f9b38af5008e9e179d60ed9b824cba05",
+    "src/dtcc_qes/vertical_grid.py": "e04e81434bfe6011f057411dbbfa6892f7bbfc4dc224b06405fdd9923e243786",
+    "src/dtcc_qes/wind.py": "444cf52c6faf786227637626fec5e30bfb5e7f58e1f0f7f5c5fa46aaf371c5dd",
+    "src/qes_core/CMakeLists.txt": "036b7f7183c68eba1a373fa0a950cc78b8632b31f5f2e95fbfa891fe8d444d27",
+    "src/qes_core/PROVENANCE.md": "caf8cd8c5080f22caf1765750611417d7b28711d4f2dd0d75021178d4a191d3e",
+    "src/qes_core/dtcc/api/control_types.h": "142eceab61aa33f7a48df7e296404a0a7bf0a69c9eac5450fdb086e70992e606",
+    "src/qes_core/dtcc/api/policy_types.h": "4ea915fee4c6a2b1a5ac4af1e8b81547f9cda3f43e0d6182f37e3b2227990a69",
+    "src/qes_core/dtcc/api/preflight.h": "7ea2403e881dc3638663ea31b3ba85c058d30bc54beb2dd99fc2123154b19014",
+    "src/qes_core/dtcc/api/turbulence_reference.h": "93c92144657802bb7c7e49be4c3f76f6a04d327e116cc06e4a87afbb756145fb",
+    "src/qes_core/dtcc/api/wind_config.h": "6c4809592046cdb6bebeaa8c32ce2893fa422df8324f7db29e81bacfe927a523",
+    "src/qes_core/dtcc/pedestrian_policy.cpp": "2020129cfc36019f408b439f3620b64ebcb07465147b6ff9e96bbd4050879e7f",
+    "src/qes_core/dtcc/pedestrian_policy.h": "a69f40068e30634e92f2211ca9ab1f1868a78e2ffe76a316a1b5d59edf884255",
+    "src/qes_core/dtcc/solver_control.cpp": "52d7d1df899151922d842c3323d620285139824839d284568de9d795473c4d93",
+    "src/qes_core/dtcc/solver_control.h": "d82695bd5a6cb6f2b6e60fc224b3255f237f2463e51b1a180f31a2b1a8cf7c7a",
+    "src/qes_core/dtcc/turbulence.cpp": "2c45a8310aa9f1cda5159be4a33d14422627cf1e46ee17af0e4cbce19033c973",
+    "src/qes_core/dtcc/turbulence_reference.cpp": "7508ef83e541dd8c9f9800ad3dfd8129c54272cfdbd25e25d8cd21b7a3190e1e",
+    "src/qes_core/dtcc/wind_runner.cpp": "93cb8a0b85ea1183de97ae62f78bec067598030063af5c46c96429c84e24e3e1",
+    "src/qes_core/winds/TURBGeneralData.cpp": "8a69bb542d9cf1d90fcda70c9e1d2d885d930253b01d8f68e061595570fa6c8b",
+    "tests/fixtures/condition_state.py": "13cf86003ef92e1744ab0c39a23fb61add25a8c6d93ab2dcc0dcc6aff31c1f46",
+    "tests/native/check_pedestrian_policy.cpp": "18211d7065a216fe13662694f041774824a8732a2abf2369a6b02b5fcd2bed4e",
+    "tests/test_compare_native_builds.py": "751c0ef22a56a7a16ef28610b8be6512b282d8e654c54454de7549fbe0a3c733",
+    "tests/test_datasets.py": "ba6106fdcda5d08fa1217c64274ab38b2855b4ba4105e05bbf88dddf55a23864",
+    "tests/test_feature_merge_baseline.py": "756fd8c3bc92f9f64581e080959da365cd9881590013f6d47ec6f7927b4a60dc",
+    "tests/test_native_deadlines.py": "453f8d47b489f088eab73cd14a625d6b87692e1e91d71a815d2a971446cec080",
+    "tests/test_native_preflight.py": "5d78713622e121279ff24c24b5d9c4c68701d950ec191d370f3195b207b1489a",
+    "tests/test_native_turbulence_planning.py": "572eda60f11658b063bc74675351243c97e1f7d82e7619f502373c856c5af923",
+    "tests/test_phase1_contract.py": "4dff6873993aa2609644e80c046a8cc620b956613581eaa32a5c307b01dc3d84",
+    "tests/test_qualification.py": "bd14fe040e2acef8c446775547a6b56e685d57619ec2f6b422903b45123f4a45",
+    "tests/test_solver_spec.py": "b53ab47f6d9bfd057e250a642d6e837aed3c691bcd3c8845a45869200bacf459",
+    "tests/test_turbulence_benchmark.py": "6036fda37e324078195356e432e416cab10da8255ff47dbb901414c43ad4075c",
+    "tools/check_artifacts.py": "c03e4eb1bfe105f812844e08a64573b1e621ec1d092f2abbe1b2da370fda77bf",
+    "tools/check_policy_compatibility.py": "d5efc0f4975ae3bec07b393225454dd1ac8695b973b257ac8c37706a82d5a072",
+    "tools/compare_native_builds.py": "f663708ebff11914a97c95ad4161fa071bb1176d59915f63040cf4ba772db8bc",
+    "tools/feature_merge_baseline.py": "8c1036b88081dff249baad941a2008e0fef2c7885cccb212df8b0d1e5f938cc7",
+    "tools/run_turbulence_benchmark.py": "36cc119d91ed2bb4b40aeb86848143d8333b4f02b09fa498148de161eb831519",
+    "src/qes_core/dtcc/pedestrian_qualification.h": "04654a5543658eafdd889947351ad7483f3d4fdb7189aeb0dd7159cf12353856"
+  },
+  "corrections": [
+    "Initial repeated-state assertions compared newly introduced elapsed times; durations now validated while all numerical fields remain bitwise compared",
+    "Preview signature assertion updated for the planned optional solver parameter; 8-thread test uses the unchanged native unqualified_thread_team reason",
+    "Native symbol audit correctly targets QES archives and bridge objects; extension-only nanobind console symbols are outside that audit",
+    "Wheel build uses installed Unix Makefiles; local wheel installation needed access to uv cache"
+  ],
+  "user_work_preserved": [
+    "pyproject.toml validate dependencies",
+    "uv.lock corresponding dependencies",
+    "untracked validation/"
+  ]
+}

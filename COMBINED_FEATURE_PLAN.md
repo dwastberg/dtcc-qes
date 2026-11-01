@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-31
 - **Reviewed source revision:** `3ae4157ca2ce9dcca90a113a71b8f7651d873b37`
-- **Status:** Phases 0–8 complete; Phase 9 qualification in progress. The user authorized preserving the footprint changes at `889c629` and first requalifying that revision in isolation. That prerequisite passed. Phase 1 implemented the unified specifications, public API, computed-top bounds and caller migration. Phase 2 resolves canonical profiles, builds one shared record for all four families, keeps Log native/analytic, validates its representability in the constructor, and removes condition/effective-condition metadata and fallbacks. Grid-only preview records unknown inflow without fabricating a calm profile. Phase 3 derives qualification from authoritative execution evidence, adds profile-aware grid diagnostics and height attribution, and reports nested timings without changing native computation. Requalification evidence: [head-requalification.json](docs/data/feature-merge/head-requalification.json). Baseline: [phase0.json](docs/data/feature-merge/phase0.json). Phase 1 checkpoints: [phase1a.json](docs/data/feature-merge/phase1a.json), [phase1b.json](docs/data/feature-merge/phase1b.json), [phase1c.json](docs/data/feature-merge/phase1c.json). Phase 2 verification: [phase2.json](docs/data/feature-merge/phase2.json). Phase 3 verification: [phase3.json](docs/data/feature-merge/phase3.json). Incorporates [COMBINED_FEATURE_PLAN_REVIEW.md](COMBINED_FEATURE_PLAN_REVIEW.md) and the final integration corrections in §9.
+- **Status:** All phases 0–9 complete. Phase 9 requalification and release artifact gates passed; see [phase9.json](docs/data/feature-merge/phase9.json). The user authorized preserving the footprint changes at `889c629` and first requalifying that revision in isolation. That prerequisite passed. Phase 1 implemented the unified specifications, public API, computed-top bounds and caller migration. Phase 2 resolves canonical profiles, builds one shared record for all four families, keeps Log native/analytic, validates its representability in the constructor, and removes condition/effective-condition metadata and fallbacks. Grid-only preview records unknown inflow without fabricating a calm profile. Phase 3 derives qualification from authoritative execution evidence, adds profile-aware grid diagnostics and height attribution, and reports nested timings without changing native computation. Requalification evidence: [head-requalification.json](docs/data/feature-merge/head-requalification.json). Baseline: [phase0.json](docs/data/feature-merge/phase0.json). Phase 1 checkpoints: [phase1a.json](docs/data/feature-merge/phase1a.json), [phase1b.json](docs/data/feature-merge/phase1b.json), [phase1c.json](docs/data/feature-merge/phase1c.json). Phase 2 verification: [phase2.json](docs/data/feature-merge/phase2.json). Phase 3 verification: [phase3.json](docs/data/feature-merge/phase3.json). Incorporates [COMBINED_FEATURE_PLAN_REVIEW.md](COMBINED_FEATURE_PLAN_REVIEW.md) and the final integration corrections in §9.
 - **Lineage:** Synthesizes [CLAUDE_FEATURE_MERGE_PLAN.md](CLAUDE_FEATURE_MERGE_PLAN.md) (concrete API signatures, schemas, Python-first/native-last phase sequencing, and migration inventory) with [ASTRA_FEATURE_MERGE_PLAN.md](ASTRA_FEATURE_MERGE_PLAN.md) (5-way status separation, 4-state numerical assessment, failure precedence, explicit exposure-transfer laws, mean-only + GEM provenance, and isolated native candidate re-qualification).
 
 ---
@@ -648,6 +648,21 @@ result.qualification == {
 
 ### Phase 9 — Native C++ consolidation and isolated candidate re-qualification
 
+**Implementation status:** Complete. Shared turbulence arithmetic retains bitwise
+parity; native preflight and runtime share narrowing and ordered full exclusions;
+all execution modes report native clocks; the benchmark uses public `wind.run`;
+and pure-C++ scripted clocks cover exact completed-work deadlines. Fresh native
+checks pass: 47 serial, 50 OpenMP, 47 ASan/UBSan, plus symbol audits. The 429-case
+comparison passes for serial and OpenMP teams 1/2/4/8 with required backend
+parity. All 24 frozen S7 workers and 31 combined cases match exactly. Both
+isolated Python suites and the rebuilt development environment pass 1,567 tests
+(16 skipped), with warnings as errors. Isolated and production sdists/wheels
+pass artifact and installed-runtime checks with adaptive acceptance active.
+Only then was the qualified revision promoted to `b26d15fdddf7…`. Repeated
+wind-only, combined and export costs remain within the predeclared review rule.
+See [phase9.json](docs/data/feature-merge/phase9.json) and the
+[requalification procedure](docs/solver-control-requalification.md).
+
 **Likely files:** `src/qes_core/dtcc/turbulence_reference.{h,cpp}` (new), `src/qes_core/dtcc/turbulence.cpp`, `src/qes_core/winds/TURBGeneralData.cpp`, `src/qes_core/dtcc/pedestrian_policy.{h,cpp}`, `src/qes_core/dtcc/wind_runner.{h,cpp}`, `src/qes_core/dtcc/api/*`, `src/cpp/bindings.cpp`, `src/qes_core/CMakeLists.txt`, `src/dtcc_qes/_turbulence_domain.py`, `src/qes_core/dtcc/pedestrian_qualification.h`, `tools/check_wind_profile_policy.py` (renamed to `tools/check_policy_compatibility.py`), `docs/solver-control-requalification.md` (new), `docs/wind-profiles-verification.md`, `src/qes_core/dtcc/model_inputs.cpp`, `src/qes_core/dtcc/api/policy_types.h`, `src/qes_core/dtcc/solver_control.cpp`, `src/dtcc_qes/wind.py`, `src/dtcc_qes/vertical_grid.py` (`GridPreview.eligibility`), `README.md`, `docs/solver-control.md`.
 
 1. **Single authoritative C++ turbulence-domain helper (`turbulence_reference.{h,cpp}`):**
@@ -705,16 +720,6 @@ result.qualification == {
 **Gate:** All native CTest suites (including sanitizers and symbol checks), the existing 429-case native comparison matrix plus new feature cases (exact parity for unchanged arithmetic; independently justified and explicitly scoped numerical deltas only), all 24 frozen S7 adaptive policy workers, wheel-from-sdist smoke checks, and the full Python test suite pass with adaptive acceptance active on the new `solver_policy_revision`. The README and `docs/solver-control.md` describe preflight eligibility and full exclusion lists.
 
 ---
-
-Phase 9 verification checkpoint (2026-11-01): native consolidation, shared
-preflight/full exclusions, always-on clocks and deterministic test clock are
-implemented. Fresh serial/OpenMP/sanitizer CTest and native symbol audits pass.
-The 429-case Phase 8 comparison passes exactly in both backends (OpenMP teams
-1/2/4/8), including required backend parity; all 27 non-adaptive combined cases
-also match. All 24 frozen S7 workers and all four adaptive combined cases now pass in
-isolation. Both full Python suites pass 1,567 tests (16 skipped) with warnings
-as errors. Production qualification remains unchanged pending isolated
-sdist/wheel, installation and smoke checks.
 
 ## 6. Validation matrix and required invariants
 
