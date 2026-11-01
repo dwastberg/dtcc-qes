@@ -4,6 +4,7 @@ Builds are verified through the urban campaign cache. All study workers run
 sequentially with 30s worker / 180s six-worker-shard limits. No automatic retries.
 """
 from __future__ import annotations
+from dataclasses import replace
 import argparse
 from dataclasses import asdict
 import hashlib
@@ -76,21 +77,21 @@ def worker(out,request):
     spec=json.loads((out/f"{request['case']}.json").read_text());city=cases.city(spec)
     # Small warmup outside API clock, matching the public urban campaigns.
     from dtcc_core.model import City
-    wind.run(City(),5,270,bounds=(0,0,0,20,20,20),resolution=2,max_iterations=2)
-    opts=urban.frozen_options(spec,wind);opts.update(max_iterations=request['iterations'],solver_precision='float32')
+    wind.run(City(), bounds=(0,0,0,20,20,20), resolution=2, solver=wind.Solver(max_iterations=2), speed=5, direction=270)
+    opts=urban.frozen_options(spec,wind);opts.update(solver=wind.Solver(max_iterations=request['iterations']))
     if request['mode']=='bounded':
         monitor=wind.MonitorSpec(tuple(spec['roi']),heights=(1.5,1.75),history_limit=16,
             receptors=tuple(wind.Receptor(f'r{i}-h{h}',x,y,h) for h in (1.5,1.75) for i,(x,y) in enumerate(spec['receptors'])))
-        opts['solver_control']=wind.SolverControl(request.get('seconds',20),monitor,checkpoint_interval=request['cadence'],residual_interval=0)
+        opts['solver']=replace(opts['solver'],max_solve_seconds=request.get('seconds',20),monitor=monitor,checkpoint_interval=request['cadence'])
     started=time.perf_counter();cpu_started=time.process_time()
     try:
-        value=wind.run(city,5,225,**opts)
+        value=wind.run(city, **opts, speed=5, direction=225)
     except RuntimeError as error:
         if not hasattr(error,'record'):raise
         write(out/f"{request['id']}.json",dict(status='zero_work',request=request,actual_threads=actual,
             api_seconds=time.perf_counter()-started,control=error.record));return
     api=time.perf_counter()-started
-    control=value.metadata.get('solver_control')
+    control=value.solver['record']
     if control and control['accuracy_status']!='not_assessed':raise ValueError('Bounded output claims accuracy')
     hashes={name:hashlib.sha256(memoryview(getattr(value,name)).cast('B')).hexdigest() for name in ['velocity','cell_flags','x','y','z','z_faces']}
     arrays={};points=[]

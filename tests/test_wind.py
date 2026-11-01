@@ -72,8 +72,7 @@ def test_limits_checked_before_native_allocation(monkeypatch):
 
 def test_nonconvergence_warns_by_default(caplog):
     city, condition, grid, _ = city_case(ONE_BUILDING)
-    result = wind.run(city, **condition, **grid,
-                      max_iterations=1)
+    result = wind.run(city, **condition, **grid, solver=wind.Solver(max_iterations=1))
     assert not result.diagnostics.converged and result.diagnostics.iterations == 1
     assert result.velocity.shape == result.cell_flags.shape + (3,)
     assert np.isfinite(result.velocity).all()
@@ -87,8 +86,7 @@ def test_nonconvergence_warns_by_default(caplog):
 def test_nonconvergence_can_explicitly_raise():
     city, condition, grid, _ = city_case(ONE_BUILDING)
     with pytest.raises(wind.ConvergenceError, match="maximum Lagrange multiplier change") as caught:
-        wind.run(city, **condition, **grid,
-                 max_iterations=1, raise_on_nonconvergence=True)
+        wind.run(city, **condition, **grid, solver=wind.Solver(max_iterations=1, raise_on_failure=True))
     assert not caught.value.diagnostics.converged
 
 
@@ -115,8 +113,7 @@ def test_retained_convergence_exception_does_not_retain_native_domain(monkeypatc
     monkeypatch.setattr(_qes, "WindRunner", TrackedRunner)
     city, condition, grid, _ = city_case(ONE_BUILDING)
     with pytest.raises(wind.ConvergenceError) as retained:
-        wind.run(city, **condition, **grid,
-                 max_iterations=1, raise_on_nonconvergence=True)
+        wind.run(city, **condition, **grid, solver=wind.Solver(max_iterations=1, raise_on_failure=True))
     assert retained.value.diagnostics.iterations == 1
     assert not active
 
@@ -147,7 +144,16 @@ def test_options_reject_invalid_values_before_native_allocation(options, monkeyp
     monkeypatch.setattr(_qes, "WindRunner", lambda: pytest.fail("Native allocation occurred"))
     city, condition, grid, _ = city_case(ONE_BUILDING)
     with pytest.raises(ValueError):
-        wind.run(city, **(condition | grid | options))
+        solver_options = {k:options[k] for k in ("tolerance", "max_iterations", "raise_on_nonconvergence") if k in options}
+        if "raise_on_nonconvergence" in solver_options:
+            solver_options["raise_on_failure"] = solver_options.pop("raise_on_nonconvergence")
+        remaining = {k:v for k,v in options.items() if k not in ("tolerance", "max_iterations", "raise_on_nonconvergence")}
+        profile_options = dict(speed=condition["profile"].speed, direction=condition["profile"].direction,
+                               reference_height=condition["profile"].reference_height, roughness_length=condition["profile"].roughness_length)
+        for key in tuple(remaining):
+            if key in profile_options:
+                profile_options[key] = remaining.pop(key)
+        wind.run(city, wind.LogProfile(**profile_options), **(grid | remaining), solver=wind.Solver(**solver_options))
 
 
 def test_bounds_are_snapshotted_without_mutating_the_input():
@@ -180,7 +186,7 @@ for repeat in range(3):
     else:
         raise AssertionError('Missing height validation')
     city.buildings[0].measured_height = 8
-    result = wind.run(city, **condition, **grid, max_iterations=1)
+    result = wind.run(city, **condition, **grid, solver=wind.Solver(max_iterations=1))
     assert not result.diagnostics.converged
 assert wind.run(city, **condition, **grid).diagnostics.converged
 """

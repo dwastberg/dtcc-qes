@@ -1,10 +1,13 @@
 """Run canonical LOD0 DTCC buildings through the in-memory QES CPU solver."""
 
 from importlib.metadata import distribution
+from copy import deepcopy
+import time
 import json
 from dataclasses import replace
 import math
 from numbers import Integral
+from typing import Literal
 import numpy as np
 
 from dtcc_core.common import get_python_logger
@@ -16,16 +19,14 @@ from .result import ConvergenceError, SolveDiagnostics, TurbulenceFields, WindRe
 from .turbulence import Turbulence, _resolve_turbulence, _turbulence_metadata
 from .vertical_grid import GridPreview, VerticalGrid
 from .footprints import Footprints
-from .solver_control import (SolverControl, MonitorSpec, Receptor, MassRegion, BudgetExhaustedError,
+from .solver_control import (Solver, MonitorSpec, Receptor, MassRegion, BudgetExhaustedError,
                              NumericalFailureError, UnacceptedResultError)
 from .profiles import (LogProfile, MeasuredProfile, PowerLawProfile, UniformProfile,
-                       PROFILE_TYPES, profile_from_dict, evaluate, _layer_record)
-
-_UNSET = object()
+                       PROFILE_TYPES, profile_from_dict, evaluate, _profile_record)
 
 __all__ = ["run", "preview_grid", "WindResult", "WindSample", "GridPreview",
            "SolveDiagnostics", "ConvergenceError", "VerticalGrid", "Turbulence", "TurbulenceFields",
-           "SolverControl", "MonitorSpec", "Receptor", "MassRegion", "BudgetExhaustedError",
+           "Solver", "MonitorSpec", "Receptor", "MassRegion", "BudgetExhaustedError",
            "NumericalFailureError", "UnacceptedResultError",
            "LogProfile", "MeasuredProfile", "PowerLawProfile", "UniformProfile", "profile_from_dict", "evaluate", "Footprints"]
 
@@ -37,20 +38,21 @@ def _dtcc_version():
     return dict(version=installed.version, revision=details.get("vcs_info", {}).get("commit_id"))
 
 
-def run(city, speed=None, direction=None, *, reference_height=_UNSET,
-        roughness_length=_UNSET, profile=None,
-        resolution: float = 2.0, bounds=None,
+def run(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformProfile | None = None, *,
+        speed: float | None = None, direction: float | None = None,
+        resolution: float = 2.0,
+        bounds: Bounds | tuple[float, float, float, float, float, float | None] | None = None,
         horizontal_padding: float = 20.0, vertical_clearance: float = 20.0,
-        max_cells: int = 20_000_000, tolerance: float = 1e-5, max_iterations: int = 500,
-        raise_on_nonconvergence: bool = False, terrain=None, height_policy="measured",
-        vertical_grid: VerticalGrid | None = None, solver_precision: str = "float32",
-        turbulence: bool | Turbulence = False, solver_control: SolverControl | None = None,
-        raise_on_unaccepted: bool = False, footprints: Footprints | None = None) -> WindResult:
+        max_cells: int = 20_000_000, solver: Solver = Solver(),
+        terrain: Literal["flat"] | float | None = None,
+        height_policy: Literal["measured", "allow_estimated"] = "measured", vertical_grid: VerticalGrid | None = None,
+        turbulence: Turbulence | None = None, footprints: Footprints | None = None) -> WindResult:
     """Solve one explicit wind condition without modifying the source city.
 
-    Supply either legacy speed/direction scalars or an immutable ``profile=``.
-    Scalar speed/direction/reference height cannot be combined with a profile.
-    Non-log profiles use the run's roughness_length for ground and lower tails.
+    Supply an immutable profile as the second argument or via ``profile=``.
+    Keyword ``speed=`` and ``direction=`` construct LogProfile with default
+    reference height and roughness. They cannot be combined with a profile.
+    Each profile carries roughness_length for ground and measured lower tails.
     Measured vectors interpolate in log height by default (physical height is
     optional); out-of-range evaluation
     requires an explicit lower tail; the upper default holds the last vector.
@@ -65,36 +67,26 @@ def run(city, speed=None, direction=None, *, reference_height=_UNSET,
     its policy settings have not yet passed the C2 accuracy/cost study.
     Nonuniform results retain their coordinates and cannot be exported directly
     to DTCC's uniform VolumeGrid.
-    Bounds are DTCC Bounds or (xmin, ymin, zmin, xmax, ymax, zmax); upper edges
+    Bounds are DTCC Bounds or (xmin, ymin, zmin, xmax, ymax, zmax). A tuple
+    with zmax=None fixes x/y and ground while computing the top using the same
+    wind-only planning and turbulence extension as automatic bounds. Numeric
+    tops and explicit vertical faces remain fixed. Upper edges
     expand to whole cells horizontally. Automatic vertical grids fit the selected
     top before native coordinate rounding. Automatic bounds use at least three
     cells of padding.
-    Non-convergence logs a warning and returns the available result unless
-    raise_on_nonconvergence=True.
+    ``solver=Solver(...)`` owns tolerance, iterations, precision and failure
+    behavior. A budget plus MonitorSpec selects bounded native execution;
+    policy="pedestrian-v1" additionally requests adaptive numerical assessment.
+    Solver() retains the legacy tolerance/iteration stop. The cooperative budget
+    covers mutex wait, initialization and monitoring, with preparation and final
+    output/turbulence outside the solve budget. A zero-sweep deadline always
+    raises BudgetExhaustedError. Completed-work failures return the available
+    fields with a warning, or raise when solver.raise_on_failure is true.
+    result.solver records the specification, untouched native control record
+    (None in legacy mode) and execution environment separately. Acceptance and
+    legacy multiplier-change convergence remain independent.
 
-    ``solver_control=SolverControl(...)`` runs with a cooperative native solve
-    budget and bounded diagnostic history. It includes mutex wait and checks
-    every complete sweep. Preparation and required final output/turbulence are
-    timed separately. ``result.control`` records termination and overshoot;
-    bounded accuracy remains ``not_assessed``. No completed sweep raises
-    ``BudgetExhaustedError`` with phase/timing evidence.
-
-    ``SolverControl(..., mode='adaptive')`` opts into pedestrian-v1 on its
-    qualified small rectangular-building scope. It assesses the declared ROI
-    at 1.5/1.75 m and every required receptor, with independent mass/residual
-    safeguards. ``control['accepted']`` is separate from legacy ``converged``;
-    it does not qualify the full volume, turbulence or physical wind accuracy.
-    Unsupported configurations return bounded, unaccepted outputs. Set
-    ``raise_on_unaccepted=True`` to raise ``UnacceptedResultError`` instead of
-    warning. Adaptive mode rejects ``raise_on_nonconvergence=True`` and calm
-    wind. See docs/solver-control-s7.md for the versioned scope and limits.
-
-    ``solver_precision='float64'`` opts into double multiplier storage, RHS,
-    updates and face corrections. Geometry, coefficients and returned velocities
-    remain float32. Tolerance bounds follow the selected arithmetic precision;
-    convergence still measures multiplier change, not a residual guarantee.
-
-    ``turbulence=True`` also returns QES-Turb stresses, TKE, C0*epsilon and
+    ``turbulence=Turbulence()`` also returns QES-Turb stresses, TKE, C0*epsilon and
     mixing lengths. ``Turbulence(mixing_length='wall_distance')`` selects the
     qualified serial wall method; the provisional default is height. Automatic
     bounds may grow to provide the reference-height margin. Explicit bounds
@@ -125,56 +117,52 @@ def run(city, speed=None, direction=None, *, reference_height=_UNSET,
     inherits the enclosing frame, repeated equal translations apply once, and
     conflicting declarations raise. Rotations, scales and shears are rejected.
     Other city objects are omitted and listed in result metadata.
+
+    Metadata timings nest: public_call_seconds includes city preparation,
+    native execution, output construction and cleanup. Native totals include
+    their phase timers; do not add parents and children. Unavailable native
+    timings are None (legacy solves until native instrumentation is added).
     """
+    public_started = time.perf_counter()
     turbulence_spec = _resolve_turbulence(turbulence)
-    if solver_control is not None and not isinstance(solver_control, SolverControl):
-        raise TypeError("solver_control must be SolverControl or None")
-    condition, profile_spec = _resolve_condition(speed, direction, reference_height, roughness_length, profile)
-    adaptive = solver_control is not None and solver_control.mode == "adaptive"
-    if not isinstance(raise_on_unaccepted, bool):
-        raise ValueError("raise_on_unaccepted must be boolean")
-    if raise_on_unaccepted and not adaptive:
-        raise ValueError("raise_on_unaccepted requires adaptive solver controls")
-    if adaptive and raise_on_nonconvergence:
-        raise ValueError("Adaptive mode uses raise_on_unaccepted, not raise_on_nonconvergence")
-    if adaptive and condition["speed"] == 0:
-        raise ValueError("Adaptive pedestrian acceptance is unavailable for calm wind")
+    if not isinstance(solver, Solver):
+        raise TypeError("solver must be Solver")
+    profile_spec = _resolve_condition(speed, direction, profile)
+    exclusions = _check_solver_inputs(solver, profile_spec, turbulence_spec)
+    if exclusions:
+        _warn_solver_outcome(str(UnacceptedResultError(None, None, exclusions=exclusions)), turbulence_spec)
     grid = _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, max_cells,
                           vertical_grid=vertical_grid)
-    solver = _validate_solver(tolerance, max_iterations, raise_on_nonconvergence, solver_precision)
-    geometry, prepared = _prepare_city(city, condition, grid, terrain, height_policy,
-                                        turbulence=turbulence_spec is not None, profile=profile_spec,
+    preparation_started = time.perf_counter()
+    geometry, prepared = _prepare_city(city, profile_spec, grid, terrain, height_policy,
+                                        turbulence=turbulence_spec is not None,
                                         footprints=footprints)
-    return _solve_prepared(geometry, prepared, condition, solver, vertical_grid=vertical_grid,
-        turbulence_spec=turbulence_spec, height_policy=height_policy, profile_spec=profile_spec,
-        solver_control=solver_control, raise_on_unaccepted=raise_on_unaccepted)
+    preparation_seconds = time.perf_counter() - preparation_started
+    result = _solve_prepared(geometry, prepared, profile_spec, solver, vertical_grid=vertical_grid,
+        turbulence_spec=turbulence_spec, height_policy=height_policy,
+        _known_exclusions=exclusions)
+    result.metadata["timings"]["city_preparation_seconds"] = preparation_seconds
+    result.metadata["timings"]["public_call_seconds"] = time.perf_counter() - public_started
+    return result
 
 
-def _solve_prepared(geometry, prepared, condition, solver, *, vertical_grid=None,
-                    turbulence_spec=None, height_policy="measured", profile_spec=None,
-                    solver_control=None, raise_on_unaccepted=False):
+def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
+                    turbulence_spec=None, height_policy="measured",
+                    _known_exclusions=()):
     """Solve a validated prepared domain and assemble the common result metadata."""
-    adaptive = solver_control is not None and solver_control.mode == "adaptive"
-    _prepare_profile(prepared, condition, profile_spec)
-    profile_record = prepared.domain.get("profile")
-    if profile_record is None:
-        log_profile = profile_spec or LogProfile(**condition)
-        profile_record = dict(schema_version=1, type="log", requested=log_profile.to_dict(),
-            reference=log_profile.reference, height_datum="metres above flat ground",
-            horizontal_only=True, experimental=False, interpolation="analytic", max_turning_deg=0.,
-            tail_layers=dict(below=0, above=0))
-    if profile_record["type"] == "log":
-        profile_record["native_reference_scalars"] = {
-            name: float(np.float32(condition[name])) for name in ("speed", "direction", "reference_height")}
-    native_condition = _native_condition(condition, profile_record)
+    adaptive = solver.mode == "adaptive"
+    if profile is None:
+        raise ValueError("Solving requires a known inflow profile")
+    profile_record = prepared.domain["profile"]
+    native_condition = _native_condition(profile_record)
     if profile_record["max_turning_deg"] > 45:
         get_python_logger("dtcc-qes").warning(
             "Background profile turns %.1f degrees across physical layers (>45 degrees); "
             "building wakes follow each roof-level direction, including where lower layers turn.",
             profile_record["max_turning_deg"])
     native_solver = _qes.SolverOptions()
-    native_solver.tolerance, native_solver.max_iterations = solver["tolerance"], solver["max_iterations"]
-    native_solver.precision = solver["precision"]
+    native_solver.tolerance, native_solver.max_iterations = solver.tolerance, solver.max_iterations
+    native_solver.precision = solver.precision
     runner = _qes.WindRunner()
     try:
         turbulence_options = {}
@@ -185,38 +173,37 @@ def _solve_prepared(geometry, prepared, condition, solver, *, vertical_grid=None
             turbulence_options["turbulence"] = native_turbulence
         runner.prepare(prepared.grid, prepared.model, **prepared.arrays, dz_layers=prepared.dz_layers,
                        **turbulence_options)
-        control_options = {} if solver_control is None else {"control":solver_control._native(prepared.origin, geometry.crs)}
+        control_options = {} if solver.mode == "legacy" else {"control":solver._native(prepared.origin, geometry.crs)}
         native = runner.solve(native_condition, native_solver, **control_options)
     finally:
         # Arrays already own their storage. A retained Python exception's
         # traceback must not retain the much larger prepared native domain.
         del runner
     diagnostics = SolveDiagnostics(**native["diagnostics"])
-    if adaptive:
-        if not native["control"]["accepted"]:
-            failure = UnacceptedResultError(diagnostics, native["control"])
-            if raise_on_unaccepted:
-                raise failure
-            get_python_logger("dtcc-qes").warning(str(failure))
-    elif not diagnostics.converged:
-        if solver["raise_on_nonconvergence"]:
-            raise ConvergenceError(diagnostics,native.get("control"))
-        get_python_logger("dtcc-qes").warning(str(ConvergenceError(diagnostics,native.get("control"))))
+    record = native.get("control")
+    failure = None
+    if adaptive and not record["accepted"]:
+        failure = UnacceptedResultError(diagnostics, record)
+    elif not adaptive and not diagnostics.converged:
+        failure = ConvergenceError(diagnostics, record)
+    if failure is not None:
+        if solver.raise_on_failure:
+            raise failure
+        if not _known_exclusions:
+            _warn_solver_outcome(str(failure), turbulence_spec)
+    elif record is not None and record["termination_reason"] == "time_limit" and not _known_exclusions:
+        _warn_solver_outcome(f"Wind solve reached time_limit after {diagnostics.iterations} iterations", turbulence_spec)
     model_names = ("wall_roughness", "rooftop_flag", "upwind_cavity_flag", "street_canyon_flag",
                    "street_intersection_flag", "wake_flag", "high_rise_flag", "sidewall_flag")
-    solver_metadata = dict(solver)
-    if adaptive:
-        solver_metadata["raise_on_unaccepted"] = raise_on_unaccepted
     metadata = dict(
         divergence_diagnostic=dict(unit="s^-1", norm="volume-weighted RMS and maximum",
             lateral_boundary_cells="excluded", last_solved_band="reported separately",
             highest_physical_layer="unassessed"),
-        domain=prepared.domain, condition=condition, solver=solver_metadata, terrain=prepared.terrain,
-        effective_condition={name: float(np.float32(value)) for name, value in condition.items()},
+        domain=prepared.domain, terrain=prepared.terrain,
         height_policy=height_policy, ignored_city_objects=geometry.ignored_objects,
         model=dict(backend=_qes.cpu_backend, log_law_flag=0, mesh_type_flag=0, halo_x=0, halo_y=0,
                    vertical_stretching=0 if vertical_grid is None else 1,
-                   boundary_layer="neutral logarithmic", sensor=(prepared.model.sensor_x, prepared.model.sensor_y),
+                   boundary_layer=profile_record["boundary_layer"], sensor=(prepared.model.sensor_x, prepared.model.sensor_y),
                    timestamp="2020-01-01T00:00:00", **{name: getattr(prepared.model, name) for name in model_names}),
         versions=dict(dtcc_qes=__version__, qes=dict(version=_qes.qes_version, revision=_qes.qes_revision),
                       dtcc_core=_dtcc_version(), native_build=dict(compiler_id=_qes.compiler_id,
@@ -246,17 +233,12 @@ def _solve_prepared(geometry, prepared, condition, solver, *, vertical_grid=None
     if prepared.near_contacts:
         metadata["near_contacts"] = list(prepared.near_contacts)
     metadata["profile"] = profile_record
-    if profile_spec is not None and profile_spec.kind != "log":
-        metadata["effective_condition"] = dict(metadata["effective_condition"],
-            speed=profile_record["reference"]["speed"],
-            direction=profile_record["reference"]["direction"])
-        metadata["model"]["boundary_layer"] = f"experimental {profile_spec.kind} horizontal profile"
     turbulence_fields = None
-    if "control" in native:
-        metadata["solver_control"] = native["control"]
-        metadata["solver_control"]["execution"] = dict(precision=solver["precision"],backend=_qes.cpu_backend,
-            sweep_order=_qes.cpu_sweep_order,native_build=metadata["versions"]["native_build"],
-            source_revision=_qes.qes_revision,shape=list(native["cell_flags"].shape))
+    metadata["solver"] = dict(spec=solver.to_dict(), record=record,
+        environment=dict(precision=solver.precision, backend=_qes.cpu_backend,
+            sweep_order=_qes.cpu_sweep_order, native_build=dict(metadata["versions"]["native_build"]),
+            source_revision=_qes.qes_revision, shape=list(native["cell_flags"].shape)))
+    metadata["timings"] = _timing_report(record)
     if turbulence_spec is not None:
         fields = native["turbulence"]
         turbulence_fields = TurbulenceFields(stress=fields["stress"],tke=fields["tke"],co_eps=fields["co_eps"],
@@ -266,19 +248,22 @@ def _solve_prepared(geometry, prepared, condition, solver, *, vertical_grid=None
             roughness_length=fields["roughness_length"],displacement_height=fields["displacement_height"])
         metadata["turbulence"] = _turbulence_metadata(turbulence_spec,fields,prepared.domain["turbulence"],
                                                     native["velocity"],bool(geometry.heights))
-        if profile_spec is not None and profile_spec.kind != "log":
-            metadata["turbulence"]["profile_caveat"] = profile_record["turbulence_caveat"]
+        if profile_record["kind"] != "log":
+            metadata["turbulence"]["caveats"] = list(profile_record["caveats"])
     return WindResult(native["velocity"], native["x"], native["y"], native["z"], native["cell_flags"],
                       prepared.origin, geometry.crs, prepared.resolution, diagnostics, metadata,
                       z_faces=native["z_faces"],turbulence=turbulence_fields)
 
 
-def preview_grid(city, *, reference_height=_UNSET, roughness_length=_UNSET,
-                 profile=None,
-                 resolution: float = 2.0, bounds=None, horizontal_padding: float = 20.0,
+def preview_grid(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformProfile | None = None, *,
+                 speed: float | None = None, direction: float | None = None,
+                 resolution: float = 2.0,
+                 bounds: Bounds | tuple[float, float, float, float, float, float | None] | None = None,
+                 horizontal_padding: float = 20.0,
                  vertical_clearance: float = 20.0, max_cells: int = 20_000_000,
-                 terrain=None, height_policy="measured",
-                 vertical_grid: VerticalGrid | None = None, turbulence: bool | Turbulence = False,
+                 terrain: Literal["flat"] | float | None = None,
+                 height_policy: Literal["measured", "allow_estimated"] = "measured",
+                 vertical_grid: VerticalGrid | None = None, turbulence: Turbulence | None = None,
                  footprints: Footprints | None = None) -> GridPreview:
     """Inspect a uniform, explicit or automatic grid without QES wind arrays.
 
@@ -287,23 +272,23 @@ def preview_grid(city, *, reference_height=_UNSET, roughness_length=_UNSET,
 
     Geometry, terrain, bounds, clearance and cell limits use the same preparation
     as ``run``. Reference height and roughness use the same profile validation;
-    reference height also constrains automatic domain bounds. No wind speed,
-    direction or solver settings are needed. Axes are local metres; add origin
+    reference height also constrains automatic domain bounds. Omitting inflow
+    uses planning defaults (10 m reference, 0.1 m roughness) and records unknown
+    inflow. To plan other values, provide LogProfile(1, 0, reference_height=...,
+    roughness_length=...). No solver settings are needed. Axes are local metres; add origin
     for global coordinates. This does not predict occupancy or solver accuracy.
 
-    ``turbulence=True`` includes the QES reference-height layer margin. Automatic
+    ``turbulence=Turbulence()`` includes the QES reference-height layer margin. Automatic
     domains append a constant tail while retaining a valid wind-only grid;
     explicit bounds/faces are checked. Growth and any required regeneration
     are recorded in ``domain['turbulence']``.
     """
     turbulence_spec = _resolve_turbulence(turbulence)
-    condition, profile_spec = _resolve_condition(
-        0 if profile is None else None, 0 if profile is None else None,
-        reference_height, roughness_length, profile)
+    profile_spec = _resolve_condition(speed, direction, profile, allow_unknown=True)
     grid = _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, max_cells,
                           vertical_grid=vertical_grid)
-    geometry, prepared = _prepare_city(city, condition, grid, terrain, height_policy,
-                                        turbulence=turbulence_spec is not None, profile=profile_spec,
+    geometry, prepared = _prepare_city(city, profile_spec, grid, terrain, height_policy,
+                                        turbulence=turbulence_spec is not None,
                                         footprints=footprints)
     nz, ny, nx = prepared.domain["shape"]
     spacing = np.float32(prepared.resolution)
@@ -316,24 +301,25 @@ def preview_grid(city, *, reference_height=_UNSET, roughness_length=_UNSET,
                        prepared.origin, geometry.crs, prepared.resolution, prepared.domain, prepared.terrain)
 
 
-def _prepare_city(city, condition, grid, terrain, height_policy, *, turbulence=False,
-                  profile=None, footprints=None):
+def _prepare_city(city, profile, grid, terrain, height_policy, *, turbulence=False, footprints=None):
     """Shared geometry and domain preparation for solving and grid preview."""
     if not isinstance(turbulence, bool):
         raise ValueError("turbulence must be a bool")
     if terrain is not None and not (isinstance(terrain, str) and terrain == "flat"):
         terrain = number(terrain, "terrain elevation")
+    reference_height = profile.reference_height if profile is not None else 10.
+    roughness_length = profile.roughness_length if profile is not None else .1
     if footprints is not None:
         if not isinstance(footprints, Footprints):
             raise TypeError("footprints must be Footprints or None")
         from ._footprints import prepare_footprint_domain
         geometry, prepared = prepare_footprint_domain(city, height_policy, footprints,
-            reference_height=condition["reference_height"], roughness_length=condition["roughness_length"],
+            reference_height=reference_height, roughness_length=roughness_length,
             **grid, terrain=terrain, turbulence=turbulence)
     else:
         geometry = extract_city(city, height_policy)
-        prepared = prepare_domain(geometry, reference_height=condition["reference_height"],
-                                  roughness_length=condition["roughness_length"], **grid, terrain=terrain,
+        prepared = prepare_domain(geometry, reference_height=reference_height,
+                                  roughness_length=roughness_length, **grid, terrain=terrain,
                                   turbulence=turbulence)
     contacts = near_contacts(geometry, prepared.resolution) if footprints is None else ()
     if contacts:
@@ -341,44 +327,56 @@ def _prepare_city(city, condition, grid, terrain, height_policy, *, turbulence=F
             "%d building pairs are closer than one grid cell; use Footprints for contact-aware preparation", len(contacts))
         prepared = replace(prepared, near_contacts=contacts,
                            domain=dict(prepared.domain, near_contacts=list(contacts)))
-    _prepare_profile(prepared, condition, profile)
+    _prepare_profile(prepared, profile)
     return geometry, prepared
 
 
-def _prepare_profile(prepared, condition, profile):
-    """Build profile tables only after canonical solids and the grid stabilize."""
-    if profile is not None and profile.kind != "log" and "profile" not in prepared.domain:
-        prepared.domain["profile"] = _layer_record(profile, _layer_heights(prepared), condition["roughness_length"])
-        prepared.domain["profile"]["native_reference_scalars"] = {
-            name: float(np.float32(condition[name])) for name in ("speed", "direction", "reference_height")}
+def _prepare_profile(prepared, profile):
+    """Build exactly one record after canonical solids and the grid stabilize."""
+    heights = None
+    if profile is None:
+        prepared.domain.update(profile=None, inflow="unknown")
+    else:
+        heights = None if isinstance(profile, LogProfile) else _layer_heights(prepared)
+        try:
+            prepared.domain["profile"] = _profile_record(profile, heights)
+        except ValueError as error:
+            growth = prepared.domain.get("turbulence", {})
+            if "above last measurement" in str(error) and growth.get("raised"):
+                added = growth.get("added_layers", 0)
+                base_covered = (profile.heights[-1] >= growth["default_top"]
+                    if not growth.get("lower_layers_preserved", True) else
+                    added > 0 and heights[-added-1] <= profile.heights[-1])
+                if base_covered:
+                    requirements = json.dumps(prepared.domain["top_requirements"], allow_nan=False, sort_keys=True)
+                    raise ValueError(f"{error}; turbulence domain growth raised the top from "
+                        f"{growth['default_top']:.9g} m to {growth['effective_top']:.9g} m; "
+                        f"top_requirements={requirements}") from error
+            raise
+    vertical = prepared.domain["vertical_grid"]
+    if vertical["mode"] == "auto":
+        from .profiles import _pedestrian_sampling
+        centres = _layer_heights(prepared) if heights is None else heights
+        vertical["pedestrian_sampling"] = _pedestrian_sampling(profile, centres,
+            vertical["requested_settings"]["pedestrian_height"], prepared.domain["profile"])
 
 
-def _resolve_condition(speed, direction, reference_height, roughness_length, profile):
+
+def _resolve_condition(speed, direction, profile, *, allow_unknown=False):
     if profile is not None:
         if type(profile) not in PROFILE_TYPES:
             raise TypeError("profile must be LogProfile, MeasuredProfile, PowerLawProfile or UniformProfile")
-        if speed is not None or direction is not None or reference_height is not _UNSET:
-            raise ValueError("profile is mutually exclusive with speed, direction and reference_height")
-        if isinstance(profile, LogProfile):
-            if roughness_length is not _UNSET:
-                raise ValueError("LogProfile carries roughness_length; do not also supply it to run")
-            return _validate_condition(profile.speed, profile.direction, profile.reference_height,
-                                       profile.roughness_length), profile
-        roughness = number(.1 if roughness_length is _UNSET else roughness_length, "roughness_length", positive=True)
-        with np.errstate(over="ignore", under="ignore"):
-            native_roughness = np.float32(roughness)
-        if not np.isfinite(native_roughness) or native_roughness <= 0:
-            raise ValueError("roughness_length must remain positive and finite in float32")
-        reference = profile.reference_at(roughness)
-        if reference["speed"] > float(np.finfo(np.float32).max):
-            raise ValueError("Reference speed must remain finite in float32")
-        return dict(speed=reference["speed"], direction=reference["direction"] or 0.0,
-                    reference_height=profile.reference_height, roughness_length=roughness), profile
-    if speed is None or direction is None:
-        raise TypeError("run requires speed and direction, or profile=")
-    return _validate_condition(speed, direction,
-                               10.0 if reference_height is _UNSET else reference_height,
-                               .1 if roughness_length is _UNSET else roughness_length), None
+        if speed is not None or direction is not None:
+            raise ValueError("profile is mutually exclusive with speed and direction")
+    elif allow_unknown and speed is None and direction is None:
+        return None
+    elif speed is None or direction is None:
+        raise TypeError("Provide a profile or both speed and direction")
+    else:
+        profile = LogProfile(speed, direction)
+    if profile.reference["speed"] > float(np.finfo(np.float32).max):
+        raise ValueError("Reference speed must remain finite in float32")
+    return profile
 
 
 def _layer_heights(prepared):
@@ -386,34 +384,20 @@ def _layer_heights(prepared):
     return (np.float32(.5) * (faces[:-1] + faces[1:])).astype(np.float64)
 
 
-def _native_condition(condition, profile_record):
+def _native_condition(profile_record):
     native = _qes.WindCondition()
-    for name in ("speed", "direction", "reference_height"):
-        setattr(native, name, condition[name])
-    if profile_record["type"] != "log":
+    reference = profile_record["reference"]
+    # The controller normalizes by the declared float64 speed. Narrowing for
+    # Log evaluation remains native; do not feed the narrowed metadata back in.
+    native.speed = reference["speed"]
+    native.reference_height = reference["height"]
+    native.direction = (profile_record["requested"]["direction"] if profile_record["kind"] == "log"
+                        else reference["direction"] or 0.)
+    if profile_record["kind"] != "log":
         table = profile_record["layer_table"]
         native.profile_kind = _qes.ProfileKind.layer_table
         native.layer_u, native.layer_v = table["u"], table["v"]
     return native
-
-
-def _validate_condition(speed, direction, reference_height, roughness_length):
-    values = dict(speed=speed, direction=direction, reference_height=reference_height, roughness_length=roughness_length)
-    for name in ("speed", "direction", "reference_height", "roughness_length"):
-        value = number(values[name], name, positive=name in ("reference_height", "roughness_length"))
-        if abs(value) > float(np.finfo(np.float32).max):
-            raise ValueError(f"{name} must be representable in float32")
-        values[name] = value
-    if values["speed"] < 0 or not 0 <= values["direction"] < 360:
-        raise ValueError("speed must be nonnegative and direction must be in [0, 360)")
-    height = float(np.float32(values["reference_height"]))
-    roughness = float(np.float32(values["roughness_length"]))
-    if roughness <= 0 or height <= 0 or height + roughness > float(np.finfo(np.float32).max):
-        raise ValueError("Reference height and roughness must form a finite float32 profile")
-    ratio = float(np.float32(height + roughness)) / roughness
-    if not 1 < ratio <= float(np.finfo(np.float32).max) or np.float32(ratio) <= 1:
-        raise ValueError("Reference height and roughness must form a finite float32 log profile")
-    return values
 
 
 def _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, max_cells, *, vertical_grid=None):
@@ -448,27 +432,53 @@ def _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, m
             coordinates = (coordinates.xmin, coordinates.ymin, coordinates.zmin,
                            coordinates.xmax, coordinates.ymax, coordinates.zmax)
         try:
-            coordinates = tuple(number(value, "bounds") for value in coordinates)
+            coordinates = tuple(coordinates)
+            if len(coordinates) != 6:
+                raise ValueError("bounds must contain six coordinates")
+            coordinates = tuple(None if i == 5 and value is None else number(value, "bounds")
+                                for i, value in enumerate(coordinates))
         except TypeError as error:
             raise ValueError("bounds must contain six finite coordinates") from error
-        if len(coordinates) != 6 or any(coordinates[i + 3] <= coordinates[i] for i in range(3)):
+        if len(coordinates) != 6 or any(coordinates[i + 3] is not None and coordinates[i + 3] <= coordinates[i] for i in range(3)):
             raise ValueError("bounds must be (xmin, ymin, zmin, xmax, ymax, zmax) with positive extents")
         bounds = coordinates
     return dict(**values, bounds=bounds, max_cells=max_cells, vertical_grid=vertical_grid)
 
 
-def _validate_solver(tolerance, max_iterations, raise_on_nonconvergence, precision="float32"):
-    if not isinstance(precision, str) or precision not in ("float32", "float64"):
-        raise ValueError("solver_precision must be 'float32' or 'float64'")
-    tolerance = number(tolerance, "tolerance", positive=True)
-    limits = np.finfo(precision)
-    if not float(limits.eps) <= tolerance <= float(limits.max):
-        raise ValueError(f"tolerance must be at least {precision} epsilon and finite in {precision}")
-    if (isinstance(max_iterations, (bool, np.bool_)) or not isinstance(max_iterations, Integral)
-            or not 1 <= max_iterations <= np.iinfo(np.int32).max):
-        raise ValueError("max_iterations must be a positive int32 integer")
-    if not isinstance(raise_on_nonconvergence, bool):
-        raise ValueError("raise_on_nonconvergence must be a bool")
-    max_iterations = int(max_iterations)
-    return dict(tolerance=tolerance, max_iterations=max_iterations,
-                raise_on_nonconvergence=raise_on_nonconvergence, precision=precision)
+def _check_solver_inputs(solver, profile, turbulence):
+    """Input-only scope checks; native code remains authoritative at runtime."""
+    if solver.mode != "adaptive":
+        return []
+    if profile.reference["speed"] == 0:
+        raise ValueError("Adaptive pedestrian acceptance is unavailable for calm wind")
+    exclusions = []
+    if profile is not None and not isinstance(profile, LogProfile):
+        exclusions.append("unqualified_inflow_profile")
+    if solver.precision != "float32":
+        exclusions.append("unqualified_precision")
+    if turbulence is not None:
+        exclusions.append("turbulence_outside_assessment_scope")
+    if exclusions and solver.raise_on_failure:
+        raise UnacceptedResultError(None, None, exclusions=exclusions)
+    return exclusions
+
+
+def _warn_solver_outcome(message, turbulence):
+    if turbulence is not None:
+        message += "; requested turbulence is screening output based on this mean wind"
+    get_python_logger("dtcc-qes").warning(message)
+
+
+def _timing_report(record):
+    """Report nested scopes without inventing unavailable native measurements.
+
+    Public-call time belongs to wind.run, including validation, preparation,
+    output construction and cleanup. City preparation includes profile/grid
+    resolution. Native totals include native phase children: do not sum them.
+    Paths bypassing wind.run leave its public-call measurement unavailable.
+    """
+    return dict(public_call_seconds=None, city_preparation_seconds=None,
+        native=deepcopy(record["timings"]) if record is not None else None,
+        scopes=dict(public_call="wind.run: validation, city preparation, native execution, output and cleanup",
+            city_preparation="geometry, domain planning and profile preparation; nested in public_call",
+            native="native totals contain phase timers; do not add parent totals and children"))

@@ -42,6 +42,32 @@ def test_store_flattens_nested_results():
     assert str(out["case/diagnostics/scalars"]) == '{"iterations": 5}'
 
 
+def test_clock_filter_keeps_work_decisions_shape_and_availability(tmp_path):
+    def capture(seconds,native=True,iteration=25):
+        out={}
+        harness.store(out,"public/case",dict(metadata=dict(
+            timings=dict(public_call_seconds=seconds,city_preparation_seconds=seconds/2,
+                native=dict(solve_seconds=seconds) if native else None,scopes=dict(public_call="nested")),
+            solver=dict(spec=dict(max_solve_seconds=60.),record=dict(
+                termination_reason="iteration_limit",timings=dict(solve_seconds=seconds),
+                history=[dict(elapsed_seconds=seconds,iteration=iteration,error=.1)])))))
+        return out
+    a=save(tmp_path/"a.npz",**capture(1.))
+    assert not harness.compare_results(a,save(tmp_path/"b.npz",**capture(2.)))[0]
+    assert harness.compare_results(a,save(tmp_path/"b.npz",**capture(2.,native=False)))[0]
+    assert harness.compare_results(a,save(tmp_path/"b.npz",**capture(2.,iteration=50)))[0]
+    assert '"max_solve_seconds": 60.0' in str(capture(1.)["public/case/metadata/solver/spec/scalars"])
+
+
+@pytest.mark.parametrize("duration",[-1,float("nan"),float("inf"),True,"1"])
+def test_public_and_native_clocks_reject_invalid_values(duration):
+    report=dict(public_call_seconds=duration,city_preparation_seconds=None,native=None,scopes={})
+    with pytest.raises(ValueError,match="Invalid timing"):
+        harness.store({},"public/case/metadata/timings",report)
+    with pytest.raises(ValueError,match="Invalid timing"):
+        harness.store({},"public/case/metadata/solver/record/timings",dict(solve_seconds=duration))
+
+
 def test_s0_provenance_exception_is_narrow_and_opt_in(tmp_path):
     key = "public/case/metadata/versions/native_build/scalars"
     a = save(tmp_path / "a.npz", **{key: np.array('{"openmp_enabled": true}')})
@@ -64,6 +90,24 @@ def test_backend_pair_keeps_numerical_diagnostics_strict(tmp_path):
     assert not harness.compare_results(a, b, backend_pair=True)[0]
     b = save(tmp_path / "b.npz", **record("OpenMP CPU", True, 11))
     assert harness.compare_results(a, b, backend_pair=True)[0] == ["differs: public/case/diagnostics/scalars"]
+
+
+def test_solver_environment_backend_exception_keeps_precision_strict(tmp_path):
+    def record(backend, enabled, precision="float32"):
+        out = {}
+        harness.store(out, "public/case", dict(metadata=dict(solver=dict(
+            spec=dict(precision=precision), record=None,
+            environment=dict(backend=backend, precision=precision,
+                native_build=dict(openmp_enabled=enabled, fp_contract="on"))))))
+        return out
+    a = save(tmp_path/"a.npz", **record("serial CPU", False))
+    b = save(tmp_path/"b.npz", **record("OpenMP CPU", True))
+    assert harness.compare_results(a,b)[0]
+    assert not harness.compare_results(a,b,backend_pair=True)[0]
+    b = save(tmp_path/"b.npz", **record("OpenMP CPU", True, "float64"))
+    assert harness.compare_results(a,b,backend_pair=True)[0] == [
+        "differs: public/case/metadata/solver/environment/scalars",
+        "differs: public/case/metadata/solver/spec/scalars"]
 
 
 @pytest.mark.parametrize("corruption", [None, "serial_value", "openmp_value", "new_key", "missing_key"])

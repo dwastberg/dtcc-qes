@@ -1,6 +1,7 @@
 """Synthetic DTCC cities built from the canonical numerical fixtures."""
 
 import numpy as np
+from dtcc_qes import wind
 from dtcc_core.model import Building, City, GeometryType, Surface
 
 
@@ -13,10 +14,10 @@ def city_case(case, translation=(0.0, 0.0, 0.0)):
         vertices += np.asarray(translation)
         building.add_geometry(Surface(vertices=vertices), GeometryType.LOD0)
         city.add_building(building)
-    condition = dict(speed=case.wind.speed, direction=case.wind.direction,
-                     reference_height=case.wind.reference_height, roughness_length=case.wind.roughness_length)
+    condition = dict(profile=wind.LogProfile(case.wind.speed, case.wind.direction,
+                     reference_height=case.wind.reference_height, roughness_length=case.wind.roughness_length))
     extent = case.extent
     bounds = (*translation, *(translation[i] + extent[i] for i in range(3)))
     grid = dict(resolution=case.grid.cell_size, bounds=bounds)
-    solver = dict(tolerance=case.solver.tolerance, max_iterations=case.solver.max_iterations)
+    solver = dict(solver=wind.Solver(tolerance=case.solver.tolerance, max_iterations=case.solver.max_iterations))
     return city, condition, grid, solver

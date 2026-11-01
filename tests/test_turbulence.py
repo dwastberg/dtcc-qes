@@ -18,7 +18,10 @@ pytestmark = pytest.mark.usefixtures("dtcc_logger")
 
 def solve(case=ONE_BUILDING, **options):
     city,condition,grid,solver = city_case(case)
-    return wind.run(city, **(condition | grid | solver | dict(turbulence=True) | options))
+    updates = {k:options.pop(k) for k in ("speed","direction","reference_height","roughness_length") if k in options}
+    if updates:
+        condition["profile"] = replace(condition["profile"], **updates)
+    return wind.run(city, **(condition | grid | solver | dict(turbulence=wind.Turbulence()) | options))
 
 
 def synthetic():
@@ -191,9 +194,9 @@ def test_run_returns_wind_and_turbulence_in_one_call(method,precision,monkeypatc
             calls.append("solve")
             return self.runner.solve(*args,**kwargs)
     monkeypatch.setattr(_qes,"WindRunner",TrackedRunner)
-    actual = solve(turbulence=wind.Turbulence(mixing_length=method),solver_precision=precision)
+    actual = solve(turbulence=wind.Turbulence(mixing_length=method), solver=wind.Solver(precision=precision))
     assert calls == ["prepare","solve"]
-    baseline = solve(turbulence=False,solver_precision=precision)
+    baseline = solve(turbulence=None, solver=wind.Solver(precision=precision))
     np.testing.assert_array_equal(actual.velocity,baseline.velocity)
     np.testing.assert_array_equal(actual.cell_flags,baseline.cell_flags)
     assert actual.diagnostics == baseline.diagnostics
@@ -273,7 +276,7 @@ def test_stretched_grid_matches_nonuniform_gradient():
 
 
 def test_speed_scaling():
-    a,b = solve(speed=5,tolerance=1e-5),solve(speed=10,tolerance=2e-5)
+    a,b = solve(speed=5, solver=wind.Solver(tolerance=1e-5)),solve(speed=10, solver=wind.Solver(tolerance=2e-5))
     np.testing.assert_allclose(b.streamwise_std,2*a.streamwise_std,rtol=1e-4,atol=1e-7,equal_nan=True)
     np.testing.assert_allclose(b.turbulence_intensity,a.turbulence_intensity,rtol=1e-4,atol=1e-7,equal_nan=True)
 
@@ -361,7 +364,7 @@ def test_derived_statistics_recheck_edited_stress():
 @pytest.mark.parametrize("method", ["height","wall_distance"])
 @pytest.mark.parametrize("precision", ["float32","float64"])
 def test_python_validity_matches_native_extraction(method,precision):
-    result = solve(turbulence=wind.Turbulence(method),solver_precision=precision)
+    result = solve(turbulence=wind.Turbulence(method), solver=wind.Solver(precision=precision))
     valid,tolerance = result_module._stress_validity(result.turbulence.stress)
     np.testing.assert_array_equal(valid,result.turbulence.stress_valid)
     assert (tolerance[result.turbulence.computed] >= 0).all()
@@ -383,11 +386,11 @@ def test_metadata_records_reference_and_cap():
     json.dumps(result.metadata,allow_nan=False)
 
 
-@pytest.mark.parametrize("value", [None,1,"height",{},np.bool_(True)])
+@pytest.mark.parametrize("value", [True,False,1,"height",{},np.bool_(True)])
 def test_invalid_turbulence_argument(value,monkeypatch):
     monkeypatch.setattr(_qes,"WindRunner",lambda:pytest.fail("Allocated native fields"))
     city,_,grid,_=city_case(ONE_BUILDING)
-    for call in (lambda:wind.run(city,5,270,**grid,turbulence=value),
+    for call in (lambda:wind.run(city, **grid, turbulence=value, speed=5, direction=270),
                  lambda:wind.preview_grid(city,**grid,turbulence=value)):
         with pytest.raises(ValueError,match="turbulence must be"):
             call()
@@ -415,9 +418,11 @@ def test_wall_distance_mixing_length_not_longer_than_height():
 def test_turbulence_false_metadata_unchanged():
     city,condition,grid,solver=city_case(ONE_BUILDING)
     original=wind.run(city,**condition,**grid,**solver)
-    disabled=wind.run(city,**condition,**grid,**solver,turbulence=False)
+    disabled=wind.run(city, **condition, **grid, **solver, turbulence=None)
     assert original.turbulence is disabled.turbulence is None
-    assert original.metadata == disabled.metadata and "turbulence" not in disabled.metadata
+    assert {k:v for k,v in original.metadata.items() if k != "timings"} == {
+        k:v for k,v in disabled.metadata.items() if k != "timings"}
+    assert "turbulence" not in disabled.metadata
     assert original.sample(1.5).stress is None and original.sample(1.5).stress_valid is None
     for result in (original,original.sample(1.5)):
         with pytest.raises(ValueError,match="turbulence"):
@@ -429,7 +434,7 @@ def test_turbulence_false_metadata_unchanged():
 def test_automatic_preview_spec_matches_public_solve():
     city,condition,_,solver=city_case(ONE_BUILDING)
     spec=wind.Turbulence("wall_distance")
-    preview=wind.preview_grid(city,turbulence=spec,vertical_grid=wind.VerticalGrid.auto())
+    preview=wind.preview_grid(city,**condition,turbulence=spec,vertical_grid=wind.VerticalGrid.auto())
     result=wind.run(city,**condition,**solver,turbulence=spec,vertical_grid=wind.VerticalGrid.auto())
     assert result.metadata["domain"] == preview.domain
     assert result.metadata["turbulence"]["qes_method"] == 1

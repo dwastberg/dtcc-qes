@@ -15,8 +15,8 @@ pytestmark = pytest.mark.usefixtures("dtcc_logger")
 def test_city_maps_to_exact_native_fixture():
     city, condition, grid, _ = city_case(ONE_BUILDING)
     geometry = extract_city(city, "measured")
-    prepared = prepare_domain(geometry, reference_height=condition["reference_height"],
-                              roughness_length=condition["roughness_length"], **grid,
+    prepared = prepare_domain(geometry, reference_height=condition["profile"].reference_height,
+                              roughness_length=condition["profile"].roughness_length, **grid,
                               horizontal_padding=20, vertical_clearance=20,
                               max_cells=20_000_000, terrain=None)
     source = ONE_BUILDING.buildings[0]

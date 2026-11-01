@@ -1,4 +1,7 @@
 """Bounded OpenMP API timings and same-grid pedestrian errors against saved references.
+The live driver follows the current Python API. Replay frozen campaigns using
+the archived drivers under docs/data; pinned source hashes remain unchanged.
+
 
 Historical archives are read-only. Every subprocess has a 30-second deadline;
 the complete matrix has a 180-second wall budget. Timings exclude imports,
@@ -45,9 +48,7 @@ def worker(precision, iterations, output):
     assert gate(reference)['accepted']
     city = make_city(rectangles('tower'))
     start = perf_counter()
-    result = wind.run(city, 5, 270, resolution=.5, bounds=(-40, -40, 0, 120, 120, 64),
-        vertical_grid=wind.VerticalGrid.auto(), max_cells=40000000,
-        solver_precision=precision, max_iterations=iterations)
+    result = wind.run(city, resolution=.5, bounds=(-40, -40, 0, 120, 120, 64), vertical_grid=wind.VerticalGrid.auto(), max_cells=40000000, solver=wind.Solver(precision=precision, max_iterations=iterations), speed=5, direction=270)
     elapsed = perf_counter()-start
     # The physical grid matches the archive; the public profile uses one sensor,
     # hence is horizontally uniform. Sensor positions are retained explicitly.

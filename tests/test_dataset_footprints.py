@@ -1,4 +1,5 @@
 """Dataset-specific policies on the shared canonical-solid preparation path."""
+from dataclasses import replace
 
 from copy import deepcopy
 from types import SimpleNamespace
@@ -55,7 +56,7 @@ def test_dataset_cleans_once_during_auto_grid_stabilization(source_city, fetched
     monkeypatch.setattr(_city, "prepare_domain", tracked_plan)
     monkeypatch.setattr(wind, "_solve_prepared", tracked_solve)
     obj = datasets.qes_wind(
-        **request(product="slice", vertical_grid="auto", slice_resolution=4, max_iterations=2)
+        **request(product="slice", vertical_grid="auto", slice_resolution=4, solver=wind.Solver(max_iterations=2, tolerance=1e-4).to_dict())
     )
     assert calls["clean"] == calls["solve"] == 1
     assert calls["plan"] >= 2
@@ -84,7 +85,7 @@ def test_tower_partition_hole_and_height_policy_survive_dataset_filling(source_c
         return result
 
     monkeypatch.setattr(wind, "_solve_prepared", tracked)
-    obj = datasets.qes_wind(**request(max_iterations=3))
+    obj = datasets.qes_wind(**request(solver=wind.Solver(max_iterations=3, tolerance=1e-4).to_dict()))
     (result,) = retained
     records = {r["source_id"]: r for r in result.metadata["buildings"]}
     assert records["covered"]["status"] == "covered"
@@ -113,7 +114,7 @@ def test_tower_partition_hole_and_height_policy_survive_dataset_filling(source_c
     direct_city = deepcopy(source_city)
     for value in direct_city.buildings:
         value.lod0.holes = []
-    args = QESWindArgs(**request(max_iterations=3))
+    args = QESWindArgs(**request(solver=wind.Solver(max_iterations=3, tolerance=1e-4).to_dict()))
     direct = wind.run(
         direct_city,
         **args.wind_options(),
@@ -136,7 +137,7 @@ def test_courtyard_formed_by_a_ring_of_sources_is_filled(source_city, fetched):
         box(14, 26, 26, 30),
     ]
     source_city.replace_buildings([building(str(i), p, 6) for i, p in enumerate(polygons)])
-    obj = datasets.qes_wind(**request(max_iterations=2))
+    obj = datasets.qes_wind(**request(solver=wind.Solver(max_iterations=2, tolerance=1e-4).to_dict()))
     prep = realization(obj)["preparation"]
     assert prep["source_courtyard_filled_area"] == 0
     assert prep["courtyard_policy"]["input_union_void_area"] == 144
@@ -153,7 +154,7 @@ def test_disconnected_multipart_source_keeps_components(source_city, fetched):
         GeometryType.LOD0,
     )
     source_city.replace_buildings([value])
-    obj = datasets.qes_wind(**request(max_iterations=2))
+    obj = datasets.qes_wind(**request(solver=wind.Solver(max_iterations=2, tolerance=1e-4).to_dict()))
     meta = realization(obj)["preparation"]["footprints"]
     assert (
         meta["counts"]["sources"] == 1 and meta["counts"]["components"] == 2 and meta["counts"]["solids"] == 2
@@ -186,8 +187,8 @@ def test_cleaned_extents_determine_padding_when_detail_exceeds_spacing(source_ci
 
     geometry, domain = plan_footprint_domain(
         prepared,
-        reference_height=args.reference_height,
-        roughness_length=args.roughness_length,
+        reference_height=args.reference_condition()["height"],
+        roughness_length=args.wind_options().get("profile", wind.LogProfile(args.speed,args.direction)).roughness_length,
         **wind._validate_grid(args.resolution, bounds, 0, args.vertical_clearance, args.max_cells),
         terrain=bounds[2],
     )
@@ -226,7 +227,7 @@ def test_tallest_fallback_is_reported_in_health_warning_and_volume(source_city, 
 
     monkeypatch.setattr(builder, "clean_footprints", forced)
     monkeypatch.setattr(builder, "building_cells", cells)
-    obj = datasets.qes_wind(**request(max_iterations=2))
+    obj = datasets.qes_wind(**request(solver=wind.Solver(max_iterations=2, tolerance=1e-4).to_dict()))
     assert obj.dataset_context.health["footprint_fallbacks"] == 1
     assert any("tallest-height" in message for message in obj.dataset_context.warnings)
     meta = realization(obj)["preparation"]["footprints"]
@@ -282,7 +283,7 @@ def test_partial_exclusions_and_covered_sources_reach_dataset_health(source_city
         return result
 
     monkeypatch.setattr(builder, "clean_footprints", selected)
-    obj = datasets.qes_wind(**request(max_iterations=2))
+    obj = datasets.qes_wind(**request(solver=wind.Solver(max_iterations=2, tolerance=1e-4).to_dict()))
     assert obj.dataset_context.health["excluded_sources"] == 1
     assert obj.dataset_context.health["excluded_components"] == 2
     records = {r["source_id"]: r for r in realization(obj)["preparation"]["footprints"]["buildings"]}
@@ -341,16 +342,9 @@ def test_stepped_dataset_combines_profiles_controls_and_final_grid(source_city, 
         ]
     )
     profile = wind.UniformProfile(5, 270, reference_height=30)
-    control = wind.SolverControl(10, wind.MonitorSpec((0, 40, 0, 40)), checkpoint_interval=1)
+    control = wind.Solver(max_solve_seconds=10, monitor=wind.MonitorSpec((0, 40, 0, 40)), checkpoint_interval=1)
     args = QESWindArgs(
-        **request(
-            product="slice",
-            slice_resolution=4,
-            vertical_grid=grid,
-            profile=profile.to_dict(),
-            solver_control=asdict(control),
-            max_iterations=3,
-        )
+        **request(product="slice", slice_resolution=4, vertical_grid=grid, profile=profile.to_dict(), solver=replace(control, max_iterations=3, tolerance=1e-4).to_dict())
     )
     actual = datasets.qes_wind(**args.model_dump())
     prep = realization(actual)["preparation"]
@@ -368,6 +362,7 @@ def test_stepped_dataset_combines_profiles_controls_and_final_grid(source_city, 
         max_cells=args.max_cells,
         bounds=prep["bounds"],
         terrain=0,
+        vertical_clearance=args.vertical_clearance,
         vertical_grid=args.vertical_grid_spec(),
         footprints=wind.Footprints(min_detail=args.min_building_detail, fallback="tallest"),
     )
@@ -375,7 +370,7 @@ def test_stepped_dataset_combines_profiles_controls_and_final_grid(source_city, 
     assert prep["bounds"][5] >= 30
     assert prep["footprints"]["counts"]["solids"] == 2
     assert realization(actual)["simulation"]["profile"] == direct.metadata["profile"]
-    assert actual.dataset_context.health["solver_control"]["iterations"] == 3
+    assert actual.dataset_context.health["solver"]["record"]["iterations"] == 3
     expected = _field_slice(direct, args)
     for name in ("velocity", "speed", "speedup", "cell_flags", "valid"):
         np.testing.assert_array_equal(actual.field(name).values, expected.field(name).values)

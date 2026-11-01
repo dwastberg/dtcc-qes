@@ -15,8 +15,8 @@ def test_precision_is_explicit_and_validated_before_native_preparation(precision
     def forbidden(*args, **kwargs):
         pytest.fail("Invalid precision reached preparation")
     monkeypatch.setattr(wind, "_prepare_city", forbidden)
-    with pytest.raises(ValueError, match="solver_precision"):
-        wind.run(None, 5, 270, solver_precision=precision)
+    with pytest.raises(ValueError, match="precision"):
+        wind.run(None, solver=wind.Solver(precision=precision), speed=5, direction=270)
 
 
 def test_native_runner_switches_modes_without_retaining_a_previous_solution():
@@ -62,11 +62,10 @@ def test_native_validation_also_enforces_precision_tolerance(precision, toleranc
                                   wind.VerticalGrid.auto(pedestrian_height=1.5)])
 def test_public_precision_preserves_geometry_sampling_and_reports_actual_arithmetic(spec):
     city, condition, grid, _ = city_case(ONE_BUILDING)
-    default = wind.run(city, **condition, **grid, vertical_grid=spec, max_iterations=2000)
-    precise = wind.run(city, **condition, **grid, vertical_grid=spec, solver_precision="float64",
-                       tolerance=1e-10, max_iterations=2000)
-    assert precise.diagnostics.precision == precise.metadata["solver"]["precision"] == "float64"
-    assert default.diagnostics.precision == default.metadata["solver"]["precision"] == "float32"
+    default = wind.run(city, **condition, **grid, vertical_grid=spec, solver=wind.Solver(max_iterations=2000))
+    precise = wind.run(city, **condition, **grid, vertical_grid=spec, solver=wind.Solver(precision="float64", tolerance=1e-10, max_iterations=2000))
+    assert precise.diagnostics.precision == precise.metadata["solver"]["environment"]["precision"] == "float64"
+    assert default.diagnostics.precision == default.metadata["solver"]["environment"]["precision"] == "float32"
     assert precise.diagnostics.tolerance == 1e-10
     assert precise.metadata["domain"] == default.metadata["domain"]
     assert precise.diagnostics.converged

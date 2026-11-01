@@ -134,13 +134,13 @@ def test_equal_native_override_values_survive_horizontal_spacing_narrowing():
 
 
 def test_bounded_settings_do_not_silently_coarsen_to_meet_cell_budget(monkeypatch):
-    city, _, grid, _ = city_case(ONE_BUILDING)
+    city, condition, grid, _ = city_case(ONE_BUILDING)
     spec = wind.VerticalGrid.auto()
-    before = wind.preview_grid(city, **grid, vertical_grid=spec)
+    before = wind.preview_grid(city, **condition, **grid, vertical_grid=spec)
     monkeypatch.setattr(_qes, "WindRunner", lambda: pytest.fail("Allocated native fields"))
     with pytest.raises(ValueError, match="max_cells"):
-        wind.preview_grid(city, **grid, vertical_grid=spec, max_cells=before.cell_count-1)
-    after = wind.preview_grid(city, **grid, vertical_grid=spec, max_cells=before.cell_count)
+        wind.preview_grid(city, **condition, **grid, vertical_grid=spec, max_cells=before.cell_count-1)
+    after = wind.preview_grid(city, **condition, **grid, vertical_grid=spec, max_cells=before.cell_count)
     np.testing.assert_array_equal(after.solver_dz,before.solver_dz)
 
 
@@ -209,7 +209,7 @@ def test_specification_and_returned_settings_are_independent_immutable_snapshots
 def test_preview_and_native_flat_profile_agree_for_automatic_grid(resolution):
     spec = wind.VerticalGrid.auto()
     options = dict(resolution=resolution, bounds=(0,0,0,8*resolution,8*resolution,12.345), vertical_grid=spec)
-    preview = wind.preview_grid(City(), **options)
+    preview = wind.preview_grid(City(), speed=5, direction=270, **options)
     result = wind.run(City(), speed=5, direction=270, **options)
     np.testing.assert_array_equal(preview.z_faces, result.z_faces)
     np.testing.assert_array_equal(preview.z, result.z)
@@ -244,7 +244,7 @@ def test_translated_building_occupancy_and_roofs_use_effective_faces():
     for offset in [(0,0,0), (1e9,-2e9,100)]:
         city, condition, grid, _ = city_case(ONE_BUILDING, offset)
         city.buildings[0].measured_height = 7.9
-        preview = wind.preview_grid(city, **grid, vertical_grid=wind.VerticalGrid.auto())
+        preview = wind.preview_grid(city, **condition, **grid, vertical_grid=wind.VerticalGrid.auto())
         result = wind.run(city, **condition, **grid, vertical_grid=wind.VerticalGrid.auto())
         assert preview.domain == result.metadata["domain"]
         outputs.append(result)
@@ -261,7 +261,7 @@ def test_translated_building_occupancy_and_roofs_use_effective_faces():
 def test_automatic_bounds_and_limits_preserve_legacy_rules(monkeypatch):
     spec = wind.VerticalGrid.auto()
     city, _, _, _ = city_case(ONE_BUILDING)
-    preview = wind.preview_grid(city, vertical_clearance=35, reference_height=50, vertical_grid=spec)
+    preview = wind.preview_grid(city, vertical_clearance=35, vertical_grid=spec, profile=wind.LogProfile(1, 0, reference_height=50))
     fit = preview.domain["vertical_grid"]["endpoint_fit"]
     assert fit["requested_top"] == 50
     monkeypatch.setattr(_qes, "WindRunner", lambda: pytest.fail("Allocated native fields"))

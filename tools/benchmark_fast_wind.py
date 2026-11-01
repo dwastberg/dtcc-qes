@@ -22,7 +22,7 @@ def worker(precision, output):
     options=dict(resolution=.5,bounds=(-40,-40,0,120,120,64),vertical_grid=spec,max_cells=40000000)
     start=perf_counter();preview=wind.preview_grid(city,**options);planning=perf_counter()-start
     start=perf_counter()
-    result=wind.run(city,5,270,solver_precision=precision,**options)
+    result=wind.run(city, **options, solver=wind.Solver(precision=precision), speed=5, direction=270)
     elapsed=perf_counter()-start
     atomic_json(output,dict(status='completed',precision=precision,backend=_qes.cpu_backend,
         build_type=_qes.build_type,compiler=_qes.compiler_version,

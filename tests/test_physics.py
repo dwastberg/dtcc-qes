@@ -17,7 +17,7 @@ pytestmark = pytest.mark.usefixtures("dtcc_logger")
 @pytest.mark.parametrize("roughness", [0.1, 0.5])
 def test_flat_neutral_profile_and_meteorological_cardinal_directions(direction, unit, roughness):
     city, _, grid, _ = city_case(FLAT)
-    condition = dict(speed=5, direction=direction, roughness_length=roughness)
+    condition = dict(profile=wind.LogProfile(5, direction, roughness_length=roughness))
     result = wind.run(city, **condition, **grid)
     expected_speed = 5 * np.log((result.z.astype(float) + roughness) / roughness)
     expected_speed /= np.log((10 + roughness) / roughness)
@@ -70,7 +70,7 @@ def test_repeated_public_calls_preserve_all_city_state_and_own_results():
     building.attributes["source"] = {"values": [1, 2]}
     before = copy.deepcopy(city)
     first = wind.run(city, **condition, **grid)
-    second = wind.run(city, **(condition | dict(direction=90)), **grid)
+    second = wind.run(city, profile=wind.LogProfile(condition["profile"].speed,90,reference_height=condition["profile"].reference_height,roughness_length=condition["profile"].roughness_length), **grid)
     third = wind.run(city, **condition, **grid)
     np.testing.assert_array_equal(first.velocity, third.velocity)
     assert not np.array_equal(first.velocity, second.velocity)
@@ -98,6 +98,6 @@ def test_impossible_padding_fails_without_numpy_overflow():
 
 def test_permissive_tolerance_still_measures_a_solve():
     city, condition, grid, _ = city_case(ONE_BUILDING)
-    result = wind.run(city, **condition, **grid, tolerance=2)
+    result = wind.run(city, **condition, **grid, solver=wind.Solver(tolerance=2))
     assert result.diagnostics.iterations > 0
     assert np.isfinite(result.diagnostics.max_lagrange_multiplier_change)

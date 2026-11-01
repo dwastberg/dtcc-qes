@@ -3,6 +3,7 @@
 from copy import deepcopy
 from dataclasses import asdict
 from datetime import datetime, timezone
+import time
 from typing import Annotated, Any, Literal, NotRequired, TypedDict
 
 import numpy as np
@@ -15,14 +16,15 @@ from dtcc_core.model import Bounds, City, Field, FieldSlice, Transform
 from . import __version__, wind
 from ._dataset_city import prepare_city
 from ._footprints import plan_footprint_domain
-from .solver_control import SolverControl
+from .solver_control import Solver
 
 __all__ = ["QESWindArgs", "QESWindDataset"]
 
 
 class _ProfilePayload(TypedDict):
     __pydantic_config__ = ConfigDict(extra="forbid", strict=True, allow_inf_nan=False)
-    schema_version: NotRequired[Annotated[int, Argument(strict=True, ge=1, le=1)]]
+    schema_version: Annotated[int, Argument(strict=True, ge=2, le=2)]
+    roughness_length: NotRequired[float]
     metadata: NotRequired[dict[str, Any] | None]
 
 
@@ -34,7 +36,6 @@ class _AnalyticPayload(_ProfilePayload):
 class _LogPayload(_AnalyticPayload):
     kind: Literal["log"]
     reference_height: NotRequired[float]
-    roughness_length: NotRequired[float]
 
 
 class _UniformPayload(_AnalyticPayload):
@@ -66,6 +67,20 @@ _ProfileRequest = Annotated[_LogPayload | _UniformPayload | _PowerPayload | _Mea
                             Argument(discriminator="kind")]
 
 
+class _SolverPayload(TypedDict):
+    __pydantic_config__ = ConfigDict(extra="forbid", strict=True, allow_inf_nan=False)
+    schema_version: Annotated[int, Argument(strict=True, ge=1, le=1)]
+    tolerance: NotRequired[float]
+    max_iterations: NotRequired[int]
+    precision: NotRequired[Literal["float32", "float64"]]
+    max_solve_seconds: NotRequired[float | None]
+    monitor: NotRequired[dict | None]
+    policy: NotRequired[Literal["pedestrian-v1"] | None]
+    checkpoint_interval: NotRequired[int]
+    residual_interval: NotRequired[int]
+    raise_on_failure: NotRequired[bool]
+
+
 class QESWindArgs(DatasetBaseArgs):
     """A city selection in EPSG:3006 and one steady wind condition."""
 
@@ -75,25 +90,18 @@ class QESWindArgs(DatasetBaseArgs):
     source: Literal["LM", "OSM"] = "LM"
     smallest_building_size: float = Argument(15.0, ge=0, description="Source area filter in square metres.")
     min_building_detail: float = Argument(0.5, gt=0, description="Core footprint cleaning/merging scale in metres.")
-    wind_speed: float = Argument(5.0, ge=0, description="Wind speed in m/s at reference_height.")
-    wind_direction: float = Argument(270.0, ge=0, lt=360, description="Meteorological direction FROM, clockwise from north.")
-    reference_height: float = Argument(10.0, gt=0)
-    roughness_length: float = Argument(0.1, gt=0)
+    speed: float = Argument(5.0, ge=0, description="Log-profile speed in m/s at the default 10 m reference; use profile for other references.")
+    direction: float = Argument(270.0, ge=0, lt=360, description="Meteorological direction FROM, clockwise from north.")
     resolution: float = Argument(2.0, gt=0, description="Horizontal cell spacing in metres; also vertical spacing in uniform mode.")
     vertical_grid: Literal["uniform", "auto"] = Argument(
         "uniform", description="Uniform cells or experimental automatic vertical layers; auto requires a slice product.")
     pedestrian_height: float = Argument(1.5, gt=0, description="Automatic-grid pedestrian target in metres above flat ground.")
     growth_rate: float = Argument(1.15, gt=1, le=1.20, description="Maximum adjacent-layer growth for the experimental automatic grid.")
-    solver_precision: Literal["float32", "float64"] = Argument(
-        "float32", description="Solver arithmetic; geometry, coefficients and completed velocities remain float32.")
     horizontal_padding: float = Argument(20.0, ge=0)
     vertical_clearance: float = Argument(20.0, ge=0)
     max_cells: int = Argument(200_000_000, ge=1)
-    tolerance: float = Argument(1e-4, gt=0)
-    max_iterations: int = Argument(1000, ge=1)
-    raise_on_nonconvergence: bool = False
-    raise_on_unaccepted: bool = False
-    solver_control: dict | None = Argument(None, description="Bounded or versioned adaptive native controls and explicit monitor.")
+    solver: _SolverPayload = Argument(default_factory=lambda: Solver(tolerance=1e-4, max_iterations=1000).to_dict(),
+        description="Versioned Solver specification; dataset defaults remain 1e-4/1000 pending the shared-default study.")
     solver_policy_revision: str | None = Argument(None, description="Automatically bound native policy/arithmetic identity for cache provenance.")
     product: Literal["field", "slice"] = "field"
     slice_axis: Literal["x", "y", "z"] = "z"
@@ -122,40 +130,26 @@ class QESWindArgs(DatasetBaseArgs):
         # Reuse the solver's float32 and integer limits before fetching data.
         if self.profile is not None:
             profile = wind.profile_from_dict(self.profile)
-            names = {"wind_speed", "wind_direction", "reference_height"}
-            if isinstance(profile, wind.LogProfile):
-                names.add("roughness_length")
+            names = {"speed", "direction"}
             conflicts = self.model_fields_set & names
             if conflicts:
                 raise ValueError(f"profile conflicts with explicit scalar condition fields: {sorted(conflicts)}")
-            wind._resolve_condition(None, None, wind._UNSET,
-                wind._UNSET if isinstance(profile, wind.LogProfile) else self.roughness_length, profile)
+            wind._resolve_condition(None, None, profile)
             object.__setattr__(self, "profile", profile.to_dict())
         else:
-            wind._validate_condition(self.wind_speed, self.wind_direction,
-                                     self.reference_height, self.roughness_length)
+            profile = wind._resolve_condition(self.speed, self.direction, None)
         wind._validate_grid(self.resolution, None, self.horizontal_padding,
                             self.vertical_clearance, self.max_cells, vertical_grid=self.vertical_grid_spec())
-        wind._validate_solver(self.tolerance, self.max_iterations, self.raise_on_nonconvergence,
-                              self.solver_precision)
-        if self.solver_control is not None:
-            control = SolverControl.from_dict(self.solver_control)
-            # Normalize omitted defaults so the cache key contains the policy
-            # version and the actual requested observables/windows.
-            self.solver_control = asdict(control)
-            if control.mode == "adaptive" and self.raise_on_nonconvergence:
-                raise ValueError("Adaptive mode uses raise_on_unaccepted, not raise_on_nonconvergence")
-            if control.mode == "adaptive":
-                actual_revision = wind._qes.solver_policy_revision
-                if self.solver_policy_revision not in (None, actual_revision):
-                    raise ValueError("Solver policy implementation changed; re-create the request for this build")
-                self.solver_policy_revision = actual_revision
-        if (self.solver_control is None or self.solver_control["mode"] != "adaptive") and self.solver_policy_revision is not None:
-            raise ValueError("solver_policy_revision requires adaptive solver controls")
-        if self.raise_on_unaccepted and (self.solver_control is None or self.solver_control["mode"] != "adaptive"):
-            raise ValueError("raise_on_unaccepted requires adaptive solver controls")
-        if self.solver_control is not None and self.solver_control["mode"] == "adaptive" and self.reference_condition()["speed"] == 0:
-            raise ValueError("Adaptive pedestrian acceptance is unavailable for calm wind")
+        solver = Solver.from_dict(self.solver)
+        self.solver = solver.to_dict()
+        if solver.mode == "adaptive":
+            actual_revision = wind._qes.solver_policy_revision
+            if self.solver_policy_revision not in (None, actual_revision):
+                raise ValueError("Solver policy implementation changed; re-create the request for this build")
+            self.solver_policy_revision = actual_revision
+        elif self.solver_policy_revision is not None:
+            raise ValueError("solver_policy_revision requires adaptive solver")
+        wind._check_solver_inputs(solver, profile, None)
         return self
 
     def vertical_grid_spec(self):
@@ -167,33 +161,23 @@ class QESWindArgs(DatasetBaseArgs):
     def serialize_request(self, handler):
         result = handler(self)
         if self.profile is not None:
-            for name in ("wind_speed", "wind_direction", "reference_height"):
+            for name in ("speed", "direction"):
                 result.pop(name, None)
-            if self.profile["kind"] == "log":
-                result.pop("roughness_length", None)
         return result
 
     def reference_condition(self):
-        if self.profile is not None:
-            return wind.profile_from_dict(self.profile).reference_at(self.roughness_length)
-        return dict(speed=self.wind_speed, height=self.reference_height, direction=self.wind_direction)
+        return wind._resolve_condition(None if self.profile else self.speed,
+            None if self.profile else self.direction, wind.profile_from_dict(self.profile) if self.profile else None).reference
 
     def wind_options(self):
-        options = dict(speed=self.wind_speed, direction=self.wind_direction,
-                    reference_height=self.reference_height, roughness_length=self.roughness_length,
+        options = dict(speed=self.speed, direction=self.direction,
                     resolution=self.resolution, horizontal_padding=self.horizontal_padding,
                     vertical_clearance=self.vertical_clearance, max_cells=self.max_cells,
-                    tolerance=self.tolerance, max_iterations=self.max_iterations,
-                    raise_on_nonconvergence=self.raise_on_nonconvergence,raise_on_unaccepted=self.raise_on_unaccepted,
-                    vertical_grid=self.vertical_grid_spec(), solver_precision=self.solver_precision)
+                    solver=Solver.from_dict(self.solver), vertical_grid=self.vertical_grid_spec())
         if self.profile is not None:
-            for name in ("speed", "direction", "reference_height"):
+            for name in ("speed", "direction"):
                 options.pop(name)
-            if self.profile["kind"] == "log":
-                options.pop("roughness_length")
             options["profile"] = wind.profile_from_dict(self.profile)
-        if self.solver_control is not None:
-            options["solver_control"] = SolverControl.from_dict(self.solver_control)
         return options
 
 
@@ -252,6 +236,12 @@ class QESWindDataset(DatasetDescriptor):
         return self.ArgsModel(**values)
 
     def build(self, args: QESWindArgs):
+        options = args.wind_options()
+        profile = wind._resolve_condition(options.get("speed"), options.get("direction"), options.get("profile"))
+        solver = options["solver"]
+        exclusions = wind._check_solver_inputs(solver, profile, None)
+        if exclusions:
+            wind._warn_solver_outcome(str(wind.UnacceptedResultError(None, None, exclusions=exclusions)), None)
         xy = list(args.bounds) if len(args.bounds) == 4 else [args.bounds[i] for i in (0, 1, 3, 4)]
         source_city = core_datasets.city(
             bounds=xy, source=args.source, smallest_building_size=args.smallest_building_size,
@@ -262,23 +252,20 @@ class QESWindDataset(DatasetDescriptor):
         upstream = source_city.dataset_context
         if upstream is not None and upstream.health and upstream.health.get("partial_result"):
             raise ValueError("QES wind requires a complete city; the upstream dataset returned a partial result")
+        preparation_started = time.perf_counter()
         footprints, bounds, preparation = prepare_city(source_city, args)
-        options = args.wind_options()
-        condition, profile = wind._resolve_condition(
-            options.get("speed"), options.get("direction"),
-            options.get("reference_height", wind._UNSET),
-            options.get("roughness_length", wind._UNSET), options.get("profile"))
         vertical_grid = args.vertical_grid_spec()
         grid = wind._validate_grid(args.resolution, bounds, args.horizontal_padding,
                                    args.vertical_clearance, args.max_cells, vertical_grid=vertical_grid)
         geometry, domain = plan_footprint_domain(footprints,
-            reference_height=condition["reference_height"], roughness_length=condition["roughness_length"],
+            reference_height=profile.reference_height, roughness_length=profile.roughness_length,
             **grid, terrain=bounds[2])
-        solver = wind._validate_solver(args.tolerance, args.max_iterations,
-                                       args.raise_on_nonconvergence, args.solver_precision)
-        solved = wind._solve_prepared(geometry, domain, condition, solver,
-            vertical_grid=vertical_grid, height_policy="allow_estimated", profile_spec=profile,
-            solver_control=options.get("solver_control"), raise_on_unaccepted=args.raise_on_unaccepted)
+        wind._prepare_profile(domain, profile)
+        preparation_seconds = time.perf_counter()-preparation_started
+        solved = wind._solve_prepared(geometry, domain, profile, solver,
+            vertical_grid=vertical_grid, height_policy="allow_estimated",
+            _known_exclusions=exclusions)
+        solved.metadata["timings"]["city_preparation_seconds"] = preparation_seconds
         preparation["footprints"] = deepcopy(solved.metadata["footprints"])
         preparation["dtcc_core"] = deepcopy(solved.metadata["versions"]["dtcc_core"])
         obj = solved.to_dtcc(include_speedup=args.profile is not None) if args.product == "field" else _field_slice(solved, args)
@@ -291,21 +278,22 @@ class QESWindDataset(DatasetDescriptor):
         step = {
             "operation": "qes_wind", "preparation": preparation,
             "simulation": solved.metadata, "diagnostics": asdict(solved.diagnostics),
+            "qualification": solved.qualification,
         }
         if args.product == "slice":
             step["sampling"] = obj.metadata_payload.copy()
         context.provenance.processing_steps.append(step)
         context.health = asdict(solved.diagnostics)
-        if solved.control is not None:
-            context.health["solver_control"] = solved.control
+        if solved.solver["record"] is not None:
+            context.health["solver"] = deepcopy(solved.solver)
             context.health["execution_deterministic"] = False
-            if solved.control["mode"] == "adaptive":
-                context.health["numerically_accepted"] = solved.control["accepted"]
-                context.health["numerical_assessment_scope"] = solved.control["assessment_scope"]
-                if solved.control["accepted"]:
+            if solved.solver["record"]["mode"] == "adaptive":
+                context.health["numerically_accepted"] = solved.solver["record"]["accepted"]
+                context.health["numerical_assessment_scope"] = solved.solver["record"]["assessment_scope"]
+                if solved.solver["record"]["accepted"]:
                     context.warnings.append("Numerical acceptance covers only the declared pedestrian ROI/receptors; full-volume and physical/model accuracy remain unassessed.")
                 else:
-                    context.warnings.append(f"QES pedestrian output is unaccepted: {solved.control['assessment_reason']}.")
+                    context.warnings.append(f"QES pedestrian output is unaccepted: {solved.solver["record"]['assessment_reason']}.")
             else:
                 context.warnings.append("Time-budgeted QES output records actual completed work; accuracy is not assessed.")
         context.health["automatic_grid_experimental"] = args.vertical_grid == "auto"
@@ -326,7 +314,7 @@ class QESWindDataset(DatasetDescriptor):
             valid = obj.field("valid").values
             context.health["valid_samples"] = int(np.count_nonzero(valid))
             context.health["invalid_samples"] = int(valid.size - np.count_nonzero(valid))
-        if not solved.diagnostics.converged and (solved.control is None or solved.control["mode"] != "adaptive"):
+        if not solved.diagnostics.converged and (solved.solver["record"] is None or solved.solver["record"]["mode"] != "adaptive"):
             context.warnings.append("QES solver did not converge; inspect the recorded diagnostics.")
         obj.dataset_context = context
         return obj
@@ -371,7 +359,7 @@ def _field_slice(result, args):
         velocity[~valid] = np.nan
     speed = np.linalg.norm(velocity.astype(np.float64), axis=1)
     # Speed-up is undefined for calm inflow; keep NaN rather than divide by zero.
-    reference_speed = result.reference_speed if args.profile is not None else args.wind_speed
+    reference_speed = result.reference_speed if args.profile is not None else args.speed
     speedup = speed / reference_speed if reference_speed > 0 else np.full_like(speed, np.nan)
     points += np.asarray(result.origin)
     physical_bounds = result.metadata["domain"]["effective_bounds"]
@@ -392,6 +380,7 @@ def _field_slice(result, args):
                           "validity": "All contributing cells must be fluid with finite velocity; invalid vectors are NaN.",
                           "speedup_reference": {"speed": reference_speed, "height": args.reference_condition()["height"]},
                           "profile": result.metadata.get("profile"),
+                          "qualification": result.qualification,
                           "vertical_grid": result.metadata["domain"].get("vertical_grid", {"mode": "uniform"}),
                           "solver_precision": result.diagnostics.precision,
                           "automatic_grid_experimental": args.vertical_grid == "auto"},

@@ -532,9 +532,7 @@ def test_original_coordinate_system_is_preserved_and_conflicts_rejected():
 )
 def test_finalization_uses_effective_grid_from_existing_planner(grid):
     envelope = city(building("envelope", box(0, 0, 20, 10), 10))
-    preview = wind.preview_grid(
-        envelope, resolution=1, vertical_clearance=20, vertical_grid=grid, turbulence=True
-    )
+    preview = wind.preview_grid(envelope, resolution=1, vertical_clearance=20, vertical_grid=grid, turbulence=wind.Turbulence())
     prepared = prepare(city(building("a", box(0, 0, 10, 10), 10), building("b", box(10, 0, 20, 10), 9.9)))
     result = finalize(
         prepared,

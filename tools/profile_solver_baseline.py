@@ -1,4 +1,7 @@
 """Archive and profile S0, with timing hooks confined to an isolated build.
+The live driver follows the current Python API. Replay frozen campaigns using
+the archived drivers under docs/data; pinned source hashes remain unchanged.
+
 
 Workers run sequentially, each with a 30 s subprocess deadline, under a 180 s
 matrix cap. Builds and parity checks are separately bounded. No reference solve
@@ -236,7 +239,7 @@ def worker(args):
     from dtcc_core.common import get_python_logger
     get_python_logger("dtcc-qes").handlers = [logging.NullHandler()]
     # Warm the runtime/team on a small unrelated case; exclude it from all counters.
-    wind.run(make_city([]), 5, 270, bounds=(0, 0, 0, 20, 20, 20), resolution=2, max_iterations=2)
+    wind.run(make_city([]), bounds=(0, 0, 0, 20, 20, 20), resolution=2, solver=wind.Solver(max_iterations=2), speed=5, direction=270)
     if args.instrumented:
         _qes._s0_reset()
     timing = {}
@@ -263,9 +266,7 @@ def worker(args):
     _qes.WindRunner = Runner
     city = make_city(rectangles("tower"))
     start = time.perf_counter()
-    result = wind.run(city, 5, 270, resolution=.5, bounds=(-40, -40, 0, 120, 120, 64),
-        vertical_grid=wind.VerticalGrid.auto(), max_cells=40000000,
-        solver_precision=args.precision, max_iterations=args.iterations, turbulence=args.turbulence)
+    result = wind.run(city, resolution=.5, bounds=(-40, -40, 0, 120, 120, 64), vertical_grid=wind.VerticalGrid.auto(), max_cells=40000000, turbulence=wind.Turbulence() if args.turbulence else None, solver=wind.Solver(precision=args.precision, max_iterations=args.iterations), speed=5, direction=270)
     timing["api_seconds"] = time.perf_counter()-start
     from dataclasses import asdict
     arrays = {name: digest(getattr(result, name).tobytes()) for name in ("velocity", "cell_flags", "x", "y", "z", "z_faces")}

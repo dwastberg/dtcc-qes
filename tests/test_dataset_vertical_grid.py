@@ -104,7 +104,7 @@ def test_nearest_slices_mark_solids_and_nonfinite_vectors_invalid(axis):
     {"slice_sampling":"linear","product":"slice","slice_axis":"y"},
     {"vertical_grid":"invalid"},{"pedestrian_height":0.},{"pedestrian_height":np.inf},
     {"growth_rate":1.},{"growth_rate":1.21},{"growth_rate":np.nan},
-    {"solver_precision":"double"},{"slice_sampling":"cubic"},
+    {"solver":{"schema_version":1,"precision":"double"}},{"slice_sampling":"cubic"},
 ])
 def test_unsupported_requests_fail_before_fetch(fetched,options):
     with pytest.raises(ValueError):
@@ -120,7 +120,7 @@ def test_height_override_is_applied_before_linear_axis_validation(axis):
 
 @pytest.mark.parametrize("options",[
     {"vertical_grid":"auto"},{"pedestrian_height":1.75},{"growth_rate":1.1},
-    {"solver_precision":"float64"},{"slice_sampling":"linear"},
+    {"solver":wind.Solver(tolerance=1e-4, max_iterations=1000, precision="float64").to_dict()},{"slice_sampling":"linear"},
 ])
 def test_new_options_participate_in_request_identity(options):
     base=QESWindArgs(**request(product="slice"))
@@ -158,7 +158,7 @@ def test_experimental_dataset_slice_matches_direct_solve_and_keeps_provenance(so
 
 
 def test_float64_precision_and_tolerance_reach_solver(fetched):
-    obj=datasets.qes_wind(**request(product="slice",solver_precision="float64",tolerance=1e-10))
+    obj=datasets.qes_wind(**request(product="slice", solver=wind.Solver(precision="float64", tolerance=1e-10, max_iterations=1000).to_dict()))
     assert realization(obj)["diagnostics"]["precision"]=="float64"
     assert realization(obj)["diagnostics"]["tolerance"]==1e-10
     assert not obj.dataset_context.health["automatic_grid_experimental"]

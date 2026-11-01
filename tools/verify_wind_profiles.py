@@ -72,14 +72,14 @@ def verify(repeats=5, tolerance=1e-5):
         profiles = [wind.LogProfile(5,270), wind.UniformProfile(5,270),
             wind.PowerLawProfile(5,270,10,.22),
             wind.MeasuredProfile([1,5,10,20,40],[1.5,3.5,5,6,7],direction=270,reference_height=10, below="log")]
-        grid = dict(resolution=2., bounds=(0,0,0,80,60,40), tolerance=tolerance, max_iterations=2000)
+        grid = dict(resolution=2., bounds=(0,0,0,80,60,40))
         report["grid"] = dict(grid, uniform_shape=[20,30,40], nonuniform_faces=[0,1,2,3,5,8,12,18,26,40])
         report["geometry"] = dict(block_bounds=[30,25,0,40,35,8], ground="flat", sampling="all fluid cell centres")
         for geometry in ("empty", "block"):
             city = City() if geometry == "empty" else city_with_block()
             for precision in ("float32", "float64"):
                 for nonuniform in (False, True):
-                    options = dict(grid, solver_precision=precision)
+                    options = dict(grid, solver=wind.Solver(tolerance=tolerance, max_iterations=2000, precision=precision))
                     if nonuniform:
                         options["vertical_grid"] = wind.VerticalGrid.from_faces([0,1,2,3,5,8,12,18,26,40])
                     for p in profiles:
@@ -101,7 +101,7 @@ def verify(repeats=5, tolerance=1e-5):
                             scaling_pass=max(errors) <= SCALING_ATOL, converged=base.diagnostics.converged,
                             conservative_divergence=base.diagnostics.max_divergence)
                         if p.kind == "log":
-                            legacy = wind.run(city, 5,270, **options)
+                            legacy = wind.run(city, **options, speed=5, direction=270)
                             item["legacy_bitwise_equal"] = bool(np.array_equal(base.velocity,legacy.velocity))
                             item["legacy_converged"] = legacy.diagnostics.converged
                         if p.kind == "power_law":

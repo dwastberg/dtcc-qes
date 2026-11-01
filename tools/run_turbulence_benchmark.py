@@ -170,7 +170,7 @@ def prepare_configuration(config):
             opts["vertical_grid"] = (wind.VerticalGrid.auto() if vertical == "auto" else
                 wind.VerticalGrid.from_faces(np.arange(0, config["top"]+float(vertical)/2, float(vertical))))
     elif config["domain"] in ("tall", "regenerated_tall", "grown_off"):
-        base = wind.preview_grid(city, **opts, turbulence=True)
+        base = wind.preview_grid(city, **opts, turbulence=wind.Turbulence())
         # Reuse planned operands, not differences of rounded effective faces.
         vertical = base.domain["vertical_grid"]
         operands = (np.diff(vertical["planned_faces"]) if spec is not None else
@@ -186,12 +186,12 @@ def prepare_configuration(config):
         opts["bounds"] = (*base.domain["effective_bounds"][:5], float(faces[-1]))
     elif config["domain"] != "auto":
         raise ValueError("Unknown domain policy")
-    condition = wind._validate_condition(config["speed"], config["direction"], 10, .1)
+    profile = wind.LogProfile(config["speed"], config["direction"])
     grid = wind._validate_grid(opts["resolution"], opts.get("bounds"), 20, 20,
                                opts["max_cells"], vertical_grid=opts["vertical_grid"])
-    geometry, prepared = wind._prepare_city(city, condition, grid, None, "measured",
+    geometry, prepared = wind._prepare_city(city, profile, grid, None, "measured",
                                              turbulence=config["method"] is not None)
-    return geometry, prepared, condition
+    return geometry, prepared, profile
 
 
 def fingerprint():
@@ -209,11 +209,11 @@ def worker(config, arrays_file=None):
     from dtcc_qes.result import _stress_validity
 
     start = time.perf_counter()
-    geometry, prepared, condition = prepare_configuration(config)
+    geometry, prepared, profile = prepare_configuration(config)
     planning = time.perf_counter()-start
     native_condition, solver = _qes.WindCondition(), _qes.SolverOptions()
     for name in ("speed", "direction", "reference_height"):
-        setattr(native_condition, name, condition[name])
+        setattr(native_condition, name, getattr(profile,name))
     # Scale the absolute multiplier threshold with input speed.
     solver.tolerance, solver.max_iterations, solver.precision = 1e-7*config["speed"]/5, 20000, "float64"
     options = {}

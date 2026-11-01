@@ -2,10 +2,21 @@
 from dataclasses import asdict, dataclass
 import math
 from numbers import Integral, Real
+from typing import Literal
+
+
+# Native legacy/bounded method id; Phase 9 exposes the shared native constant.
+LEGACY_METHOD = "s5c-rb-sor-float-omega-v1-omega-1.78"
 
 
 def _number(value, name, *, positive=False):
-    if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
+    if isinstance(value, bool) or not isinstance(value, Real):
+        raise ValueError(f"{name} must be finite")
+    try:
+        value = float(value)
+    except (OverflowError, ValueError) as error:
+        raise ValueError(f"{name} must be finite") from error
+    if not math.isfinite(value):
         raise ValueError(f"{name} must be finite")
     if value < 0 or (positive and value == 0):
         raise ValueError(f"{name} must be {'positive' if positive else 'nonnegative'}")
@@ -109,64 +120,93 @@ class MonitorSpec:
 
 
 @dataclass(frozen=True)
-class SolverControl:
-    """Native solve budget, including mutex wait, initialization and monitoring.
+class Solver:
+    """Immutable solver work, arithmetic and optional assessment specification.
 
-    Preparation and necessary output/turbulence follow separate timing scopes.
-    A whole native phase can exceed the cooperative budget. Every sweep checks
-    time; checkpoint_interval controls expensive observations independently.
-    residual_interval=0 disables algebraic trend collection.
-
-    mode='adaptive' selects the frozen pedestrian-v1 numerical policy. Its
-    qualified scope is documented in docs/solver-control-s7.md. The policy
-    fixes cadence 25 and effective windows 1/4, adds global safeguards, and
-    requires history_limit >= 5. Unsupported configurations remain unaccepted.
-    Public bounded/legacy calls retain relaxation 1.78; qualified adaptive
-    calls use 1.90. Acceptance never qualifies the full volume or turbulence.
+    A budget and monitor together select bounded execution. Adding pedestrian-v1
+    requests adaptive numerical assessment on its frozen scope. The cooperative
+    budget covers the native solve, including mutex wait and monitoring; city
+    preparation and output/turbulence calculation have separate timing scopes.
     """
-    max_solve_seconds: float
-    monitor: MonitorSpec
+    tolerance: float = 1e-5
+    max_iterations: int = 500
+    precision: Literal["float32", "float64"] = "float32"
+    max_solve_seconds: float | None = None
+    monitor: MonitorSpec | None = None
+    policy: Literal["pedestrian-v1"] | None = None
     checkpoint_interval: int = 25
     residual_interval: int = 0
-    mode: str = "bounded"
-    policy: str | None = None
+    raise_on_failure: bool = False
 
     def __post_init__(self):
-        object.__setattr__(self, "max_solve_seconds", _number(self.max_solve_seconds, "max_solve_seconds", positive=True))
+        import numpy as np
+        if not isinstance(self.precision, str) or self.precision not in ("float32", "float64"):
+            raise ValueError("precision must be 'float32' or 'float64'")
+        tolerance = _number(self.tolerance, "tolerance", positive=True)
+        limits = np.finfo(self.precision)
+        if not float(limits.eps) <= tolerance <= float(limits.max):
+            raise ValueError(f"tolerance must be at least {self.precision} epsilon and finite in {self.precision}")
+        object.__setattr__(self, "tolerance", tolerance)
+        object.__setattr__(self, "max_iterations", _integer(self.max_iterations, "max_iterations"))
+        if not isinstance(self.raise_on_failure, bool):
+            raise ValueError("raise_on_failure must be boolean")
+        if self.policy is not None and (not isinstance(self.policy, str) or self.policy != "pedestrian-v1"):
+            raise ValueError("Unknown policy; expected pedestrian-v1 or None")
+        for name in ("checkpoint_interval", "residual_interval"):
+            object.__setattr__(self, name, _integer(getattr(self, name), name,
+                minimum=0 if name == "residual_interval" else 1))
+        if self.max_solve_seconds is None and self.monitor is None and self.policy is None:
+            if self.checkpoint_interval != 25 or self.residual_interval != 0:
+                raise ValueError("Legacy solver requires checkpoint_interval=25 and residual_interval=0")
+            return
+        if self.max_solve_seconds is None or self.monitor is None:
+            raise ValueError("Bounded/adaptive solver requires both max_solve_seconds and monitor")
+        object.__setattr__(self, "max_solve_seconds",
+                           _number(self.max_solve_seconds, "max_solve_seconds", positive=True))
         if not isinstance(self.monitor, MonitorSpec):
             raise TypeError("monitor must be MonitorSpec")
-        if self.mode not in ("bounded", "adaptive"):
-            raise ValueError("Solver mode must be bounded or adaptive")
-        if self.mode == "adaptive":
-            if self.policy not in (None, "pedestrian-v1"):
-                raise ValueError("Unknown adaptive policy; expected pedestrian-v1")
-            object.__setattr__(self, "policy", "pedestrian-v1")
-            if self.checkpoint_interval != 25 or self.monitor.history_limit < 5:
-                raise ValueError("pedestrian-v1 requires cadence 25 and history_limit >= 5")
-        elif self.policy is not None:
-            raise ValueError("Bounded controls have no acceptance policy")
-        for name in ("checkpoint_interval", "residual_interval"):
-            object.__setattr__(self, name, _integer(getattr(self, name), name, minimum=0 if name.startswith("residual") else 1))
+        if self.policy is not None and (self.checkpoint_interval != 25 or self.monitor.history_limit < 5):
+            raise ValueError("pedestrian-v1 requires cadence 25 and history_limit >= 5")
 
-    def _native(self, origin, crs):
-        value = asdict(self)
-        value["monitor"]["origin"] = tuple(origin)
-        value["monitor"]["crs"] = crs or ""
-        # Native input containers are copied while holding the GIL.
-        for name in ("receptors", "mass_regions"):
-            value["monitor"][name] = list(value["monitor"][name])
-        return value
+    @property
+    def mode(self):
+        if self.max_solve_seconds is None:
+            return "legacy"
+        return "adaptive" if self.policy is not None else "bounded"
+
+    def to_dict(self):
+        import json
+        return json.loads(json.dumps(dict(schema_version=1, **asdict(self)), allow_nan=False))
 
     @classmethod
-    def from_dict(cls, value):
+    def from_dict(cls, payload):
+        from collections.abc import Mapping
+        if not isinstance(payload, Mapping):
+            raise ValueError("solver must be a versioned mapping")
+        value = dict(payload)
+        version = value.pop("schema_version", None)
+        if type(version) is not int or version != 1:
+            raise ValueError("Unsupported solver schema_version; expected 1")
         try:
-            value = dict(value)
-            monitor = dict(value.pop("monitor"))
-            monitor["receptors"] = tuple(Receptor(**r) for r in monitor.get("receptors", ()))
-            monitor["mass_regions"] = tuple(MassRegion(**r) for r in monitor.get("mass_regions", ()))
-            return cls(monitor=MonitorSpec(**monitor), **value)
+            if value.get("monitor") is not None:
+                monitor = dict(value.pop("monitor"))
+                monitor["receptors"] = tuple(Receptor(**r) for r in monitor.get("receptors", ()))
+                monitor["mass_regions"] = tuple(MassRegion(**r) for r in monitor.get("mass_regions", ()))
+                value["monitor"] = MonitorSpec(**monitor)
+            return cls(**value)
         except (KeyError, TypeError) as error:
-            raise ValueError(f"Invalid solver control settings: {error}") from error
+            raise ValueError(f"Invalid solver settings: {error}") from error
+
+    def _native(self, origin, crs):
+        if self.mode == "legacy":
+            raise ValueError("Legacy solver has no native control record")
+        monitor = asdict(self.monitor)
+        monitor.update(origin=tuple(origin), crs=crs or "")
+        for name in ("receptors", "mass_regions"):
+            monitor[name] = list(monitor[name])
+        return dict(mode=self.mode, policy=self.policy, max_solve_seconds=self.max_solve_seconds,
+                    checkpoint_interval=self.checkpoint_interval, residual_interval=self.residual_interval,
+                    monitor=monitor)
 
 
 class BudgetExhaustedError(RuntimeError):
@@ -185,8 +225,14 @@ class NumericalFailureError(RuntimeError):
 
 class UnacceptedResultError(RuntimeError):
     """An adaptive result did not qualify its explicitly requested output scope."""
-    def __init__(self, diagnostics, control):
+    def __init__(self, diagnostics, record, *, exclusions=()):
         self.diagnostics = diagnostics
-        self.control = control
-        super().__init__(f"Wind result unaccepted by {control['policy']}: "
-                         f"{control['assessment_reason']} (termination: {control['termination_reason']})")
+        self.record = record
+        self.exclusions = tuple(exclusions)
+        if record is None:
+            message = ("Wind result excluded from pedestrian-v1 before preparation: "
+                       + ", ".join(self.exclusions) + "; remaining checks run during the solve")
+        else:
+            message = (f"Wind result unaccepted by {record['policy']}: "
+                       f"{record['assessment_reason']} (termination: {record['termination_reason']})")
+        super().__init__(message)

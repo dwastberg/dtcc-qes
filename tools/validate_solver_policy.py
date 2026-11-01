@@ -76,19 +76,20 @@ def worker(out,request,package,output):
     dz=np.array(spec['solver_dz'],dtype=float)
     if request['variant']=='unqualified_profile':dz[:2]=[.9,1.5]
     nz,ny,nx=spec['expected_shape']
-    options=dict(bounds=(0,0,0,nx*2,ny*2,float(dz.sum())),resolution=2.,max_cells=400000,
-                 max_iterations=request['iterations'],tolerance=.1 if request['variant']=='legacy_converged_unaccepted' else 1e-5)
+    options=dict(bounds=(0,0,0,nx*2,ny*2,float(dz.sum())),resolution=2.,max_cells=400000)
+    solver=wind.Solver(max_iterations=request['iterations'], tolerance=.1 if request['variant']=='legacy_converged_unaccepted' else 1e-5)
     if not np.all(dz==2):options['vertical_grid']=wind.VerticalGrid.from_faces(np.r_[0,np.cumsum(dz)])
-    if request['variant']=='unqualified_precision':options['solver_precision']='float64'
+    if request['variant']=='unqualified_precision':solver=replace(solver,precision='float64')
     receptors=tuple(wind.Receptor(f'r{i}-h{h}',x,y,h) for i,(x,y) in enumerate(spec['receptors']) for h in [1.5,1.75])
     if request['variant']=='invalid_receptor':
         x,y=spec['buildings'][0]['vertices'][0];receptors=(wind.Receptor('solid',x+4,y+4,1.5),)+receptors
     if request['variant']!='legacy':
         monitor=wind.MonitorSpec(tuple(spec['roi']),receptors=receptors,history_limit=16)
-        options['solver_control']=wind.SolverControl(request['budget'],monitor,mode='adaptive')
+        solver=replace(solver,max_solve_seconds=request['budget'],monitor=monitor,policy='pedestrian-v1')
+    options['solver']=solver
     started=time.perf_counter()
     try:
-        result=wind.run(city,spec['speed'],spec['direction'],**options)
+        result=wind.run(city, **options, speed=spec['speed'], direction=spec['direction'])
     except (wind.BudgetExhaustedError,wind.NumericalFailureError) as e:
         write(output,dict(request=request,status='budget_exhausted' if isinstance(e,wind.BudgetExhaustedError) else 'numerical_failure',
                           api_seconds=time.perf_counter()-started,control=e.record));return
@@ -117,7 +118,7 @@ def worker(out,request,package,output):
     np.savez_compressed(output.with_suffix('.npz'),samples=np.asarray(samples))
     fields={name:hashlib.sha256(getattr(result,name).tobytes()).hexdigest() for name in ['velocity','cell_flags','x','y','z','z_faces']}
     write(output,dict(request=request,status='completed',api_seconds=api,diagnostics=asdict(result.diagnostics),
-        control=result.control,shape=list(result.cell_flags.shape),plane_points=nplane,field_hashes=fields,
+        control=result.solver["record"],shape=list(result.cell_flags.shape),plane_points=nplane,field_hashes=fields,
         peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
         native_build=result.metadata['versions']['native_build'],extension_sha256=digest(_qes.__file__),
         transfer_included=True,owned_outputs=result.velocity.flags.owndata and result.cell_flags.flags.owndata))

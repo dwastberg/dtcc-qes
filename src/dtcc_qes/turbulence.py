@@ -28,15 +28,28 @@ class Turbulence:
         """Native methods qualified by the rotation and wall-distance repairs."""
         return 0 if self.mixing_length == "height" else 1
 
+    def to_dict(self):
+        return dict(schema_version=1, mixing_length=self.mixing_length)
+
+    @classmethod
+    def from_dict(cls, payload):
+        from collections.abc import Mapping
+        if not isinstance(payload, Mapping):
+            raise ValueError("turbulence must be a versioned mapping")
+        args = dict(payload)
+        version = args.pop("schema_version", None)
+        if type(version) is not int or version != 1:
+            raise ValueError("Unsupported turbulence schema_version; expected 1")
+        try:
+            return cls(**args)
+        except TypeError as error:
+            raise ValueError(f"Invalid turbulence fields: {error}") from error
+
 
 def _resolve_turbulence(value):
-    if value is False:
-        return None
-    if value is True:
-        return Turbulence()
-    if isinstance(value, Turbulence):
+    if value is None or isinstance(value, Turbulence):
         return value
-    raise ValueError("turbulence must be a bool or Turbulence specification")
+    raise ValueError("turbulence must be a Turbulence specification or None; boolean shorthand was removed")
 
 
 def _turbulence_metadata(spec, native, domain_top, velocity, has_buildings):
@@ -48,7 +61,7 @@ def _turbulence_metadata(spec, native, domain_top, velocity, has_buildings):
     if spec.qes_method == 1:
         fixes += ["bounded_exposed_voxel_face_distances", "minimum_distance_preservation",
                   "physical_3H_to_3.6H_transition"]
-    return dict(model="QES-Turb algebraic mixing-length model",mixing_length=spec.mixing_length,
+    return dict(model="QES-Turb algebraic mixing-length model",mixing_length=spec.mixing_length,caveats=[],
         qes_method=spec.qes_method,numerics_version="dtcc-qes-turbulence-v1",audited_fixes=fixes,
         upstream_parity="Audited fork parity; oblique rotation and method-1 distances differ from pristine QES",
         stress_components=("txx","txy","txz","tyy","tyz","tzz"),

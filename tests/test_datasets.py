@@ -54,6 +54,25 @@ def realization(obj):
     return obj.provenance.processing_steps[-1]
 
 
+@pytest.mark.parametrize("product",["field","slice"])
+def test_dataset_qualification_snapshot_and_private_timing_scopes(fetched,product):
+    obj=datasets.qes_wind(**request(product=product))
+    step=realization(obj)
+    simulation=step["simulation"]
+    assert "qualification" not in simulation
+    assert step["qualification"]["solver"]["assessment"]=="not_requested"
+    assert simulation["timings"]["public_call_seconds"] is None
+    assert simulation["timings"]["city_preparation_seconds"]>=0
+    assert simulation["timings"]["native"] is None
+    snapshot=deepcopy(step["qualification"])
+    simulation["profile"]["caveats"].append("edited source metadata")
+    assert step["qualification"]==snapshot
+    if product=="slice":
+        assert obj.metadata_payload["qualification"]==snapshot
+        step["qualification"]["profile"]["caveats"].append("edited context snapshot")
+        assert obj.metadata_payload["qualification"]==snapshot
+
+
 def test_package_import_registers_dataset_once():
     subprocess.run([sys.executable, "-c", """
 from dtcc_core import datasets
@@ -155,7 +174,7 @@ def test_slice_sampling_on_unequal_axes(axis, position):
     np.testing.assert_array_equal(obj.field("cell_flags").values, expected[:,0]+3)
     assert obj.field("valid").values.all()
     np.testing.assert_allclose(obj.field("speed").values, np.linalg.norm(expected.astype(float), axis=1))
-    np.testing.assert_allclose(obj.field("speedup").values, obj.field("speed").values / args.wind_speed)
+    np.testing.assert_allclose(obj.field("speedup").values, obj.field("speed").values / args.speed)
     assert obj.metadata_payload["speedup_reference"] == {"speed": 5.0, "height": 10.0}
     assert all(f.association == "sample" for f in obj.fields)
     assert not np.shares_memory(obj.field("velocity").values, result.velocity)
@@ -165,7 +184,7 @@ def test_slice_sampling_on_unequal_axes(axis, position):
 
 
 def test_slice_speedup_is_nan_for_calm_inflow():
-    obj = _field_slice(coded_result(), QESWindArgs(**request(product="slice", wind_speed=0.0, slice_resolution=3)))
+    obj = _field_slice(coded_result(), QESWindArgs(**request(product="slice", speed=0.0, slice_resolution=3)))
     assert np.isfinite(obj.field("speed").values).all()
     assert np.isnan(obj.field("speedup").values).all()
 
@@ -181,7 +200,7 @@ def test_dataset_slice_solves_once_and_context_is_per_request(fetched, monkeypat
     monkeypatch.setattr(wind, "_solve_prepared", tracked)
     first = datasets.qes_wind(**request(product="slice", slice_resolution=8))
     saved = first.dataset_context.model_dump(mode="json")
-    second = datasets.qes_wind(**request(wind_speed=2.0))
+    second = datasets.qes_wind(**request(speed=2.0))
     assert len(calls) == len(fetched) == 2
     assert type(first) is FieldSlice and type(second) is VolumeGrid
     assert first.dataset_context.model_dump(mode="json") == saved
@@ -214,7 +233,7 @@ def test_slice_height_above_domain_is_rejected(fetched):
 
 
 @pytest.mark.parametrize("kwargs", [
-    {"wind_direction": 360.0}, {"wind_speed": float("nan")}, {"resolution": 0.0},
+    {"direction": 360.0}, {"speed": float("nan")}, {"resolution": 0.0},
     {"bounds": [0, 0, float("inf"), 20]}, {"tolerance": 1e-12},
     {"slice_resolution": 1}, {"max_cells": True}, {"min_building_detail": 0.0},
     {"format": "png"}, {"product": "streamlines"},
@@ -251,7 +270,7 @@ def test_resource_and_roof_limits(fetched, monkeypatch):
 
 
 def test_nonconvergence_is_not_hidden(fetched, caplog):
-    result = datasets.qes_wind(**request(max_iterations=1))
+    result = datasets.qes_wind(**request(solver=wind.Solver(max_iterations=1, tolerance=1e-4).to_dict()))
     assert not result.dataset_context.health["converged"]
     assert result.dataset_context.health["max_divergence"] == realization(result)["diagnostics"]["max_divergence"]
     assert result.dataset_context.warnings
@@ -260,7 +279,7 @@ def test_nonconvergence_is_not_hidden(fetched, caplog):
 
 def test_nonconvergence_can_explicitly_raise(fetched):
     with pytest.raises(wind.ConvergenceError):
-        datasets.qes_wind(**request(max_iterations=1, raise_on_nonconvergence=True))
+        datasets.qes_wind(**request(solver=wind.Solver(max_iterations=1, raise_on_failure=True, tolerance=1e-4).to_dict()))
 
 
 def test_upstream_failure_propagates(monkeypatch):

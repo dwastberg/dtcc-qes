@@ -27,6 +27,7 @@ import filecmp
 import hashlib
 import itertools
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -147,7 +148,8 @@ def compare_results(a, b, *, backend_pair=False, allow_added_contraction=False):
         problems = [f"only in one result: {k}" for k in sorted(keys ^ other)]
         for key in sorted(keys & other):
             u, v = x[key], y[key]
-            if key.endswith("/metadata/versions/native_build/scalars"):
+            if key.endswith(("/metadata/versions/native_build/scalars",
+                             "/metadata/solver/environment/native_build/scalars")):
                 left, right = json.loads(str(u)), json.loads(str(v))
                 if allow_added_contraction and "fp_contract" not in left:
                     right.pop("fp_contract", None)
@@ -155,7 +157,8 @@ def compare_results(a, b, *, backend_pair=False, allow_added_contraction=False):
                     left.pop("openmp_enabled", None)
                     right.pop("openmp_enabled", None)
                 u, v = np.array(json.dumps(left, sort_keys=True)), np.array(json.dumps(right, sort_keys=True))
-            if backend_pair and key.endswith("/metadata/model/scalars"):
+            if backend_pair and key.endswith(("/metadata/model/scalars",
+                                              "/metadata/solver/environment/scalars")):
                 left, right = json.loads(str(u)), json.loads(str(v))
                 left.pop("backend", None)
                 right.pop("backend", None)
@@ -207,12 +210,39 @@ def make_city(blocks):
     return city
 
 
+def _comparable_clock_values(value, *, phases=False):
+    """Validate durations, retaining their keys and unavailable/available state."""
+    if isinstance(value, dict):
+        result = {}
+        for key, item in value.items():
+            if key == "elapsed_seconds" or phases and key.endswith("_seconds"):
+                if item is not None and (isinstance(item, (bool, np.bool_)) or not isinstance(item, (int,float))
+                                         or not math.isfinite(item) or item < 0):
+                    raise ValueError(f"Invalid timing {key}: {item}")
+                result[key] = None if item is None else 0.0
+            else:
+                result[key] = _comparable_clock_values(item, phases=phases)
+        return result
+    if isinstance(value, (list,tuple)):
+        return [_comparable_clock_values(item, phases=phases) for item in value]
+    return value
+
+
 def store(out, name, value):
+    if name.endswith("/metadata/timings"):
+        if not isinstance(value,dict) or set(value) != {"public_call_seconds", "city_preparation_seconds", "native", "scopes"}:
+            raise ValueError("Invalid public timing report shape")
+        if value["native"] is not None and (not isinstance(value["native"],dict) or
+                not value["native"] or any(not key.endswith("_seconds") for key in value["native"])):
+            raise ValueError("Invalid native timing report shape")
+        value = _comparable_clock_values(value, phases=True)
+    elif name.endswith("/metadata/solver/record/timings"):
+        value = _comparable_clock_values(value, phases=True)
     if isinstance(value, dict):
         arrays = {k: v for k, v in value.items() if isinstance(v, np.ndarray)}
         for key, array in arrays.items():
             out[f"{name}/{key}"] = array
-        rest = {k: v for k, v in value.items() if k not in arrays and not isinstance(v, dict)}
+        rest = {k: _comparable_clock_values(v) for k, v in value.items() if k not in arrays and not isinstance(v, dict)}
         out[f"{name}/scalars"] = np.array(json.dumps(rest, sort_keys=True, default=repr))
         for key, nested in value.items():
             if isinstance(nested, dict):
@@ -227,37 +257,38 @@ def public_runs():
     from dtcc_qes.vertical_grid import VerticalGrid
     small = make_city([(30, 25, 10, 10, 8)])
     city = make_city(BLOCKS)
-    common = dict(reference_height=10.0, roughness_length=0.1, resolution=2.0, bounds=(0, 0, 0, 110, 90, 60))
+    common = dict(resolution=2.0, bounds=(0, 0, 0, 110, 90, 60))
     tall = {**common, "bounds": (0, 0, 0, 110, 90, 72.5)}
     stretched = np.r_[np.arange(0, 6, 0.5), np.arange(6, 20, 1.0), np.arange(20, 73, 2.5)]
     runs = {
         "flat": (make_city([]), 5.0, 270.0, dict(bounds=(0, 0, 0, 80, 60, 40))),
-        "flat_turbulence": (make_city([]), 5.0, 270.0, dict(bounds=(0, 0, 0, 80, 60, 40), turbulence=True)),
+        "flat_turbulence": (make_city([]), 5.0, 270.0, dict(bounds=(0, 0, 0, 80, 60, 40), turbulence=wind.Turbulence())),
         "one_building": (small, 5.0, 270.0, dict(bounds=(0, 0, 0, 80, 60, 40))),
-        "one_building_turbulence": (small, 5.0, 270.0, dict(bounds=(0, 0, 0, 80, 60, 40), turbulence=True)),
+        "one_building_turbulence": (small, 5.0, 270.0, dict(bounds=(0, 0, 0, 80, 60, 40), turbulence=wind.Turbulence())),
         "calm": (city, 0.0, 90.0, common),
-        "roughness_reference": (city, 6.0, 135.0, {**common, "roughness_length": 0.5, "reference_height": 25.0}),
-        "float64": (city, 5.0, 33.0, {**common, "solver_precision": "float64"}),
-        "nonconverged": (city, 7.0, 120.0, {**common, "max_iterations": 40}),
+        "roughness_reference": (city, 6.0, 135.0, {**common, "profile": wind.LogProfile(6.,135.,reference_height=25.,roughness_length=.5)}),
+        "float64": (city, 5.0, 33.0, {**common, "solver": wind.Solver(precision="float64")}),
+        "nonconverged": (city, 7.0, 120.0, {**common, "solver": wind.Solver(max_iterations=40)}),
         "turbulence_height": (city, 5.0, 200.0, {**common, "turbulence": Turbulence("height")}),
         "turbulence_wall": (city, 5.0, 200.0, {**common, "turbulence": Turbulence("wall_distance")}),
         "automatic_grid": (city, 5.0, 300.0, {**common, "vertical_grid": VerticalGrid.auto()}),
         "uniform_explicit_grid": (city, 5.0, 300.0,
                                   {**common, "vertical_grid": VerticalGrid.from_faces(np.arange(0, 62, 2.0))}),
         "stretched_turbulence": (city, 4.0, 10.0,
-                                 {**tall, "vertical_grid": VerticalGrid.from_faces(stretched), "turbulence": True}),
+                                 {**tall, "vertical_grid": VerticalGrid.from_faces(stretched), "turbulence": wind.Turbulence()}),
         "stretched_float64": (city, 4.0, 10.0,
-                              {**tall, "vertical_grid": VerticalGrid.from_faces(stretched), "solver_precision": "float64"}),
+                              {**tall, "vertical_grid": VerticalGrid.from_faces(stretched), "solver": wind.Solver(precision="float64")}),
         "long_float32": (small, 5.0, 33.0, dict(bounds=(0, 0, 0, 80, 60, 40),
-                                              max_iterations=2000, tolerance=float(np.finfo(np.float32).eps))),
+                                              solver=wind.Solver(max_iterations=2000, tolerance=float(np.finfo(np.float32).eps)))),
         "long_float64": (small, 5.0, 33.0, dict(bounds=(0, 0, 0, 80, 60, 40),
-                                              max_iterations=2000, tolerance=1e-12, solver_precision="float64")),
+                                              solver=wind.Solver(max_iterations=2000, tolerance=1e-12, precision="float64"))),
         "fine": (city, 5.0, 45.0, {**common, "resolution": 1.0, "bounds": (0, 0, 0, 110, 90, 40)}),
     }
     for direction in (0.0, 90.0, 180.0, 270.0, 33.0, 247.5):
         runs[f"direction_{direction:g}"] = (city, 5.0, direction, common)
     for name, (c, speed, direction, options) in runs.items():
-        r = wind.run(c, speed, direction, **options)
+        inflow = {} if options.get("profile") is not None else dict(speed=speed,direction=direction)
+        r = wind.run(c, **options, **inflow)
         result = {k: getattr(r, k) for k in ("velocity", "x", "y", "z", "cell_flags", "z_faces") if getattr(r, k) is not None}
         result["diagnostics"] = dict(r.diagnostics.__dict__)
         result["metadata"] = r.metadata

@@ -259,9 +259,12 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
     if bounds and abs(bounds[2] - base) > 1e-6:
         raise ValueError("Grid zmin must equal the flat ground elevation")
     spacing = float(np.float32(resolution))
+    fixed_top = bounds is not None and bounds[5] is not None
     if bounds:
         origin = (bounds[0], bounds[1], base)
-        extents = tuple(bounds[i + 3] - origin[i] for i in range(3))
+        extents = (bounds[3] - origin[0], bounds[4] - origin[1],
+                   bounds[5] - base if fixed_top else
+                   default_domain_top(city.heights, reference_height, vertical_clearance, spacing))
         padding = None
     else:
         xy = np.concatenate(city.rings)
@@ -283,7 +286,7 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
         except AutomaticGridFitError as error:
             # A valid wind-only prefix is always retained. Only endpoint-fit
             # failures can be recovered by selecting a higher initial top.
-            if not turbulence or bounds:
+            if not turbulence or fixed_top:
                 raise
             target = max(default_domain_top(city.heights, reference_height, vertical_clearance,
                 spacing, turbulence_reference=z_ref), error.minimum_top)
@@ -306,7 +309,7 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
         layers = None if vertical_grid is None else vertical_grid.layers
     if layers is not None and automatic_metadata is None:
         requested_top = vertical_grid.faces[-1]
-        if bounds:
+        if fixed_top:
             # Compare the requested physical endpoints before float32 narrowing.
             # Permit only float64 subtraction error in translated global bounds.
             tolerance = 4 * max(abs(np.spacing(origin[2])), abs(np.spacing(bounds[5])),
@@ -340,12 +343,13 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
         vertical_metadata = vertical_grid.to_metadata()
         if automatic_metadata is not None:
             vertical_metadata.update(automatic_metadata)
+    wind_only_top = float(faces[-1])
     turbulence_metadata = None
     if turbulence:
         default_top = extents[2] if regeneration is not None else float(faces[-1])
         original_count = nz
         thickness = spacing if layers is None else layers[-1]
-        explicit = bounds is not None or (vertical_grid is not None and vertical_grid.mode == "explicit")
+        explicit = fixed_top or (vertical_grid is not None and vertical_grid.mode == "explicit")
         if explicit:
             check_turbulence_faces(faces, z_ref, last_thickness=thickness, nx=nx, ny=ny, max_cells=max_cells)
         else:
@@ -384,21 +388,23 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
         max_thin_cell_aspect_ratio=float(spacing / solver_layers.min()),
         max_tall_cell_aspect_ratio=float(solver_layers.max() / spacing))
     centres_z = np.float32(0.5) * (faces[:-1] + faces[1:])
-    if automatic_metadata is not None:
-        height = vertical_grid._automatic.pedestrian_height
-        upper = int(np.searchsorted(centres_z.astype(np.float64), height))
-        lower = upper if float(centres_z[upper]) == height else upper-1
-        a, b = float(centres_z[lower]), float(centres_z[upper])
-        weight = 0.0 if lower == upper else (height-a)/(b-a)
-        z0, ref = float(np.float32(roughness_length)), float(np.float32(reference_height))
-        denominator = math.log1p(ref/z0)
-        exact = math.log1p(height/z0)/denominator
-        interpolated = (math.log1p(a/z0)*(1-weight)+math.log1p(b/z0)*weight)/denominator
-        vertical_metadata["pedestrian_sampling"] = dict(height=height,
-            centre_indices=[lower, upper], bracketing_centres=[a,b], upper_weight=weight,
-            third_centre=float(centres_z[2]), flat_profile_exact_K=exact,
-            flat_profile_interpolated_K=interpolated, flat_profile_bias_K=interpolated-exact,
-            reference_height=ref, roughness_length=z0)
+    top_requirements = dict(height_datum="metres above flat ground", fixed_top=bool(
+            fixed_top or vertical_grid is not None and vertical_grid.mode == "explicit"),
+        requested_top=vertical_grid.faces[-1] if vertical_grid is not None and
+            vertical_grid.mode == "explicit" else extents[2], effective_top=float(faces[-1]),
+        roof_clearance=dict(minimum_top=max(city.heights,default=0.) + max(vertical_clearance,spacing),
+                            clearance=max(vertical_clearance,spacing), applied=not fixed_top),
+        profile_reference=dict(minimum_top=reference_height, applied=not fixed_top),
+        minimum_cells=dict(count=2, minimum_top=None if fixed_top and layers is not None else 2*spacing,
+                           applied=True),
+        auto_grid_endpoint_fit=None if automatic_metadata is None else dict(
+            target_top=regeneration["generated_top"] if regeneration is not None else extents[2],
+            effective_top_before_turbulence=wind_only_top,
+            endpoint_fit=vertical_metadata.get("base_endpoint_fit",vertical_metadata["endpoint_fit"]),
+            regeneration=regeneration),
+        turbulence_reference=None if not turbulence else dict(reference_height=z_ref,
+            required_layers_above=2, minimum_margin_face=z_ref, effective_margin_face=float(faces[-4])),
+        turbulence_rotation_15m=None if not turbulence else dict(minimum_top=15.))
     vertical_metadata["roof_representation"] = [
         dict(source_id=source_id, requested_height=height,
              represented_height=float(faces[np.searchsorted(centres_z, np.float32(height), side="right")]),
@@ -458,6 +464,7 @@ def prepare_domain(city: CityGeometry, *, reference_height, roughness_length, re
                           dict(requested_bounds=bounds, local_bounds=(0.0, 0.0, 0.0, *effective),
                                effective_bounds=(*origin, *(origin[i] + effective[i] for i in range(3))),
                                shape=(nz, ny, nx), requested_resolution=resolution, resolution=spacing,
+                               top_requirements=top_requirements,
                                vertical_grid=vertical_metadata,
                                **({"turbulence": turbulence_metadata} if turbulence else {}),
                                **({"footprints": final_footprints.metadata} if final_footprints is not None else {}),

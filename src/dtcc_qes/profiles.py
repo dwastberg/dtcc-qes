@@ -94,11 +94,8 @@ class _Profile:
 
     @property
     def reference(self):
-        """Reference using the default .1 m roughness for any measured log tail."""
-        return self.reference_at()
-
-    def reference_at(self, roughness_length=0.1):
-        u, v = map(float, self.evaluate(self.reference_height, roughness_length))
+        """Declared reference, using this profile's ground roughness."""
+        u, v = map(float, self.evaluate(self.reference_height))
         speed = math.hypot(u, v)
         if not math.isfinite(speed):
             raise ValueError("Reference vector speed must be finite")
@@ -109,7 +106,7 @@ class _Profile:
             speed, direction = self.speed, self.direction if self.speed else None
         return dict(height=self.reference_height, u=u, v=v, speed=speed, direction=direction)
 
-    def evaluate(self, heights, roughness_length=0.1):
+    def evaluate(self, heights):
         array = np.asarray(heights)
         if array.dtype.kind not in "fiu":
             raise ValueError("Evaluation heights must be finite nonnegative real numbers")
@@ -117,7 +114,7 @@ class _Profile:
         if not np.isfinite(z).all() or np.any(z < 0):
             raise ValueError("Evaluation heights must be finite and nonnegative")
         with np.errstate(over="ignore", under="ignore", invalid="ignore", divide="ignore"):
-            vectors = self._evaluate(z, roughness_length)
+            vectors = self._evaluate(z, self.roughness_length)
         if not np.isfinite(vectors).all():
             raise ValueError("Evaluated profile velocities must remain finite")
         # A calm roof must have the documented atan2(+0,+0)=0 orientation,
@@ -125,7 +122,7 @@ class _Profile:
         return np.where(vectors == 0, 0.0, vectors)
 
     def to_dict(self):
-        payload = dict(schema_version=1, kind=self.kind,
+        payload = dict(schema_version=2, kind=self.kind,
                        **{f.name: _thaw(getattr(self, f.name)) for f in fields(self)
                           if not f.name.startswith("_")})
         if isinstance(self, MeasuredProfile) and self._measurements is not None:
@@ -156,12 +153,15 @@ class LogProfile(_Profile):
 
     def __post_init__(self):
         _analytic(self)
-        roughness = _number(self.roughness_length, "roughness_length", positive=True, native=True)
-        object.__setattr__(self, "roughness_length", roughness)
-        with np.errstate(over="ignore", divide="ignore"):
-            z, z0 = np.float32(self.reference_height), np.float32(roughness)
-            ratio = (z + z0) / z0
-        if not np.isfinite(ratio) or ratio <= 1:
+        # Match the old public-run gate before any geometry is extracted.
+        # Native Log arithmetic uses the narrowed height/roughness and a
+        # float32 sum/division; reject overflow and ratios rounding to one.
+        height, roughness = float(np.float32(self.reference_height)), float(np.float32(self.roughness_length))
+        limit = float(np.finfo(np.float32).max)
+        if height + roughness > limit:
+            raise ValueError("Reference height and roughness must form a finite float32 log profile")
+        ratio = float(np.float32(height + roughness)) / roughness
+        if not 1 < ratio <= limit or np.float32(ratio) <= 1:
             raise ValueError("Reference height and roughness must form a finite float32 log profile")
 
     def _evaluate(self, z, roughness_length):
@@ -174,6 +174,7 @@ class UniformProfile(_Profile):
     speed: float
     direction: float
     reference_height: float = 10.0
+    roughness_length: float = 0.1
     metadata: Mapping | None = None
 
     def __post_init__(self):
@@ -189,6 +190,7 @@ class PowerLawProfile(_Profile):
     direction: float
     reference_height: float
     exponent: float
+    roughness_length: float = 0.1
     metadata: Mapping | None = None
 
     def __post_init__(self):
@@ -207,6 +209,8 @@ def _analytic(profile):
         object.__setattr__(profile, name, value)
     if profile.speed < 0 or not 0 <= profile.direction < 360:
         raise ValueError("speed must be nonnegative and direction must be in [0, 360)")
+    object.__setattr__(profile, "roughness_length",
+                       _number(profile.roughness_length, "roughness_length", positive=True, native=True))
     object.__setattr__(profile, "metadata", _metadata(profile.metadata))
 
 
@@ -216,6 +220,7 @@ class MeasuredProfile(_Profile):
     u: tuple
     v: tuple
     reference_height: float
+    roughness_length: float = 0.1
     below: str = "error"
     above: str = "constant"
     interpolation: str = "log_height"
@@ -223,7 +228,7 @@ class MeasuredProfile(_Profile):
     _measurements: Mapping | None = field(default=None, repr=False, compare=False)
 
     def __init__(self, heights, speeds=None, *, direction=None, directions=None, reference_height,
-                 below="error", above="constant", interpolation="log_height", metadata=None, u=None, v=None):
+                 roughness_length=0.1, below="error", above="constant", interpolation="log_height", metadata=None, u=None, v=None):
         heights = _array(heights, "heights")
         if len(heights) < 2 or heights[0] <= 0 or np.any(np.diff(heights) <= 0):
             raise ValueError("Measured heights need at least two positive, strictly increasing values")
@@ -257,9 +262,10 @@ class MeasuredProfile(_Profile):
         if interpolation not in ("log_height", "linear"):
             raise ValueError("interpolation must be log_height or linear")
         height = _number(reference_height, "reference_height", positive=True, native=True)
+        roughness = _number(roughness_length, "roughness_length", positive=True, native=True)
         if (height < heights[0] and below == "error") or (height > heights[-1] and above == "error"):
             raise ValueError("Profile coverage does not include the reference height")
-        for name, value in dict(heights=heights, u=u, v=v, reference_height=height, below=below,
+        for name, value in dict(heights=heights, u=u, v=v, reference_height=height, roughness_length=roughness, below=below,
                                 above=above, interpolation=interpolation, metadata=metadata,
                                 _measurements=measurements).items():
             object.__setattr__(self, name, value)
@@ -311,9 +317,9 @@ def profile_from_dict(payload):
     if not isinstance(payload, Mapping):
         raise ValueError("profile must be a JSON-compatible mapping")
     args = dict(payload)
-    version = args.pop("schema_version", 1)
-    if type(version) is not int or version != 1:
-        raise ValueError("Unsupported profile schema_version")
+    version = args.pop("schema_version", None)
+    if type(version) is not int or version != 2:
+        raise ValueError("Profile schema_version=2 is required; migrate v1 payloads by moving roughness_length onto the profile payload")
     kind = args.pop("kind", None)
     classes = {name: cls for cls, name in _PROFILE_CLASSES.items()}
     if not isinstance(kind, str) or kind not in classes:
@@ -324,10 +330,26 @@ def profile_from_dict(payload):
         raise ValueError(f"Invalid {kind} profile fields: {error}") from error
 
 
-def _layer_record(profile, heights, roughness_length):
-    """Evaluate and validate the single table shared by preview, run and metadata."""
+def _profile_record(profile, heights):
+    """One owned record for the canonical inflow at final physical supports.
+
+    Log stays analytic in native code and never allocates a Python layer table.
+    Non-log families evaluate once in float64 at the final float32 centres.
+    """
+    reference = profile.reference
+    direction = profile.direction if isinstance(profile, LogProfile) else reference["direction"] or 0.
+    record = dict(schema_version=2, kind=profile.kind, requested=profile.to_dict(),
+        reference=reference, height_datum="metres above flat ground", horizontal_only=True,
+        experimental=not isinstance(profile, LogProfile),
+        interpolation=getattr(profile, "interpolation", "analytic"),
+        native_reference_scalars=dict(speed=float(np.float32(reference["speed"])),
+            direction=float(np.float32(direction)), reference_height=float(np.float32(reference["height"]))),
+        boundary_layer="neutral logarithmic" if isinstance(profile, LogProfile) else
+                       f"experimental {profile.kind} horizontal profile")
+    if isinstance(profile, LogProfile):
+        return dict(record, max_turning_deg=0., tail_layers=dict(below=0, above=0), caveats=[])
     z = np.asarray(heights, dtype=np.float64)
-    vectors = profile.evaluate(z, roughness_length)
+    vectors = profile.evaluate(z)
     with np.errstate(over="ignore", under="ignore", invalid="ignore"):
         effective = vectors.astype(np.float32)
         speed = np.hypot(effective[:, 0].astype(float), effective[:, 1].astype(float)).astype(np.float32)
@@ -340,25 +362,88 @@ def _layer_record(profile, heights, roughness_length):
     if turning < 1e-10:
         turning = 0.0
     measured = isinstance(profile, MeasuredProfile)
-    return dict(schema_version=1, type=profile.kind, requested=profile.to_dict(),
-        reference=profile.reference_at(roughness_length), height_datum="metres above flat ground",
-        horizontal_only=True, experimental=True, interpolation=getattr(profile, "interpolation", "analytic"),
-        max_turning_deg=turning,
+    return dict(record, max_turning_deg=turning,
         layer_table=dict(heights=z.tolist(), u=vectors[:, 0].tolist(), v=vectors[:, 1].tolist(),
                          effective_u=effective[:, 0].astype(float).tolist(), effective_v=effective[:, 1].astype(float).tolist()),
         tail_layers=dict(below=int(np.count_nonzero(z < profile.heights[0])) if measured else 0,
                          above=int(np.count_nonzero(z > profile.heights[-1])) if measured else 0),
-        turbulence_caveat="QES-Turb derives friction velocity from solved speed with a morphometric log-law conversion; "
-                          "strong shear or jets can be inconsistent with that conversion. No independent physical validation.")
+        caveats=["QES-Turb derives friction velocity from solved speed with a morphometric log-law conversion; "
+                          "strong shear or jets can be inconsistent with that conversion. No independent physical validation."])
 
 
-def evaluate(profile, heights, roughness_length=0.1):
+def evaluate(profile, heights):
     """Evaluate in float64 and return horizontal ``(u, v)`` components.
 
-    Measured lower-log tails use the run's roughness. No profile parameters or
+    Measured lower-log tails use the profile's roughness. No profile parameters or
     borrowed Python buffers cross into native computation.
     """
     if type(profile) not in PROFILE_TYPES:
         raise TypeError("Expected an immutable wind profile")
-    vectors = profile.evaluate(heights, roughness_length)
+    vectors = profile.evaluate(heights)
     return vectors[..., 0], vectors[..., 1]
+
+
+def _pedestrian_sampling(profile, centres, height, record):
+    """Component-first background interpolation diagnostics at a planned height.
+
+    Historical Log speed-up arithmetic intentionally uses narrowed native log
+    scalars. Other families use their declared profile and reference. No solved
+    fields or turbulence arrays are allocated or assessed by these diagnostics.
+    """
+    upper = int(np.searchsorted(centres, height))
+    lower = upper if upper < len(centres) and centres[upper] == height else upper-1
+    if lower < 0 or upper >= len(centres):
+        raise ValueError("Automatic pedestrian height must have physical cell-centre support")
+    a, b = float(centres[lower]), float(centres[upper])
+    weight = 0. if lower == upper else (height-a)/(b-a)
+    out = dict(height=height, centre_indices=[lower,upper], bracketing_centres=[a,b],
+        upper_weight=weight, third_centre=float(centres[2]) if len(centres)>2 else None,
+        inflow="unknown" if profile is None else "known",
+        profile_kind=None if profile is None else profile.kind,
+        reference_height=None, roughness_length=None,
+        flat_profile_exact_K=None, flat_profile_interpolated_K=None, flat_profile_bias_K=None,
+        exact_velocity_mps=None, interpolated_velocity_mps=None, speed_interpolation_error_mps=None,
+        vector_interpolation_error_mps=None, vector_interpolation_error_over_reference=None,
+        normalization_unavailable_reason="unknown_inflow" if profile is None else None)
+    if profile is None:
+        return out
+    reference = record["reference"]
+    speed = reference["speed"]
+    out.update(reference_height=profile.reference_height, roughness_length=profile.roughness_length)
+    if isinstance(profile, LogProfile):
+        # Keep these operations and their order identical to the old _city
+        # diagnostic, including float32 narrowing followed by math.log1p.
+        z0, ref = float(np.float32(profile.roughness_length)), float(np.float32(profile.reference_height))
+        denominator = math.log1p(ref/z0)
+        exact_k = math.log1p(height/z0)/denominator
+        interpolated_k = (math.log1p(a/z0)*(1-weight)+math.log1p(b/z0)*weight)/denominator
+        vector = np.array([reference["u"],reference["v"]])
+        exact, interpolated = vector*exact_k, vector*interpolated_k
+        out.update(reference_height=ref, roughness_length=z0, ratio_basis="native_log_scalars")
+    else:
+        table = record["layer_table"]
+        low = np.array([table["u"][lower],table["v"][lower]])
+        high = np.array([table["u"][upper],table["v"][upper]])
+        interpolated = low+(high-low)*weight
+        exact = profile.evaluate(height)
+        exact_k = math.hypot(*exact)/speed if speed else None
+        interpolated_k = math.hypot(*interpolated)/speed if speed else None
+        if isinstance(profile, UniformProfile) and speed:
+            exact_k = interpolated_k = 1.
+        out["ratio_basis"] = "declared_profile"
+    vector_error = math.hypot(*(interpolated-exact))
+    out.update(exact_velocity_mps=exact.tolist(), interpolated_velocity_mps=interpolated.tolist(),
+        speed_interpolation_error_mps=math.hypot(*interpolated)-math.hypot(*exact),
+        vector_interpolation_error_mps=vector_error)
+    for key in ("speed_interpolation_error_mps", "vector_interpolation_error_mps"):
+        if not math.isfinite(out[key]):
+            out[key] = None
+    if speed and all(math.isfinite(v) for v in (exact_k, interpolated_k, vector_error/speed)):
+        out.update(flat_profile_exact_K=exact_k, flat_profile_interpolated_K=interpolated_k,
+                   flat_profile_bias_K=interpolated_k-exact_k,
+                   vector_interpolation_error_over_reference=vector_error/speed)
+    elif speed:
+        out["normalization_unavailable_reason"] = "normalization_not_representable"
+    else:
+        out["normalization_unavailable_reason"] = "calm_reference"
+    return out

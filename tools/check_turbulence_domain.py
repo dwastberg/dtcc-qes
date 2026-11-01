@@ -29,7 +29,7 @@ def main():
     rects = [(*r[:4],15.) for r in rectangles("array")]
     city = make_city(rects)
     spec = wind.VerticalGrid.auto(fine_region_height=40)
-    base = wind.preview_grid(city,vertical_grid=spec,turbulence=True)
+    base = wind.preview_grid(city, vertical_grid=spec, turbulence=wind.Turbulence())
     vertical = base.domain["vertical_grid"]
     layers = np.diff(vertical["planned_faces"])
     np.testing.assert_array_equal(layers.astype(np.float32),base.solver_dz)
@@ -46,16 +46,14 @@ def main():
     preserved = np.asarray(preserved)
     np.testing.assert_array_equal(effective_faces(preserved)[:len(base.z_faces)],base.z_faces)
     control_top = float(np.cumsum(preserved)[-1])
-    tall = wind.preview_grid(city,bounds=(*bounds[:5],control_top),vertical_grid=spec,turbulence=True)
+    tall = wind.preview_grid(city, bounds=(*bounds[:5],control_top), vertical_grid=spec, turbulence=wind.Turbulence())
     tall_layers = np.diff(tall.domain["vertical_grid"]["planned_faces"])
     count = vertical["effective_settings"]["fine_layer_count"]
     np.testing.assert_array_equal(tall.solver_dz[:count],base.solver_dz[:count])
     runs, samples = {}, {}
     for name, operands in (("base",layers),("regenerated_tall",tall_layers),("preserved_tall",preserved)):
         planned = np.r_[0.,np.cumsum(operands)]
-        result = wind.run(city,speed=5,direction=270,bounds=(*bounds[:5],float(planned[-1])),
-            vertical_grid=wind.VerticalGrid.from_faces(planned),solver_precision="float64",
-            tolerance=1e-8,max_iterations=20000,raise_on_nonconvergence=True)
+        result = wind.run(city, speed=5, direction=270, bounds=(*bounds[:5],float(planned[-1])), vertical_grid=wind.VerticalGrid.from_faces(planned), solver=wind.Solver(precision="float64", tolerance=1e-8, max_iterations=20000, raise_on_failure=True))
         np.testing.assert_array_equal(result.z_faces,effective_faces(operands))
         samples[name] = {h: result.sample(h,method="linear") for h in (1.5,1.75)}
         runs[name] = dict(layers=len(operands),effective_top=float(result.z_faces[-1]),

@@ -1,10 +1,11 @@
 """Profile reference evaluator, owned native tables and public integration."""
+from dataclasses import replace
 from dataclasses import FrozenInstanceError, asdict
 import json
 import numpy as np
 import pytest
 from dtcc_qes import wind, _qes, comfort
-from dtcc_qes.profiles import profile_from_dict, evaluate, _layer_record
+from dtcc_qes.profiles import profile_from_dict, evaluate, _profile_record
 from dtcc_qes.datasets import QESWindArgs, QESWindDataset, _field_slice
 from city_cases import city_case
 from fixtures.cases import FLAT, ONE_BUILDING
@@ -15,12 +16,11 @@ pytestmark = pytest.mark.usefixtures("dtcc_logger")
 
 @pytest.mark.parametrize("profile", [wind.LogProfile(0,270), wind.UniformProfile(0,270)])
 def test_adaptive_calm_profile_uses_evaluated_reference_before_geometry(profile):
-    control=wind.SolverControl(1,wind.MonitorSpec((0,24,0,24)),mode="adaptive")
+    control=wind.Solver(max_solve_seconds=1, monitor=wind.MonitorSpec((0,24,0,24)), policy="pedestrian-v1")
     with pytest.raises(ValueError,match="calm"):
-        wind.run(None,profile=profile,solver_control=control)
+        wind.run(None, profile=profile, solver=control)
     with pytest.raises(ValueError,match="calm"):
-        QESWindArgs(bounds=[0,0,24,24],profile=profile.to_dict(),
-                    solver_control=asdict(control))
+        QESWindArgs(bounds=[0,0,24,24], profile=profile.to_dict(), solver=replace(control, tolerance=1e-4, max_iterations=1000).to_dict())
 
 
 def measured(**kwargs):
@@ -33,7 +33,7 @@ def test_interpolation_knots_midpoints_and_skipped_intervals(mode,midpoint):
                                          reference_height=10,interpolation=mode)
     np.testing.assert_allclose(p.evaluate([1,2,3,10,40,80])[:,0],[1,3,2,4,8,8])
     assert p.evaluate(20)[0] == pytest.approx(midpoint)
-    u,v=evaluate(p,[10,20,40],.1)
+    u,v=evaluate(p,[10,20,40])
     np.testing.assert_array_equal(u,p.evaluate([10,20,40])[:,0])
     np.testing.assert_array_equal(v,0)
 
@@ -44,10 +44,10 @@ def test_wrap_reversals_calm_nonmonotonic_and_log_tail():
     assert p.reference["speed"]<5
     reverse=wind.MeasuredProfile.from_components([1,3],[5,-5],[0,0],reference_height=2,interpolation="linear")
     assert reverse.reference == dict(height=2,u=0,v=0,speed=0,direction=None)
-    p=wind.MeasuredProfile.from_components([2,10],[2,6],[-1,-3],reference_height=10,below="log")
     for rough in (.1,.5):
+        p=wind.MeasuredProfile.from_components([2,10],[2,6],[-1,-3],reference_height=10,below="log",roughness_length=rough)
         factor=np.log1p(1/rough)/np.log1p(2/rough)
-        np.testing.assert_allclose(p.evaluate([0,1,2],rough),[[0,0],[2*factor,-factor],[2,-1]])
+        np.testing.assert_allclose(p.evaluate([0,1,2]),[[0,0],[2*factor,-factor],[2,-1]])
     calm=wind.MeasuredProfile([2,10],[0,5],direction=270,reference_height=10,below="log")
     np.testing.assert_array_equal(calm.evaluate([0,1]),0)
 
@@ -101,7 +101,7 @@ def test_reference_validation_and_power_law_ground():
 def test_empty_fields_match_reference_zero_divergence_and_grid(p,nonuniform,precision):
     city,_,grid,_=city_case(FLAT)
     if nonuniform: grid["vertical_grid"]=wind.VerticalGrid.from_faces([0,.5,1,2,4,8,14,24,40])
-    result=wind.run(city,profile=p,**grid,solver_precision=precision)
+    result=wind.run(city, profile=p, **grid, solver=wind.Solver(precision=precision))
     expected=np.zeros_like(result.velocity)
     expected[...,:2]=p.evaluate(result.z)[:,None,None,:]
     np.testing.assert_array_equal(result.velocity,expected)
@@ -117,15 +117,15 @@ def test_explicit_log_bitwise_legacy(direction):
     city,_,grid,_=city_case(ONE_BUILDING)
     p=wind.LogProfile(4.321987654,direction,11.12345678,.123456789)
     actual=wind.run(city,profile=p,**grid)
-    expected=wind.run(city,p.speed,p.direction,reference_height=p.reference_height,roughness_length=p.roughness_length,**grid)
+    expected=wind.run(city, **grid, profile=wind.LogProfile(p.speed, p.direction, reference_height=p.reference_height, roughness_length=p.roughness_length))
     np.testing.assert_array_equal(actual.velocity,expected.velocity)
 
 
-@pytest.mark.parametrize("kw",[dict(speed=5),dict(direction=270),dict(reference_height=10)])
+@pytest.mark.parametrize("kw",[dict(speed=5),dict(direction=270)])
 def test_mixed_arguments(kw):
     city,_,grid,_=city_case(FLAT)
     with pytest.raises(ValueError,match="mutually exclusive"): wind.run(city,profile=measured(),**kw,**grid)
-    with pytest.raises(ValueError,match="roughness_length"):
+    with pytest.raises(TypeError,match="roughness_length"):
         wind.run(city,profile=wind.LogProfile(5,270),roughness_length=.1,**grid)
 
 
@@ -133,11 +133,11 @@ def test_tail_counts_coverage_before_native_and_roughness(monkeypatch):
     city,_,grid,_=city_case(FLAT)
     p=wind.MeasuredProfile([2,10],[2,5],direction=270,reference_height=10)
     with pytest.raises(ValueError,match="coverage"): wind.preview_grid(city,profile=p,**grid)
-    p=wind.MeasuredProfile([2,10],[2,5],direction=270,reference_height=10,below="log")
-    result=wind.run(city,profile=p,roughness_length=.5,**grid)
+    p=wind.MeasuredProfile([2,10],[2,5],direction=270,reference_height=10,below="log",roughness_length=.5)
+    result=wind.run(city,profile=p,**grid)
     assert result.metadata["profile"]["tail_layers"]==dict(below=1,above=15)
-    assert result.metadata["condition"]["roughness_length"]==.5
-    np.testing.assert_allclose(result.velocity[0,5,5,:2],p.evaluate(1,.5),atol=1e-7)
+    assert result.metadata["profile"]["requested"]["roughness_length"]==.5
+    np.testing.assert_allclose(result.velocity[0,5,5,:2],p.evaluate(1),atol=1e-7)
     monkeypatch.setattr(_qes,"WindRunner",lambda:pytest.fail("Allocated before coverage validation"))
     p=wind.MeasuredProfile([1,38],[1,5],direction=270,reference_height=10,above="error")
     with pytest.raises(ValueError,match="coverage"): wind.run(city,profile=p,**grid)
@@ -153,8 +153,8 @@ def test_turbulence_and_turning_buildings_supported(p,mixing_length,caplog):
     city,_,grid,_=city_case(ONE_BUILDING)
     result=wind.run(city,profile=p,turbulence=wind.Turbulence(mixing_length=mixing_length),**grid)
     assert result.turbulence is not None and np.isfinite(result.velocity).all()
-    assert "morphometric" in result.metadata["profile"]["turbulence_caveat"]
-    assert "morphometric" in result.metadata["turbulence"]["profile_caveat"]
+    assert "morphometric" in " ".join(result.metadata["profile"]["caveats"])
+    assert "morphometric" in " ".join(result.metadata["turbulence"]["caveats"])
     if result.metadata["profile"]["max_turning_deg"]>45:
         assert "roof-level" in caplog.text
 
@@ -176,13 +176,13 @@ def test_native_tables_atomic_owned_and_repeated(case):
     runner,legacy,options=prepared(case)
     original=runner.solve(legacy,options)
     for p in (measured(),wind.UniformProfile(3,30),wind.PowerLawProfile(5,270,10,.3)):
-        condition,_=wind._resolve_condition(None,None,wind._UNSET,wind._UNSET,p)
-        native=wind._native_condition(condition,_layer_record(p,original["z"],condition["roughness_length"]))
+        assert wind._resolve_condition(None,None,p) is p
+        native=wind._native_condition(_profile_record(p,original["z"]))
         fresh,_,_=prepared(case)
         expected=fresh.solve(native,options)
         np.testing.assert_array_equal(runner.solve(native,options)["velocity"],expected["velocity"])
         for name,value in (("layer_u",[1,2]),("layer_v",[np.inf]*len(original["z"]))):
-            bad=wind._native_condition(condition,_layer_record(p,original["z"],condition["roughness_length"]))
+            bad=wind._native_condition(_profile_record(p,original["z"]))
             setattr(bad,name,value)
             with pytest.raises(ValueError): runner.solve(bad,options)
         np.testing.assert_array_equal(runner.solve(native,options)["velocity"],expected["velocity"])
@@ -194,7 +194,7 @@ def test_native_exact_layers_reference_and_python_ownership():
     condition=_qes.WindCondition(); condition.profile_kind=_qes.ProfileKind.layer_table
     u=[2.]*20; condition.layer_u=u; condition.layer_v=[2.]*20; condition.speed=np.sqrt(8)
     u[0]=99; assert condition.layer_u[0]==2
-    control=wind.SolverControl(10,wind.MonitorSpec(region=(4,76,4,56)))
+    control=wind.Solver(max_solve_seconds=10, monitor=wind.MonitorSpec(region=(4,76,4,56)))
     result=runner.solve(condition,options,control=control._native((0,0,0),None))
     assert result["control"]["monitor"]["reference_speed"]==condition.speed
     np.testing.assert_array_equal(result["velocity"][...,:2],2)
@@ -205,17 +205,17 @@ def test_building_scaling_and_legacy_log_table():
     p=measured(); base=wind.run(city,profile=p,**grid)
     scaled=wind.run(city,profile=p.scaled(2.5),**grid)
     np.testing.assert_allclose(scaled.velocity/2.5,base.velocity,atol=2e-5)
-    log=wind.LogProfile(**cond); legacy=wind.run(city,**cond,**grid)
+    log=cond["profile"]; legacy=wind.run(city,**cond,**grid)
     table=wind.MeasuredProfile.from_components(legacy.z,*log.evaluate(legacy.z).T,reference_height=10,interpolation="linear")
     table_result=wind.run(city,profile=table,**grid)
     np.testing.assert_allclose(table_result.velocity,legacy.velocity,atol=1e-5)
 
 
 def test_dataset_roundtrip_conflicts_identity_and_invalid_before_fetch(monkeypatch):
-    payload=measured().to_dict(); args=QESWindArgs(bounds=[0,0,80,60],profile=payload,roughness_length=.5)
+    payload=measured(roughness_length=.5).to_dict(); args=QESWindArgs(bounds=[0,0,80,60],profile=payload)
     assert QESWindArgs.model_validate_json(args.model_dump_json()).profile==args.profile
-    assert "wind_speed" not in args.model_dump() and args.wind_options()["roughness_length"]==.5
-    for key,value in (("wind_speed",5.),("wind_direction",270.),("reference_height",10.)):
+    assert "speed" not in args.model_dump() and args.wind_options()["profile"].roughness_length==.5
+    for key,value in (("speed",5.),("direction",270.)):
         with pytest.raises(ValueError,match="conflicts"): QESWindArgs(bounds=[0,0,80,60],profile=payload,**{key:value})
     from dtcc_core import datasets
     monkeypatch.setattr(datasets,"city",lambda **kw:pytest.fail("Fetched invalid profile"))
@@ -228,7 +228,7 @@ def test_dataset_direct_and_speedup_export_agree(monkeypatch):
     from dtcc_core import datasets
     from dtcc_core.model import City,Transform
     city=City(transform=Transform(srs="EPSG:3006")); monkeypatch.setattr(datasets,"city",lambda **kw:city)
-    p=measured();args=QESWindArgs(bounds=[0,0,0,80,60,40],horizontal_padding=0.,product="slice",profile=p.to_dict(),roughness_length=.5)
+    p=measured(roughness_length=.5);args=QESWindArgs(bounds=[0,0,0,80,60,40],horizontal_padding=0.,product="slice",profile=p.to_dict())
     from dtcc_qes._dataset_city import prepare_city
     _,bounds,_=prepare_city(city,args)
     direct=wind.run(city, **args.wind_options(), bounds=bounds, terrain=0, height_policy="allow_estimated",
@@ -275,21 +275,47 @@ def test_requested_measurements_and_scaling_preserve_caller_provenance():
 
 def test_lower_tail_uses_actual_run_roughness_before_native_narrowing():
     profile = wind.MeasuredProfile([10, 20], [8e38, 8e38], direction=270,
-                                  reference_height=1, below="log")
+                                  reference_height=1, below="log", roughness_length=1e6)
     city, _, _, _ = city_case(FLAT)
-    preview = wind.preview_grid(city, profile=profile, roughness_length=1e6, resolution=.5,
+    preview = wind.preview_grid(city, profile=profile, resolution=.5,
                                 bounds=(0, 0, 0, 4, 4, 2))
     record = preview.domain["profile"]
-    assert record["reference"] == profile.reference_at(1e6)
+    assert record["reference"] == profile.reference
     assert np.isfinite(record["layer_table"]["effective_u"]).all()
     assert max(record["layer_table"]["effective_u"]) < 2e38
 
 
-@pytest.mark.parametrize("version", [True, 1.0, 2])
+@pytest.mark.parametrize("version", [True, 2.0, 1])
 def test_dataset_schema_versions_are_strict(version):
     with pytest.raises(ValueError):
         QESWindArgs(bounds=[0, 0, 80, 60], profile={"kind": "uniform", "speed": 5,
                     "direction": 270, "schema_version": version})
+
+
+@pytest.mark.parametrize("kind", ["log", "uniform", "power_law", "measured"])
+def test_v2_profile_owns_roughness_and_rejects_old_payloads(kind):
+    payload = dict(schema_version=2, kind=kind, roughness_length=.7)
+    if kind == "measured":
+        payload.update(heights=[2, 10], speeds=[2, 5], direction=270,
+                       reference_height=1, below="log")
+    else:
+        payload.update(speed=5, direction=270)
+        if kind == "power_law":
+            payload.update(reference_height=10, exponent=.2)
+    profile = profile_from_dict(payload)
+    assert profile.roughness_length == profile.scaled(2).roughness_length == .7
+    assert profile_from_dict(profile.to_dict()).to_dict() == profile.to_dict()
+    assert not hasattr(profile, "reference_at")
+    with pytest.raises(TypeError):
+        profile.evaluate([1, 2], .1)
+    with pytest.raises(ValueError, match="moving roughness_length"):
+        profile_from_dict(dict(payload, schema_version=1))
+    with pytest.raises(ValueError, match="schema_version=2"):
+        profile_from_dict({k:v for k,v in payload.items() if k != "schema_version"})
+    args = QESWindArgs(bounds=[0,0,80,60], profile=profile.to_dict())
+    assert args.wind_options()["profile"].roughness_length == .7
+    with pytest.raises(ValueError, match="Extra inputs"):
+        QESWindArgs(bounds=[0,0,80,60], profile=profile.to_dict(), roughness_length=.1)
 
 
 def test_dataset_schema_exposes_all_four_profile_discriminators():

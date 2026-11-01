@@ -1,4 +1,7 @@
 """Frozen urban inputs, isolated source builds and bounded API comparisons.
+The live driver follows the current Python API. Replay frozen campaigns using
+the archived drivers under docs/data; pinned source hashes remain unchanged.
+
 
 Run a single explicit shard at a time. Numerical differences from a baseline
 are reported as differences; accuracy needs a separately qualified reference.
@@ -6,7 +9,7 @@ are reported as differences; accuracy needs a separately qualified reference.
 from __future__ import annotations
 import argparse
 from collections import Counter
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -170,7 +173,7 @@ def frozen_options(spec,wind):
     faces=np.r_[0,np.cumsum(spec['solver_dz'],dtype=float)]
     bounds=tuple(np.asarray(spec['bounds'])+np.tile(spec['origin'],2))
     return dict(bounds=bounds,resolution=spec['resolution'],vertical_grid=wind.VerticalGrid.from_faces(faces),
-        max_cells=spec['max_cells'],terrain='flat',reference_height=10.,roughness_length=.1)
+        max_cells=spec['max_cells'],terrain='flat')
 
 
 def run(args):
@@ -234,24 +237,22 @@ def worker(args):
     actual_threads=_qes._urban_benchmark_actual_threads()
     expected_threads=row['threads'] if _qes.openmp_enabled else 1
     if actual_threads!=expected_threads: raise ValueError("Unexpected actual OpenMP team")
-    wind.run(City(),5,270,bounds=(0,0,0,20,20,20),resolution=2,max_iterations=2)
+    wind.run(City(), bounds=(0,0,0,20,20,20), resolution=2, solver=wind.Solver(max_iterations=2), speed=5, direction=270)
     started=time.perf_counter();t=started
     spec=json.loads((args.fixtures/f"cases/{row['case']}.json").read_text());value=cases.city(spec)
     timing=dict(load_and_city_seconds=time.perf_counter()-t);t=time.perf_counter()
     options=frozen_options(spec,wind)
-    options.update(reference_height=row['reference_height'],roughness_length=row['roughness_length'])
+    options['profile']=wind.LogProfile(row['speed'],row['direction'],reference_height=row['reference_height'],roughness_length=row['roughness_length'])
     preview=wind.preview_grid(value,**options)
     if list(preview.shape)!=spec['expected_shape'] or preview.solver_dz.tolist()!=spec['solver_dz']: raise ValueError("Frozen grid operands changed")
-    timing['preview_seconds']=time.perf_counter()-t;control={}
+    timing['preview_seconds']=time.perf_counter()-t;solver=wind.Solver(max_iterations=row['iterations'],precision=row['precision'])
     if row['variant']=='bounded':
         monitor=wind.MonitorSpec(tuple(spec['roi']),heights=tuple(spec['heights']),history_limit=16,
             receptors=tuple(wind.Receptor(f"r{i}-h{h}",x,y,h) for h in spec['heights'] for i,(x,y) in enumerate(spec['receptors'])))
-        control['solver_control']=wind.SolverControl(row['max_solve_seconds'],monitor,
-            checkpoint_interval=row['checkpoint_interval'],residual_interval=row['residual_interval'])
+        solver=replace(solver,max_solve_seconds=row['max_solve_seconds'],monitor=monitor,checkpoint_interval=row['checkpoint_interval'],residual_interval=row['residual_interval'])
     t=time.perf_counter()
     try:
-        result=wind.run(value,row['speed'],row['direction'],**options,max_iterations=row['iterations'],
-                        solver_precision=row['precision'],**control)
+        result=wind.run(value, **options, solver=solver)
     except RuntimeError as e:
         if hasattr(e,'record'):
             write(args.output,dict(status="budget_exhausted_zero_work",request=row,record=e.record));return
@@ -276,7 +277,7 @@ def worker(args):
     timing['hash_and_output_seconds']=time.perf_counter()-t;timing['pipeline_seconds']=time.perf_counter()-started
     rss=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*(1 if sys.platform=='darwin' else 1024)
     write(args.output,dict(status="completed",request=row,timing=timing,diagnostics=asdict(result.diagnostics),
-        control=result.metadata.get('solver_control'),field_sha256=hashes,grid_sha256=grid_hashes,
+        control=result.solver['record'],field_sha256=hashes,grid_sha256=grid_hashes,
         shape=list(result.cell_flags.shape),building_count=len(spec['buildings']),peak_rss_bytes=rss,
         actual_threads=actual_threads,
         peaks=peaks,receptors=receptors,extension_sha256=digest(_qes.__file__),backend=_qes.cpu_backend,

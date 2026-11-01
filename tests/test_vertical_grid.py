@@ -74,8 +74,7 @@ def test_flat_log_profile_uses_effective_centres(resolution, direction, componen
 def test_building_occupancy_uses_layer_centres(height):
     city, condition, grid, _ = city_case(ONE_BUILDING)
     city.buildings[0].measured_height = height
-    result = wind.run(city, **condition, **grid, max_iterations=2000,
-                      vertical_grid=wind.VerticalGrid.from_faces(stretched_faces()))
+    result = wind.run(city, **condition, **grid, vertical_grid=wind.VerticalGrid.from_faces(stretched_faces()), solver=wind.Solver(max_iterations=2000))
     z, y, x = np.meshgrid(result.z, result.y, result.x, indexing="ij")
     expected = (x >= 30) & (x < 40) & (y >= 25) & (y < 35) & (z <= np.float32(height))
     np.testing.assert_array_equal(result.solid_mask, expected)

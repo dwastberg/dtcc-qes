@@ -1,4 +1,7 @@
 """Bounded float32 API comparison of generated and uniform vertical grids.
+The live driver follows the current Python API. Replay frozen campaigns using
+the archived drivers under docs/data; pinned source hashes remain unchanged.
+
 
 Freeze before execution; retain every case, including timeouts. Saved-data audit
 needs NumPy and frozen analysis sources, without an installed QES extension.
@@ -158,9 +161,7 @@ def worker(root, task):
     spec=(wind.VerticalGrid.auto() if task['family']=='generated' else
           wind.VerticalGrid.from_faces(np.arange(129)*.5))
     start=perf_counter()
-    result=wind.run(city,5,270,resolution=.5,bounds=protocol['bounds'],vertical_grid=spec,
-        max_cells=protocol['allocation_guard'],solver_precision='float32',
-        tolerance=protocol['tolerance'],max_iterations=task['iterations'])
+    result=wind.run(city, resolution=.5, bounds=protocol['bounds'], vertical_grid=spec, max_cells=protocol['allocation_guard'], solver=wind.Solver(precision='float32', tolerance=protocol['tolerance'], max_iterations=task['iterations']), speed=5, direction=270)
     api_seconds=perf_counter()-start
     np.testing.assert_array_equal(result.z_faces,np.asarray(reference['z_faces'],np.float32))
     x,y=result.x.astype(float)+result.origin[0],result.y.astype(float)+result.origin[1]

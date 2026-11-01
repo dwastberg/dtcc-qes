@@ -182,3 +182,27 @@ class VerticalGrid:
         return dict(mode="explicit", generator_version=GENERATOR_VERSION,
                     requested_faces=list(self.faces),
                     uniform=bool(np.all(layers == layers[0])))
+
+    def to_dict(self):
+        if self.mode == "auto":
+            return dict(schema_version=1, mode="auto", settings=asdict(self._automatic))
+        return dict(schema_version=1, mode="explicit", faces=list(self.faces))
+
+    @classmethod
+    def from_dict(cls, payload):
+        from collections.abc import Mapping
+        if not isinstance(payload, Mapping):
+            raise ValueError("vertical_grid must be a versioned mapping")
+        args = dict(payload)
+        version = args.pop("schema_version", None)
+        if type(version) is not int or version != 1:
+            raise ValueError("Unsupported vertical-grid schema_version; expected 1")
+        mode = args.pop("mode", None)
+        if mode == "explicit" and set(args) == {"faces"}:
+            return cls.from_faces(args["faces"])
+        if mode == "auto" and set(args) == {"settings"} and isinstance(args["settings"], Mapping):
+            try:
+                return cls.auto(**args["settings"])
+            except TypeError as error:
+                raise ValueError(f"Invalid automatic-grid settings: {error}") from error
+        raise ValueError("Expected explicit faces or automatic settings without unknown fields")

@@ -5,6 +5,7 @@ at a time. Full field/sample fingerprints, diagnostics and control decisions
 are compared; elapsed times are deliberately excluded from equality.
 """
 from __future__ import annotations
+from dataclasses import replace
 import argparse
 from dataclasses import asdict
 import hashlib
@@ -89,9 +90,14 @@ def worker(args):
     if args.kind == 'prototype':
         original_prepare = wind._prepare_city
         cached = []
-        def prepare(*a, **kw):
-            if not cached: cached.append(original_prepare(*a, **kw))
-            return cached[0]
+        def prepare(city, profile, *a, **kw):
+            if not cached:
+                cached.append(original_prepare(city, profile, *a, **kw))
+                return cached[0]
+            geometry, prepared = cached[0]
+            prepared = replace(prepared, domain=dict(prepared.domain))
+            wind._prepare_profile(prepared, profile)
+            return geometry, prepared
         wind._prepare_city = prepare
         runner = Runner()
         first_prepare = runner.prepare
@@ -104,12 +110,12 @@ def worker(args):
         _qes.WindRunner = lambda: runner
     control = None
     if args.mode == 'adaptive':
-        control = wind.SolverControl(5, wind.MonitorSpec((20,130,20,145), receptors=tuple(
+        control = wind.Solver(max_solve_seconds=5, monitor=wind.MonitorSpec((20,130,20,145), receptors=tuple(
             wind.Receptor(f'p{i}-h{h}', x, y, h)
             for i,(x,y) in enumerate([(32,37),(52,59),(72,81),(92,103),(112,125)])
-            for h in (1.5,1.75))), mode='adaptive')
+            for h in (1.5,1.75))), policy="pedestrian-v1")
     options = dict(bounds=(0,0,0,160,160,64))
-    solve_options = dict(max_iterations=600 if control else 500, solver_control=control)
+    solve_options = dict(solver=replace(control or wind.Solver(), max_iterations=600 if control else 500))
     records = []
     if args.memory:
         import tracemalloc
@@ -117,7 +123,7 @@ def worker(args):
     start = time.perf_counter()
     api_prepare = time.perf_counter()-start
     for direction in DIRECTIONS[:args.count]:
-        result = wind.run(source, 5, direction, **options, **solve_options)
+        result = wind.run(source, **options, **solve_options, speed=5, direction=direction)
         sample_start = time.perf_counter()
         samples = [result.sample(h, method='linear') for h in (1.5,1.75)]
         phases['sampling'] += time.perf_counter()-sample_start
@@ -131,7 +137,7 @@ def worker(args):
         with temporary.open('rb') as stream: os.fsync(stream.fileno())
         phases['output'] += time.perf_counter()-output_start
         temporary.unlink()
-        c = result.control
+        c = result.solver["record"]
         records.append(dict(direction=direction, fields={k:dict(dtype=str(v.dtype),shape=list(v.shape),sha256=digest(v.tobytes())) for k,v in arrays.items()},
             diagnostics=asdict(result.diagnostics),
             control=None if c is None else {k:c[k] for k in ('accepted','accuracy_status','termination_reason','method','policy','assessment','assessment_history','checkpoint_history','counters','effective_monitor') if k in c},

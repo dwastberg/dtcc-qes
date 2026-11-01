@@ -132,12 +132,9 @@ def solve(prisms, args):
     options = dict(
         speed=SPEED,
         direction=270.0,
-        reference_height=10.0,
-        roughness_length=0.1,
         resolution=args.resolution,
         bounds=BOUNDS,
-        tolerance=float(np.finfo(np.float32).eps),
-        max_iterations=args.iterations,
+        solver=wind.Solver(tolerance=float(np.finfo(np.float32).eps), max_iterations=args.iterations),
     )
     if args.footprints == "resolve":
         options["footprints"] = wind.Footprints(
@@ -162,7 +159,7 @@ def solve(prisms, args):
             versions=result.metadata["versions"],
             domain=result.metadata["domain"],
             model=result.metadata["model"],
-            condition=result.metadata["condition"],
+            profile=result.metadata["profile"],
             velocity_sha256=digest(result.velocity),
             flags_sha256=digest(result.cell_flags),
             sampled_velocity_sha256=digest(sample.velocity),

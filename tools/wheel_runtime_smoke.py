@@ -1,4 +1,5 @@
 """Exercise the actually installed release wheel with project dependencies."""
+from dataclasses import replace
 import argparse
 import json
 from pathlib import Path
@@ -25,13 +26,19 @@ def main():
         b.add_geometry(Surface(vertices=np.array([[x,y,0],[x,y+12,0],[x+12,y+12,0],[x+12,y,0],[x,y,0]],float)),GeometryType.LOD0)
         city.add_building(b)
     monitor=wind.MonitorSpec((0,80,0,80),receptors=tuple(wind.Receptor(f'h{h}',27,21,h) for h in [1.5,1.75]),history_limit=8)
-    result=wind.run(city,5,270,bounds=(0,0,0,160,160,64),max_iterations=600,
-        solver_control=wind.SolverControl(5,monitor,mode='adaptive'))
+    result=wind.run(city, bounds=(0,0,0,160,160,64), solver=replace(wind.Solver(max_solve_seconds=5, monitor=monitor, policy="pedestrian-v1"), max_iterations=600), speed=5, direction=270)
     supported = _qes.solver_policy_build_supported
-    if supported:assert result.control['accepted'] and not result.diagnostics.converged
-    else:assert not result.control['accepted'] and result.control['assessment_reason']=='unqualified_build'
-    assert result.control['policy_revision']==_qes.solver_policy_revision
-    assert len(result.control['checkpoint_history'])<=8 and len(result.control['assessment_history'])<=8
+    if supported:assert result.solver["record"]['accepted'] and not result.diagnostics.converged
+    else:assert not result.solver["record"]['accepted'] and result.solver["record"]['assessment_reason']=='unqualified_build'
+    assert result.solver["record"]['policy_revision']==_qes.solver_policy_revision
+    qualification=result.qualification
+    assert qualification['solver']['assessment']==('accepted' if supported else 'not_assessed')
+    assert qualification['solver']['legacy_converged']==result.diagnostics.converged
+    assert 'qualification' not in result.metadata
+    assert result.metadata['timings']['public_call_seconds']>=result.metadata['timings']['city_preparation_seconds']>=0
+    assert result.metadata['timings']['native']==result.solver['record']['timings']
+    json.dumps(qualification,allow_nan=False)
+    assert len(result.solver["record"]['checkpoint_history'])<=8 and len(result.solver["record"]['assessment_history'])<=8
     assert result.velocity.flags.owndata and result.cell_flags.flags.owndata
     assert result.sample(1.5,method='linear').velocity.shape==(80,80,3)
     json.dumps(result.metadata,allow_nan=False)
@@ -41,23 +48,22 @@ def main():
     high = Building(id="tower"); high.measured_height = 12
     high.add_geometry(Surface(vertices=np.array([[8,8,0],[8,16,0],[16,16,0],[16,8,0]], float)), GeometryType.LOD0)
     stepped = City(); stepped.add_buildings([low, high])
-    canonical = wind.run(stepped, 5, 270, bounds=(0,0,0,24,24,32), resolution=1, max_iterations=2,
-                         footprints=wind.Footprints(min_detail=.01))
+    canonical = wind.run(stepped, bounds=(0,0,0,24,24,32), resolution=1, footprints=wind.Footprints(min_detail=.01), solver=wind.Solver(max_iterations=2), speed=5, direction=270)
     assert canonical.metadata["footprints"]["counts"]["solids"] == 2
     assert np.isfinite(canonical.velocity).all()
     assert canonical.solid_mask[3,12,12] and canonical.solid_mask[9,12,12]
     assert canonical.solid_mask[3,6,6] and not canonical.solid_mask[9,6,6]
-    small=dict(bounds=(0,0,0,24,24,32),max_iterations=2)
-    legacy=wind.run(City(),5,270,solver_precision='float64',**small)
-    assert legacy.control is None and legacy.velocity.dtype==np.float32
+    small=dict(bounds=(0,0,0,24,24,32))
+    legacy=wind.run(City(), **small, solver=wind.Solver(precision='float64', max_iterations=2), speed=5, direction=270)
+    assert legacy.solver["record"] is None and legacy.velocity.dtype==np.float32
     for method in ['height','wall_distance']:
-        r=wind.run(City(),5,45,turbulence=wind.Turbulence(method),**small)
+        r=wind.run(City(), turbulence=wind.Turbulence(method), solver=wind.Solver(max_iterations=2), **small, speed=5, direction=45)
         assert r.turbulence is not None and r.turbulence.stress.flags.owndata
-    try:wind.run(City(),5,270,solver_control=wind.SolverControl(1e-12,wind.MonitorSpec((0,24,0,24))),**small)
+    try:wind.run(City(), **small, solver=wind.Solver(max_solve_seconds=1e-12, monitor=wind.MonitorSpec((0,24,0,24))), speed=5, direction=270)
     except wind.BudgetExhaustedError as e:assert e.record['iterations']==0
     else:raise AssertionError('Expected zero-work budget exhaustion')
     print(json.dumps(dict(passed=True,package=str(root),module=str(_qes.__file__),policy_revision=_qes.solver_policy_revision,
-        adaptive_accepted=result.control['accepted'],actual_threads=result.control['actual_threads'],checks=['owned_output','sampling','adaptive_vs_legacy_status','history_bounds','float64','two_turbulence_methods','zero_work_error','canonical_footprints_with_partition_hole'])))
+        adaptive_accepted=result.solver["record"]['accepted'],actual_threads=result.solver["record"]['actual_threads'],checks=['owned_output','sampling','adaptive_vs_legacy_status','derived_qualification','nested_timings','history_bounds','float64','two_turbulence_methods','zero_work_error','canonical_footprints_with_partition_hole'])))
 
 
 if __name__=='__main__':main()

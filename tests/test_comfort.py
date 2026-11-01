@@ -112,8 +112,8 @@ def test_gem_from_runs_scales_with_reference_speed(method):
         means, gems = [], []
         for direction in directions:
             city, condition, grid, solver = city_case(ONE_BUILDING)
-            condition.update(speed=speed, direction=direction)
-            solver.update(tolerance=1e-7*speed/5, max_iterations=2000, solver_precision="float64")
+            condition["profile"] = wind.LogProfile(speed,direction)
+            solver["solver"] = wind.Solver(tolerance=1e-7*speed/5, max_iterations=2000, precision="float64")
             run = wind.run(city, **condition, **grid, **solver, turbulence=wind.Turbulence(method))
             assert run.diagnostics.converged
             sample = run.sample(1.5, "linear")

@@ -199,9 +199,7 @@ def test_public_sampler_matches_current_native_study(spacing):
             b.add_geometry(Surface(vertices=np.array([[x,y,0], [x,y+12,0],
                 [x+12,y+12,0], [x+12,y,0]], dtype=float)), GeometryType.LOD0)
             city.add_building(b)
-    result = wind.run(city, speed=5, direction=270, resolution=2, bounds=(0,0,0,80,80,64),
-        vertical_grid=wind.VerticalGrid.from_faces(reference["z_faces"]),
-        tolerance=float(np.finfo(np.float32).eps), max_iterations=checkpoint["iterations"])
+    result = wind.run(city, speed=5, direction=270, resolution=2, bounds=(0,0,0,80,80,64), vertical_grid=wind.VerticalGrid.from_faces(reference["z_faces"]), solver=wind.Solver(tolerance=float(np.finfo(np.float32).eps), max_iterations=checkpoint["iterations"]))
     assert result.diagnostics.iterations == checkpoint["iterations"]
     sample = result.sample(1.5, method="linear")
     expected = np.array([v if v is not None else [np.nan]*3 for v in checkpoint["velocity"]])

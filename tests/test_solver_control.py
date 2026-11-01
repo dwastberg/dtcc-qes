@@ -16,7 +16,7 @@ from test_datasets import fetched, source_city
 
 
 def settings(**changes):
-    return wind.SolverControl(10, wind.MonitorSpec((0, 100, 0, 80),
+    return wind.Solver(max_solve_seconds=10, monitor=wind.MonitorSpec((0, 100, 0, 80),
         receptors=(wind.Receptor("street", 25, 21, 1.5),), history_limit=4), checkpoint_interval=1, **changes)
 
 
@@ -60,21 +60,19 @@ def test_public_world_frame_warning_and_initial_history(caplog):
     city, condition, grid, _ = city_case(ONE_BUILDING, (1e9, -2e9, 100))
     b = grid["bounds"]
     monitor = wind.MonitorSpec((b[0], b[3], b[1], b[4]), frame="world")
-    r = wind.run(city, **condition, **grid, max_iterations=2,
-                 solver_control=wind.SolverControl(10, monitor, checkpoint_interval=1))
-    assert tuple(r.control["monitor"]["origin"]) == (1e9, -2e9, 100)
-    assert r.control["execution"]["precision"] == "float32"
-    assert r.control["checkpoint_history"][0]["initial"]
-    assert not r.control["checkpoint_history"][0]["heights"][0]["short_change"]["available"]
+    r = wind.run(city, **condition, **grid, solver=replace(wind.Solver(max_solve_seconds=10, monitor=monitor, checkpoint_interval=1), max_iterations=2))
+    assert tuple(r.solver["record"]["monitor"]["origin"]) == (1e9, -2e9, 100)
+    assert r.solver["environment"]["precision"] == "float32"
+    assert r.solver["record"]["checkpoint_history"][0]["initial"]
+    assert not r.solver["record"]["checkpoint_history"][0]["heights"][0]["short_change"]["available"]
     assert "termination: iteration_limit" in caplog.text
     json.dumps(r.metadata, allow_nan=False)
     with pytest.raises(wind.ConvergenceError) as caught:
-        wind.run(city, **condition, **grid, max_iterations=1, raise_on_nonconvergence=True,
-                 solver_control=wind.SolverControl(10, monitor))
-    assert caught.value.control["termination_reason"] == "iteration_limit"
+        wind.run(city, **condition, **grid, solver=replace(wind.Solver(max_solve_seconds=10, monitor=monitor), max_iterations=1, raise_on_failure=True))
+    assert caught.value.record["termination_reason"] == "iteration_limit"
 
 
-@pytest.mark.parametrize("change", [dict(mode="adaptive"), dict(max_solve_seconds=0),
+@pytest.mark.parametrize("change", [dict(policy="invented"), dict(max_solve_seconds=0),
     dict(max_solve_seconds=float("nan")), dict(checkpoint_interval=0), dict(residual_interval=-1),
     dict(checkpoint_interval=True)])
 def test_invalid_settings_rejected(change):
@@ -87,8 +85,8 @@ def test_monitor_inputs_are_immutable_snapshots_and_roundtrip():
     monitor = wind.MonitorSpec(roi, heights)
     roi[1] = 0; heights.append(6)
     assert monitor.region == (0, 100, 0, 80) and monitor.heights == (1.5, 1.75)
-    c = wind.SolverControl(5, monitor)
-    assert wind.SolverControl.from_dict(json.loads(json.dumps(asdict(c)))) == c
+    c = wind.Solver(max_solve_seconds=5, monitor=monitor)
+    assert wind.Solver.from_dict(json.loads(json.dumps(c.to_dict()))) == c
 
 
 def test_native_invalid_config_and_monitor_budget_raise_then_retry():
@@ -107,11 +105,11 @@ def test_dataset_control_identity_and_health(fetched, source_city):
     from dtcc_core import datasets
     from dtcc_qes.datasets import QESWindArgs
     from test_datasets import request
-    c = wind.SolverControl(10, wind.MonitorSpec((0, 42, 0, 36)), checkpoint_interval=1)
-    args = QESWindArgs(**request(max_iterations=2, solver_control=asdict(c)))
-    assert args.wind_options()["solver_control"] == c
-    result = datasets.qes_wind(**request(max_iterations=2, solver_control=asdict(c)))
-    assert result.dataset_context.health["solver_control"]["accuracy_status"] == "not_assessed"
+    c = wind.Solver(max_solve_seconds=10, monitor=wind.MonitorSpec((0, 42, 0, 36)), checkpoint_interval=1)
+    args = QESWindArgs(**request(solver=replace(c, max_iterations=2, tolerance=1e-4).to_dict()))
+    assert args.wind_options()["solver"] == replace(c, tolerance=1e-4, max_iterations=2)
+    result = datasets.qes_wind(**request(solver=replace(c, max_iterations=2, tolerance=1e-4).to_dict()))
+    assert result.dataset_context.health["solver"]["record"]["accuracy_status"] == "not_assessed"
     assert not result.dataset_context.health["execution_deterministic"]
     dumped = result.dataset_context.model_dump(mode="json")
     assert "max_solve_seconds" in json.dumps(dumped, allow_nan=False)
@@ -123,10 +121,10 @@ from concurrent.futures import ThreadPoolExecutor
 from dtcc_core.model import City
 from dtcc_qes import wind
 def run(i):
-    control=wind.SolverControl(1e-12 if i==0 else 5,wind.MonitorSpec((0,24,0,20)))
+    control=wind.Solver(max_solve_seconds=1e-12 if i==0 else 5, monitor=wind.MonitorSpec((0,24,0,20)))
     try:
-        r=wind.run(City(),5,270,bounds=(0,0,0,24,20,12),solver_control=control)
-        assert r.control['accuracy_status']=='not_assessed'
+        r=wind.run(City(), bounds=(0,0,0,24,20,12), solver=control, speed=5, direction=270)
+        assert r.solver["record"]['accuracy_status']=='not_assessed'
         return r.diagnostics.iterations
     except wind.BudgetExhaustedError as e:
         assert e.record['iterations']==0

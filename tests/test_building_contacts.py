@@ -13,17 +13,11 @@ from dtcc_qes import wind
 from test_footprints import building, city, surface
 
 pytestmark = pytest.mark.usefixtures("dtcc_logger")
-OPTIONS = dict(bounds=(-20, -20, 0, 60, 40, 40), resolution=1, max_iterations=12)
+OPTIONS = dict(bounds=(-20, -20, 0, 60, 40, 40), resolution=1, solver=wind.Solver(max_iterations=12))
 
 
 def run(value, *, expose=True, **options):
-    return wind.run(
-        value,
-        5,
-        270,
-        footprints=wind.Footprints(min_detail=0.01, exposed_faces=expose),
-        **(OPTIONS | options),
-    )
+    return wind.run(value, footprints=wind.Footprints(min_detail=0.01, exposed_faces=expose), **OPTIONS | options, speed=5, direction=270)
 
 
 def same(a, b):
@@ -86,11 +80,9 @@ def test_multipart_holes_and_oblique_contacts_are_supported():
 )
 def test_preview_and_solve_share_final_solids_and_turbulence_reference(grid):
     value = city(building("a", box(0, 0, 10, 10), 10), building("b", box(10, 0, 20, 10), 9.9))
-    options = dict(
-        resolution=1, vertical_grid=grid, turbulence=True, footprints=wind.Footprints(min_detail=0.01)
-    )
-    preview = wind.preview_grid(value, **options)
-    result = wind.run(value, 5, 270, max_iterations=3, **options)
+    options = dict(resolution=1, vertical_grid=grid, turbulence=wind.Turbulence(), footprints=wind.Footprints(min_detail=0.01))
+    preview = wind.preview_grid(value, speed=5, direction=270, **options)
+    result = wind.run(value, **options, solver=wind.Solver(max_iterations=3), speed=5, direction=270)
     assert preview.domain == result.metadata["domain"]
     assert preview.shape == result.solid_mask.shape
     heights = np.sort(np.array([s["native_height"] for s in result.metadata["solids"]], dtype=np.float32))
@@ -131,7 +123,7 @@ def test_invalid_public_footprint_settings_are_rejected(value):
 
 def test_strict_near_contacts_are_recorded_without_cleaning(caplog):
     value = city(building("a", box(0, 0, 10, 10), 6), building("b", box(10.3, 0, 20.3, 10), 6))
-    result = wind.run(value, 5, 270, **(OPTIONS | {"max_iterations": 2}))
+    result = wind.run(value, **OPTIONS | {"solver": wind.Solver(max_iterations=2)}, speed=5, direction=270)
     (pair,) = result.metadata["near_contacts"]
     assert pair["source_ids"] == ["a", "b"]
     assert pair["distance"] == pytest.approx(0.3)

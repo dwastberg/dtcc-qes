@@ -7,6 +7,26 @@ import pytest
 pytestmark = pytest.mark.usefixtures("dtcc_logger")
 
 
+def test_city_dataset_cli_emits_current_request_fields(monkeypatch):
+    import sys
+    from types import SimpleNamespace
+    from dtcc_core import datasets
+    from dtcc_qes.datasets import QESWindArgs
+    requests=[]
+    result=SimpleNamespace(provenance=SimpleNamespace(processing_steps=[{"diagnostics":{"converged":True}}]))
+    def requested(**kwargs):
+        requests.append(QESWindArgs(**kwargs))
+        return result
+    monkeypatch.setattr(datasets,"qes_wind",requested)
+    monkeypatch.setattr(sys,"argv",["city_dataset.py","0","0","30","24","--speed","3.5",
+        "--direction","225","--solver-precision","float64","--product","slice","--vertical-grid","auto"])
+    example=Path(__file__).resolve().parents[1]/"examples/city_dataset.py"
+    assert runpy.run_path(str(example))["main"]() is result
+    request,=requests
+    assert request.speed == 3.5 and request.direction == 225
+    assert request.solver["precision"] == "float64" and request.solver["max_iterations"] == 1000
+
+
 def test_self_contained_example():
     example = Path(__file__).resolve().parents[1] / "examples/single_building.py"
     result, grid = runpy.run_path(str(example))["main"]()
@@ -14,6 +34,13 @@ def test_self_contained_example():
     assert result.velocity.shape == (20, 30, 40, 3)
     assert np.isfinite(result.velocity).all()
     assert grid.num_cells == 24000 and len(grid.fields) == 3
+
+
+def test_wind_profile_example_uses_self_contained_specs():
+    example=Path(__file__).resolve().parents[1]/"examples/wind_profiles.py"
+    profiles=runpy.run_path(str(example))["main"]()
+    assert [profile.kind for profile in profiles] == ["measured","power_law"]
+    assert all(profile.roughness_length == .1 for profile in profiles)
 
 
 def test_vertical_grid_preview_and_sampling_example():

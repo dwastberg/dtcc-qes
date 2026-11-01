@@ -41,7 +41,7 @@ def assert_margin(preview, reference):
 def test_uniform_midrise_city_raises_automatic_top():
     city = blocks()
     baseline = wind.preview_grid(city)
-    actual = wind.preview_grid(city, turbulence=True)
+    actual = wind.preview_grid(city, turbulence=wind.Turbulence())
     assert_margin(actual, 45)
     record = actual.domain["turbulence"]
     assert record["raised"] and record["default_top"] == float(baseline.z_faces[-1])
@@ -53,7 +53,7 @@ def test_uniform_midrise_city_raises_automatic_top():
 def test_tall_tower_keeps_default_top():
     city = blocks((7.9, 7.9, 7.9, 23.7))
     baseline = wind.preview_grid(city)
-    actual = wind.preview_grid(city, turbulence=True)
+    actual = wind.preview_grid(city, turbulence=wind.Turbulence())
     np.testing.assert_array_equal(actual.z_faces, baseline.z_faces)
     assert not actual.domain["turbulence"]["raised"]
     assert actual.domain["turbulence"]["added_layers"] == 0
@@ -61,7 +61,7 @@ def test_tall_tower_keeps_default_top():
 
 def test_explicit_bounds_too_low_raise():
     with pytest.raises(ValueError, match=r"zRef 24.*margin.*sufficient top of 30 m"):
-        wind.preview_grid(blocks((8,)), bounds=(0,0,0,80,80,26), turbulence=True)
+        wind.preview_grid(blocks((8,)), bounds=(0,0,0,80,80,26), turbulence=wind.Turbulence())
 
 
 @pytest.mark.parametrize("faces,top", [(np.arange(0,30,2), 30),
@@ -69,7 +69,7 @@ def test_explicit_bounds_too_low_raise():
 def test_explicit_z_faces_too_low_raise(faces, top):
     spec = wind.VerticalGrid.from_faces(faces)
     with pytest.raises(ValueError, match=rf"zRef 24.*margin.*sufficient top of {top} m"):
-        wind.preview_grid(blocks((8,)), vertical_grid=spec, turbulence=True)
+        wind.preview_grid(blocks((8,)), vertical_grid=spec, turbulence=wind.Turbulence())
 
 
 @pytest.mark.parametrize("bounds", [None, (0,0,0,80,80,40)])
@@ -78,9 +78,9 @@ def test_automatic_vertical_grid_satisfies_margin(bounds):
     options = dict(vertical_grid=wind.VerticalGrid.auto(), bounds=bounds)
     if bounds is not None:
         with pytest.raises(ValueError, match=r"zRef 45.*margin"):
-            wind.preview_grid(city, **options, turbulence=True)
+            wind.preview_grid(city, **options, turbulence=wind.Turbulence())
         return
-    actual = wind.preview_grid(city, **options, turbulence=True)
+    actual = wind.preview_grid(city, **options, turbulence=wind.Turbulence())
     assert_margin(actual, 45)
     assert actual.domain["turbulence"]["extension_policy"] == "constant_last_thickness"
 
@@ -88,8 +88,7 @@ def test_automatic_vertical_grid_satisfies_margin(bounds):
 @pytest.mark.parametrize("height,resolution", [(20,2), (15,1), (15,0.5)])
 @pytest.mark.parametrize("spec", [None, wind.VerticalGrid.auto()])
 def test_automatic_midrise_retry_regression(height, resolution, spec):
-    actual = wind.preview_grid(blocks((height,)*4), resolution=resolution,
-                               vertical_grid=spec, turbulence=True)
+    actual = wind.preview_grid(blocks((height,)*4), resolution=resolution, vertical_grid=spec, turbulence=wind.Turbulence())
     assert_margin(actual, 3*height)
 
 
@@ -99,7 +98,7 @@ def test_automatic_extension_preserves_lower_layers(spec):
     city = blocks((20,)*4)
     options = dict(vertical_grid=spec)
     baseline = wind.preview_grid(city, **options)
-    actual = wind.preview_grid(city, **options, turbulence=True)
+    actual = wind.preview_grid(city, **options, turbulence=wind.Turbulence())
     count = baseline.shape[0]
     np.testing.assert_array_equal(actual.solver_dz[:count], baseline.solver_dz)
     np.testing.assert_array_equal(actual.z_faces[:count+1], baseline.z_faces)
@@ -129,7 +128,7 @@ def test_automatic_growth_respects_cell_limit_before_flow_allocation(monkeypatch
     baseline = wind.preview_grid(city, **options)
     monkeypatch.setattr(_qes, "WindRunner", lambda: pytest.fail("Allocated native flow fields"))
     with pytest.raises(ValueError, match=r"zRef 45.*max_cells limit"):
-        wind.preview_grid(city, **options, max_cells=baseline.cell_count, turbulence=True)
+        wind.preview_grid(city, **options, max_cells=baseline.cell_count, turbulence=wind.Turbulence())
 
 
 def test_automatic_growth_respects_layer_limit(monkeypatch):
@@ -142,14 +141,13 @@ def test_automatic_growth_respects_layer_limit(monkeypatch):
     city.add_building(building)
     monkeypatch.setattr(_qes, "WindRunner", lambda: pytest.fail("Allocated native flow fields"))
     with pytest.raises(ValueError, match=r"zRef 45.*10000-layer limit"):
-        wind.preview_grid(city, resolution=.004, horizontal_padding=.012,
-                          max_cells=20_000_000, turbulence=True)
+        wind.preview_grid(city, resolution=.004, horizontal_padding=.012, max_cells=20_000_000, turbulence=wind.Turbulence())
 
 
 def test_automatic_growth_respects_native_index_limit(monkeypatch):
     monkeypatch.setattr(_qes, "WindRunner", lambda: pytest.fail("Allocated native flow fields"))
     with pytest.raises(ValueError, match=r"zRef 45.*native index limit"):
-        wind.preview_grid(blocks(), horizontal_padding=9000, max_cells=2**63-1, turbulence=True)
+        wind.preview_grid(blocks(), horizontal_padding=9000, max_cells=2**63-1, turbulence=wind.Turbulence())
 
 
 @pytest.mark.parametrize("layers", [np.full(3,5.), np.full(8,2.),
@@ -184,7 +182,7 @@ def test_face_check_rejects_collapsed_centres_in_extension():
 
 def test_no_buildings_uses_roughness():
     with pytest.raises(ValueError, match=r"zRef 50.*sufficient top of 56 m"):
-        wind.preview_grid(City(), bounds=(0,0,0,80,80,40), roughness_length=.5, turbulence=True)
+        wind.preview_grid(City(), bounds=(0,0,0,80,80,40), turbulence=wind.Turbulence(), profile=wind.LogProfile(1, 0, roughness_length=.5))
 
 
 @pytest.mark.parametrize("spec", [None, wind.VerticalGrid.auto(), wind.VerticalGrid.from_faces(np.arange(0,82,2))])
@@ -192,7 +190,7 @@ def test_turbulence_false_domain_unchanged(spec):
     city = blocks()
     options = dict(vertical_grid=spec)
     baseline = wind.preview_grid(city, **options)
-    actual = wind.preview_grid(city, **options, turbulence=False)
+    actual = wind.preview_grid(city, **options, turbulence=None)
     for name in ("x", "y", "z", "z_faces", "solver_dz"):
         np.testing.assert_array_equal(getattr(actual,name), getattr(baseline,name))
     assert actual.domain == baseline.domain and "turbulence" not in actual.domain
@@ -210,14 +208,14 @@ def test_reference_height_matches_native_float32_sorted_accumulation():
     assert _city.default_domain_top([15]*4,10,20,2,turbulence_reference=45) == 51
 
 
-def test_preview_turbulence_rejects_non_boolean_values():
-    for value in (None, 1, "height", {}, np.bool_(True)):
-        with pytest.raises(ValueError, match="turbulence must be a bool"):
+def test_preview_turbulence_rejects_boolean_shorthand_and_invalid_specs():
+    for value in (True, False, 1, "height", {}, np.bool_(True)):
+        with pytest.raises(ValueError, match="turbulence must be a Turbulence"):
             wind.preview_grid(blocks(), turbulence=value)
 
 
 def test_translated_ground_keeps_reference_local_and_global_top_correct():
-    actual = wind.preview_grid(blocks(base=100), turbulence=True)
+    actual = wind.preview_grid(blocks(base=100), turbulence=wind.Turbulence())
     assert_margin(actual,45)
     assert actual.origin[2] == 100
     assert actual.domain["effective_bounds"][-1] == 100+float(actual.z_faces[-1])
@@ -228,10 +226,10 @@ def test_translated_ground_keeps_reference_local_and_global_top_correct():
 def test_prepared_domain_and_preview_are_accepted_by_native_runner(spec, method):
     city = blocks((8,))
     options = dict(resolution=.7, vertical_grid=spec)
-    preview = wind.preview_grid(city, **options, turbulence=True)
-    condition = wind._validate_condition(5,270,10,.1)
+    preview = wind.preview_grid(city, speed=5, direction=270, **options, turbulence=wind.Turbulence())
+    profile = wind.LogProfile(5,270)
     grid = wind._validate_grid(.7,None,20,20,20_000_000,vertical_grid=spec)
-    _, prepared = wind._prepare_city(city,condition,grid,None,"measured",turbulence=True)
+    _, prepared = wind._prepare_city(city,profile,grid,None,"measured",turbulence=True)
     assert prepared.domain == preview.domain
     settings = _qes.TurbulenceSettings()
     settings.enabled, settings.mixing_length_method = True, method
@@ -250,9 +248,9 @@ def test_prepared_domain_and_preview_are_accepted_by_native_runner(spec, method)
 def test_mixed_native_building_heights_match_preflight_reference():
     heights = (23.7,7.9,11.1234567,.001234,7.9)
     city = blocks(heights)
-    condition = wind._validate_condition(5,270,10,.1)
+    profile = wind.LogProfile(5,270)
     grid = wind._validate_grid(2,None,20,20,20_000_000)
-    _, prepared = wind._prepare_city(city,condition,grid,None,"measured",turbulence=True)
+    _, prepared = wind._prepare_city(city,profile,grid,None,"measured",turbulence=True)
     settings = _qes.TurbulenceSettings()
     settings.enabled = True
     runner = _qes.WindRunner()
@@ -269,7 +267,7 @@ def test_regeneration_records_changed_prefix_and_preserves_fine_band():
     spec = wind.VerticalGrid.auto(fine_region_height=40)
     with pytest.raises(ValueError, match="fine band does not fit"):
         wind.preview_grid(city,vertical_grid=spec)
-    actual = wind.preview_grid(city,vertical_grid=spec,turbulence=True)
+    actual = wind.preview_grid(city, vertical_grid=spec, turbulence=wind.Turbulence())
     assert_margin(actual,45)
     record = actual.domain["turbulence"]
     assert record["raised"] and not record["lower_layers_preserved"]
@@ -279,14 +277,13 @@ def test_regeneration_records_changed_prefix_and_preserves_fine_band():
     count = metadata["effective_settings"]["fine_layer_count"]
     np.testing.assert_array_equal(actual.solver_dz[:count],layers[:count].astype(np.float32))
     with pytest.raises(ValueError, match="fine band does not fit"):
-        wind.preview_grid(city,bounds=(0,0,0,80,80,35),vertical_grid=spec,turbulence=True)
+        wind.preview_grid(city, bounds=(0,0,0,80,80,35), vertical_grid=spec, turbulence=wind.Turbulence())
 
 
 def test_regeneration_retries_an_infeasible_initial_turbulence_endpoint():
     # The wind-only 35 m top cannot fit this band. The initial 51 m turbulence
     # target leaves a 0.1 m sliver, below its valid 0.428 m final thickness.
-    preview = wind.preview_grid(blocks(),vertical_grid=wind.VerticalGrid.auto(fine_region_height=50.9),
-                                turbulence=True)
+    preview = wind.preview_grid(blocks(), vertical_grid=wind.VerticalGrid.auto(fine_region_height=50.9), turbulence=wind.Turbulence())
     assert_margin(preview,45)
     record = preview.domain["turbulence"]["regeneration"]
     assert record["attempts"] == 2 and record["generated_top"] > 51
@@ -300,7 +297,7 @@ def test_safe_explicit_domain_is_checked_without_growth(spec):
         options["bounds"] = (0,0,0,80,80,60)
     city = blocks((8,))
     before = wind.preview_grid(city,**options)
-    after = wind.preview_grid(city,**options,turbulence=True)
+    after = wind.preview_grid(city, **options, turbulence=wind.Turbulence())
     np.testing.assert_array_equal(after.z_faces,before.z_faces)
     np.testing.assert_array_equal(after.solver_dz,before.solver_dz)
     assert after.domain["turbulence"]["extension_policy"] == "check_only"

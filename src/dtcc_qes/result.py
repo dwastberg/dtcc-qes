@@ -1,14 +1,46 @@
 """Physical wind arrays, height sampling and DTCC uniform-grid conversion."""
 
 from dataclasses import dataclass, field
+from copy import deepcopy
+import json
 from numbers import Real
 
 import numpy as np
 from dtcc_core.model import Bounds, Field, Transform, VolumeGrid
+from .solver_control import LEGACY_METHOD
 
 
 _STRESS_RELATIVE_TOLERANCE = 32 * float(np.finfo(np.float32).eps)
 _STRESS_CHUNK_SIZE = 65536
+
+
+def _qualification(metadata, diagnostics):
+    """Fresh public views of existing evidence; never a second live record."""
+    solver = metadata.get("solver") or {}
+    spec, record = solver.get("spec", {}), solver.get("record")
+    mode = "adaptive" if spec.get("policy") is not None else (
+        "bounded" if spec.get("max_solve_seconds") is not None else "legacy")
+    termination = record["termination_reason"] if record is not None else (
+        "legacy_tolerance" if diagnostics.converged else "iteration_limit")
+    assessment = ("not_requested" if mode != "adaptive" else record["accuracy_status"])
+    reason = record.get("assessment_reason") if record is not None else None
+    solver_view = dict(mode=mode, method=record["method"] if record is not None else LEGACY_METHOD,
+        execution=termination if termination in ("iteration_limit", "time_limit") else "completed",
+        termination_reason=termination, legacy_converged=diagnostics.converged,
+        assessment=assessment, assessment_scope=record.get("assessment_scope") if record is not None else None,
+        assessment_reason=reason, exclusions=[reason] if assessment == "not_assessed" and reason else [],
+        pending_runtime_checks=[])
+    profile, turbulence = metadata.get("profile") or {}, metadata.get("turbulence")
+    grid = metadata.get("domain", {}).get("vertical_grid", {})
+    return deepcopy(dict(solver=solver_view,
+        profile=dict(kind=profile.get("kind"), experimental=profile.get("experimental"),
+                     caveats=profile.get("caveats", [])),
+        turbulence=None if turbulence is None else dict(status="screening",
+            mixing_length=turbulence.get("mixing_length"), numerics_version=turbulence.get("numerics_version"),
+            caveats=turbulence.get("caveats", []), wind_basis={key:solver_view[key] for key in
+                ("execution", "legacy_converged", "assessment", "assessment_scope")}),
+        vertical_grid=dict(mode=grid.get("mode", "uniform"),
+                           policy_status=grid.get("policy_status", "fixed"))))
 
 
 def _stress_validity(stress):
@@ -117,13 +149,13 @@ class SolveDiagnostics:
 
 
 class ConvergenceError(RuntimeError):
-    def __init__(self, diagnostics, control=None):
+    def __init__(self, diagnostics, record=None):
         self.diagnostics = diagnostics
-        self.control = control
+        self.record = record
         super().__init__(f"Wind solve did not converge after {diagnostics.iterations} iterations: "
                          f"maximum Lagrange multiplier change {diagnostics.max_lagrange_multiplier_change:g} "
                          f"> tolerance {diagnostics.tolerance:g}"
-                         + (f" (termination: {control['termination_reason']})" if control else ""))
+                         + (f" (termination: {record['termination_reason']})" if record else ""))
 
 
 @dataclass(frozen=True)
@@ -164,7 +196,7 @@ class WindSample:
     @property
     def streamwise_std(self):
         if self.stress is None:
-            raise ValueError("Sample has no turbulence; run with turbulence=True")
+            raise ValueError("Sample has no turbulence; run with turbulence=Turbulence()")
         contributors = self._stress_contributors_valid
         if contributors is None:
             contributors = self.stress_valid if self.stress_valid is not None else True
@@ -198,9 +230,18 @@ class WindResult:
     turbulence: TurbulenceFields | None = None
 
     @property
-    def control(self):
-        """Bounded/adaptive control record, or None for a legacy solve."""
-        return self.metadata.get("solver_control")
+    def solver(self):
+        """Authoritative solver specification, raw record and environment."""
+        return self.metadata.get("solver")
+
+    @property
+    def qualification(self):
+        """Derived numerical/model scope, independent of field validity masks.
+
+        Every access returns a fresh dictionary. Native acceptance never implies
+        turbulence/gust qualification or replaces legacy convergence evidence.
+        """
+        return _qualification(self.metadata, self.diagnostics)
 
     @property
     def speed(self):
@@ -213,7 +254,7 @@ class WindResult:
         reference = (self.metadata.get("profile") or {}).get("reference")
         if reference is not None:
             return reference["speed"]
-        return self.metadata.get("condition", {}).get("speed")
+        return None
 
     @property
     def speedup(self):
@@ -225,7 +266,7 @@ class WindResult:
     @property
     def streamwise_std(self):
         if self.turbulence is None:
-            raise ValueError("Result has no turbulence; run with turbulence=True")
+            raise ValueError("Result has no turbulence; run with turbulence=Turbulence()")
         return _streamwise_std(self.turbulence.stress,self.velocity,
                                self.turbulence.computed & ~self.solid_mask)
 
@@ -379,8 +420,10 @@ class WindResult:
                              zmax=float(self.z_faces[-1]) if self.z_faces is not None else nz * self.resolution)
         velocity = self.velocity.transpose(1, 2, 0, 3).reshape(-1, 3).copy()
         flags = self.cell_flags.transpose(1, 2, 0).reshape(-1).copy()
+        qualification = self.qualification
+        qualification_json = json.dumps(qualification, sort_keys=True, allow_nan=False)
         grid.add_field(Field(name="velocity", unit="m/s", values=velocity, dim=3, association="cell",
-                             description="Wind velocity (u, v, w); cell order y, x, z fastest"))
+                             description="Wind velocity (u, v, w); cell order y, x, z fastest; qualification=" + qualification_json))
         grid.add_field(Field(name="speed", unit="m/s", values=np.linalg.norm(velocity.astype(np.float64), axis=1),
                              association="cell", description="Wind speed magnitude"))
         grid.add_field(Field(name="cell_flags", unit="1", values=flags, association="cell",
@@ -402,7 +445,10 @@ class WindResult:
             provenance = ("QES-Turb algebraic mixing-length screening model; "
                 f"numerics_version={metadata.get('numerics_version','unspecified')}; "
                 f"mixing_length={metadata.get('mixing_length','unspecified')}; QES revision={revision}; "
-                "not validated for pedestrian gusts")
+                "not validated for pedestrian gusts; wind_basis=" +
+                json.dumps(qualification["turbulence"]["wind_basis"] if qualification["turbulence"] is not None else
+                    {key:qualification["solver"][key] for key in ("execution","legacy_converged","assessment","assessment_scope")},
+                    sort_keys=True, allow_nan=False))
             exports = (
                 ("stress","m^2/s^2",6,np.where(computed[...,None],fields.stress,np.nan),
                  "Raw stress (xx, xy, xz, yy, yz, zz); invalid computed tensors retained; uncomputed NaN"),
