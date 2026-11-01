@@ -21,7 +21,7 @@ def test_final_entry_point_signatures_and_removed_arguments(operation, monkeypat
     assert parameters["turbulence"].default is None
     assert "reference_height" not in parameters and "roughness_length" not in parameters
     if operation is wind.preview_grid:
-        assert "solver" not in parameters  # Native eligibility arrives in Phase 9.
+        assert parameters["solver"].default is None  # Native eligibility is opt-in.
     monkeypatch.setattr(wind,"extract_city",lambda *a,**kw:pytest.fail("extracted geometry"))
     for removed in ("reference_height","roughness_length"):
         with pytest.raises(TypeError,match=removed):

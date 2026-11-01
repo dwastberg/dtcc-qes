@@ -111,9 +111,17 @@ inline nb::dict encode(const MonitorSpec &v) {
   }
   d["mass_regions"]=regions;return d;
 }
+inline nb::dict encode(const ControlTimings &t) {
+  nb::dict timings;
+#define T(name) timings[#name]=t.name
+  T(preparation_seconds);T(mutex_wait_seconds);T(initialization_seconds);T(workspace_seconds);T(rhs_seconds);T(sweeps_seconds);T(monitoring_seconds);
+  T(finalization_seconds);T(postprocessing_seconds);T(output_transfer_seconds);T(solve_seconds);T(native_total_seconds);T(deadline_overshoot_seconds);
+#undef T
+  return timings;
+}
 inline nb::dict encode(const ControlRecord &v) {
   nb::dict d;F(mode);F(termination_reason);F(accuracy_status);F(phase);F(iterations);F(actual_threads);
-  F(policy);F(method);F(policy_revision);F(assessment_scope);F(assessment_reason);F(accepted);F(assessment_count);
+  F(policy);F(method);F(policy_revision);F(assessment_scope);F(assessment_reason);F(exclusions);F(accepted);F(assessment_count);
   d["assessment"]=v.assessment?nb::object(encode(*v.assessment)):nb::none();
   d["assessment_history"]=records(v.assessment_history);
   if(!v.policy.empty()) {
@@ -131,13 +139,9 @@ inline nb::dict encode(const ControlRecord &v) {
   nb::dict requested;requested["max_solve_seconds"]=v.requested.max_solve_seconds;requested["checkpoint_interval"]=v.requested.checkpoint_interval;
   requested["residual_interval"]=v.requested.residual_interval;d["requested"]=requested;
   requested["policy"]=v.requested.policy.empty()?nb::none():nb::cast(v.requested.policy);
-  const auto &t=v.timings;nb::dict timings;
-#define T(name) timings[#name]=t.name
-  T(preparation_seconds);T(mutex_wait_seconds);T(initialization_seconds);T(workspace_seconds);T(rhs_seconds);T(sweeps_seconds);T(monitoring_seconds);
-  T(finalization_seconds);T(postprocessing_seconds);T(output_transfer_seconds);T(solve_seconds);T(native_total_seconds);T(deadline_overshoot_seconds);
-#undef T
-  d["timings"]=timings;return d;
+  d["timings"]=encode(v.timings);return d;
 }
+
 #undef F
 #undef E
 }

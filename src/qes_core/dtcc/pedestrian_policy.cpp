@@ -12,54 +12,84 @@ bool policy_build_supported() {
   return false;
 #endif
 }
-std::string pedestrian_scope(const GridConfig &g,const ModelSettings &m,const ModelInputs &in,
-                             const SolverOptions &options,const MonitorSpec &s,int threads) {
-  if(!policy_build_supported())return "unqualified_build";
-  if(in.inflow.profile_kind!=ProfileKind::Log)return "unqualified_inflow_profile";
-  if(threads<1 || threads>4)return "unqualified_thread_team";
-  if(options.precision!="float32")return "unqualified_precision";
-  if(in.turbulence_enabled)return "turbulence_outside_assessment_scope";
-  if(in.spacing!=2 || g.nx!=80 || g.ny!=80 || g.nz!=32)return "unqualified_grid";
+std::vector<std::string> pedestrian_input_exclusions(ProfileKind kind,const SolverOptions &options,
+                                                       bool turbulence,std::optional<int> threads) {
+  std::vector<std::string> reasons;
+  if(!policy_build_supported())reasons.push_back("unqualified_build");
+  if(kind!=ProfileKind::Log)reasons.push_back("unqualified_inflow_profile");
+  if(threads && (*threads<1 || *threads>4))reasons.push_back("unqualified_thread_team");
+  if(options.precision!="float32")reasons.push_back("unqualified_precision");
+  if(turbulence)reasons.push_back("turbulence_outside_assessment_scope");
+  return reasons;
+}
+std::vector<std::string> pedestrian_exclusions(const GridConfig &g,const ModelSettings &m,const ModelInputs &in,
+                                               const SolverOptions &options,const MonitorSpec &s,std::optional<int> threads) {
+  auto reasons=pedestrian_input_exclusions(in.inflow.profile_kind,options,in.turbulence_enabled,threads);
+  const auto add=[&](const char *reason) {
+    if(std::find(reasons.begin(),reasons.end(),reason)==reasons.end())reasons.emplace_back(reason);
+  };
+  const bool grid_ok=in.spacing==2 && g.nx==80 && g.ny==80 && g.nz==32;
+  if(!grid_ok)add("unqualified_grid");
   if(!in.layers.empty()) {
     bool uniform=true,graded=true;
     for(std::size_t k=0;k<in.layers.size();++k) {
       uniform &= in.layers[k]==2;
       graded &= std::abs(double(in.layers[k])-1.2*std::pow(1.03,double(k)))<=2e-5;
     }
-    if(!uniform && !graded)return "unqualified_vertical_profile";
+    if(!uniform && !graded)add("unqualified_vertical_profile");
   }
-  if(in.inflow.site_U_ref<2 || in.inflow.site_U_ref>10 || in.inflow.site_z_ref!=10
-      || in.inflow.site_z0!=.1f)return "unqualified_inflow";
+  if(in.inflow.profile_kind==ProfileKind::Log && (in.inflow.site_U_ref<2 || in.inflow.site_U_ref>10
+      || in.inflow.site_z_ref!=10 || in.inflow.site_z0!=.1f))add("unqualified_inflow");
   if(m.rooftop_flag!=1 || m.upwind_cavity_flag!=2 || m.street_canyon_flag!=1
       || m.street_intersection_flag!=0 || m.wake_flag!=2 || m.high_rise_flag!=0
-      || m.sidewall_flag!=1 || float(m.wall_roughness)!=.001f)return "unqualified_model_settings";
-  if(in.buildings.size()<4 || in.buildings.size()>32)return "unqualified_geometry";
+      || m.sidewall_flag!=1 || float(m.wall_roughness)!=.001f)add("unqualified_model_settings");
+  if(in.buildings.size()<4 || in.buildings.size()>32)add("unqualified_geometry");
   for(const auto &b:in.buildings) {
-    if(b.height<4 || b.height>24 || b.base_height!=0 || b.vertices.size()!=5)return "unqualified_geometry";
+    if(b.height<4 || b.height>24 || b.base_height!=0 || b.vertices.size()!=5) {
+      add("unqualified_geometry");continue;
+    }
     float xmin=b.vertices[0].x_poly,xmax=xmin,ymin=b.vertices[0].y_poly,ymax=ymin;
     for(const auto &v:b.vertices){xmin=std::min(xmin,v.x_poly);xmax=std::max(xmax,v.x_poly);ymin=std::min(ymin,v.y_poly);ymax=std::max(ymax,v.y_poly);}
     if(xmax-xmin<8 || xmax-xmin>16 || ymax-ymin<8 || ymax-ymin>16
-        || xmin<12 || ymin<12 || xmax>g.nx*2-12 || ymax>g.ny*2-12)return "unqualified_geometry";
+        || (grid_ok && (xmin<12 || ymin<12 || xmax>g.nx*2-12 || ymax>g.ny*2-12)))add("unqualified_geometry");
     unsigned corners=0;
     for(int i=0;i<4;++i) {
       const auto &a=b.vertices[i],&z=b.vertices[i+1];
       if((a.x_poly!=xmin && a.x_poly!=xmax) || (a.y_poly!=ymin && a.y_poly!=ymax)
-          || ((a.x_poly==z.x_poly)==(a.y_poly==z.y_poly)))return "unqualified_geometry";
+          || ((a.x_poly==z.x_poly)==(a.y_poly==z.y_poly)))add("unqualified_geometry");
       corners |= 1u<<((a.x_poly==xmax?1:0)+(a.y_poly==ymax?2:0));
     }
-    if(corners!=15)return "unqualified_geometry";
+    if(corners!=15)add("unqualified_geometry");
   }
   if(s.heights!=std::vector<double>{1.5,1.75} || s.region.x_last-s.region.x_first<20
-      || s.region.y_last-s.region.y_first<20 || s.receptors.size()>16)return "unqualified_observables";
+      || s.region.y_last-s.region.y_first<20 || s.receptors.size()>16)add("unqualified_observables");
   bool first=false,second=false;
   for(const auto &r:s.receptors)if(r.required) {
     if(r.location.x<s.region.x_first+2 || r.location.x>s.region.x_last-2
-        || r.location.y<s.region.y_first+2 || r.location.y>s.region.y_last-2)return "receptor_outside_roi_support";
+        || r.location.y<s.region.y_first+2 || r.location.y>s.region.y_last-2)add("receptor_outside_roi_support");
     if(r.location.height_agl==1.5)first=true;
     else if(r.location.height_agl==1.75)second=true;
-    else return "unqualified_observables";
+    else add("unqualified_observables");
   }
-  return first && second ? "" : "required_receptors_at_both_heights";
+  if(!first || !second)add("required_receptors_at_both_heights");
+  return reasons;
+}
+std::string pedestrian_scope(const GridConfig &g,const ModelSettings &m,const ModelInputs &in,
+                             const SolverOptions &options,const MonitorSpec &s,int threads) {
+  const auto reasons=pedestrian_exclusions(g,m,in,options,s,threads);
+  return reasons.empty()?"":reasons.front();
+}
+PolicyEligibility pedestrian_preflight(const GridConfig &g,const ModelSettings &m,const BuildingArrays &arrays,
+    const TurbulenceSettings &t,const WindCondition &condition,const SolverOptions &options,
+    const MonitorSpec &monitor,std::optional<int> threads) {
+  // The same coordinate-only constructor and set_condition perform every
+  // float32 conversion for runtime preparation and this query without allocating 3D fields.
+  ModelInputs inputs(g,m,arrays,t);
+  inputs.set_condition(condition);
+  solver_tolerance(options);
+  PolicyEligibility out{pedestrian_exclusions(g,m,inputs,options,monitor,threads),{}};
+  if(!threads)out.pending_runtime_checks.push_back("actual_thread_team");
+  return out;
 }
 namespace {
 struct Estimate {std::optional<double> value;double q0=0,q1=0;};

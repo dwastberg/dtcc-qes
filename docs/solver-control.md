@@ -40,10 +40,13 @@ Adaptive eligibility depends on the qualified source/arithmetic build, analytic
 Log inflow, actual thread team, float32 precision, no turbulence, supported grid,
 model flags, geometry and observables. An exclusion remains an adaptive request;
 1.78 fallback never inherits numerical acceptance. Turbulence explicitly gives
-`turbulence_outside_assessment_scope`. Profile and precision exclusions are also
-checked before preparation. Remaining scope checks run natively during solve.
-The current result lists the first native reason; full preflight and complete
-exclusion lists are the native consolidation step.
+`turbulence_outside_assessment_scope`. All final exclusions are stored in native check order in
+`result.solver["record"]["exclusions"]`. The first remains `assessment_reason`.
+`preview_grid(..., solver=solver)` reports provisional eligibility without
+allocating native fields. Adaptive preview requires explicit inflow and leaves
+`actual_thread_team` pending. Preflight and runtime share float32 narrowing and
+policy predicates. Strict requests reject known exclusions before preparation.
+
 
 `MonitorSpec` defines a half-open pedestrian ROI, heights, optional required
 `Receptor`s and bounded history. The policy requires required receptors at
@@ -56,13 +59,13 @@ outside that scope.
 ## Timings and reproduction
 
 `metadata["timings"]` documents nested public-call, preparation and native
-measurements. Parent totals include children. Unavailable legacy native phases
-are None until native instrumentation is added. Budgets are native cooperative
+measurements. Parent totals include children. Native phases are measured for legacy, bounded and adaptive execution. Legacy
+records remain None; their phase timers live in `metadata["timings"]["native"]`. Budgets are native cooperative
 limits; process wall time also includes preparation, output and cleanup.
 Time-budgeted dataset realizations preserve their actual work and declare
 `execution_deterministic=False`.
 
-Use the [existing isolated requalification procedure](wind-profiles-verification.md)
+Use the [existing isolated requalification procedure](solver-control-requalification.md)
 after native changes. Frozen S7 workers compare fields, convergence, method,
 assessment and histories exactly, excluding validated elapsed-time values.
 `validate_solver_release.py` verifies the immutable S9 archive and deliberately

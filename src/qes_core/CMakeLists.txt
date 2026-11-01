@@ -17,6 +17,7 @@ target_include_directories(qesutil PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/util")
 set_target_properties(qesutil PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 add_library(qeswindscore STATIC
+  dtcc/turbulence_reference.cpp
   qes/Domain.cpp
   winds/Cell.cpp winds/CutCell.cpp winds/CutBuilding.cpp
   winds/LocalMixingDefault.cpp winds/LocalMixingSerial.cpp winds/LocalMixingOptix.cpp

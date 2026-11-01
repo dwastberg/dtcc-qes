@@ -1,4 +1,5 @@
 #include "turbulence.h"
+#include "api/turbulence_reference.h"
 #include "model_inputs.h"
 #include "stress_validity.h"
 #include "winds/TURBGeneralData.h"
@@ -33,17 +34,12 @@ void check_turbulence_margin(const ModelInputs &inputs, const WINDSGeneralData &
   // Match TURBGeneralData's float32 mean in QES's sorted building order.
   // Check before constructing turbulence: its own reference-plane guards
   // otherwise throw before we can explain how to obtain a sufficient grid.
-  float reference;
-  if (wind.allBuildingsV.empty()) {
-    reference = 100.0 * inputs.turbulence.site_z0;
-  } else {
-    float mean = 0;
-    for (int id : wind.building_id) mean += wind.allBuildingsV[id]->H;
-    mean /= float(wind.allBuildingsV.size());
-    reference = 3.0 * mean;
-  }
+  std::vector<float> heights;
+  for (const auto *building : wind.allBuildingsV) heights.push_back(building->H);
+  const float reference = turbulence_reference(std::move(heights), inputs.turbulence.site_z0).reference_height;
+  const std::vector<float> physical(faces.begin()+1,faces.end());
   const auto index = std::lower_bound(faces.begin(), faces.end(), reference) - faces.begin();
-  if (grid.nz >= 3 && index <= grid.nz - 2 && faces.back() >= 15) return;
+  if (turbulence_margin(physical,reference)) return;
 
   std::ostringstream message;
   message << std::setprecision(std::numeric_limits<float>::max_digits10);
@@ -53,33 +49,11 @@ void check_turbulence_margin(const ModelInputs &inputs, const WINDSGeneralData &
   // Report an actual sufficient top for an unchanged prefix with a constant
   // tail, using QES float32 accumulation. Never suggest zRef+3*min(dz) as a
   // sufficient top for an arbitrary nonuniform grid. This check never grows it.
-  auto extended = faces;
-  int layers = grid.nz;
   const float thickness = static_cast<float>(grid.dz_layers.empty() ? grid.cell_size : grid.dz_layers.back());
-  const auto has_margin = [&] {
-    return layers >= 3 && extended[layers-2] >= reference && extended.back() >= 15;
-  };
-  std::string limit;
-  while (!has_margin()) {
-    if (layers >= 10000) { limit = "10000-layer limit"; break; }
-    if (std::int64_t(grid.nx) * grid.ny * (layers+1) > grid.max_cells) {
-      limit = "max_cells limit"; break;
-    }
-    if (std::int64_t(grid.nx+1) * (grid.ny+1) * (layers+3) > std::numeric_limits<int>::max()) {
-      limit = "native index limit"; break;
-    }
-    const float top = extended.back() + thickness;
-    if (!std::isfinite(top) || top <= extended.back()) {
-      limit = "float32 coordinate progress limit"; break;
-    }
-    const float previous_centre = 0.5f * (extended[extended.size()-2] + extended.back());
-    const float centre = 0.5f * (extended.back() + top);
-    if (!std::isfinite(centre) || centre <= previous_centre) {
-      limit = "float32 cell-centre progress limit"; break;
-    }
-    extended.push_back(top);
-    ++layers;
-  }
+  const auto extension = turbulence_extension(physical,reference,thickness,grid.nx,grid.ny,grid.max_cells);
+  const auto &extended=extension.faces;
+  const auto &limit=extension.limit;
+  const int layers=grid.nz+extension.added_layers;
   if (limit.empty())
     message << "Appending " << layers-grid.nz << " layers of " << thickness
             << " m while preserving the existing layers gives a sufficient top of " << extended.back() << " m.";

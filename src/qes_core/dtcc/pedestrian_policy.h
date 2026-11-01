@@ -1,6 +1,7 @@
 #pragma once
 #include "api/policy_types.h"
 #include "api/monitor_types.h"
+#include "api/preflight.h"
 #include "model_inputs.h"
 #include <algorithm>
 #include <cmath>
@@ -9,6 +10,8 @@ namespace dtcc_qes {
 bool policy_build_supported();
 std::string pedestrian_scope(const GridConfig &,const ModelSettings &,const ModelInputs &,
                              const SolverOptions &,const MonitorSpec &,int threads);
+std::vector<std::string> pedestrian_exclusions(const GridConfig &,const ModelSettings &,const ModelInputs &,
+                                              const SolverOptions &,const MonitorSpec &,std::optional<int> threads);
 PolicyPrediction predict_pedestrian(const MonitorCheckpoint &);
 bool prediction_meets_target(const PolicyPrediction &);
 

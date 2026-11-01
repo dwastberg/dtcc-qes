@@ -68,7 +68,9 @@ def test_input_known_exclusions_raise_before_preparation(monkeypatch):
         wind.run(None, profile=wind.UniformProfile(5,270), solver=solver, turbulence=wind.Turbulence())
     error = caught.value
     assert error.record is None and error.diagnostics is None
-    assert error.exclusions == ("unqualified_inflow_profile", "unqualified_precision", "turbulence_outside_assessment_scope")
+    expected = (() if _qes.solver_policy_build_supported else ("unqualified_build",)) + (
+        "unqualified_inflow_profile", "unqualified_precision", "turbulence_outside_assessment_scope")
+    assert error.exclusions == expected
     assert "remaining checks run during the solve" in str(error)
     assert not hasattr(error, "control")
 

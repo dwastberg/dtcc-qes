@@ -6,7 +6,8 @@ import json
 import pytest
 from dtcc_core.model import City
 from dtcc_qes import wind
-from dtcc_qes.solver_control import LEGACY_METHOD
+from dtcc_qes import _qes
+LEGACY_METHOD = _qes.legacy_method_id
 
 
 @pytest.fixture
@@ -33,7 +34,8 @@ def test_mapping_keeps_combined_states_and_raw_record(result,mode,status,termina
         termination_reason=termination,method=LEGACY_METHOD,
         assessment_scope="pedestrian_roi_and_required_receptors" if status!="not_assessed" else None,
         assessment_reason="unqualified_inflow_profile" if mode=="adaptive" and status=="not_assessed" else None,
-        assessment={"independent_native_evidence":True})
+        assessment={"independent_native_evidence":True},
+        exclusions=["unqualified_inflow_profile"] if mode=="adaptive" and status=="not_assessed" else [])
     metadata["solver"]["record"]=record
     solved=replace(result,metadata=metadata,diagnostics=replace(result.diagnostics,converged=converged))
     before=deepcopy(solved.metadata)
@@ -71,7 +73,7 @@ def test_native_method_timing_copy_and_export_snapshot(result):
         timing=solved.metadata["timings"]
         assert timing["public_call_seconds"]>=timing["city_preparation_seconds"]>=0
         json.dumps(solved.metadata,allow_nan=False)
-    assert result.metadata["timings"]["native"] is None
+    assert result.metadata["timings"]["native"] is not None
     exported=bounded.to_dtcc()
     field=next(f for f in exported.fields if f.name=="velocity")
     snapshot=json.loads(field.description.split("qualification=",1)[1])

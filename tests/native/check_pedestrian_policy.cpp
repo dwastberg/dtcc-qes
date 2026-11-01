@@ -59,6 +59,32 @@ int main() try {
   settings.monitor.region={0,80,0,80};settings.monitor.history_limit=5;
   for(double h:{1.5,1.75})settings.monitor.receptors.push_back({std::to_string(h),{27,21,h},true});
   SolverOptions opts;opts.max_iterations=600;opts.tolerance=.1;
+  const auto check_scope=[&](GridConfig grid,ModelSettings model,BuildingArrays arrays,
+      WindCondition condition,SolverOptions options,TurbulenceSettings turb,MonitorSpec monitor,int threads) {
+    ModelInputs inputs(grid,model,arrays,turb);inputs.set_condition(condition);
+    const auto all=pedestrian_exclusions(grid,model,inputs,options,monitor,threads);
+    const auto first=pedestrian_scope(grid,model,inputs,options,monitor,threads);
+    require(first==(all.empty()?"":all.front()),"First exclusion changed its legacy decision");
+    const auto queried=pedestrian_preflight(grid,model,arrays,turb,condition,options,monitor,threads);
+    require(queried.exclusions==all && queried.pending_runtime_checks.empty(),"Preflight/runtime narrowing disagrees");
+    auto unique=all;std::sort(unique.begin(),unique.end());
+    require(std::adjacent_find(unique.begin(),unique.end())==unique.end(),"Repeated exclusion reason");
+    return all;
+  };
+  for(int team:{1,2,4,8})for(const auto *precision:{"float32","float64"})for(bool turbulence:{false,true}) {
+    auto options=opts;options.precision=precision;
+    const auto reasons=check_scope(g,m,buildings,{5,270,10},options,{turbulence,0},settings.monitor,team);
+    if(team==8)require(std::find(reasons.begin(),reasons.end(),"unqualified_thread_team")!=reasons.end(),"Thread exclusion omitted");
+    if(turbulence)require(std::find(reasons.begin(),reasons.end(),"turbulence_outside_assessment_scope")!=reasons.end(),"Turbulence exclusion omitted");
+    if(std::string(precision)=="float64")require(std::find(reasons.begin(),reasons.end(),"unqualified_precision")!=reasons.end(),"Precision exclusion omitted");
+  }
+  auto altered=g;altered.cell_size=4;altered.nx=20;
+  const auto grid_reasons=check_scope(altered,m,buildings,{5,270,10},opts,{},settings.monitor,2);
+  require(std::find(grid_reasons.begin(),grid_reasons.end(),"unqualified_grid")!=grid_reasons.end(),"Grid exclusion omitted");
+  require(std::find(grid_reasons.begin(),grid_reasons.end(),"unqualified_geometry")==grid_reasons.end(),"2m clearance check ran on an unqualified grid");
+  auto no_receptors=settings.monitor;no_receptors.receptors.clear();
+  const auto support=check_scope(g,m,buildings,{5,270,10},opts,{},no_receptors,2);
+  require(std::find(support.begin(),support.end(),"required_receptors_at_both_heights")!=support.end(),"Required height exclusion omitted");
   Messages messages;WindRunner runner;runner.prepare(g,m,buildings,messages);
   const auto expected=runner.solve({5,270,10},opts,messages);
   const auto actual=runner.solve({5,270,10},opts,messages,&settings,[]{return 0.;});

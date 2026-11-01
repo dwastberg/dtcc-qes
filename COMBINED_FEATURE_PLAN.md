@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-31
 - **Reviewed source revision:** `3ae4157ca2ce9dcca90a113a71b8f7651d873b37`
-- **Status:** Phases 0–8 complete; Phase 9 pending. The user authorized preserving the footprint changes at `889c629` and first requalifying that revision in isolation. That prerequisite passed. Phase 1 implemented the unified specifications, public API, computed-top bounds and caller migration. Phase 2 resolves canonical profiles, builds one shared record for all four families, keeps Log native/analytic, validates its representability in the constructor, and removes condition/effective-condition metadata and fallbacks. Grid-only preview records unknown inflow without fabricating a calm profile. Phase 3 derives qualification from authoritative execution evidence, adds profile-aware grid diagnostics and height attribution, and reports nested timings without changing native computation. Requalification evidence: [head-requalification.json](docs/data/feature-merge/head-requalification.json). Baseline: [phase0.json](docs/data/feature-merge/phase0.json). Phase 1 checkpoints: [phase1a.json](docs/data/feature-merge/phase1a.json), [phase1b.json](docs/data/feature-merge/phase1b.json), [phase1c.json](docs/data/feature-merge/phase1c.json). Phase 2 verification: [phase2.json](docs/data/feature-merge/phase2.json). Phase 3 verification: [phase3.json](docs/data/feature-merge/phase3.json). Incorporates [COMBINED_FEATURE_PLAN_REVIEW.md](COMBINED_FEATURE_PLAN_REVIEW.md) and the final integration corrections in §9.
+- **Status:** Phases 0–8 complete; Phase 9 qualification in progress. The user authorized preserving the footprint changes at `889c629` and first requalifying that revision in isolation. That prerequisite passed. Phase 1 implemented the unified specifications, public API, computed-top bounds and caller migration. Phase 2 resolves canonical profiles, builds one shared record for all four families, keeps Log native/analytic, validates its representability in the constructor, and removes condition/effective-condition metadata and fallbacks. Grid-only preview records unknown inflow without fabricating a calm profile. Phase 3 derives qualification from authoritative execution evidence, adds profile-aware grid diagnostics and height attribution, and reports nested timings without changing native computation. Requalification evidence: [head-requalification.json](docs/data/feature-merge/head-requalification.json). Baseline: [phase0.json](docs/data/feature-merge/phase0.json). Phase 1 checkpoints: [phase1a.json](docs/data/feature-merge/phase1a.json), [phase1b.json](docs/data/feature-merge/phase1b.json), [phase1c.json](docs/data/feature-merge/phase1c.json). Phase 2 verification: [phase2.json](docs/data/feature-merge/phase2.json). Phase 3 verification: [phase3.json](docs/data/feature-merge/phase3.json). Incorporates [COMBINED_FEATURE_PLAN_REVIEW.md](COMBINED_FEATURE_PLAN_REVIEW.md) and the final integration corrections in §9.
 - **Lineage:** Synthesizes [CLAUDE_FEATURE_MERGE_PLAN.md](CLAUDE_FEATURE_MERGE_PLAN.md) (concrete API signatures, schemas, Python-first/native-last phase sequencing, and migration inventory) with [ASTRA_FEATURE_MERGE_PLAN.md](ASTRA_FEATURE_MERGE_PLAN.md) (5-way status separation, 4-state numerical assessment, failure precedence, explicit exposure-transfer laws, mean-only + GEM provenance, and isolated native candidate re-qualification).
 
 ---
@@ -705,6 +705,16 @@ result.qualification == {
 **Gate:** All native CTest suites (including sanitizers and symbol checks), the existing 429-case native comparison matrix plus new feature cases (exact parity for unchanged arithmetic; independently justified and explicitly scoped numerical deltas only), all 24 frozen S7 adaptive policy workers, wheel-from-sdist smoke checks, and the full Python test suite pass with adaptive acceptance active on the new `solver_policy_revision`. The README and `docs/solver-control.md` describe preflight eligibility and full exclusion lists.
 
 ---
+
+Phase 9 verification checkpoint (2026-11-01): native consolidation, shared
+preflight/full exclusions, always-on clocks and deterministic test clock are
+implemented. Fresh serial/OpenMP/sanitizer CTest and native symbol audits pass.
+The 429-case Phase 8 comparison passes exactly in both backends (OpenMP teams
+1/2/4/8), including required backend parity; all 27 non-adaptive combined cases
+also match. All 24 frozen S7 workers and all four adaptive combined cases now pass in
+isolation. Both full Python suites pass 1,567 tests (16 skipped) with warnings
+as errors. Production qualification remains unchanged pending isolated
+sdist/wheel, installation and smoke checks.
 
 ## 6. Validation matrix and required invariants
 

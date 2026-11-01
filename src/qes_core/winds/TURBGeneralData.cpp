@@ -1,3 +1,4 @@
+#include "../dtcc/api/turbulence_reference.h"
 /****************************************************************************
  * Copyright (c) 2025 University of Utah
  * Copyright (c) 2025 University of Minnesota Duluth
@@ -167,34 +168,15 @@ TURBGeneralData::TURBGeneralData(const TurbulenceConfig &config, WINDSGeneralDat
 
   // qes::log::info() << "\t\t max terrain height = "<< terrainH_max << std::endl;
 
-  // calculate the mean building h
-  if (!m_WGD->allBuildingsV.empty()) {
-    float heffmax = 0.0;
-    for (size_t i = 0; i < m_WGD->allBuildingsV.size(); i++) {
-      bldgH_mean += m_WGD->allBuildingsV[m_WGD->building_id[i]]->H;
-      heffmax = m_WGD->allBuildingsV[m_WGD->building_id[i]]->H;// height_eff;
-      if (heffmax > bldgH_max) {
-        bldgH_max = heffmax;
-      }
-    }
-    bldgH_mean = bldgH_mean / float(m_WGD->allBuildingsV.size());
-
-    // qes::log::info() << "\t\t\t mean bldg height = "<< bldgH_mean << " max bldg height = "<< bldgH_max << std::endl;
-
-    // Morphometric parametrization based on Grimmond and Oke (1999) and Kaster-Klein and Rotach (2003)
-    // roughness length z0 as 0.1 mean building height
-    z0d = 0.1 * bldgH_mean;
-    // displacement height d0 as 0.7 mean building height
-    d0d = 0.7 * bldgH_mean;
-
-    // reference height as 3.0 mean building
-    zRef = 3.0 * bldgH_mean;
-
-  } else {
-    z0d = config.site_z0;
-    d0d = 0.0;
-    zRef = 100.0 * z0d;
-  }
+  // dtcc-qes: shared float32 morphometric arithmetic; coordinate/scalar only.
+  std::vector<float> heights;
+  for (const auto *building : m_WGD->allBuildingsV) heights.push_back(building->H);
+  const auto reference = dtcc_qes::turbulence_reference(std::move(heights), config.site_z0);
+  bldgH_mean = reference.mean_height;
+  bldgH_max = reference.maximum_height;
+  z0d = reference.roughness_length;
+  d0d = reference.displacement_height;
+  zRef = reference.reference_height;
 
   qes::log::info() << "[QES-TURB]\t Computing friction velocity..." << std::endl;
   frictionVelocity();

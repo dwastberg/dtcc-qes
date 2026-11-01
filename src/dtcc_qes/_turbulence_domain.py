@@ -1,96 +1,58 @@
-"""Reference-height and prefix-preserving domain policy for QES turbulence."""
-
+"""Format the native coordinate-only turbulence reference/margin contract."""
 import numpy as np
+from . import _qes
 
 
-def turbulence_reference_height(heights, roughness_length):
-    """Match QES's float32 mean in ascending native building-height order."""
-    with np.errstate(over="ignore", invalid="ignore"):
-        native = np.sort(np.asarray(heights, dtype=np.float32))
-        if native.size:
-            if native.ndim != 1 or not np.isfinite(native).all() or np.any(native <= 0):
-                raise ValueError("Turbulence building heights must be positive finite float32 values")
-            total = np.cumsum(native, dtype=np.float32)[-1]
-            reference = np.float32(3 * float(np.float32(total / np.float32(len(native)))))
-        else:
-            reference = np.float32(100 * float(np.float32(roughness_length)))
-    if not np.isfinite(reference) or reference <= 0:
-        raise ValueError("Turbulence reference height must be positive and finite in float32")
-    return float(reference)
+def turbulence_reference_height(heights,roughness_length):
+    """Native ascending float32 accumulation, shared with QES-Turb."""
+    with np.errstate(over="ignore",invalid="ignore"):
+        values=np.asarray(heights,dtype=np.float32)
+    if values.ndim!=1:
+        raise ValueError("Turbulence building heights must be positive finite float32 values")
+    return _qes._turbulence_reference(values.tolist(),roughness_length)["reference_height"]
 
 
-def turbulence_top(z_ref, spacing):
+def turbulence_top(z_ref,spacing):
     """Initial uniform-grid target; effective faces determine final acceptance."""
-    return max(z_ref + 3 * spacing, 15.0)
+    return max(z_ref+3*spacing,15.)
 
 
-def _has_margin(faces, reference):
-    return len(faces) >= 4 and faces[-4] >= reference and faces[-1] >= 15
-
-
-def _margin_message(faces, reference):
-    index = int(np.searchsorted(faces, reference)) + 1  # QES has a ground ghost face.
-    return (f"Turbulence domain top {faces[-1]:.9g} m is insufficient for zRef {reference:.9g} m "
-            "and the 15 m rotation reference; layer margin requires two physical layers "
-            f"above the sampled layer (reference index {index}, maximum {len(faces)-3}). ")
-
-
-def extend_turbulence_faces(faces, z_ref, thickness, *, nx=1, ny=1, max_cells=2**63-1):
-    """Return the shortest constant tail satisfying the native layer margin.
-
-    Faces and thickness are actual float32 operands. Only coordinate storage is
-    allocated. Both face and centre arithmetic follow qes::Domain; the existing
-    final-layer coefficient checks also cover the repeated thickness.
-    """
-    faces = np.asarray(faces, dtype=np.float32)
-    if (faces.ndim != 1 or not 3 <= len(faces) <= 10001 or faces[0] != 0
-            or not np.isfinite(faces).all() or np.any(np.diff(faces) <= 0)):
+def _analysis(faces,z_ref,thickness,nx,ny,max_cells):
+    with np.errstate(over="ignore",invalid="ignore"):
+        faces=np.asarray(faces,dtype=np.float32)
+    if faces.ndim!=1:
         raise ValueError("Turbulence faces must be finite increasing float32 heights starting at zero")
-    reference, thickness = float(z_ref), np.float32(thickness)
-    if not np.isfinite(reference) or reference <= 0:
-        raise ValueError("Turbulence reference height must be positive and finite")
-    if not np.isfinite(thickness) or thickness <= 0:
-        raise ValueError("Turbulence tail thickness must be positive and finite in float32")
-    if _has_margin(faces, reference):
-        return faces
-    message = _margin_message(faces, reference)
-    extended = list(faces)
-    with np.errstate(over="ignore", invalid="ignore"):
-        while not _has_margin(extended, reference):
-            layers = len(extended)-1
-            limit = None
-            if layers >= 10000:
-                limit = "10000-layer limit"
-            elif nx*ny*(layers+1) > max_cells:
-                limit = "max_cells limit"
-            elif (nx+1)*(ny+1)*(layers+3) > np.iinfo(np.int32).max:
-                limit = "native index limit"
-            top = np.float32(extended[-1]+thickness)
-            previous_centre = np.float32(.5)*np.float32(extended[-2]+extended[-1])
-            centre = np.float32(.5)*np.float32(extended[-1]+top)
-            if limit is None and (not np.isfinite(top) or top <= extended[-1]):
-                limit = "float32 coordinate progress limit"
-            if limit is None and (not np.isfinite(centre) or centre <= previous_centre):
-                limit = "float32 cell-centre progress limit"
-            if limit is not None:
-                raise ValueError(message + f"A constant-thickness tail of {thickness:.9g} m cannot "
-                                 f"satisfy the margin within the {limit}.")
-            extended.append(top)
-    return np.asarray(extended, dtype=np.float32)
+    return faces,_qes._turbulence_extension(faces.tolist(),z_ref,thickness,nx,ny,max_cells)
 
 
-def check_turbulence_faces(faces, z_ref, *, last_thickness=None, nx=1, ny=1, max_cells=2**63-1):
-    """Check explicit faces; report a sufficient prefix-preserving extension.
+def _margin_message(faces,reference,analysis):
+    return (f"Turbulence domain top {faces[-1]:.9g} m is insufficient for zRef {reference:.9g} m "
+        "and the 15 m rotation reference; layer margin requires two physical layers "
+        f"above the sampled layer (reference index {analysis['reference_index']}, maximum {analysis['maximum_index']}). ")
 
-    Supply last_thickness when native solver operands are available: subtraction
-    of accumulated faces can differ from the original layer thickness.
-    """
-    faces = np.asarray(faces, dtype=np.float32)
-    if faces.ndim != 1 or len(faces) < 3:
-        raise ValueError("Turbulence faces require at least two physical layers")
-    thickness = (faces[-1]-faces[-2]) if last_thickness is None else last_thickness
-    extended = extend_turbulence_faces(faces, z_ref, thickness, nx=nx, ny=ny, max_cells=max_cells)
-    if len(extended) != len(faces):
-        raise ValueError(_margin_message(faces, z_ref) +
-                         f"Appending {len(extended)-len(faces)} layers of {np.float32(thickness):.9g} m "
-                         f"while preserving the existing layers gives a sufficient top of {extended[-1]:.9g} m.")
+
+def _limit_message(faces,reference,thickness,analysis):
+    return (_margin_message(faces,reference,analysis)+f"A constant-thickness tail of {thickness:.9g} m cannot "
+        f"satisfy the margin within the {analysis['limit']}.")
+
+
+def extend_turbulence_faces(faces,z_ref,thickness,*,nx=1,ny=1,max_cells=2**63-1):
+    """Shortest prefix-preserving native constant tail; coordinate storage only."""
+    faces,analysis=_analysis(faces,z_ref,thickness,nx,ny,max_cells)
+    if analysis["limit"]:
+        raise ValueError(_limit_message(faces,z_ref,thickness,analysis))
+    return np.asarray(analysis["faces"],dtype=np.float32)
+
+
+def check_turbulence_faces(faces,z_ref,*,last_thickness=None,nx=1,ny=1,max_cells=2**63-1):
+    """Check fixed faces and explain the native sufficient top or limiting reason."""
+    if last_thickness is None:
+        values=np.asarray(faces,dtype=np.float32)
+        last_thickness=float(values[-1]-values[-2])
+    faces,analysis=_analysis(faces,z_ref,last_thickness,nx,ny,max_cells)
+    if analysis["has_margin"]:
+        return
+    if analysis["limit"]:
+        raise ValueError(_limit_message(faces,z_ref,last_thickness,analysis))
+    raise ValueError(_margin_message(faces,z_ref,analysis)+f"Appending {analysis['added_layers']} layers of "
+        f"{last_thickness:.9g} m while preserving the existing layers gives a sufficient top of {analysis['faces'][-1]:.9g} m.")

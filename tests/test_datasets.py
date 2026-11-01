@@ -27,7 +27,7 @@ def test_dataset_qualification_snapshot_and_private_timing_scopes(fetched,produc
     assert step["qualification"]["solver"]["assessment"]=="not_requested"
     assert simulation["timings"]["public_call_seconds"] is None
     assert simulation["timings"]["city_preparation_seconds"]>=0
-    assert simulation["timings"]["native"] is None
+    assert simulation["timings"]["native"] is not None
     snapshot=deepcopy(step["qualification"])
     simulation["profile"]["caveats"].append("edited source metadata")
     assert step["qualification"]==snapshot

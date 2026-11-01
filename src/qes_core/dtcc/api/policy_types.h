@@ -7,6 +7,7 @@ namespace dtcc_qes {
 // These values do not qualify the full volume, turbulence or physical models.
 inline constexpr const char *pedestrian_policy_id = "pedestrian-v1";
 inline constexpr const char *pedestrian_method_id = "s5c-rb-sor-float-omega-v1-omega-1.90";
+inline constexpr const char *legacy_method_id = "s5c-rb-sor-float-omega-v1-omega-1.78";
 inline constexpr double policy_safety_factor = 8;
 inline constexpr int policy_minimum_iterations = 150;
 inline constexpr double policy_maximum_ratio = .8;

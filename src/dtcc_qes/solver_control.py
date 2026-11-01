@@ -4,10 +4,6 @@ from typing import Literal
 from ._validation import real as _number, integer as _integer
 
 
-# Native legacy/bounded method id; Phase 9 exposes the shared native constant.
-LEGACY_METHOD = "s5c-rb-sor-float-omega-v1-omega-1.78"
-
-
 @dataclass(frozen=True)
 class Receptor:
     id: str

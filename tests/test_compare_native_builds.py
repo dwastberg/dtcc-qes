@@ -174,3 +174,45 @@ def test_incomplete_and_escaping_source_archives_are_rejected(tmp_path):
     with pytest.raises(tarfile.FilterError):
         harness.export_archive(path, tmp_path/'work')
     assert not (tmp_path/'escaped.txt').exists()
+
+
+def consolidation_archives(tmp_path):
+    def captured(new):
+        out={"_policy_revision":np.array("candidate" if new else "baseline")}
+        timers={name:.1 for name in harness.NATIVE_TIMING_FIELDS}
+        harness.store(out,"native/flat",dict(velocity=np.array([1.,2.]),diagnostics=dict(iterations=3),
+            **(dict(timings=timers) if new else {})))
+        harness.store(out,"public/flat",dict(metadata=dict(timings=dict(public_call_seconds=.5,
+            city_preparation_seconds=.1,native=timers if new else None,scopes=dict(public_call="nested")),
+            versions=dict(native_build=dict(solver_policy_build_supported=not new,fp_contract="on")))))
+        return out
+    left,right=captured(False),captured(True)
+    return left,right
+
+
+def test_native_consolidation_migration_is_explicit_and_preserves_evidence(tmp_path):
+    left,right=consolidation_archives(tmp_path)
+    a,b=save(tmp_path/'a.npz',**left),save(tmp_path/'b.npz',**right)
+    assert harness.compare_results(a,b)[0]
+    assert not harness.compare_results(a,b,native_consolidation=True,identity_pair=("baseline","candidate"))[0]
+    right['native/flat/velocity']=np.array([1.,3.])
+    b=save(tmp_path/'b.npz',**right)
+    assert harness.compare_results(a,b,native_consolidation=True,identity_pair=("baseline","candidate"))[0]==[
+        'differs: native/flat/velocity']
+    with pytest.raises(ValueError,match="identity pair"):
+        harness.compare_results(a,b,native_consolidation=True,identity_pair=("other","candidate"))
+
+
+def test_native_consolidation_does_not_hide_clock_shapes_or_other_build_flags(tmp_path):
+    import json
+    left,right=consolidation_archives(tmp_path)
+    a=save(tmp_path/'a.npz',**left)
+    key='public/flat/metadata/versions/native_build/scalars'
+    value=json.loads(str(right[key]));value['fp_contract']='off';right[key]=np.array(json.dumps(value))
+    b=save(tmp_path/'b.npz',**right)
+    assert harness.compare_results(a,b,native_consolidation=True,identity_pair=("baseline","candidate"))[0]==['differs: '+key]
+    key='native/flat/timings/scalars'
+    value=json.loads(str(right[key]));value.pop('rhs_seconds');right[key]=np.array(json.dumps(value))
+    b=save(tmp_path/'b.npz',**right)
+    with pytest.raises(ValueError,match="timing addition"):
+        harness.compare_results(a,b,native_consolidation=True,identity_pair=("baseline","candidate"))

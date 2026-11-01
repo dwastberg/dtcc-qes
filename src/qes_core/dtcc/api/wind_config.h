@@ -79,5 +79,6 @@ struct WindData {
   std::size_t building_count = 0;
   std::optional<TurbulenceData> turbulence;
   std::optional<ControlRecord> control;
+  ControlTimings timings; // Always measured, including legacy solves.
 };
 }

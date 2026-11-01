@@ -32,6 +32,13 @@ into the extension as `_qes.qes_revision`.
 
 ## Contents
 
+The unified feature integration routes the morphometric scalars in
+`winds/TURBGeneralData.cpp` through the coordinate-only helper declared in
+`dtcc/api/turbulence_reference.h`. Its ascending float32 height accumulation
+and original double-literal products are preserved. The bridge and Python
+planning binding share the same physical-face margin/tail helper. Numerical
+parity and isolated policy requalification are recorded in the combined plan.
+
 `qes/`, `util/`, `winds/` and `solver/` hold the QES-derived core; `dtcc/` holds the
 dtcc-qes layer that drives it (moved from `src/cpp`), with the QES-free headers
 used by the Python bindings in `dtcc/api/`. `LICENSE` is the QES license and

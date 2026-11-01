@@ -7,7 +7,7 @@ from numbers import Real
 
 import numpy as np
 from dtcc_core.model import Bounds, Field, Transform, VolumeGrid
-from .solver_control import LEGACY_METHOD
+from . import _qes
 
 
 _STRESS_RELATIVE_TOLERANCE = 32 * float(np.finfo(np.float32).eps)
@@ -24,11 +24,11 @@ def _qualification(metadata, diagnostics):
         "legacy_tolerance" if diagnostics.converged else "iteration_limit")
     assessment = ("not_requested" if mode != "adaptive" else record["accuracy_status"])
     reason = record.get("assessment_reason") if record is not None else None
-    solver_view = dict(mode=mode, method=record["method"] if record is not None else LEGACY_METHOD,
+    solver_view = dict(mode=mode, method=record["method"] if record is not None else _qes.legacy_method_id,
         execution=termination if termination in ("iteration_limit", "time_limit") else "completed",
         termination_reason=termination, legacy_converged=diagnostics.converged,
         assessment=assessment, assessment_scope=record.get("assessment_scope") if record is not None else None,
-        assessment_reason=reason, exclusions=[reason] if assessment == "not_assessed" and reason else [],
+        assessment_reason=reason, exclusions=record.get("exclusions",[]) if record is not None else [],
         pending_runtime_checks=[])
     profile, turbulence = metadata.get("profile") or {}, metadata.get("turbulence")
     grid = metadata.get("domain", {}).get("vertical_grid", {})

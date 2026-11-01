@@ -86,10 +86,14 @@ Only source fingerprints, timings and process memory measurements change.
 
 ## Measurement and comparison policy
 
-Each configuration has three fresh Python subprocesses, run serially. Native
-`WindRunner.prepare` and `solve` are timed directly; geometry/domain planning
-is timed separately. Memory is process high-water RSS, including Python and
-imports, sampled after prepare, solve, validity screening and derived arrays.
+Each configuration has three fresh Python subprocesses, run serially. The
+current driver calls public `wind.run` and reads native preparation and solve
+timers from its timing record. City planning is timed separately; public-call
+time includes output construction and cleanup. Historical tables below retain
+the original direct-runner measurements. Memory is process high-water RSS,
+including Python and imports, sampled before and after the public call, validity
+screening and derived arrays. Intermediate after-prepare and after-solve
+snapshots are unavailable (None) through this public path.
 It is not native allocation size or instantaneous live memory. Medians describe
 this host and build; the host was not isolated from unrelated activity.
 

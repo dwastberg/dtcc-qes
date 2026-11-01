@@ -61,6 +61,7 @@ class GridPreview:
     resolution: float
     domain: dict
     terrain: dict
+    eligibility: dict | None = None
 
     @property
     def shape(self):

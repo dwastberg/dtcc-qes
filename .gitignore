@@ -236,3 +236,6 @@ __marimo__/
 !/docs/data/feature-merge/phase7.json
 !/docs/solver-control.md
 !/docs/data/feature-merge/phase8.json
+
+!/docs/solver-control-requalification.md
+!/docs/data/feature-merge/phase9.json

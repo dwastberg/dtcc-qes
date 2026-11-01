@@ -121,7 +121,7 @@ def run(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformP
     Metadata timings nest: public_call_seconds includes city preparation,
     native execution, output construction and cleanup. Native totals include
     their phase timers; do not add parents and children. Unavailable native
-    timings are None (legacy solves until native instrumentation is added).
+    timings are None when the calling path did not measure them.
     """
     public_started = time.perf_counter()
     turbulence_spec = _resolve_turbulence(turbulence)
@@ -160,9 +160,14 @@ def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
             "Background profile turns %.1f degrees across physical layers (>45 degrees); "
             "building wakes follow each roof-level direction, including where lower layers turn.",
             profile_record["max_turning_deg"])
-    native_solver = _qes.SolverOptions()
-    native_solver.tolerance, native_solver.max_iterations = solver.tolerance, solver.max_iterations
-    native_solver.precision = solver.precision
+    native_solver = _native_solver(solver)
+    eligibility = _preflight_eligibility(prepared,geometry,profile,solver,turbulence_spec)
+    if eligibility["exclusions"]:
+        if solver.raise_on_failure:
+            raise UnacceptedResultError(None,None,exclusions=eligibility["exclusions"])
+        if not _known_exclusions:
+            _warn_solver_outcome(str(UnacceptedResultError(None,None,exclusions=eligibility["exclusions"])),turbulence_spec)
+        _known_exclusions = eligibility["exclusions"]
     runner = _qes.WindRunner()
     try:
         turbulence_options = {}
@@ -238,7 +243,7 @@ def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
         environment=dict(precision=solver.precision, backend=_qes.cpu_backend,
             sweep_order=_qes.cpu_sweep_order, native_build=dict(metadata["versions"]["native_build"]),
             source_revision=_qes.qes_revision, shape=list(native["cell_flags"].shape)))
-    metadata["timings"] = _timing_report(record)
+    metadata["timings"] = _timing_report(record,native.get("timings"))
     if turbulence_spec is not None:
         fields = native["turbulence"]
         turbulence_fields = TurbulenceFields(stress=fields["stress"],tke=fields["tke"],co_eps=fields["co_eps"],
@@ -264,7 +269,7 @@ def preview_grid(city, profile: LogProfile | MeasuredProfile | PowerLawProfile |
                  terrain: Literal["flat"] | float | None = None,
                  height_policy: Literal["measured", "allow_estimated"] = "measured",
                  vertical_grid: VerticalGrid | None = None, turbulence: Turbulence | None = None,
-                 footprints: Footprints | None = None) -> GridPreview:
+                 footprints: Footprints | None = None, solver: Solver | None = None) -> GridPreview:
     """Inspect a uniform, explicit or automatic grid without QES wind arrays.
 
     ``footprints=Footprints(...)`` uses the same cleaning and final solid mapping
@@ -283,8 +288,15 @@ def preview_grid(city, profile: LogProfile | MeasuredProfile | PowerLawProfile |
     explicit bounds/faces are checked. Growth and any required regeneration
     are recorded in ``domain['turbulence']``.
     """
+    if solver is not None and not isinstance(solver,Solver):
+        raise TypeError("solver must be Solver or None")
     turbulence_spec = _resolve_turbulence(turbulence)
     profile_spec = _resolve_condition(speed, direction, profile, allow_unknown=True)
+    if solver is not None and solver.mode == "adaptive":
+        if profile_spec is None:
+            raise ValueError("Adaptive eligibility requires an explicit profile or speed/direction; grid-only preview remains available without solver")
+        if profile_spec.reference["speed"] == 0:
+            raise ValueError("Adaptive pedestrian acceptance is unavailable for calm wind")
     grid = _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, max_cells,
                           vertical_grid=vertical_grid)
     geometry, prepared = _prepare_city(city, profile_spec, grid, terrain, height_policy,
@@ -298,7 +310,8 @@ def preview_grid(city, profile: LogProfile | MeasuredProfile | PowerLawProfile |
     return GridPreview((np.arange(nx, dtype=np.float32) + np.float32(0.5)) * spacing,
                        (np.arange(ny, dtype=np.float32) + np.float32(0.5)) * spacing,
                        np.float32(0.5) * (faces[:-1] + faces[1:]), faces, solver_dz,
-                       prepared.origin, geometry.crs, prepared.resolution, prepared.domain, prepared.terrain)
+                       prepared.origin, geometry.crs, prepared.resolution, prepared.domain, prepared.terrain,
+                       None if solver is None else _preflight_eligibility(prepared,geometry,profile_spec,solver,turbulence_spec))
 
 
 def _prepare_city(city, profile, grid, terrain, height_policy, *, turbulence=False, footprints=None):
@@ -448,13 +461,8 @@ def _check_solver_inputs(solver, profile, turbulence):
         return []
     if profile.reference["speed"] == 0:
         raise ValueError("Adaptive pedestrian acceptance is unavailable for calm wind")
-    exclusions = []
-    if profile is not None and not isinstance(profile, LogProfile):
-        exclusions.append("unqualified_inflow_profile")
-    if solver.precision != "float32":
-        exclusions.append("unqualified_precision")
-    if turbulence is not None:
-        exclusions.append("turbulence_outside_assessment_scope")
+    kind = _qes.ProfileKind.log if isinstance(profile,LogProfile) else _qes.ProfileKind.layer_table
+    exclusions = _qes._pedestrian_input_exclusions(kind,_native_solver(solver),turbulence is not None)
     if exclusions and solver.raise_on_failure:
         raise UnacceptedResultError(None, None, exclusions=exclusions)
     return exclusions
@@ -466,7 +474,7 @@ def _warn_solver_outcome(message, turbulence):
     get_python_logger("dtcc-qes").warning(message)
 
 
-def _timing_report(record):
+def _timing_report(record,native_timings=None):
     """Report nested scopes without inventing unavailable native measurements.
 
     Public-call time belongs to wind.run, including validation, preparation,
@@ -475,7 +483,29 @@ def _timing_report(record):
     Paths bypassing wind.run leave its public-call measurement unavailable.
     """
     return dict(public_call_seconds=None, city_preparation_seconds=None,
-        native=deepcopy(record["timings"]) if record is not None else None,
+        native=deepcopy(record["timings"] if record is not None else native_timings),
         scopes=dict(public_call="wind.run: validation, city preparation, native execution, output and cleanup",
             city_preparation="geometry, domain planning and profile preparation; nested in public_call",
             native="native totals contain phase timers; do not add parent totals and children"))
+
+
+def _native_solver(solver):
+    options=_qes.SolverOptions()
+    options.tolerance,options.max_iterations=solver.tolerance,solver.max_iterations
+    options.precision=solver.precision
+    return options
+
+
+def _preflight_eligibility(prepared,geometry,profile,solver,turbulence):
+    view=dict(mode=solver.mode,policy=solver.policy,exclusions=[],pending_runtime_checks=[])
+    if solver.mode!="adaptive":
+        return view
+    settings=None
+    if turbulence is not None:
+        settings=_qes.TurbulenceSettings();settings.enabled=True
+        settings.mixing_length_method=turbulence.qes_method
+    view.update(_qes._pedestrian_preflight(prepared.grid,prepared.model,
+        _native_condition(prepared.domain["profile"]),_native_solver(solver),
+        solver._native(prepared.origin,geometry.crs),**prepared.arrays,
+        dz_layers=prepared.dz_layers,turbulence=settings))
+    return view

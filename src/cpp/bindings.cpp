@@ -5,6 +5,8 @@
 #include <nanobind/stl/vector.h>
 #include "build_info.h"
 #include "wind_runner.h"
+#include "preflight.h"
+#include "turbulence_reference.h"
 #include "control_bindings.h"
 #include <chrono>
 #include <cstring>
@@ -121,6 +123,11 @@ nb::dict python_result(const WindData &data)
     auto timings = nb::cast<nb::dict>(control["timings"]);
     timings["output_transfer_seconds"] = std::chrono::duration<double>(std::chrono::steady_clock::now()-transfer_started).count();
     result["control"] = control;
+    result["timings"] = timings;
+  } else {
+    auto timings=control_binding::encode(data.timings);
+    timings["output_transfer_seconds"]=std::chrono::duration<double>(std::chrono::steady_clock::now()-transfer_started).count();
+    result["timings"]=timings;
   }
   nb::module_::import_("dtcc_qes._logging").attr("_log_solve")(result);
   return result;
@@ -145,6 +152,8 @@ NB_MODULE(_qes, m)
   m.attr("compiler_id") = DTCC_QES_COMPILER_ID;
   m.attr("compiler_version") = DTCC_QES_COMPILER_VERSION;
   m.attr("build_type") = DTCC_QES_BUILD_TYPE;
+  m.attr("legacy_method_id") = legacy_method_id;
+  m.attr("pedestrian_method_id") = pedestrian_method_id;
   m.def("_core_grid_shape", &dtcc_qes::core_grid_shape);
 
   nb::class_<GridConfig>(m, "GridConfig")
@@ -178,6 +187,39 @@ NB_MODULE(_qes, m)
   nb::class_<TurbulenceSettings>(m, "TurbulenceSettings")
     .def(nb::init<>()).def_rw("enabled", &TurbulenceSettings::enabled)
     .def_rw("mixing_length_method", &TurbulenceSettings::mixing_length_method);
+  m.def("_turbulence_reference", [](std::vector<float> heights,float roughness) {
+    const auto value=turbulence_reference(std::move(heights),roughness);
+    nb::dict out;out["mean_height"]=value.mean_height;out["maximum_height"]=value.maximum_height;
+    out["reference_height"]=value.reference_height;out["roughness_length"]=value.roughness_length;
+    out["displacement_height"]=value.displacement_height;return out;
+  });
+  m.def("_turbulence_extension", [](std::vector<float> faces,double reference,float thickness,
+                                    int nx,int ny,std::int64_t max_cells) {
+    const auto value=turbulence_extension(faces,reference,thickness,nx,ny,max_cells);
+    nb::dict out;out["faces"]=value.faces;out["added_layers"]=value.added_layers;
+    out["limit"]=value.limit;out["has_margin"]=turbulence_margin(faces,reference);
+    out["reference_index"]=std::lower_bound(faces.begin(),faces.end(),reference)-faces.begin()+1;
+    out["maximum_index"]=faces.size()-3;return out;
+  });
+  m.def("_pedestrian_input_exclusions", &pedestrian_input_exclusions,
+        "kind"_a,"options"_a,"turbulence"_a,"threads"_a=nb::none());
+  m.def("_pedestrian_preflight", [](const GridConfig &grid,const ModelSettings &model,
+      const WindCondition &condition,const SolverOptions &options,nb::dict control,
+      Vertices vertices,Integers offsets,Floats heights,Floats base_heights,Integers ids,
+      Floats dz_layers,const TurbulenceSettings *turbulence,Integers ring_offsets,std::optional<int> threads) {
+    GridConfig g=grid;if(dz_layers.is_valid())g.dz_layers=copy_input(dz_layers);
+    const ModelSettings m=model;const WindCondition c=condition;const SolverOptions o=options;
+    const auto t=turbulence?*turbulence:TurbulenceSettings{};
+    const BuildingArrays b{copy_input(vertices),copy_input(offsets),copy_input(ids),copy_input(heights),
+      copy_input(base_heights),ring_offsets.is_valid()?copy_input(ring_offsets):std::vector<std::int64_t>{}};
+    const auto spec=control_binding::parse(control);
+    const auto value=native_call([&](Messages &) {return pedestrian_preflight(g,m,b,t,c,o,spec.monitor,threads);});
+    nb::dict out;out["exclusions"]=value.exclusions;out["pending_runtime_checks"]=value.pending_runtime_checks;return out;
+  },"grid"_a,"model"_a,"condition"_a,"options"_a,"control"_a,
+     nb::arg("vertices").noconvert(),nb::arg("offsets").noconvert(),nb::arg("heights").noconvert(),
+     nb::arg("base_heights").noconvert(),nb::arg("ids").noconvert(),nb::kw_only(),
+     nb::arg("dz_layers").noconvert().none()=nb::none(),nb::arg("turbulence").none()=nb::none(),
+     nb::arg("ring_offsets").noconvert().none()=nb::none(),"threads"_a=nb::none());
   nb::class_<WindRunner>(m, "WindRunner")
     .def(nb::init<>())
     .def("prepare", [](WindRunner &runner, const GridConfig &grid, const ModelSettings &model,
@@ -201,12 +243,23 @@ NB_MODULE(_qes, m)
        nb::kw_only(), nb::arg("dz_layers").noconvert().none() = nb::none(),
        nb::arg("turbulence").none() = nb::none(),
        nb::arg("ring_offsets").noconvert().none() = nb::none())
-    .def("solve", [](WindRunner &runner, const WindCondition &condition, const SolverOptions &options,nb::object control) {
+    .def("solve", [](WindRunner &runner, const WindCondition &condition, const SolverOptions &options,
+                     nb::object control,nb::object test_steps) {
       const WindCondition wind = condition;
       const SolverOptions solver = options;
       const auto settings = control.is_none() ? std::optional<SolverControl>{} : control_binding::parse(nb::cast<nb::dict>(control));
+      std::function<double()> clock;
+      if(!test_steps.is_none()) {
+        if(!settings)throw std::invalid_argument("Test clock requires solver controls");
+        auto steps=std::make_shared<std::vector<double>>(nb::cast<std::vector<double>>(test_steps));
+        if(steps->empty() || !std::is_sorted(steps->begin(),steps->end()) ||
+            std::any_of(steps->begin(),steps->end(),[](double v){return !std::isfinite(v);}))
+          throw std::invalid_argument("Test clock steps must be nonempty, finite and monotonic");
+        auto index=std::make_shared<std::size_t>(0);
+        clock=[steps,index] {return (*steps)[std::min((*index)++,steps->size()-1)];};
+      }
       try {
-        return python_result(native_call([&](Messages &messages) { return runner.solve(wind, solver, messages,settings ? &*settings : nullptr); }));
+        return python_result(native_call([&](Messages &messages) { return runner.solve(wind, solver, messages,settings ? &*settings : nullptr,clock); }));
       } catch (const BudgetExhausted &failure) {
         auto cls=nb::module_::import_("dtcc_qes.solver_control").attr("BudgetExhaustedError");
         auto error=cls(control_binding::encode(failure.record));
@@ -216,5 +269,5 @@ NB_MODULE(_qes, m)
         auto error=cls(control_binding::encode(failure.record));
         PyErr_SetObject(cls.ptr(),error.ptr());throw nb::python_error();
       }
-    }, "condition"_a, "options"_a = SolverOptions{},nb::kw_only(),"control"_a=nb::none());
+    }, "condition"_a, "options"_a = SolverOptions{},nb::kw_only(),"control"_a=nb::none(),"_test_clock_steps"_a=nb::none());
 }

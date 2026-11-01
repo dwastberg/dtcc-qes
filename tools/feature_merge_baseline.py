@@ -417,7 +417,51 @@ def comparison_cases(cases):
     return result
 
 
-def compare(baseline, candidate, identity_pair=None):
+def native_consolidation_cases(case_rows,identity,*,baseline=False):
+    """Explicit Phase 9 additions, with native decisions left untouched."""
+    from dtcc_qes import wind,_qes
+    from compare_native_builds import make_city
+    if _qes.solver_policy_revision!=identity:
+        raise ValueError("Comparison must import the declared candidate native build")
+    result=deepcopy(case_rows)
+    for row in result.values():
+        metadata=row.get("metadata",{})
+        solver=metadata.get("solver")
+        if solver is None:
+            continue
+        record=solver["record"]
+        for build in (metadata["versions"]["native_build"],solver["environment"]["native_build"]):
+            if type(build["solver_policy_build_supported"]) is not bool:
+                raise ValueError("Invalid build qualification provenance")
+            if not baseline and build["solver_policy_build_supported"]!=_qes.solver_policy_build_supported:
+                raise ValueError("Candidate qualification provenance disagrees with the imported native build")
+            build["solver_policy_build_supported"]="declared qualification transition"
+        if record is None and metadata["timings"]["native"] is None:
+            if not baseline:
+                raise ValueError("Candidate legacy native timings are missing")
+            metadata["timings"]["native"]={}
+        if record is not None and "exclusions" not in record:
+            if not baseline:
+                raise ValueError("Candidate native exclusions are missing")
+            if solver["spec"]["policy"] is None:
+                record["exclusions"]=[]
+            else:
+                request=row["request"]
+                if not _qes.solver_policy_build_supported:
+                    raise ValueError("Adaptive compatibility requires the isolated qualified candidate")
+                if request.get("id") not in {r["id"] for r in cases() if r["mode"]=="adaptive"}:
+                    raise ValueError("Undeclared adaptive baseline protocol")
+                city=make_city([(22,22,12,12,7.9),(42,22,12,12,7.9),
+                                (22,42,12,12,7.9),(42,42,12,12,23.7)])
+                inflow=profile(wind,request["profile"]) or wind.LogProfile(5,270)
+                spec=wind.Solver.from_dict(solver["spec"])
+                preview=wind.preview_grid(city,inflow,bounds=(0,0,0,160,160,64),solver=spec,
+                    turbulence=None if request["turbulence"] is None else wind.Turbulence(request["turbulence"]))
+                record["exclusions"]=preview.eligibility["exclusions"]
+    return result
+
+
+def compare(baseline, candidate, identity_pair=None, *, select="all", native_consolidation=False):
     a, b = [json.loads((p/"manifest.json").read_text()) for p in (baseline,candidate)]
     differences = []
     for key in ("lock_sha256", "backend", "omp_num_threads", "compiler"):
@@ -430,10 +474,27 @@ def compare(baseline, candidate, identity_pair=None):
     elif (a["policy_revision"], b["policy_revision"]) != tuple(identity_pair):
         differences.append("unexpected native identity pair")
     ca, cb = comparison_cases(a["cases"]), comparison_cases(b["cases"])
+    if select!="all":
+        def selected(row):
+            adaptive=(row.get("metadata",{}).get("solver",{}).get("spec",{}).get("policy") is not None)
+            return adaptive==(select=="adaptive")
+        ca,cb=({k:v for k,v in mapping.items() if selected(v)} for mapping in (ca,cb))
+    if native_consolidation:
+        if identity_pair is None:
+            raise ValueError("Native consolidation requires an explicit identity pair")
+        for mapping,expected in ((ca,identity_pair[0]),(cb,identity_pair[1])):
+            for row in mapping.values():
+                record=row.get("metadata",{}).get("solver",{}).get("record")
+                if record is not None and record["policy"]:
+                    if record["policy_revision"]!=expected:
+                        raise ValueError("Unexpected native record identity")
+                    record["policy_revision"]="declared native identity"
+        ca=native_consolidation_cases(ca,identity_pair[1],baseline=True)
+        cb=native_consolidation_cases(cb,identity_pair[1])
     if ca != cb:
         differences += ["metadata/"+k for k in sorted(ca.keys() | cb.keys())
                         if ca.get(k) != cb.get(k)]
-    for name in sorted(a["cases"].keys() & b["cases"].keys()):
+    for name in sorted(ca.keys() & cb.keys()):
         with np.load(baseline/(name+".npz"), allow_pickle=False) as x, np.load(candidate/(name+".npz"), allow_pickle=False) as y:
             if set(x.files) != set(y.files):
                 differences.append(name+"/array keys")
@@ -450,11 +511,13 @@ if __name__ == "__main__":
     parser.add_argument("--output", type=Path)
     parser.add_argument("--compare", nargs=2, type=Path)
     parser.add_argument("--identity-pair", nargs=2)
+    parser.add_argument("--native-consolidation",action="store_true",help="Declared Phase 9 clocks, exclusions and qualification provenance additions")
     parser.add_argument("--costs", type=Path, help="write focused baseline costs and predeclared default-study limits")
     parser.add_argument("--select", choices=("all", "adaptive", "non-adaptive"), default="all")
     args = parser.parse_args()
     if args.compare:
-        raise SystemExit(0 if compare(*args.compare, args.identity_pair) else 1)
+        raise SystemExit(0 if compare(*args.compare,args.identity_pair,select=args.select,
+            native_consolidation=args.native_consolidation) else 1)
     if args.costs:
         if args.api is None:
             parser.error("--costs requires --api")

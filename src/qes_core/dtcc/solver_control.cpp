@@ -19,17 +19,18 @@ SolverController::SolverController(const SolverControl &spec,MonotonicClock cloc
   record.requested = spec;record.effective_monitor = spec.monitor;
   record.mode=spec.mode;record.policy=spec.policy;
   if(spec.mode=="adaptive")record.policy_revision=solver_policy_revision();
-  record.method=spec.mode=="adaptive"?pedestrian_method_id:"s5c-rb-sor-float-omega-v1-omega-1.78";
+  record.method=spec.mode=="adaptive"?pedestrian_method_id:legacy_method_id;
   if(spec.mode=="adaptive") {
     record.accuracy_status="unaccepted";record.assessment_scope="pedestrian_roi_and_required_receptors";
     record.assessment_reason="pending_assessment";
   }
 }
-void SolverController::configure_adaptive(const std::string &reason) {
+void SolverController::configure_adaptive(const std::vector<std::string> &reasons) {
   if(record.mode!="adaptive")return;
-  if(!reason.empty()) {
-    record.accuracy_status="not_assessed";record.assessment_reason=reason;
-    record.method="s5c-rb-sor-float-omega-v1-omega-1.78";return;
+  record.exclusions=reasons;
+  if(!reasons.empty()) {
+    record.accuracy_status="not_assessed";record.assessment_reason=reasons.front();
+    record.method=legacy_method_id;return;
   }
   auto &s=record.effective_monitor;
   const auto bytes=sizeof(PolicyEvidence)+384;

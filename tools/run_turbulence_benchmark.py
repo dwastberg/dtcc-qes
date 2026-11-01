@@ -187,11 +187,7 @@ def prepare_configuration(config):
     elif config["domain"] != "auto":
         raise ValueError("Unknown domain policy")
     profile = wind.LogProfile(config["speed"], config["direction"])
-    grid = wind._validate_grid(opts["resolution"], opts.get("bounds"), 20, 20,
-                               opts["max_cells"], vertical_grid=opts["vertical_grid"])
-    geometry, prepared = wind._prepare_city(city, profile, grid, None, "measured",
-                                             turbulence=config["method"] is not None)
-    return geometry, prepared, profile
+    return city, opts, profile
 
 
 def fingerprint():
@@ -205,55 +201,36 @@ def fingerprint():
 
 
 def worker(config, arrays_file=None):
-    from dtcc_qes import _qes, wind
+    from dataclasses import asdict
+    from dtcc_qes import wind
     from dtcc_qes.result import _stress_validity
 
     start = time.perf_counter()
-    geometry, prepared, profile = prepare_configuration(config)
-    planning = time.perf_counter()-start
-    native_condition, solver = _qes.WindCondition(), _qes.SolverOptions()
-    for name in ("speed", "direction", "reference_height"):
-        setattr(native_condition, name, getattr(profile,name))
-    # Scale the absolute multiplier threshold with input speed.
-    solver.tolerance, solver.max_iterations, solver.precision = 1e-7*config["speed"]/5, 20000, "float64"
-    options = {}
-    if config["method"] is not None:
-        settings = _qes.TurbulenceSettings()
-        settings.enabled, settings.mixing_length_method = True, config["method"]
-        options["turbulence"] = settings
-    memory = dict(imports_and_planning=rss())
-    runner = _qes.WindRunner()
-    start = time.perf_counter()
-    runner.prepare(prepared.grid, prepared.model, **prepared.arrays,
-                   dz_layers=prepared.dz_layers, **options)
-    prep = time.perf_counter()-start
-    memory["after_prepare"] = rss()
-    start = time.perf_counter()
-    native = runner.solve(native_condition, solver)
-    solve = time.perf_counter()-start
-    memory["after_solve"] = rss()
-    # Match public lifetime: native ownership ends before Python statistics.
-    del runner
-    result = wind.WindResult(native["velocity"], native["x"], native["y"], native["z"],
-        native["cell_flags"], prepared.origin, geometry.crs, prepared.resolution,
-        wind.SolveDiagnostics(**native["diagnostics"]), {}, z_faces=native["z_faces"])
-    record = dict(config=config, fingerprint=fingerprint(), diagnostics=native["diagnostics"], domain=prepared.domain,
-        cells=int(native["cell_flags"].size), shape=list(native["cell_flags"].shape),
-        z=native["z"], z_faces=native["z_faces"], origin=prepared.origin,
-        solver_dz=(np.full(len(native["z"]), prepared.resolution, dtype=np.float32)
-                   if prepared.dz_layers is None else prepared.dz_layers.astype(np.float32)),
-        seconds=dict(planning=planning, prepare=prep, solve=solve), peak_rss_bytes=memory,
-        velocity_sha256=hashlib.sha256(native["velocity"].tobytes()).hexdigest(),
+    city, options, profile = prepare_configuration(config)
+    configuration_seconds = time.perf_counter()-start
+    solver = wind.Solver(tolerance=1e-7*config["speed"]/5, max_iterations=20000, precision="float64")
+    turbulence = None if config["method"] is None else wind.Turbulence(
+        "height" if config["method"] == 0 else "wall_distance")
+    memory = dict(imports_and_configuration=rss(), imports_and_planning=None,
+                  after_prepare=None, after_solve=None)
+    result = wind.run(city, profile, solver=solver, turbulence=turbulence, **options)
+    memory["after_public_run"] = rss()
+    timings = result.metadata["timings"]
+    native = timings["native"]
+    domain = result.metadata["domain"]
+    record = dict(config=config, fingerprint=fingerprint(), diagnostics=asdict(result.diagnostics), domain=domain,
+        cells=int(result.cell_flags.size), shape=list(result.cell_flags.shape),
+        z=result.z, z_faces=result.z_faces, origin=result.origin,
+        solver_dz=np.asarray(domain["vertical_grid"].get("solver_layer_thicknesses", np.full(len(result.z), result.resolution)), dtype=np.float32),
+        seconds=dict(configuration=configuration_seconds, planning=timings["city_preparation_seconds"],
+                     prepare=native["preparation_seconds"], solve=native["solve_seconds"],
+                     public_call=timings["public_call_seconds"]), peak_rss_bytes=memory,
+        timing_scopes=timings["scopes"],
+        velocity_sha256=hashlib.sha256(result.velocity.tobytes()).hexdigest(),
         solver=dict(precision=solver.precision, tolerance=solver.tolerance, max_iterations=solver.max_iterations))
-    fields = native["turbulence"]
-    if fields is None:
+    t = result.turbulence
+    if t is None:
         return clean(record)
-    t = wind.TurbulenceFields(fields["stress"], fields["tke"], fields["co_eps"], fields["mixing_length"],
-        fields["state"] > 0, fields["state"] == 2, fields["stress_valid"].astype(bool),
-        *(fields[k] for k in ("friction_velocity", "reference_speed", "reference_height",
-                             "roughness_length", "displacement_height")))
-    from dataclasses import replace
-    result = replace(result, turbulence=t)
     start = time.perf_counter()
     python_valid, _ = _stress_validity(t.stress)
     record["seconds"]["python_validity"] = time.perf_counter()-start
@@ -290,9 +267,9 @@ def worker(config, arrays_file=None):
         invalid_tensor_witnesses=[dict(index=i, stress=raw[i]) for i in invalid_indices[:12]],
         computed_nonfinite=nonfinite,
         mask_mismatches=mismatch+int(np.count_nonzero(python_valid[t.computed] != t.stress_valid[t.computed])),
-        count_mismatches=sum((fields["invalid_stress_cells"] != len(invalid_indices),
-                              fields["computed_cells"] != int(computed.sum()),
-                              fields["capped_cells"] != int(t.capped.sum()),
+        count_mismatches=sum((result.metadata["turbulence"]["validity"]["invalid_stress_cells"] != len(invalid_indices),
+                              result.metadata["turbulence"]["cap"]["computed_cells"] != int(computed.sum()),
+                              result.metadata["turbulence"]["cap"]["capped_cells"] != int(t.capped.sum()),
                               bool(t.stress_valid[~t.computed].any()))),
         invalid_finite_std=int(np.isfinite(sigma[invalid]).sum()),
         invalid_finite_ti=int(np.isfinite(intensity[invalid]).sum()),

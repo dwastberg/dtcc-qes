@@ -26,10 +26,11 @@ regression against all 24 frozen S7 release workers: velocity/flag/coordinate
 hashes, convergence diagnostics, acceptance decisions, assessment/checkpoint
 histories and monitors match. Only the declared source revision and wall-clock
 values may differ. Serial/OpenMP source/arithmetic identities agree. Reproduce
-that check after building both backends:
+that check after building both backends, following the
+[isolated requalification procedure](solver-control-requalification.md):
 
 ```sh
-.venv/bin/python tools/check_wind_profile_policy.py \
+.venv/bin/python tools/check_policy_compatibility.py \
   --serial build/profiles-serial --openmp build/profiles-openmp \
   --output build/profile-policy-check
 ```

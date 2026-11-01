@@ -39,7 +39,7 @@ def check_wheel(path):
                 "Wheel omits native extension")
         for name in ("wind.py", "result.py", "_city.py", "footprints.py", "_footprints.py", "vertical_grid.py", "_auto_grid.py",
                      "_turbulence_domain.py", "turbulence.py", "comfort.py", "datasets.py",
-                     "_dataset_city.py", "solver_control.py", "profiles.py", "_qes_revision.txt"):
+                     "_dataset_city.py", "solver_control.py", "profiles.py", "_log.py", "_validation.py", "_qes_revision.txt"):
             require("dtcc_qes/" + name in names, f"Wheel omits {name}")
         require(len(archive.read("dtcc_qes/_qes_revision.txt").strip()) == 40, "Missing source revision")
 
@@ -48,6 +48,12 @@ def check_sdist(path):
     with tarfile.open(path) as archive:
         members = {name.split("/", 1)[1]: name for name in archive.getnames() if "/" in name}
         for name in (
+            "src/qes_core/dtcc/api/preflight.h", "src/qes_core/dtcc/api/turbulence_reference.h",
+            "src/qes_core/dtcc/turbulence_reference.cpp", "tests/native/building_fixtures.h",
+            "tests/fixtures/geometry.py", "tests/fixtures/specs.py", "tests/fixtures/support.py",
+            "docs/solver-control-requalification.md", "docs/solver-control.md",
+            "tests/test_native_deadlines.py", "tests/test_native_preflight.py",
+            "tests/test_native_turbulence_planning.py",
             "LICENSE", "NOTICE", "README.md", "pyproject.toml", "uv.lock", "CMakeLists.txt",
             "src/qes_core/LICENSE", "src/qes_core/PROVENANCE.md", "src/qes_core/CMakeLists.txt",
             "docs/solver-control-contract.md", "docs/solver-control-s0.md", "docs/solver-control-s1.md",
@@ -63,7 +69,7 @@ def check_sdist(path):
             "src/qes_core/dtcc/api/profile_types.h", "src/dtcc_qes/profiles.py",
             "WIND_PROFILES.md", "docs/wind-profiles.md", "tests/test_profiles.py",
             "tests/native/check_profiles.cpp", "tools/verify_wind_profiles.py", "examples/wind_profiles.py",
-            "tools/check_wind_profile_policy.py", "docs/wind-profiles-verification.md",
+            "tools/check_policy_compatibility.py", "docs/wind-profiles-verification.md",
             "src/cpp/bindings.cpp", "src/qes_core/dtcc/wind_runner.cpp", "src/qes_core/dtcc/model_inputs.cpp",
             "src/dtcc_qes/datasets.py", "src/dtcc_qes/_dataset_city.py", "tests/test_datasets.py",
             "tests/test_dataset_vertical_grid.py", "examples/city_dataset.py",

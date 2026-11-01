@@ -17,7 +17,7 @@ public:
   double elapsed() const {return now()-started_;}
   bool check(const char *phase,int completed = 0);
   void finish_output();
-  void configure_adaptive(const std::string &unsupported_reason);
+  void configure_adaptive(const std::vector<std::string> &unsupported_reasons);
   bool adaptive_enabled() const {return adaptive_;}
   [[noreturn]] void numerical_failure(const std::string &);
   template<class Real> void run(solver::SolverState<Real> &state) {

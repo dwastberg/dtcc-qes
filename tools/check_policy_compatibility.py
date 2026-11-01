@@ -1,4 +1,4 @@
-"""Check log-policy compatibility after wind-profile integration.
+"""Check the existing log policy after native implementation changes.
 
 Rerun the frozen S7 release workers against freshly built serial/OpenMP
 packages. Require exact fields, diagnostics and numerical decisions; the only

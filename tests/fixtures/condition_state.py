@@ -60,6 +60,11 @@ def assert_same(actual, expected):
     assert actual.keys() == expected.keys()
     for key, value in expected.items():
         other = actual[key]
+        if key == "timings":
+            assert other.keys() == value.keys()
+            assert all(type(t) is float and np.isfinite(t) and t >= 0 for t in other.values())
+            assert all(type(t) is float and np.isfinite(t) and t >= 0 for t in value.values())
+            continue
         if isinstance(value, np.ndarray):
             assert other.dtype == value.dtype and other.shape == value.shape, key
             assert other.tobytes() == value.tobytes(), key

@@ -71,6 +71,8 @@ def test_phase3_migration_keeps_existing_diagnostics_strict():
     from dtcc_qes import wind
     result=wind.run(City(),speed=5,direction=270,bounds=(0,0,0,24,24,24),
                     vertical_grid=wind.VerticalGrid.auto())
+    # Exercise the Phase 3 schema independently of Phase 9 clock additions.
+    result.metadata["timings"]["native"]=None
     current={"case":dict(metadata=baseline.deterministic(result.metadata,{}))}
     old=deepcopy(current)
     metadata=old["case"]["metadata"]

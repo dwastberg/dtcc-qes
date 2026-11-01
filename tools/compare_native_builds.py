@@ -140,11 +140,58 @@ def compare_binaries(a, b, module_a, module_b):
     return problems, len(oa)
 
 
-def compare_results(a, b, *, backend_pair=False, allow_added_contraction=False):
+NATIVE_TIMING_FIELDS = frozenset(("preparation_seconds", "mutex_wait_seconds", "initialization_seconds",
+    "workspace_seconds", "rhs_seconds", "sweeps_seconds", "monitoring_seconds", "finalization_seconds",
+    "postprocessing_seconds", "output_transfer_seconds", "solve_seconds", "native_total_seconds", "deadline_overshoot_seconds"))
+
+
+def _native_consolidation_metadata(left,right,identity_pair):
+    """Only declared native identity, qualification flag and legacy-clock additions.
+
+    Durations were validated before storage. Their keys and availability remain
+    strict except for the specifically declared Phase 9 legacy instrumentation.
+    No numerical arrays, work, diagnostics or solver decisions are migrated.
+    """
+    if identity_pair is None or len(identity_pair)!=2:
+        raise ValueError("Native consolidation requires an explicit identity pair")
+    for archive,expected in zip((left,right),identity_pair):
+        if "_policy_revision" not in archive or str(archive["_policy_revision"])!=expected:
+            raise ValueError("Unexpected native identity pair")
+    left["_policy_revision"]=right["_policy_revision"]=np.array("declared native identity")
+    for key in sorted(set(right)-set(left)):
+        if not (key.endswith("/metadata/timings/native/scalars") or
+                key.startswith("native/") and key.endswith("/timings/scalars")):
+            continue
+        values=json.loads(str(right[key]))
+        if set(values)!=NATIVE_TIMING_FIELDS or any(type(v) is not float or v!=0. for v in values.values()):
+            raise ValueError("Unexpected legacy native timing addition")
+        left[key]=right[key].copy()
+        if key.endswith("/metadata/timings/native/scalars"):
+            parent=key.removesuffix("/native/scalars")+"/scalars"
+            old=json.loads(str(left[parent]))
+            if old.get("native","missing") is not None:
+                raise ValueError("Legacy timing migration requires previously unavailable native timings")
+            old.pop("native")
+            left[parent]=np.array(json.dumps(old,sort_keys=True))
+    for key in set(left)&set(right):
+        if key.endswith(("/metadata/versions/native_build/scalars",
+                         "/metadata/solver/environment/native_build/scalars")):
+            a,b=json.loads(str(left[key])),json.loads(str(right[key]))
+            if type(a.get("solver_policy_build_supported")) is not bool or type(b.get("solver_policy_build_supported")) is not bool:
+                raise ValueError("Missing native build qualification provenance")
+            a["solver_policy_build_supported"]=b["solver_policy_build_supported"]
+            left[key]=np.array(json.dumps(a,sort_keys=True))
+
+
+def compare_results(a, b, *, backend_pair=False, allow_added_contraction=False,
+                    native_consolidation=False, identity_pair=None):
     """Return the keys whose values differ; arrays must match dtype, shape and bytes."""
-    with np.load(a) as x, np.load(b) as y:
-        keys = set(x.files) - {"_module"}
-        other = set(y.files) - {"_module"}
+    with np.load(a) as raw_a, np.load(b) as raw_b:
+        x,y=({key:archive[key] for key in archive.files} for archive in (raw_a,raw_b))
+        if native_consolidation:
+            _native_consolidation_metadata(x,y,identity_pair)
+        keys = set(x) - {"_module"}
+        other = set(y) - {"_module"}
         problems = [f"only in one result: {k}" for k in sorted(keys ^ other)]
         for key in sorted(keys & other):
             u, v = x[key], y[key]
@@ -236,7 +283,7 @@ def store(out, name, value):
                 not value["native"] or any(not key.endswith("_seconds") for key in value["native"])):
             raise ValueError("Invalid native timing report shape")
         value = _comparable_clock_values(value, phases=True)
-    elif name.endswith("/metadata/solver/record/timings"):
+    elif name.endswith("/timings"):
         value = _comparable_clock_values(value, phases=True)
     if isinstance(value, dict):
         arrays = {k: v for k, v in value.items() if isinstance(v, np.ndarray)}
@@ -364,7 +411,8 @@ def native_runs():
 
 def run_cases(output):
     from dtcc_qes import _qes
-    out = {"_module": np.array(_qes.__file__), "qes_revision": np.array(_qes.qes_revision)}
+    out = {"_module": np.array(_qes.__file__), "_policy_revision":np.array(_qes.solver_policy_revision),
+           "qes_revision": np.array(_qes.qes_revision)}
     count = 0
     for name, result in itertools.chain(public_runs(), native_runs()):
         store(out, name, result)
@@ -399,10 +447,14 @@ def main():
     ap.add_argument("--require-backend-parity", action="store_true", help="also fail if the backend pair differs (S2 gate)")
     ap.add_argument("--serial-red-black-migration", action="store_true", help="S2 only: require serial to match the unchanged OpenMP oracle and the exact expected serial change set")
     ap.add_argument("--allow-added-contraction", action="store_true", help="S0 only: allow the new fp_contract provenance field against the old baseline")
+    ap.add_argument("--native-consolidation",action="store_true",help="Phase 9 only: declared legacy timings and build-qualification metadata additions")
+    ap.add_argument("--identity-pair",nargs=2,help="Exact baseline/candidate native identities required for Phase 9 metadata migration")
     ap.add_argument("--report", type=Path, help="write a machine-readable comparison report")
     ap.add_argument("--work-dir", type=Path, default=ROOT / "build/compare-native")
     ap.add_argument("--run-cases", type=Path, help=argparse.SUPPRESS)
     args = ap.parse_args()
+    if bool(args.native_consolidation)!=bool(args.identity_pair):
+        ap.error("--native-consolidation and --identity-pair must be supplied together")
     if args.run_cases:
         run_cases(args.run_cases)
         return
@@ -426,6 +478,8 @@ def main():
     report = dict(baseline_revision=baseline_revision,
                   candidate=candidate_revision, allow_added_contraction=args.allow_added_contraction,
                   ordering_migration=args.serial_red_black_migration, comparisons=[])
+    report["native_consolidation"]=args.native_consolidation
+    report["identity_pair"]=args.identity_pair
     candidate_results = {}
     baseline_results = {}
     for backend in args.backends:
@@ -448,7 +502,8 @@ def main():
         problems = []
         for threads, result in built["candidate"][2].items():
             diffs, records = compare_results(built["baseline"][2][threads], result,
-                                            allow_added_contraction=args.allow_added_contraction)
+                                            allow_added_contraction=args.allow_added_contraction,
+                                            native_consolidation=args.native_consolidation,identity_pair=args.identity_pair)
             report["comparisons"].append(dict(kind="revision", backend=backend, threads=threads,
                 cases=cases, records=records, differences=diffs,
                 required=not (args.serial_red_black_migration and backend == "serial")))

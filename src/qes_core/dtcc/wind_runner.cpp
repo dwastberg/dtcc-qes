@@ -74,6 +74,9 @@ void WindRunner::prepare(const GridConfig &grid, const ModelSettings &model,
 WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &options, Messages &messages,
                           const SolverControl *control,const std::function<double()> &native_test_clock)
 {
+  const auto steady_now = [] {return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();};
+  const double native_started=steady_now();
+  ControlTimings legacy_timings;
   if(control && control->mode=="adaptive" && !(condition.speed>0))
     throw qes::InputError("Adaptive pedestrian acceptance is unavailable for calm wind");
   std::optional<SolverController> controller;
@@ -82,6 +85,13 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
   const BufferedLogSink sink(messages);
   if (!impl_) throw std::runtime_error("Prepare the runner before solving");
   auto &state = *impl_;
+  auto &timings=controller?controller->record.timings:legacy_timings;
+  const auto now=[&] {return controller?controller->now():steady_now();};
+  if(!controller) {
+    timings.preparation_seconds=state.preparation_seconds;
+    timings.mutex_wait_seconds=steady_now()-native_started;
+  }
+
   if (controller) {
     controller->record.timings.preparation_seconds = state.preparation_seconds;
     controller->record.effective_monitor.reference_speed = condition.speed;
@@ -97,7 +107,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
       if (!success) { state.solver.reset(); state.precision_solver.reset(); }
     }
   } scope{state};
-  double phase_started = controller ? controller->now() : 0;
+  double phase_started = now();
   if (controller) {
 #ifdef _OPENMP
 #pragma omp parallel
@@ -110,53 +120,57 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
   }
   state.inputs.set_condition(condition);
   if(controller && control->mode=="adaptive")
-    controller->configure_adaptive(pedestrian_scope(state.grid,state.model,state.inputs,options,
+    controller->configure_adaptive(pedestrian_exclusions(state.grid,state.model,state.inputs,options,
       controller->record.effective_monitor,controller->record.actual_threads));
   auto &data = *state.data;
   data.resetICellFlag();
   data.applyWindProfile(state.inputs.inflow);
   data.applyParametrizations();
   state.phase = Impl::Phase::Initialized;
+  timings.initialization_seconds = now()-phase_started;
   if (controller) {
-    controller->record.timings.initialization_seconds = controller->now()-phase_started;
     controller->check("after_initialization");
   }
   WindData result;
   solver::SolveDiagnostics diagnostics;
   try {
     const auto run = [&](auto &workspace) {
-      phase_started = controller ? controller->now() : 0;
+      phase_started = now();
       if (controller) controller->check("before_rhs");
       workspace.begin(solver::ConditionInputs(data),options.max_iterations,
         controller && controller->adaptive_enabled()?solver::StopRule::FixedSweeps:solver::StopRule::LegacyTolerance);
       state.phase = Impl::Phase::Solving;
+      timings.rhs_seconds = now()-phase_started;
       if (controller) {
-        controller->record.timings.rhs_seconds = controller->now()-phase_started;
         controller->check("after_rhs");
         controller->run(workspace);
-      } else workspace.advance(options.max_iterations);
+      } else {
+        const double started=now();
+        workspace.advance(options.max_iterations);
+        timings.sweeps_seconds=now()-started;
+      }
       solver::MassDiagnostics mass;
-      phase_started = controller ? controller->now() : 0;
+      phase_started = now();
       workspace.finalize(solver::FaceDestination(data),
                          solver::CenteredDestination{result.velocity,result.cell_flags},&mass);
-      if (controller) controller->record.timings.finalization_seconds = controller->now()-phase_started;
+      timings.finalization_seconds = now()-phase_started;
       state.phase = Impl::Phase::Finalized;
       result.divergence = {mass.interior_max,mass.interior_rms,mass.top_band_max,mass.cells,mass.top_band_cells};
       return workspace.diagnostics();
     };
-    const double allocation_started = controller ? controller->now() : 0;
+    const double allocation_started = now();
     const float relaxation=controller && controller->adaptive_enabled()?1.90f:1.78f;
     if (options.precision == "float64") {
       state.solver.reset();
       if (!state.precision_solver || state.tolerance != tolerance || state.relaxation!=relaxation)
         state.precision_solver = std::make_unique<solver::SolverState<double>>(*state.poisson,tolerance,solver::default_order(),relaxation);
-      if (controller) controller->record.timings.workspace_seconds = controller->now()-allocation_started;
+      timings.workspace_seconds = now()-allocation_started;
       diagnostics = run(*state.precision_solver);
     } else {
       state.precision_solver.reset();
       if (!state.solver || state.tolerance != tolerance || state.relaxation!=relaxation)
         state.solver = std::make_unique<solver::SolverState<float>>(*state.poisson,tolerance,solver::default_order(),relaxation);
-      if (controller) controller->record.timings.workspace_seconds = controller->now()-allocation_started;
+      timings.workspace_seconds = now()-allocation_started;
       diagnostics = run(*state.solver);
     }
     state.tolerance = tolerance;
@@ -171,7 +185,8 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
     throw;
   }
 
-  phase_started = controller ? controller->now() : 0;
+  if(!controller)timings.solve_seconds=steady_now()-native_started;
+  phase_started = now();
   if (state.turbulence) state.turbulence->run();
 
   if (state.turbulence) result.turbulence = turbulence_fields(*state.turbulence, state.grid);
@@ -188,10 +203,14 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
   result.tolerance = diagnostics.tolerance;
   result.converged = diagnostics.converged;
   result.precision = options.precision;
+  timings.postprocessing_seconds = now()-phase_started;
   if (controller) {
-    controller->record.timings.postprocessing_seconds = controller->now()-phase_started;
     controller->finish_output();
+    result.timings=controller->record.timings;
     result.control = std::move(controller->record);
+  } else {
+    timings.native_total_seconds=steady_now()-native_started;
+    result.timings=timings;
   }
   scope.success = true;
   return result;

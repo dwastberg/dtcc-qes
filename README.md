@@ -184,8 +184,8 @@ Exports and datasets store copied qualification snapshots.
 `metadata["timings"]` contains `public_call_seconds`, `city_preparation_seconds`
 and `native`: public time includes validation, preparation, native execution,
 output and cleanup; native totals contain phase timers. Never add parents and
-children. Unavailable legacy native phase timings remain None until native
-instrumentation is installed. Dataset preparation excludes upstream fetching;
+children. Native phases are measured in all execution modes; legacy records
+remain None. Dataset preparation excludes upstream fetching;
 its direct `wind.run` public-call timer is unavailable.
 
 ## Validation and qualification reports
@@ -223,3 +223,16 @@ its original source identity.
 
 Terrain sampling, cut cells, vegetation, transient conditions, CUDA and
 independent physical comfort/gust qualification remain outside this work.
+
+Adaptive eligibility can be inspected before allocating native fields:
+
+```python
+preview = wind.preview_grid(city, speed=5, direction=270, bounds=bounds, solver=wind.Solver())
+print(preview.eligibility)
+```
+
+The preview reports `exclusions` in native check order and
+`pending_runtime_checks=["actual_thread_team"]`. Adaptive preview requires known
+inflow. It makes no acceptance claim. Runtime stores every final exclusion in
+`result.solver["record"]["exclusions"]`; qualification reads that record.
+See [native requalification](docs/solver-control-requalification.md).

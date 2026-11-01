@@ -27,6 +27,7 @@ struct ControlTimings {
 struct ControlRecord {
   std::string mode = "bounded", termination_reason, accuracy_status = "not_assessed", phase;
   std::string policy, method, policy_revision, assessment_scope, assessment_reason;
+  std::vector<std::string> exclusions;
   bool accepted = false;
   std::optional<PolicyEvidence> assessment;
   std::vector<PolicyEvidence> assessment_history;

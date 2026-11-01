@@ -77,3 +77,24 @@ def test_flat_error_decomposition_interpolates_variance(tmp_path):
         assert row["analytic_sampling_error"] == pytest.approx(expected, abs=1e-14)
         assert row["total_error"] == pytest.approx(row["derivative_error"]+expected, abs=1e-14)
         assert row["nearest_height"] == 1
+
+
+def test_public_worker_preserves_native_timer_scopes_and_unavailable_memory(monkeypatch):
+    from dtcc_qes import wind
+    monkeypatch.syspath_prepend(str(Path(__file__).parents[1]/"tools"))
+    original=wind.run
+    calls=[]
+    def capture(*args,**kwargs):
+        result=original(*args,**kwargs)
+        calls.append(result)
+        return result
+    monkeypatch.setattr(wind,"run",capture)
+    record=benchmark.worker(benchmark.configuration("public-worker","flat",top=32))
+    assert len(calls)==1
+    timings=calls[0].metadata["timings"]
+    assert record["seconds"]["prepare"]==timings["native"]["preparation_seconds"]
+    assert record["seconds"]["solve"]==timings["native"]["solve_seconds"]
+    assert record["seconds"]["public_call"]==timings["public_call_seconds"]
+    assert record["peak_rss_bytes"]["after_prepare"] is None
+    assert record["peak_rss_bytes"]["after_solve"] is None
+    assert record["peak_rss_bytes"]["after_public_run"]>0
