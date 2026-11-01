@@ -7,7 +7,7 @@ import pytest
 from dtcc_qes import wind, _qes, comfort
 from dtcc_qes.profiles import profile_from_dict, evaluate, _profile_record
 from dtcc_qes.datasets import QESWindArgs, QESWindDataset, _field_slice
-from city_cases import city_case
+from fixtures.cities import city_case
 from fixtures.cases import FLAT, ONE_BUILDING
 from runner_cases import prepared
 
