@@ -22,7 +22,7 @@ def main():
     logger.info("Automatic prototype: shape=%s, cells=%d, layer thickness=%g..%g m",
                 preview.shape, preview.cell_count, preview.solver_dz.min(), preview.solver_dz.max())
     logger.info("Policy status=%s; endpoint=%s", record["policy_status"], record["endpoint_fit"])
-    result = wind.run(city, speed=5, direction=270, max_iterations=4000, **options)
+    result = wind.run(city, speed=5, direction=270, **options, solver=wind.Solver(max_iterations=4000))
     pedestrian = result.sample(1.5, method="linear")
     logger.info("At %.2f m: valid points=%d, maximum interior divergence=%s s^-1",
                 pedestrian.sampled_height, int(pedestrian.valid.sum()), result.diagnostics.max_divergence)

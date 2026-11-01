@@ -27,7 +27,7 @@ def main():
                             metadata={"source": "synthetic power-law verification"}),
     ]
     for profile in profiles:
-        result = wind.run(city, profile=profile, roughness_length=.1, resolution=2., bounds=(0,0,0,80,60,40))
+        result = wind.run(city, profile=profile, resolution=2., bounds=(0,0,0,80,60,40))
         print(json.dumps(dict(kind=profile.kind, reference=result.metadata["profile"]["reference"],
                               applied_at_heights=[1,5,10,20,40],
                               background_vectors=profile.evaluate([1,5,10,20,40]).tolist(),

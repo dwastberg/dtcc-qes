@@ -24,7 +24,7 @@ def main():
         options = dict(resolution=2, bounds=(0,0,0,80,60,40), vertical_grid=spec)
         preview = wind.preview_grid(city, **options)
         logger.info("%s grid: shape=%s, cells=%d", name, preview.shape, preview.cell_count)
-        result = wind.run(city, speed=5, direction=270, max_iterations=4000, **options)
+        result = wind.run(city, speed=5, direction=270, **options, solver=wind.Solver(max_iterations=4000))
         pedestrian = result.sample(1.5, method="linear")
         logger.info("%s: sampled at %.2f m, valid points=%d, max interior divergence=%s s^-1",
                     name, pedestrian.sampled_height, int(pedestrian.valid.sum()),

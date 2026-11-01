@@ -4,6 +4,7 @@ import argparse
 
 from dtcc_core import datasets
 import dtcc_qes.datasets  # Registers the optional GPL QES dataset.
+from dtcc_qes import wind
 
 
 def main():
@@ -20,12 +21,16 @@ def main():
     parser.add_argument("--slice-height", type=float)
     parser.add_argument("--slice-sampling", choices=("nearest", "linear"), default="nearest",
                         help="linear supports horizontal slices; display x/y sampling remains nearest")
-    parser.add_argument("--wind-speed", type=float, default=5.0)
-    parser.add_argument("--wind-direction", type=float, default=270.0)
+    parser.add_argument("--speed", type=float, default=5.0)
+    parser.add_argument("--direction", type=float, default=270.0)
     args = parser.parse_args()
     # The dataset preserves height steps and fills source/region courtyards.
     # Its context records source-to-solid mappings and any tallest-height fallback.
-    result = datasets.qes_wind(**vars(args))
+    request = vars(args)
+    precision = request.pop("solver_precision")
+    # Preserve the interim dataset defaults until the shared-default study.
+    request["solver"] = wind.Solver(tolerance=1e-4, max_iterations=1000, precision=precision).to_dict()
+    result = datasets.qes_wind(**request)
     print(result)
     print(result.provenance.processing_steps[-1]["diagnostics"])
     return result

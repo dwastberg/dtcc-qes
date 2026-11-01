@@ -95,13 +95,7 @@ def main(argv=None):
     import matplotlib.pyplot as plt
 
     start_time = perf_counter()
-    result = wind.run(
-        make_city(),
-        speed=5.0, direction=270.0,
-        resolution=0.5, bounds=(0, 0, 0, 120, 90, 40),
-        # Avoid demanding multiplier changes below this domain's float32 precision.
-        tolerance=1e-4, max_iterations=2000,
-    )
+    result = wind.run(make_city(), speed=5.0, direction=270.0, resolution=0.5, bounds=(0, 0, 0, 120, 90, 40), solver=wind.Solver(tolerance=1e-4, max_iterations=2000))
     get_python_logger("dtcc-qes").info("Wind simulation took %.2f seconds", perf_counter() - start_time)
     fig = plot_wind(result)
     if args.save:

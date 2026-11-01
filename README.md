@@ -120,9 +120,11 @@ with an explicit ROI and required receptors at both 1.5 and 1.75 m. Acceptance
 is separate from legacy convergence and covers only those outputs. Larger or
 unsupported configurations remain unaccepted; full-volume, turbulence and
 physical/model accuracy are not qualified by this policy. Qualification is tied
-to a frozen native source/arithmetic identity. The footprint-enabled build changes
-that identity, so adaptive results remain unaccepted (`unqualified_build`) until
-a separate qualification is completed. Result metadata records the current
+to a frozen native source/arithmetic identity. The footprint-enabled build was
+requalified against all 24 frozen S7 workers, with exact fields, diagnostics and
+assessment decisions ([verification evidence](docs/data/feature-merge/head-requalification.json)).
+This preserves the existing policy scope; it adds no adaptive scope for touching
+or canonical footprints. Result metadata records the current
 decision under `versions.native_build.solver_policy_build_supported`.
 
 The [S9 closure report](docs/solver-control-s9.md) closes the solver-control

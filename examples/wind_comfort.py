@@ -42,9 +42,7 @@ def pedestrian_speeds(city, directions):
     """Mean/GEM fields at 1.5 m plus copied QES model/assumption provenance."""
     fields, gems, runs = [], [], []
     for direction in directions:
-        result = wind.run(city, speed=REFERENCE_SPEED, direction=float(direction), resolution=2.0,
-                          bounds=(0, 0, 0, 80, 60, 40), vertical_grid=wind.VerticalGrid.from_faces(FACES),
-                          turbulence=True, raise_on_nonconvergence=True)
+        result = wind.run(city, speed=REFERENCE_SPEED, direction=float(direction), resolution=2.0, bounds=(0, 0, 0, 80, 60, 40), vertical_grid=wind.VerticalGrid.from_faces(FACES), turbulence=wind.Turbulence(), solver=wind.Solver(raise_on_failure=True))
         sample = result.sample(PEDESTRIAN_HEIGHT, method="linear")
         fields.append(sample.speed)
         gems.append(comfort.gust_equivalent_mean(sample.speed, sample.streamwise_std,
