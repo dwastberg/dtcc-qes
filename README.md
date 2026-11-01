@@ -181,6 +181,28 @@ not accuracy settings. The [dataset CLI](examples/city_dataset.py) supports
 Arrays own their storage. `sample()` returns owned fields; invalid support is
 NaN. `speedup` uses the declared profile reference, with NaN for calm inflow.
 Exports and datasets store copied qualification snapshots.
+
+`sample_points()` samples arbitrary probes in input order and returns a
+`wind.WindPointSample` with `(n, 3)` velocity, `(n,)` speed and validity arrays:
+
+```python
+probes = result.sample_points([[6, 8, 1.75], [12, 14, 3]], method="linear")
+global_probes = result.sample_points([[6, 8, 1.75]], frame="global")
+```
+
+Probe coordinates default to local metres; `frame="global"` uses the result's
+CRS and translates grid coordinates by `origin`, including ground elevation.
+`points` and `sampled_points` stay in the requested frame. The default
+`method="nearest"` selects cell centres, with ties toward lower indices;
+`method="linear"` interpolates velocity components on all three axes, including
+nonuniform vertical grids, before computing speed. Outside-domain probes and
+linear probes outside the centre range return NaN and `valid=False`.
+Solid or nonfinite contributing cells also invalidate a probe. Optional stress,
+`stress_valid`, `streamwise_std` and `turbulence_intensity` follow the plane
+sampler's contributor rules. No CRS reprojection or extrapolation is performed.
+Global sampling compares coordinates in float64; the global frame must retain
+enough precision to distinguish adjacent cell centres.
+
 `metadata["timings"]` contains `public_call_seconds`, `city_preparation_seconds`
 and `native`: public time includes validation, preparation, native execution,
 output and cleanup; native totals contain phase timers. Never add parents and

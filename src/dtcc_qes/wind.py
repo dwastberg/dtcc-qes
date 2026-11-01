@@ -14,7 +14,7 @@ from dtcc_core.model import Bounds
 
 from . import __version__, _qes
 from ._city import extract_city, near_contacts, number, prepare_domain
-from .result import ConvergenceError, SolveDiagnostics, TurbulenceFields, WindResult, WindSample
+from .result import ConvergenceError, SolveDiagnostics, TurbulenceFields, WindPointSample, WindResult, WindSample
 from .turbulence import Turbulence, _resolve_turbulence, _turbulence_metadata
 from .vertical_grid import GridPreview, VerticalGrid
 from .footprints import Footprints
@@ -24,7 +24,7 @@ from .solver_control import (Solver, MonitorSpec, Receptor, MassRegion, BudgetEx
 from .profiles import (LogProfile, MeasuredProfile, PowerLawProfile, UniformProfile,
                        PROFILE_TYPES, profile_from_dict, evaluate, _profile_record)
 
-__all__ = ["run", "preview_grid", "WindResult", "WindSample", "GridPreview",
+__all__ = ["run", "preview_grid", "WindResult", "WindSample", "WindPointSample", "GridPreview",
            "SolveDiagnostics", "ConvergenceError", "VerticalGrid", "Turbulence", "TurbulenceFields",
            "Solver", "MonitorSpec", "Receptor", "MassRegion", "BudgetExhaustedError",
            "NumericalFailureError", "UnacceptedResultError",

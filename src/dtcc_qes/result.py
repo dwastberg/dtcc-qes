@@ -1,7 +1,8 @@
-"""Physical wind arrays, height sampling and DTCC uniform-grid conversion."""
+"""Physical wind arrays, plane/probe sampling and DTCC grid conversion."""
 
 from dataclasses import dataclass, field
 from copy import deepcopy
+from itertools import product
 import json
 from numbers import Real
 
@@ -208,6 +209,51 @@ class WindSample:
 
 
 @dataclass(frozen=True)
+class WindPointSample:
+    """Owned probe arrays in input order, with coordinates in ``frame``.
+
+    ``points`` and ``sampled_points`` are float64 (n,3), in metres. The latter
+    contains selected centres for nearest sampling, requested positions for
+    linear sampling, and NaN where geometric support is unavailable.
+    ``velocity`` is float64 (n,3), in m/s; invalid vectors are NaN and ``valid``
+    is a separate (n,) bool mask. Coordinates retain geometric support even
+    when contributing cells are solid or have nonfinite velocity.
+    Optional float64 ``stress`` is (n,6), ordered xx,xy,xz,yy,yz,zz in m²/s².
+    Its validity and derived statistics follow the rules of ``WindSample``.
+    All arrays are editable and independent of the input points and result.
+    """
+    points: np.ndarray
+    sampled_points: np.ndarray
+    velocity: np.ndarray
+    valid: np.ndarray
+    method: str
+    frame: str
+    origin: tuple[float, float, float]
+    crs: str | None
+    stress: np.ndarray | None = None
+    stress_valid: np.ndarray | None = None
+    _stress_contributors_valid: np.ndarray | None = field(default=None, repr=False, compare=False, kw_only=True)
+
+    @property
+    def speed(self):
+        """Magnitude of the sampled mean velocity vector, in m/s."""
+        return _velocity_magnitude(self.velocity)
+
+    @property
+    def streamwise_std(self):
+        if self.stress is None:
+            raise ValueError("Sample has no turbulence; run with turbulence=Turbulence()")
+        contributors = self._stress_contributors_valid
+        if contributors is None:
+            contributors = self.stress_valid if self.stress_valid is not None else True
+        return _streamwise_std(self.stress, self.velocity, self.valid & contributors)
+
+    @property
+    def turbulence_intensity(self):
+        return _turbulence_intensity(self.streamwise_std, self.velocity)
+
+
+@dataclass(frozen=True)
 class WindResult:
     """Owned arrays in the local frame; global coordinates add ``origin``.
 
@@ -401,6 +447,150 @@ class WindResult:
         return WindSample(velocity, valid, np.array(self.x, copy=True), np.array(self.y, copy=True),
                           requested, sampled, method, self.origin, self.crs,stress,stress_valid,
                           _stress_contributors_valid=contributors)
+
+    def sample_points(self, points, method="nearest", *, frame="local") -> WindPointSample:
+        """Sample finite probe coordinates supplied as an (n,3) numeric array.
+
+        Coordinates are local metres by default: z is height above flat ground.
+        ``frame='global'`` translates centres and domain faces by ``origin``
+        (including ground elevation). Comparisons and interpolation use float64
+        in the requested frame, so represented global centres remain exact.
+        A global frame must distinguish adjacent centres in float64. Returned
+        point coordinates stay in the requested frame; no CRS reprojection is
+        performed.
+
+        Nearest chooses a centre on each axis, breaking ties toward the lower
+        index and clipping within physical boundary faces. Linear performs
+        trilinear component interpolation on the stored centres, including
+        nonuniform z; exact centres use only that cell on the relevant axis.
+        Points outside the physical domain, or outside the centre range with
+        linear sampling, yield NaN vectors and false validity without raising.
+        Every contributing cell must be fluid (flags other than 0/2) with finite
+        velocity. Optional stresses follow ``sample``'s independent coverage
+        and contributor validity rules. Work/storage scale with probe count,
+        without copying or masking the full wind volume.
+        """
+        if not isinstance(method, str) or method not in ("nearest", "linear"):
+            raise ValueError("method must be 'nearest' or 'linear'")
+        if not isinstance(frame, str) or frame not in ("local", "global"):
+            raise ValueError("frame must be 'local' or 'global'")
+        try:
+            requested = np.asarray(points)
+            if requested.ndim != 2 or requested.shape[1] != 3 or requested.dtype.kind not in "iuf":
+                raise ValueError
+            requested = np.array(requested, dtype=np.float64, copy=True)
+        except (TypeError, ValueError, OverflowError) as error:
+            raise ValueError("points must be a finite numeric array with shape (n, 3)") from error
+        if not np.isfinite(requested).all():
+            raise ValueError("points must be a finite numeric array with shape (n, 3)")
+        axes = [np.asarray(axis, dtype=np.float64) for axis in (self.x, self.y, self.z)]
+        for name, axis in zip("xyz", axes):
+            if (axis.ndim != 1 or not len(axis) or not np.isfinite(axis).all()
+                    or np.any(np.diff(axis) <= 0)):
+                raise ValueError(f"{name} must contain finite, strictly increasing cell centres")
+        shape = tuple(len(axis) for axis in reversed(axes))
+        if self.velocity.shape != (*shape, 3) or self.cell_flags.shape != shape:
+            raise ValueError("Velocity and cell flags must match the result's coordinate axes")
+        if isinstance(self.resolution, (bool, np.bool_)) or not isinstance(self.resolution, Real):
+            raise ValueError("resolution must be finite and positive")
+        try:
+            spacing = float(self.resolution)
+        except (ValueError, OverflowError) as error:
+            raise ValueError("resolution must be finite and positive") from error
+        if not np.isfinite(spacing) or spacing <= 0:
+            raise ValueError("resolution must be finite and positive")
+        if self.z_faces is None:
+            top = float(np.cumsum(np.full(len(self.z), self.resolution, dtype=np.float32),
+                                  dtype=np.float32)[-1])
+        else:
+            faces = np.asarray(self.z_faces, dtype=np.float64)
+            if (faces.shape != (len(self.z) + 1,) or not np.isfinite(faces).all()
+                    or faces[0] != 0 or np.any(np.diff(faces) <= 0)):
+                raise ValueError("z_faces must contain increasing physical faces starting at zero")
+            top = float(faces[-1])
+        lower = np.array([axes[0][0] - spacing/2, axes[1][0] - spacing/2, 0])
+        # Centre coordinates are rounded individually in native float32.
+        # Count * spacing recovers physical extents without accumulating the
+        # final centre's rounding error at the outer horizontal faces.
+        upper = lower + np.array([len(self.x)*spacing, len(self.y)*spacing, top])
+        if frame == "global":
+            try:
+                origin = np.asarray(self.origin, dtype=np.float64)
+            except (TypeError, ValueError, OverflowError) as error:
+                raise ValueError("origin must contain three finite coordinates for global sampling") from error
+            if origin.shape != (3,) or not np.isfinite(origin).all():
+                raise ValueError("origin must contain three finite coordinates for global sampling")
+            with np.errstate(over="ignore", invalid="ignore"):
+                axes = [axis + offset for axis, offset in zip(axes, origin)]
+                lower, upper = lower + origin, upper + origin
+            if (not np.isfinite(lower).all() or not np.isfinite(upper).all() or np.any(upper <= lower)
+                    or any(not np.isfinite(axis).all() or np.any(axis[1:] <= axis[:-1]) for axis in axes)):
+                raise ValueError("global coordinate precision must preserve finite, distinct cell centres and faces")
+        supported = ((requested >= lower) & (requested <= upper)).all(axis=1)
+        lows, highs, weights = [], [], []
+        sampled = np.empty_like(requested)
+        for dim, axis in enumerate(axes):
+            values = requested[:, dim]
+            insertion = np.searchsorted(axis, values)
+            lo = np.clip(insertion - 1, 0, len(axis) - 1)
+            hi = np.clip(insertion, 0, len(axis) - 1)
+            if method == "nearest":
+                selected = np.where(values - axis[lo] <= axis[hi] - values, lo, hi)
+                lo = hi = selected
+                sampled[:, dim] = axis[selected]
+                weight = np.zeros(len(requested), dtype=np.float64)
+            else:
+                supported &= (values >= axis[0]) & (values <= axis[-1])
+                lo = np.where(values == axis[hi], hi, lo)
+                weight = np.divide(values - axis[lo], axis[hi] - axis[lo],
+                                   out=np.zeros(len(requested)), where=hi != lo)
+                sampled[:, dim] = values
+            lows.append(lo)
+            highs.append(hi)
+            weights.append(weight)
+        sampled[~supported] = np.nan
+
+        velocity = np.zeros((len(requested), 3), dtype=np.float64)
+        valid = supported.copy()
+        fields = self.turbulence
+        stress = stress_valid = contributors = None
+        if fields is not None:
+            if fields.stress.shape != (*shape, 6) or fields.computed.shape != shape:
+                raise ValueError("Turbulence stress and coverage must match the result's coordinate axes")
+            stress = np.zeros((len(requested), 6), dtype=np.float64)
+            covered = supported.copy()
+            contributors = supported.copy()
+        for corner in product((0, 1), repeat=3):
+            active = supported.copy()
+            weight = np.ones(len(requested), dtype=np.float64)
+            indices = []
+            for dim, high in enumerate(corner):
+                indices.append(highs[dim] if high else lows[dim])
+                if high:
+                    active &= highs[dim] != lows[dim]
+                weight *= weights[dim] if high else 1 - weights[dim]
+            rows = np.flatnonzero(active)
+            if not len(rows):
+                continue
+            index = tuple(indices[dim][rows] for dim in (2, 1, 0))
+            values = np.asarray(self.velocity[index], dtype=np.float64)
+            flags = self.cell_flags[index]
+            valid[rows] &= (flags != 0) & (flags != 2) & np.isfinite(values).all(axis=-1)
+            with np.errstate(invalid="ignore", over="ignore"):
+                velocity[rows] += weight[rows, None] * values
+            if fields is not None:
+                values = np.asarray(fields.stress[index], dtype=np.float64)
+                covered[rows] &= fields.computed[index]
+                contributors[rows] &= fields.computed[index] & _stress_validity(values)[0]
+                with np.errstate(invalid="ignore", over="ignore"):
+                    stress[rows] += weight[rows, None] * values
+        valid &= np.isfinite(velocity).all(axis=-1)
+        velocity[~valid] = np.nan
+        if fields is not None:
+            stress[~covered] = np.nan
+            stress_valid = contributors & _stress_validity(stress)[0]
+        return WindPointSample(requested, sampled, velocity, valid, method, frame, self.origin, self.crs,
+                               stress, stress_valid, _stress_contributors_valid=contributors)
 
     def to_dtcc(self, *, include_speedup=False):
         """Return independent cell fields in DTCC's y, x, z-fastest order.
