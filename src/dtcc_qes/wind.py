@@ -18,6 +18,7 @@ from .result import ConvergenceError, SolveDiagnostics, TurbulenceFields, WindPo
 from .turbulence import Turbulence, _resolve_turbulence, _turbulence_metadata
 from .vertical_grid import GridPreview, VerticalGrid
 from .footprints import Footprints
+from .parameterizations import Parameterizations
 from ._validation import integer
 from .solver_control import (Solver, MonitorSpec, Receptor, MassRegion, BudgetExhaustedError,
                              NumericalFailureError, UnacceptedResultError)
@@ -28,7 +29,8 @@ __all__ = ["run", "preview_grid", "WindResult", "WindSample", "WindPointSample",
            "SolveDiagnostics", "ConvergenceError", "VerticalGrid", "Turbulence", "TurbulenceFields",
            "Solver", "MonitorSpec", "Receptor", "MassRegion", "BudgetExhaustedError",
            "NumericalFailureError", "UnacceptedResultError",
-           "LogProfile", "MeasuredProfile", "PowerLawProfile", "UniformProfile", "profile_from_dict", "evaluate", "Footprints"]
+           "LogProfile", "MeasuredProfile", "PowerLawProfile", "UniformProfile", "profile_from_dict", "evaluate", "Footprints",
+           "Parameterizations"]
 
 
 def _dtcc_version():
@@ -46,7 +48,8 @@ def run(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformP
         max_cells: int = 20_000_000, solver: Solver = Solver(),
         terrain: Literal["flat"] | float | None = None,
         height_policy: Literal["measured", "allow_estimated"] = "measured", vertical_grid: VerticalGrid | None = None,
-        turbulence: Turbulence | None = None, footprints: Footprints | None = None) -> WindResult:
+        turbulence: Turbulence | None = None, footprints: Footprints | None = None,
+        parameterizations: Parameterizations = Parameterizations()) -> WindResult:
     """Solve one explicit wind condition without modifying the source city.
 
     Supply an immutable profile as the second argument or via ``profile=``.
@@ -100,6 +103,12 @@ def run(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformP
     Cleaning tolerance is in metres and independent of grid resolution.
     Source-to-solid mappings and cleaning decisions are recorded in metadata.
 
+    ``parameterizations=Parameterizations(...)`` selects the empirical building
+    models (rooftop, upwind cavity, street canyon, wake, high rise, sidewall)
+    and the wall roughness. The defaults are unchanged QES-Winds defaults; any
+    other value is outside ``pedestrian-v1`` (``unqualified_model_settings``).
+    The settings are recorded in ``metadata["model"]``.
+
     The input uses one shared planar frame in metres (or an unlabelled local
     metre frame). With ``footprints=None``, only single, hole-free LOD0 Surfaces
     are accepted; footprints
@@ -136,7 +145,7 @@ def run(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformP
     preparation_started = time.perf_counter()
     geometry, prepared = _prepare_city(city, profile_spec, grid, terrain, height_policy,
                                         turbulence=turbulence_spec is not None,
-                                        footprints=footprints)
+                                        footprints=footprints, parameterizations=parameterizations)
     preparation_seconds = time.perf_counter() - preparation_started
     result = _solve_prepared(geometry, prepared, profile_spec, solver, vertical_grid=vertical_grid,
         turbulence_spec=turbulence_spec, height_policy=height_policy,
@@ -209,7 +218,8 @@ def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
         model=dict(backend=_qes.cpu_backend, log_law_flag=0, mesh_type_flag=0, halo_x=0, halo_y=0,
                    vertical_stretching=0 if vertical_grid is None else 1,
                    boundary_layer=profile_record["boundary_layer"], sensor=(prepared.model.sensor_x, prepared.model.sensor_y),
-                   timestamp="2020-01-01T00:00:00", **{name: getattr(prepared.model, name) for name in model_names}),
+                   timestamp="2020-01-01T00:00:00", **{name: getattr(prepared.model, name) for name in model_names},
+                   parameterizations=Parameterizations._from_model(prepared.model).to_dict()),
         versions=dict(dtcc_qes=__version__, qes=dict(version=_qes.qes_version, revision=_qes.qes_revision),
                       dtcc_core=_dtcc_version(), native_build=dict(compiler_id=_qes.compiler_id,
                           compiler_version=_qes.compiler_version, build_type=_qes.build_type,
@@ -269,7 +279,8 @@ def preview_grid(city, profile: LogProfile | MeasuredProfile | PowerLawProfile |
                  terrain: Literal["flat"] | float | None = None,
                  height_policy: Literal["measured", "allow_estimated"] = "measured",
                  vertical_grid: VerticalGrid | None = None, turbulence: Turbulence | None = None,
-                 footprints: Footprints | None = None, solver: Solver | None = None) -> GridPreview:
+                 footprints: Footprints | None = None, solver: Solver | None = None,
+                 parameterizations: Parameterizations = Parameterizations()) -> GridPreview:
     """Inspect a uniform, explicit or automatic grid without QES wind arrays.
 
     ``footprints=Footprints(...)`` uses the same cleaning and final solid mapping
@@ -287,6 +298,9 @@ def preview_grid(city, profile: LogProfile | MeasuredProfile | PowerLawProfile |
     domains append a constant tail while retaining a valid wind-only grid;
     explicit bounds/faces are checked. Growth and any required regeneration
     are recorded in ``domain['turbulence']``.
+
+    ``parameterizations`` does not change the grid; with an adaptive solver,
+    non-default settings appear in the eligibility exclusions.
     """
     if solver is not None and not isinstance(solver,Solver):
         raise TypeError("solver must be Solver or None")
@@ -301,7 +315,7 @@ def preview_grid(city, profile: LogProfile | MeasuredProfile | PowerLawProfile |
                           vertical_grid=vertical_grid)
     geometry, prepared = _prepare_city(city, profile_spec, grid, terrain, height_policy,
                                         turbulence=turbulence_spec is not None,
-                                        footprints=footprints)
+                                        footprints=footprints, parameterizations=parameterizations)
     nz, ny, nx = prepared.domain["shape"]
     spacing = np.float32(prepared.resolution)
     faces = np.asarray(prepared.domain["vertical_grid"]["effective_faces"], dtype=np.float32)
@@ -314,10 +328,13 @@ def preview_grid(city, profile: LogProfile | MeasuredProfile | PowerLawProfile |
                        None if solver is None else _preflight_eligibility(prepared,geometry,profile_spec,solver,turbulence_spec))
 
 
-def _prepare_city(city, profile, grid, terrain, height_policy, *, turbulence=False, footprints=None):
+def _prepare_city(city, profile, grid, terrain, height_policy, *, turbulence=False, footprints=None,
+                  parameterizations=Parameterizations()):
     """Shared geometry and domain preparation for solving and grid preview."""
     if not isinstance(turbulence, bool):
         raise ValueError("turbulence must be a bool")
+    if not isinstance(parameterizations, Parameterizations):
+        raise TypeError("parameterizations must be Parameterizations")
     if terrain is not None and not (isinstance(terrain, str) and terrain == "flat"):
         terrain = number(terrain, "terrain elevation")
     reference_height = profile.reference_height if profile is not None else 10.
@@ -340,6 +357,7 @@ def _prepare_city(city, profile, grid, terrain, height_policy, *, turbulence=Fal
             "%d building pairs are closer than one grid cell; use Footprints for contact-aware preparation", len(contacts))
         prepared = replace(prepared, near_contacts=contacts,
                            domain=dict(prepared.domain, near_contacts=list(contacts)))
+    parameterizations._apply(prepared.model)
     _prepare_profile(prepared, profile)
     return geometry, prepared
 

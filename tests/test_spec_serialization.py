@@ -3,11 +3,12 @@ import json
 
 import pytest
 
-from dtcc_qes.wind import Turbulence, VerticalGrid
+from dtcc_qes.wind import Parameterizations, Turbulence, VerticalGrid
 
 
 @pytest.mark.parametrize("value", [Turbulence(), Turbulence("wall_distance"),
-    VerticalGrid.from_faces([0,1,2,4]), VerticalGrid.auto(growth_rate=1.1, upper_layer_cap=8)])
+    VerticalGrid.from_faces([0,1,2,4]), VerticalGrid.auto(growth_rate=1.1, upper_layer_cap=8),
+    Parameterizations(), Parameterizations(high_rise=1, wake=1, wall_roughness=0.01)])
 def test_spec_json_roundtrip_is_owned_and_strict(value):
     payload = value.to_dict()
     assert type(value).from_dict(json.loads(json.dumps(payload))) == value

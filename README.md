@@ -93,6 +93,27 @@ stress tensors are retained. Vertical sampling interpolates the six stress
 components before streamwise projection and preserves invalid contributors.
 See [model and numerical evidence](QES_TURBULENCE.md).
 
+## Building parameterizations
+
+```python
+tall = wind.Parameterizations(high_rise=1)  # QES codes; defaults reproduce earlier runs.
+studied = wind.run(city, profile, bounds=bounds, parameterizations=tall)
+recorded = wind.Parameterizations.from_dict(studied.metadata["model"]["parameterizations"])
+```
+
+The empirical building models set the initial field before mass correction:
+`rooftop` (0 none, 1 log profile, 2 vortex), `upwind_cavity` (0 none, 1 Röckle,
+2 MVP, 3 HMVP), `street_canyon` (0 none, 1 Röckle with Fackrell), `wake`
+(0 none, 1 Röckle, 2 modified Röckle), `high_rise` (0/1; only buildings at least
+twice as tall as their effective length) and `sidewall` (0/1). Rooftop,
+street-canyon and sidewall models need `wake > 0`. `wall_roughness` (m) is the
+z0 of the sidewall and street-canyon log laws; QES-Turb's wall model uses the
+profile's ground roughness instead. The defaults are the only settings
+`pedestrian-v1` qualifies; others report `unqualified_model_settings`.
+`metadata["model"]` keeps the native flag names and the versioned payload.
+QES's street-intersection model is not implemented and is not offered. The
+dataset interface uses the defaults.
+
 ## Solver
 
 `Solver()` uses tolerance `1e-4`, at most 1,000 iterations and float32 arithmetic.
@@ -126,6 +147,7 @@ unless failure policy raises. See [solver contract](docs/solver-control.md).
 | Any profile + legacy/bounded | Assessment `not_requested` |
 | Log + eligible adaptive | `accepted` or `unaccepted`; independent of legacy convergence |
 | Non-log, float64 or turbulence + adaptive | `not_assessed`, 1.78 fallback; request remains adaptive |
+| Non-default `Parameterizations` + adaptive | `not_assessed` (`unqualified_model_settings`), 1.78 fallback |
 | Turbulence with any solver | Unvalidated algebraic screening |
 | Automatic vertical grid | Prototype; no qualified comfort preset |
 

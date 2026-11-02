@@ -19,6 +19,7 @@ def test_final_entry_point_signatures_and_removed_arguments(operation, monkeypat
     assert parameters["profile"].kind == inspect.Parameter.POSITIONAL_OR_KEYWORD
     assert parameters["speed"].kind == parameters["direction"].kind == inspect.Parameter.KEYWORD_ONLY
     assert parameters["turbulence"].default is None
+    assert parameters["parameterizations"].default == wind.Parameterizations()
     assert "reference_height" not in parameters and "roughness_length" not in parameters
     if operation is wind.preview_grid:
         assert parameters["solver"].default is None  # Native eligibility is opt-in.
