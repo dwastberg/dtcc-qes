@@ -24,7 +24,7 @@ from dtcc_qes import wind
 
 policy = wind.Footprints(min_detail=0.5, exposed_faces=True, fallback="error")
 preview = wind.preview_grid(city, footprints=policy)
-result = wind.run(city, 5.0, 270.0, footprints=policy)
+result = wind.run(city, speed=5.0, direction=270.0, footprints=policy)
 ```
 
 `min_detail` is a positive cleaning tolerance in metres, independent of the grid.
