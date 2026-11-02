@@ -31,7 +31,7 @@ sdist.include = [
 sdist.exclude = [".idea/**", "dtcc-qes/**", "/QES-Public/**", "/build/**", "**/__pycache__/**", "**/*.pyc"]
 
 [tool.uv.sources]
-dtcc-core = { git = "https://github.com/dtcc-platform/dtcc-core.git", branch = "dev/footprint-cleaning-update" }
+dtcc-core = { git = "https://github.com/dtcc-platform/dtcc-core.git", branch = "dev/qes-updates" }
 
 [dependency-groups]
 dev = [

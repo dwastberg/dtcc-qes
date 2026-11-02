@@ -109,7 +109,7 @@ def test_tower_partition_hole_and_height_policy_survive_dataset_filling(source_c
     prep = realization(obj)["preparation"]
     assert prep["schema_version"] == 2 and prep["pipeline"] == "canonical-cells-v1"
     assert prep["source_courtyard_filled_area"] == 144
-    assert prep["dtcc_core"]["revision"] == "80a4bbae2760e891e2a0be4175d67bf3340a8e67"
+    assert prep["dtcc_core"]["revision"] == "66c81a296ccea390466d20b2962fd7e33542ea41"
     assert "blocks" not in prep and "block_height_policy" not in prep
     direct_city = deepcopy(source_city)
     for value in direct_city.buildings:
