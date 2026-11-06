@@ -25,6 +25,7 @@ build-dir = "build/{wheel_tag}"
 sdist.include = [
     "/src/**", "/tests/**", "/tools/**", "/examples/**", "/demo/**", "/docs/**", "/CMakeLists.txt",
     "/README.md", "/DYNAMIC_VERTICAL_GRID.md", "/SOLVER_CONTROL_REFACTOR.md", "/WIND_PROFILES.md", "/LICENSE", "/NOTICE",
+    "/validation/aij/*.py", "/validation/tests/*.py", "/validation/*.py", "/validation/*.md",
     "!**/__pycache__/**", "!**/*.pyc",
 ]
 # The QES-Public submodule is reference-only; the build uses src/qes_core.

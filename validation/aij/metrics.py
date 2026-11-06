@@ -109,3 +109,18 @@ def angle_error(simulated_uv, measured_uv) -> np.ndarray:
     s, m = np.asarray(simulated_uv, dtype=np.float64), np.asarray(measured_uv, dtype=np.float64)
     a = np.degrees(np.arctan2(s[:, 1], s[:, 0]) - np.arctan2(m[:, 1], m[:, 0]))
     return np.abs((a + 180.0) % 360.0 - 180.0)
+
+
+
+def paired_scores(before, after, measured, options=None):
+    a, b, m = [np.asarray(v, dtype=float) for v in (before, after, measured)]
+    if a.shape != b.shape or a.shape != m.shape:
+        raise ValueError("Paired scores require identical observation shapes")
+    baseline = np.isfinite(a) & np.isfinite(m)
+    candidate = np.isfinite(b) & np.isfinite(m)
+    common = baseline & candidate
+    old, new = [scores(v[common], m[common], **(options or {})) for v in (a,b)]
+    return dict(baseline_count=int(baseline.sum()), candidate_count=int(candidate.sum()), common_count=int(common.sum()),
+        lost=int(np.sum(baseline & ~candidate)), gained=int(np.sum(candidate & ~baseline)),
+        baseline=old, candidate=new,
+        mae_change_percent=None if old.get("mae", 0.) == 0 else 100*(new["mae"]/old["mae"]-1))

@@ -2,7 +2,14 @@
 
 This file records the results of validating dtcc-qes against the AIJ wind-tunnel data. The plan, its findings F1–F11 and the framework design are in [`AIJ_VALIDATION_PLAN.md`](AIJ_VALIDATION_PLAN.md). The City models come from step 1 ([`AIJ_CITY_MODELS.md`](AIJ_CITY_MODELS.md)).
 
+Cases A and B (single buildings, split-fibre mean vectors) use the same framework; their setup, findings and results are in [`AIJ_AB_VALIDATION.md`](AIJ_AB_VALIDATION.md).
+
 **Status (2026-11-02, dtcc-qes main `c9e31e8`, dtcc-core `dev/qes-updates` `66c81a2`):** all phases (0–6) are done. The summary, the fitness for urban wind comfort studies, the conclusions and the limitations below draw on the phase sections that follow, which hold the evidence. New dtcc-qes revisions are tracked as described under "Tracking a new revision".
+
+The [current-build regression rerun](AIJ_REGRESSION_REPORT.md) reproduces all 35
+baseline conditions exactly across three paired repetitions. Runtime checks
+pass; two paired RSS comparisons fail the strict memory allowance, with the
+bounded follow-up and unchanged primary decision reported separately.
 
 ## Summary
 
@@ -168,7 +175,7 @@ uv run --group validate python validation/run_validation.py --campaign sensitivi
 uv run --group validate python validation/run_validation.py --campaign tuning_screen --jobs 6  # Phase 5 B step 1, ~23 min
 uv run --group validate python validation/tune_validation.py --jobs 6                          # Phase 5 B search + 1 m, ~47 min
 uv run --group validate python validation/report_validation.py   # -> validation/output/report/
-uv run --group validate pytest validation/tests -q               # 106 checks
+uv run --group validate pytest validation/tests -q               # 128 checks (22 for Cases A and B)
 ```
 
 - **Run files:** each run executes in its own process and writes `validation/output/runs/<case>/<key>.json`, plus a 2 m plane in `.npz`.

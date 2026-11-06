@@ -26,7 +26,8 @@ OVERLAP_AREA = 1e-6  # m2; smaller overlaps are floating-point noise of exact ov
 
 
 def sha256(path) -> str:
-    return hashlib.sha256(open(path, "rb").read()).hexdigest()
+    with open(path, "rb") as handle:
+        return hashlib.sha256(handle.read()).hexdigest()
 
 
 def new_city(**attributes) -> City:

@@ -14,16 +14,52 @@ from dataclasses import asdict, dataclass
 from dtcc_qes import wind
 
 SCHEMA = "aij-runspec-v1"
-FINE_TOP = {"D": 24.0, "E": 36.0}  # m: uniform layers up to 2.4 x the 10 m blocks (D), 1.2 x the 30 m existing roofs (E)
+FINE_TOP = {"D": 24.0, "E": 36.0, "A": 64.0, "B": 64.0}  # m: uniform layers up to 2.4 x the 10 m blocks (D),
+# 1.2 x the 30 m existing roofs (E), 2 H in Cases A and B (every probe lies below 1.75 H)
+# Cases A and B (H = 32 m): 3 H upwind and to the sides, 8 H behind the building, the top at 5 H.
+AB_DOMAIN = dict(padding=96.0, downstream=256.0, clearance=128.0)
+CASE_DEFAULTS = {"A": AB_DOMAIN, "B": AB_DOMAIN}  # settings the run name leaves out, per case
 MAX_ASPECT = 4.0  # stretched layers grow to at most this multiple of the probe-layer thickness
 CITIES = ("exact", "qes_ready", "slabs_filled")
 INFLOWS = ("measured", "power_law", "log", "canopy")
-LATER_FIELDS = dict(parameterizations=(), canopy_roughness=None, blending_height=None, ground_roughness=None)
+LATER_FIELDS = dict(parameterizations=(), canopy_roughness=None, blending_height=None, ground_roughness=None,
+                    downstream=None)
+
+
+@dataclass(frozen=True)
+class ExperimentSpec:
+    """Separate research identity; historical RunSpec keys retain their schema.
+
+    Parent and implementation identities are mandatory. Every experimental
+    coefficient/cache/closure setting belongs in ``settings`` and the run key.
+    """
+    experiment: str
+    parent: str
+    implementation: str
+    settings_json: str
+    baseline: "RunSpec | None" = None
+
+    def __post_init__(self):
+        if not self.experiment or not self.parent or not self.implementation:
+            raise ValueError("Experiment, parent and implementation identities are required")
+        settings = json.loads(self.settings_json)
+        if not isinstance(settings,dict):
+            raise ValueError("Experiment settings must be a JSON object")
+        object.__setattr__(self,"settings_json",json.dumps(settings,sort_keys=True,allow_nan=False,separators=(",",":")))
+
+    def to_dict(self):
+        return dict(schema="aij-physics-experiment-v1",experiment=self.experiment,parent=self.parent,
+                    implementation=self.implementation,settings=json.loads(self.settings_json),
+                    baseline=None if self.baseline is None else self.baseline.to_dict())
+
+    @property
+    def key(self):
+        return hashlib.sha256(json.dumps(self.to_dict(),sort_keys=True,allow_nan=False).encode()).hexdigest()[:24]
 
 
 @dataclass(frozen=True)
 class RunSpec:
-    case: str  # "D" or "E"
+    case: str  # "A", "B", "D" or "E"
     label: str  # the AIJ direction label
     direction: float  # meteorological degrees
     state: str = "-"  # Case E: "before" or "after"
@@ -34,7 +70,7 @@ class RunSpec:
     inflow: str = "measured"  # "measured", "power_law", "log" or "canopy" (measured, with an in-canopy log law)
     interpolation: str = "log_height"  # measured-profile interpolation
     min_detail: float | None = None  # wind.Footprints cleaning detail; None = strict footprints
-    padding: float = 20.0  # m, Case D horizontal padding around the footprints
+    padding: float = 20.0  # m, horizontal padding around the footprints (D); upwind and lateral (A, B)
     clearance: float = 20.0  # m above the tallest roof
     tolerance: float = 1e-4
     max_iterations: int = 1000
@@ -49,6 +85,7 @@ class RunSpec:
     canopy_roughness: float | None = None  # m, z0 of the in-canopy log law (inflow "canopy")
     blending_height: float | None = None  # m, where the in-canopy law meets the approach profile
     ground_roughness: float | None = None  # m, replaces the profile's tail z0 (QES-Turb wall model, lower tail)
+    downstream: float | None = None  # m, Cases A and B: domain length behind the building
 
     def __post_init__(self):
         object.__setattr__(self, "parameterizations", parameterization_changes(dict(self.parameterizations)))
@@ -62,6 +99,8 @@ class RunSpec:
             raise ValueError("canopy_roughness and blending_height require inflow='canopy'")
         if self.ground_roughness is not None and not (self.ground_roughness > 0 and self.inflow in ("measured", "canopy")):
             raise ValueError("ground_roughness must be positive and needs a measured or canopy inflow")
+        if (self.case in ("A", "B")) != (self.downstream is not None):
+            raise ValueError("downstream is required for Cases A and B, and only for them")
 
     def parameterization_spec(self) -> "wind.Parameterizations":
         return wind.Parameterizations(**dict(self.parameterizations))
@@ -86,13 +125,15 @@ class RunSpec:
 
     @property
     def name(self) -> str:
+        defaults = CASE_DEFAULTS.get(self.case, {})
         parts = [self.case, self.state if self.case == "E" else None, self.label.replace(" deg.", "deg"),
                  f"r{self.resolution:g}", self.inflow, self.precision,
                  f"it{self.max_iterations}", "mon" if self.monitor else None, None if self.turbulence else "noturb"]
         parts += [None if self.city == "exact" else self.city,
                   f"delta{self.min_detail:g}" if self.case == "E" and self.min_detail not in (None, 0.1) else None,
-                  f"pad{self.padding:g}" if self.padding != 20.0 else None,
-                  f"top{self.clearance:g}" if self.clearance != 20.0 else None,
+                  f"pad{self.padding:g}" if self.padding != defaults.get("padding", 20.0) else None,
+                  f"down{self.downstream:g}" if self.downstream != defaults.get("downstream") else None,
+                  f"top{self.clearance:g}" if self.clearance != defaults.get("clearance", 20.0) else None,
                   None if self.vertical == "stretched" else self.vertical,
                   None if self.interpolation == "log_height" else self.interpolation,
                   None if self.ground_roughness is None else f"z0g{self.ground_roughness:g}"]

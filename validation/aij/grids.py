@@ -5,6 +5,11 @@ Case E states, so "before" and "after" differ only by the new buildings. The
 vertical faces put a cell centre exactly at the probe height (2 m), so the
 probe layer needs no vertical interpolation: uniform fine layers up to about
 1.2 H_max, then geometric growth to the top.
+
+Cases A and B (one building, probes at many heights) instead put the faces at
+multiples of the layer thickness, so the roof (32 m) lies on a face at every
+spacing that divides it; their domain extends further behind the building
+than around it (AIJ_AB_VALIDATION.md, D3).
 """
 
 import math
@@ -15,16 +20,21 @@ PROBE_HEIGHT = 2.0  # m
 CASE_E_BOUNDS = (-246.0, -250.0, 254.0, 250.0)  # the DXF site plate: the reproduced area plus a margin
 FINE_FACTOR = 1.2  # uniform layers up to this multiple of the tallest roof
 GROWTH = 1.15  # thickness ratio of successive layers above the fine region
+ROOF_ALIGNED = ("A", "B")  # cases whose faces sit at multiples of the layer thickness
 
 
-def horizontal_bounds(case: str, polygons, padding: float = 20.0) -> tuple:
+def horizontal_bounds(case: str, polygons, padding: float = 20.0, downstream: float | None = None) -> tuple:
     """(xmin, ymin, 0, xmax, ymax, None) in the AIJ frame; the top follows the vertical faces.
 
     Case D: the footprint box plus ``padding``. Case E: the site plate, which
-    leaves 42-50 m between the outermost building and the domain edge.
+    leaves 42-50 m between the outermost building and the domain edge. Cases A
+    and B (flow along +x): ``padding`` upwind and to the sides, ``downstream`` behind.
     """
     if case == "E":
         xmin, ymin, xmax, ymax = CASE_E_BOUNDS
+    elif case in ROOF_ALIGNED:
+        xmin, ymin, xmax, ymax = np.array([p.bounds for p in polygons]).T
+        xmin, ymin, xmax, ymax = xmin.min() - padding, ymin.min() - padding, xmax.max() + downstream, ymax.max() + padding
     else:
         boxes = np.array([p.bounds for p in polygons])
         xmin, ymin = boxes[:, :2].min(axis=0) - padding
@@ -62,6 +72,11 @@ def vertical_faces(dz: float, top: float, fine_top: float, *, centre: float = PR
     if np.any(np.diff(faces) <= 0):
         raise ValueError("Vertical faces must increase")
     return faces
+
+
+def layer_centre(case: str, layer: float) -> float:
+    """Height of the centre of the layer the faces are built around: 2 m, or ``layer / 2`` for A and B."""
+    return layer / 2 if case in ROOF_ALIGNED else PROBE_HEIGHT
 
 
 def required_top(heights, clearance: float = 20.0, reference_height: float = 0.0) -> float:

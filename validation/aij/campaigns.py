@@ -1,4 +1,4 @@
-"""Campaign matrices of the AIJ validation (AIJ_VALIDATION_PLAN.md, Phases 2-5).
+"""Campaign matrices of the AIJ validation (AIJ_VALIDATION_PLAN.md, Phases 2-5; AIJ_AB_VALIDATION.md).
 
 Kept apart from ``runspec`` so that adding a campaign does not change the code
 fingerprint of stored runs: every setting that changes a result is a RunSpec
@@ -10,8 +10,8 @@ from itertools import product
 
 from dtcc_qes import wind
 
-from .conventions import D_ANGLES, D_LABELS, E_LABELS, E_STATES, d_direction, e_direction
-from .runspec import RunSpec
+from .conventions import AB_DIRECTION, AB_LABEL, D_ANGLES, D_LABELS, E_LABELS, E_STATES, d_direction, e_direction
+from .runspec import AB_DOMAIN, RunSpec
 
 # Fixed solver work per resolution (Phase 2). The tolerance lies below the float32
 # multiplier-change stall, so every run does exactly this many iterations. At 2 m and
@@ -34,6 +34,13 @@ FINE_E_LABELS = ("SW", "SSW", "E", "WSW")
 FINE_MAX_CELLS = 200_000_000
 FINE_CHECK_ITERATIONS = 32000
 
+# Cases A and B (AIJ_AB_VALIDATION.md). The baseline spacing is 1 m: b/16 in Case A and b/8
+# through the Case B slab. The grid study adds 4, 2 and 0.5 m; the domains are small enough
+# to keep turbulence on at 0.5 m (about 55 M cells).
+AB_CASES = ("A", "B")
+AB_RESOLUTION = 1.0
+AB_GRID = (4.0, 2.0, 1.0, 0.5)
+
 
 def case_d(angle: float, **options) -> RunSpec:
     return RunSpec("D", D_LABELS[D_ANGLES.index(angle)], d_direction(angle), **options)
@@ -42,6 +49,13 @@ def case_d(angle: float, **options) -> RunSpec:
 def case_e(label: str, state: str = "after", **options) -> RunSpec:
     options.setdefault("min_detail", 0.1)
     return RunSpec("E", label, e_direction(label), state=state, **options)
+
+
+def case_ab(case: str, **options) -> RunSpec:
+    """Case A or B at its single direction, with the A/B domain unless overridden."""
+    for name, value in AB_DOMAIN.items():
+        options.setdefault(name, value)
+    return RunSpec(case, AB_LABEL, AB_DIRECTION, **options)
 
 
 def fixed_work(spec: RunSpec) -> RunSpec:
@@ -56,8 +70,17 @@ def baseline(resolution: float = 2.0, **options) -> list[RunSpec]:
     return [fixed_work(s) for s in specs]
 
 
+def ab_baseline(resolution: float = AB_RESOLUTION, **options) -> list[RunSpec]:
+    """Cases A and B with the baseline settings; above 20 M cells (0.5 m) with a raised cell cap."""
+    if resolution < AB_RESOLUTION:
+        options.setdefault("max_cells", FINE_MAX_CELLS)
+    return [fixed_work(case_ab(case, resolution=resolution, **options)) for case in AB_CASES]
+
+
 def campaign(name: str) -> list[RunSpec]:
     """The run matrix of a named campaign."""
+    if name.startswith("ab_"):
+        return ab_campaign(name)
     if name == "smoke":
         specs = []
         for resolution in (8.0, 4.0, 2.0):
@@ -190,3 +213,75 @@ def fine_subset(resolution: float) -> list[RunSpec]:
     specs += [case_e(label, state, resolution=resolution, **options)
               for state in E_STATES for label in FINE_E_LABELS]
     return [fixed_work(s) for s in specs]
+
+
+def physics_foundation(experiment: str, resolutions=(2.0,1.0)) -> list[RunSpec]:
+    """Finite E0 matrices, using precisely the existing AIJ adapters/defaults."""
+    specs = []
+    for resolution in resolutions:
+        if experiment=="E0e":
+            specs.extend(baseline(resolution))
+        elif experiment=="E0a":
+            specs.extend(fixed_work(case_e(label,state,resolution=resolution))
+                         for state in ("after","before") for label in E_LABELS)
+        elif experiment in ("E0c","E0f"):
+            specs.extend(fixed_work(case_d(angle,resolution=resolution,turbulence=False)) for angle in D_ANGLES)
+            specs.extend(fixed_work(case_e(label,resolution=resolution,turbulence=False)) for label in ("N","E","S","W"))
+        elif experiment=="E0d":
+            specs.extend(fixed_work(case_e(label,resolution=resolution,turbulence=False)) for label in ("N","E","SW","W"))
+        else:
+            raise ValueError(experiment)
+    return specs
+
+
+# Cases A and B, one change from the baseline per variant. The building parameterizations come first:
+# isolated buildings are the flows the Röckle-type models were built for.
+AB_SENSITIVITY = (
+    ("rooftop vortex", dict(parameterizations=dict(rooftop=2))),
+    ("rooftop off", dict(parameterizations=dict(rooftop=0))),
+    ("upwind cavity Röckle", dict(parameterizations=dict(upwind_cavity=1))),
+    ("upwind cavity HMVP", dict(parameterizations=dict(upwind_cavity=3))),
+    ("upwind cavity off", dict(parameterizations=dict(upwind_cavity=0))),
+    ("wake Röckle", dict(parameterizations=dict(wake=1))),
+    ("sidewall off", dict(parameterizations=dict(sidewall=0))),
+    ("high-rise model", dict(parameterizations=dict(high_rise=1))),
+    ("wall z0 0.01 m", dict(parameterizations=dict(wall_roughness=0.01))),
+    ("power-law inflow", dict(inflow="power_law")),
+    ("log-law inflow", dict(inflow="log")),
+    ("linear profile interpolation", dict(interpolation="linear")),
+    ("domain 5 H / 15 H", dict(padding=160.0, downstream=480.0, max_cells=FINE_MAX_CELLS)),
+    # QES-Turb needs the top above its 3 H reference height plus two layers, so 4 H is the lowest top.
+    ("top at 4 H", dict(clearance=96.0)),
+    ("top at 8 H", dict(clearance=224.0)),
+    ("uniform vertical grid", dict(vertical="uniform")),
+    # The floor roughness of the AIJ CFD specifications at full scale: 1.8e-4 m x 200 (Mochida et al. 2002)
+    # and 9.6e-5 m x 160 (Shirasawa et al. 2003); the fitted tails are about 100 times smoother.
+    ("ground z0 of the AIJ CFD specs", dict(ground_roughness={"A": 0.036, "B": 0.0154})),
+)
+
+
+def ab_sensitivity_variants(resolution: float = AB_RESOLUTION) -> list[tuple[str, list[RunSpec]]]:
+    return [(name, [replace(spec, **_resolve(changes, spec.case)) for spec in ab_baseline(resolution)])
+            for name, changes in AB_SENSITIVITY]
+
+
+def ab_campaign(name: str) -> list[RunSpec]:
+    """The run matrices of Cases A and B; the names mirror the Case D/E campaigns."""
+    if name == "ab_smoke":
+        specs = [case_ab(case, resolution=r) for r in (4.0, 2.0, 1.0) for case in AB_CASES]
+        return specs + [case_ab(case, resolution=1.0, turbulence=False) for case in AB_CASES]
+    if name == "ab_convergence":
+        specs = []
+        for resolution, iterations in CONVERGENCE_ITERATIONS.items():
+            for case in AB_CASES:
+                base = case_ab(case, resolution=resolution, turbulence=False)
+                specs += [replace(base, tolerance=1.2e-7, max_iterations=iterations, monitor=True),
+                          replace(base, precision="float64", tolerance=1e-12, max_iterations=iterations), base]
+        return specs
+    if name == "ab_baseline":
+        return ab_baseline()
+    if name == "ab_grid":
+        return [spec for r in AB_GRID if r != AB_RESOLUTION for spec in ab_baseline(r)]
+    if name == "ab_sensitivity":
+        return [spec for _, specs in ab_sensitivity_variants() for spec in specs]
+    raise ValueError(f"Unknown campaign {name!r}")

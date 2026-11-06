@@ -11,6 +11,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 from matplotlib.collections import PolyCollection  # noqa: E402
+from matplotlib.patches import Rectangle  # noqa: E402
 from matplotlib.colors import LinearSegmentedColormap, TwoSlopeNorm  # noqa: E402
 
 from .conventions import flow_vector  # noqa: E402
@@ -345,11 +346,11 @@ def plot_distributions(comparisons, ratios, path, *, ncols=3, suptitle=""):
     _save(fig, path)
 
 
-def plot_scores_by_resolution(tables, path, *, title=""):
+def plot_scores_by_resolution(tables, path, *, title="",
+                              names=("D-split_fibre", "D-thermistor-K", "E-before-thermistor-K", "E-after-thermistor-K")):
     """Agreement scores against grid spacing; ``tables`` maps a resolution to {comparison: scores}."""
     resolutions = sorted(tables, reverse=True)
-    names = [n for n in ("D-split_fibre", "D-thermistor-K", "E-before-thermistor-K", "E-after-thermistor-K")
-             if any(n in tables[r] for r in resolutions)]
+    names = [n for n in names if any(n in tables[r] for r in resolutions)]
     fig, axes = _figure(1, 4, (16.0, 3.6))
     for ax, (key, label) in zip(axes.ravel(), (("hit_rate", "hit rate q"), ("fb", "FB (> 0: underprediction)"),
                                                ("r", "Pearson R"), ("spearman", "Spearman ρ"))):
@@ -405,7 +406,7 @@ EFFECT_SERIES = (("E-before-thermistor-K", "E before"), ("E-after-thermistor-K",
                  ("D-split_fibre", "D split fibre"), ("D-thermistor-K", "D thermistor"))
 
 
-def plot_effects(effects, path, *, title="", band=0.03):
+def plot_effects(effects, path, *, title="", band=0.03, series=EFFECT_SERIES):
     """Score change against the base per variant: one row per variant, one panel per score.
 
     ``effects`` maps a variant to {comparison: {"hit_rate": Δ, "fb": Δ, "r": Δ}}. The grey band is
@@ -418,7 +419,7 @@ def plot_effects(effects, path, *, title="", band=0.03):
                                                ("r", "Δ Pearson R"))):
         ax.axvspan(-band, band, color=GRID, lw=0)
         ax.axvline(0, color=INK_SECONDARY, lw=0.8)
-        for (comparison, short), colour in zip(EFFECT_SERIES, SERIES + ("#eda100",)):
+        for (comparison, short), colour in zip(series, SERIES + ("#eda100",)):
             values = [effects[n].get(comparison, {}).get(key, np.nan) for n in names]
             ax.plot(values, y, "o", ms=6, color=colour, mec=SURFACE, mew=0.8, label=short)
         ax.set_yticks(y, names if ax is axes[0, 0] else [""] * len(names))
@@ -458,4 +459,209 @@ def plot_search(steps, path, *, reference=0.66):
     ax.grid(color=GRID, lw=0.6, axis="y")
     _style(ax)
     fig.tight_layout()
+    _save(fig, path)
+
+
+# Cases A and B ------------------------------------------------------------------------------------------
+
+REGION_COLOURS = dict(zip(("upwind", "roof", "side", "wake"), SERIES + ("#eda100",)))
+AB_AXIS_LABELS = {"K": "|U|/U_H", "U": "U/U_H", "W": "W/U_H", "k": "k/U_H²"}
+
+
+def plot_vector_scatter(comparisons, path, *, ncols=4, suptitle=""):
+    """Simulated against measured values of signed or positive quantities, coloured by region."""
+    nrows = int(np.ceil(len(comparisons) / ncols))
+    fig, axes = _figure(nrows, ncols, (4.0 * ncols, 4.0 * nrows))
+    for ax, comparison in zip(axes.ravel(), comparisons):
+        values = np.concatenate([comparison.simulated.ravel(), comparison.measured.ravel()])
+        low, high = np.nanmin(values), np.nanmax(values)
+        pad = 0.05 * (high - low)
+        low, high = min(low - pad, 0.0), high + pad
+        line = np.array([low, high])
+        ax.plot(line, line, color=INK_SECONDARY, lw=1, ls="--")
+        for factor in (0.75, 1.25):
+            ax.plot(line, factor * line, color=MISSING, lw=0.8, ls=":")
+        ax.axhline(0, color=GRID, lw=0.8)
+        ax.axvline(0, color=GRID, lw=0.8)
+        regions = comparison.strata["region"]
+        for name, colour in REGION_COLOURS.items():
+            pick = regions == name
+            ax.plot(comparison.measured[pick], comparison.simulated[pick], "o", ms=4, color=colour,
+                    mec=SURFACE, mew=0.6, alpha=0.85, label=name)
+        scores = comparison.scores()
+        if "hit_rate" in scores:
+            ax.text(0.03, 0.97, _score_text(scores), transform=ax.transAxes, va="top", fontsize=8,
+                    color=INK_SECONDARY, family="monospace")
+        label = AB_AXIS_LABELS[comparison.quantity]
+        ax.set(xlim=(low, high), ylim=(low, high), xlabel=f"measured {label} (split fibre)",
+               ylabel=f"dtcc-qes {label}", title=comparison.name)
+        ax.set_aspect("equal")
+        ax.grid(color=GRID, lw=0.6)
+        ax.title.set_color(INK)
+        ax.legend(fontsize=7, frameon=False, loc="lower right")
+        _style(ax)
+    for ax in axes.ravel()[len(comparisons):]:
+        ax.set_visible(False)
+    if suptitle:
+        fig.suptitle(suptitle, color=INK, fontsize=11)
+    fig.tight_layout()
+    _save(fig, path)
+
+
+def _column(x, values, at):
+    """Values (..., nx) interpolated linearly in x at ``at``; NaN where a neighbour is NaN."""
+    i = int(np.clip(np.searchsorted(x, at) - 1, 0, len(x) - 2))
+    t = (at - x[i]) / (x[i + 1] - x[i])
+    return (1 - t) * values[..., i] + t * values[..., i + 1]
+
+
+def plot_vertical_profiles(measured, fields, size, path, *, b, title=""):
+    """Vertical section y = 0: U/U_H, W/U_H and k/U_H² against z/b at every measured station.
+
+    ``measured`` maps a quantity to the AIJ values of the vertical-section points with
+    their positions in ``measured["xyz"]``; ``fields`` holds the stored centre plane
+    (``centre_x``, ``centre_z``, ``centre_velocity``, ``centre_k``), or several runs as
+    {label: arrays}. ``size`` is (depth, width, height) in metres.
+    """
+    xyz = measured["xyz"]
+    stations = np.unique(xyz[:, 0])
+    rows = (("U", "U/U_H", 0), ("W", "W/U_H", 2), ("k", "k/U_H²", None))
+    fig, axes = _figure(len(rows), len(stations), (1.75 * len(stations), 3.2 * len(rows)))
+    depth, _, height = size
+    for col, x in enumerate(stations):
+        at = xyz[:, 0] == x
+        order = np.argsort(xyz[at, 2])
+        for row, (quantity, label, component) in enumerate(rows):
+            ax = axes[row, col]
+            if abs(x) <= depth / 2:
+                ax.axhspan(0, height / b, color=BUILDING, lw=0)
+            for (name, arrays), colour in zip(fields.items(), SERIES):
+                z = arrays["centre_z"] / b
+                grid = arrays["centre_velocity"][..., component] if component is not None else arrays.get("centre_k")
+                if grid is None:
+                    continue
+                values = _column(arrays["centre_x"], np.where(arrays["centre_valid"], grid, np.nan), x)
+                ax.plot(values, z, color=colour, lw=1.8, label=name)
+            ax.plot(measured[quantity][at][order], xyz[at, 2][order] / b, "o", ms=4, mfc=INK, mec=SURFACE,
+                    mew=0.8, label="AIJ")
+            ax.axvline(0, color=GRID, lw=0.8)
+            ax.set_ylim(0, 1.15 * xyz[:, 2].max() / b)
+            if row == 0:
+                ax.set_title(f"x/b = {x / b:g}", fontsize=9, color=INK)
+            if col == 0:
+                ax.set_ylabel("z/b")
+            else:
+                ax.set_yticklabels([])
+            ax.set_xlabel(label, fontsize=8)
+            ax.grid(color=GRID, lw=0.6)
+            _style(ax)
+    axes[0, 0].legend(fontsize=7, frameon=False, loc="upper left")
+    if title:
+        fig.suptitle(title, color=INK, fontsize=11)
+    fig.tight_layout()
+    _save(fig, path)
+
+
+def plot_horizontal_profiles(measured, planes, size, path, *, b, title=""):
+    """A horizontal section: U/U_H and V/U_H against y/b at every measured station.
+
+    ``planes`` maps a run label to (x, y, velocity / U_H with NaN in solids) of the section height.
+    """
+    xyz = measured["xyz"]
+    stations = np.unique(xyz[:, 0])
+    rows = (("U", "U/U_H", 0), ("V", "V/U_H", 1))
+    fig, axes = _figure(len(rows), len(stations), (1.75 * len(stations), 3.2 * len(rows)))
+    depth, width, _ = size
+    for col, x in enumerate(stations):
+        at = xyz[:, 0] == x
+        order = np.argsort(xyz[at, 1])
+        for row, (quantity, label, component) in enumerate(rows):
+            ax = axes[row, col]
+            if abs(x) <= depth / 2:
+                ax.axhspan(-width / 2 / b, 0, color=BUILDING, lw=0)
+            for (name, (px, py, velocity)), colour in zip(planes.items(), SERIES):
+                values = _column(px, velocity[..., component], x)
+                keep = py <= 0.0
+                ax.plot(values[keep], py[keep] / b, color=colour, lw=1.8, label=name)
+            ax.plot(measured[quantity][at][order], xyz[at, 1][order] / b, "o", ms=4, mfc=INK, mec=SURFACE,
+                    mew=0.8, label="AIJ")
+            ax.axvline(0, color=GRID, lw=0.8)
+            ax.set_ylim(1.1 * xyz[:, 1].min() / b, 0.1)
+            if row == 0:
+                ax.set_title(f"x/b = {x / b:g}", fontsize=9, color=INK)
+            if col == 0:
+                ax.set_ylabel("y/b")
+            else:
+                ax.set_yticklabels([])
+            ax.set_xlabel(label, fontsize=8)
+            ax.grid(color=GRID, lw=0.6)
+            _style(ax)
+    axes[0, 0].legend(fontsize=7, frameon=False, loc="lower left")
+    if title:
+        fig.suptitle(title, color=INK, fontsize=11)
+    fig.tight_layout()
+    _save(fig, path)
+
+
+def plot_centre_plane(arrays, measured, size, path, *, b, reattachment=None, title=""):
+    """Simulated U/U_H on the centre plane (y = 0) with its zero contour; measured U/U_H as circles.
+
+    ``reattachment`` maps a height to {"measured", "simulated"} distances behind the building [m].
+    """
+    x, z = arrays["centre_x"], arrays["centre_z"]
+    u = np.where(arrays["centre_valid"], arrays["centre_velocity"][..., 0], np.nan)
+    xyz = measured["xyz"]
+    depth, _, height = size
+    extent = (xyz[:, 0].min() - 2 * b, xyz[:, 0].max() + 2 * b)
+    keep = (x >= extent[0]) & (x <= extent[1])
+    norm = TwoSlopeNorm(vcenter=0.0, vmin=-0.6, vmax=1.4)
+    fig, axes = _figure(1, 1, (12.0, 4.2))
+    ax = axes[0, 0]
+    mesh = ax.pcolormesh(x[keep] / b, z / b, u[:, keep], cmap=DIVERGING.reversed(), norm=norm, shading="nearest")
+    ax.contour(x[keep] / b, z / b, np.nan_to_num(u[:, keep], nan=1.0), levels=[0.0], colors=INK, linewidths=1.2)
+    ax.add_patch(Rectangle((-depth / 2 / b, 0), depth / b, height / b, color=BUILDING, ec=INK,
+                                              lw=0.8))
+    ax.scatter(xyz[:, 0] / b, xyz[:, 2] / b, c=measured["U"], cmap=DIVERGING.reversed(), norm=norm, s=42,
+               edgecolors=INK, linewidths=0.8, zorder=3)
+    for z_, entry in (reattachment or {}).items():
+        for key, marker in (("measured", "^"), ("simulated", "v")):
+            if entry.get(key) is not None:
+                ax.plot((depth / 2 + entry[key]) / b, float(z_) / b, marker, ms=9, color=INK, mfc=SURFACE, zorder=4,
+                        label=f"reattachment, {key}" if z_ == next(iter(reattachment)) else None)
+    fig.colorbar(mesh, ax=ax, shrink=0.9, label="U/U_H (circles: AIJ; line: simulated U = 0)")
+    ax.set(xlabel="x/b", ylabel="z/b", ylim=(0, 1.2 * xyz[:, 2].max() / b))
+    ax.set_aspect("equal")
+    if reattachment:
+        ax.legend(fontsize=7, frameon=False, loc="upper right")
+    if title:
+        ax.set_title(title, color=INK, fontsize=11)
+    _style(ax)
+    fig.tight_layout()
+    _save(fig, path)
+
+
+def plot_speed_panels(panels, path, *, suptitle, d=0.25, w=0.05):
+    """Computed against measured |U|/U_H, one panel per run, titled with its hit rate and FAC2.
+
+    ``panels`` is a list of (title, Comparison). The grey band is the hit-rate acceptance
+    region, |s - m| <= max(d·|m|, w); the axes start at 0 and reach at least 1.4.
+    """
+    values = np.concatenate([np.ravel(c.simulated) for _, c in panels] + [np.ravel(c.measured) for _, c in panels])
+    top = max(1.4, np.ceil(np.nanmax(values) / 0.2) * 0.2)
+    fig, axes = _figure(1, len(panels), (5.0 * len(panels), 5.0))
+    x = np.linspace(0.0, top, 200)
+    for ax, (title, comparison) in zip(axes.ravel(), panels):
+        tolerance = np.maximum(d * x, w)
+        ax.fill_between(x, x - tolerance, x + tolerance, color=GRID, lw=0)
+        ax.plot([0, top], [0, top], color=INK_SECONDARY, lw=1.2)
+        ax.plot(comparison.measured.ravel(), comparison.simulated.ravel(), "o", ms=5, color=SERIES[0], alpha=0.85,
+                mec="none")
+        scores = comparison.scores()
+        ax.set_title(f"{title}\nhit rate {scores['hit_rate']:.2f}, FAC2 {scores['fac2']:.2f}", fontsize=10, color=INK)
+        ax.set(xlim=(0, top), ylim=(0, top), xlabel="measured |U| / U_H", ylabel="computed |U| / U_H")
+        ax.set_aspect("equal")
+        ax.grid(color=GRID, lw=0.6)
+        _style(ax)
+    fig.suptitle(suptitle, color=INK, fontsize=12)
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
     _save(fig, path)

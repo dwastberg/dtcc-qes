@@ -6,19 +6,23 @@ Reads validation/output/runs and writes validation/output/report/:
 - numerics.json, convergence.png (Phase 2);
 - comparisons.json, headline.md and the comparison figures (Phase 3);
 - grid.json and the grid-study figures (Phase 4);
-- sensitivity.json, tuning.json and their figures (Phase 5).
+- sensitivity.json, tuning.json and their figures (Phase 5);
+- Cases A and B (AIJ_AB_VALIDATION.md): isolated.json, headline_ab.md and the ab_*.png figures.
 """
 
 import argparse
 import json
+import warnings
 from pathlib import Path
 
 import numpy as np
 
 from dataclasses import replace
 
-from aij import (campaigns, case_d, case_e, cityutil, compare, gridstudy, metrics, numerics, report, sensitivity,
-                 tables)
+from aij import (campaigns, case_ab, case_d, case_e, cityutil, compare, gridstudy, metrics, numerics, report,
+                 sensitivity, tables)
+from aij import inflow
+from aij.conventions import AB_DIRECTION, AB_LABEL
 
 VALIDATION = Path(__file__).resolve().parent
 RUNS = VALIDATION / "output" / "runs"
@@ -335,6 +339,243 @@ def tuning_report(runs, output):
     return out
 
 
+# Cases A and B --------------------------------------------------------------------------------------------
+
+AB_EFFECT_SERIES = (("A-K", "A |U|"), ("A-U", "A U"), ("B-K", "B |U|"), ("B-U", "B U"))
+AB_NAMES = {"A": "A (1:1:2)", "B": "B (4:4:1)"}
+AB_SCORE_KEYS = ("count", "hit_rate", "fac2", "fb", "r", "spearman", "bias", "mae")
+
+
+def _quiet(function, *args, **kwargs):
+    """Call ``function`` without numpy's warnings on degenerate subsets (constant W, strata without FAC2 pairs)."""
+    with warnings.catch_warnings(), np.errstate(divide="ignore", invalid="ignore"):
+        warnings.simplefilter("ignore", RuntimeWarning)
+        return function(*args, **kwargs)
+
+
+def _ab_scores(comparisons) -> dict:
+    return {c.name: {k: v for k, v in _quiet(c.scores).items() if k in AB_SCORE_KEYS} for c in comparisons}
+
+
+def _ab_features(records, case) -> dict:
+    """Recirculation and flow-direction features of one run of Case A or B."""
+    record = records[(case, "-", AB_LABEL)]
+    simulated, measured = compare.ab_simulated(record), compare.ab_measured(case)
+    regions = compare.ab_strata(case)["region"]
+    return dict(sign=dict(all=compare.sign_scores(simulated["U"], measured["U"]),
+                          by_region={r: compare.sign_scores(simulated["U"], measured["U"], regions == r)
+                                     for r in case_ab.REGIONS}),
+                reattachment=compare.ab_reattachment(records, case), angle_error=compare.ab_angle_error(records, case),
+                k_masked=int(np.sum(~np.isfinite(simulated["k"]))))
+
+
+def _ab_case(records, case) -> dict:
+    comparisons = compare.isolated(records, case)
+    out = dict(comparisons={}, null_model=_ab_scores(compare.isolated(records, case, compare.null_model(case),
+                                                                      name=f"{case}-null")),
+               repeatability=compare.ab_repeatability(case), literature=compare.LITERATURE[case],
+               **_ab_features(records, case))
+    for c in comparisons:
+        out["comparisons"][c.name] = dict(
+            pooled=_quiet(c.scores), strata={name: {str(cls): _quiet(c.scores, classes == cls)
+                                                    for cls in sorted({x for x in np.ravel(classes) if x is not None})}
+                                             for name, classes in c.strata.items()})
+    return out
+
+
+def _ab_arrays(runs, spec) -> dict:
+    with np.load(Path(runs) / spec.case / f"{spec.key}.npz") as data:
+        return {name: data[name] for name in data.files}
+
+
+def _headline_ab(provenance, summary) -> str:
+    revision = provenance["git"]["revision"][:7] + ("+dirty" if provenance["git"]["dirty"] else "")
+    policy = (provenance["solver_policy_revision"] or "")[:8]
+    lines = ["| dtcc-qes | policy | Case | Model | n | q | FAC2 | R | ρ | FB |", "|---|---|---|---|---|---|---|---|---|---|"]
+    for case, entry in summary.items():
+        rows = [(compare.QUANTITY_LABELS[q], entry["comparisons"][f"{case}-{q}"]["pooled"]) for q in compare.AB_QUANTITIES]
+        rows.append(("no building, |U|/U_H", entry["null_model"][f"{case}-null-K"]))
+        for model, scores in rows:
+            lines.append(f"| `{revision}` | `{policy}` | {AB_NAMES[case]} | {model.replace('|', chr(92) + '|')} | "
+                         f"{scores['count']} | {scores['hit_rate']:.2f} | {scores['fac2']:.2f} | {scores['r']:.2f} | "
+                         f"{scores['spearman']:.2f} | {scores['fb']:+.2f} |")
+    lines += ["", "| dtcc-qes | Case | X_F/b at 2 m, measured (tabulated, published) | X_F/b dtcc-qes | U sign agreement | "
+                  "reverse-flow recall | flow angle within 30° |", "|---|---|---|---|---|---|---|"]
+    for case, entry in summary.items():
+        b = case_ab.b(case)
+        r = entry["reattachment"]["2"]  # at 2 m: z = 0.125 b (A) and 12.5 mm (B), where the published values are
+        fmt = lambda v: "none" if v is None else f"{v / b:.2f}"
+        lines.append(f"| `{revision}` | {AB_NAMES[case]} | {fmt(r['measured'])}, {entry['literature']['wake_experiment']:.2f} "
+                     f"| {fmt(r.get('simulated'))} | {entry['sign']['all']['agreement']:.2f} | "
+                     f"{entry['sign']['all']['reverse_recall']:.2f} | {entry['angle_error']['within_30']:.2f} |")
+    return "\n".join(lines) + "\n"
+
+
+def isolated_report(runs, output, resolution=campaigns.AB_RESOLUTION):
+    """Cases A and B at ``resolution``: scores, features, figures and headline_ab.md."""
+    specs = campaigns.ab_baseline(resolution)
+    records = compare.load_records(runs, specs)
+    if not records:
+        return None
+    cases = [s.case for s in specs if (s.case, "-", AB_LABEL) in records]
+    summary = dict(resolution=resolution, provenance=_provenance(records),
+                   cases={case: _ab_case(records, case) for case in cases})
+    convergence = numerics.convergence(numerics.records(runs, "ab_convergence"))
+    if convergence:
+        summary["convergence"] = convergence
+        report.plot_convergence(convergence, output / "ab_convergence.png")
+    (output / "isolated.json").write_text(json.dumps(_clean(summary), indent=1) + "\n")
+    (output / "headline_ab.md").write_text(_headline_ab(summary["provenance"], summary["cases"]))
+
+    inflows = [tables.load_inflow_ab(case) for case in cases]
+    report.plot_inflow(inflows, [{kind: inflow.profile(table, kind, AB_DIRECTION) for kind in ("measured", "power_law", "log")}
+                                 for table in inflows], output / "ab_inflow.png")
+    comparisons = [c for case in cases for c in compare.isolated(records, case)]
+    report.plot_vector_scatter(comparisons, output / "ab_scatter.png", ncols=len(compare.AB_QUANTITIES),
+                               suptitle=f"Cases A and B at {resolution:g} m: dtcc-qes against the split-fibre data")
+    for case in cases:
+        _ab_figures(runs, output, case, summary["cases"][case]["reattachment"])
+    return summary
+
+
+def _ab_figures(runs, output, case, reattachment):
+    """Profiles at every station (baseline and the other grid levels present) and the centre plane."""
+    data = tables.load_results_ab(case)
+    measured = compare.ab_measured(case)
+    uh = data.reference["speed"]
+    b, size = case_ab.b(case), case_ab.size(case)
+    runs_by_label = {}
+    for resolution in (2.0, campaigns.AB_RESOLUTION, 0.5):
+        spec = next(s for s in campaigns.ab_baseline(resolution) if s.case == case)
+        if (Path(runs) / case / f"{spec.key}.npz").exists():
+            runs_by_label[f"dtcc-qes {resolution:g} m"] = _ab_arrays(runs, spec)
+    if not runs_by_label:
+        return
+    vertical = data.section == "vertical"
+    pick = lambda mask: dict(xyz=data.xyz[mask], V=compare.ab_velocity(case)[mask, 1] / uh,
+                             **{q: v[mask] for q, v in measured.items()})
+    report.plot_vertical_profiles(pick(vertical), runs_by_label, size, output / f"ab_{case.lower()}_vertical.png", b=b,
+                                  title=f"Case {AB_NAMES[case]}: vertical section y = 0 (grey: the building)")
+    for section in sorted(set(data.section) - {"vertical"}):
+        mask = data.section == section
+        height = float(data.xyz[mask, 2][0])
+        planes = {}
+        for label, arrays in runs_by_label.items():
+            name = f"plane_{height:g}"
+            if f"{name}_velocity" in arrays:
+                velocity = np.where(arrays[f"{name}_valid"][..., None], arrays[f"{name}_velocity"], np.nan)
+                planes[label] = (arrays["x"], arrays["y"], velocity / arrays["reference_speed"])
+        report.plot_horizontal_profiles(pick(mask), planes, size,
+                                        output / f"ab_{case.lower()}_{section.replace('=', '').replace('.', 'p')}.png",
+                                        b=b, title=f"Case {AB_NAMES[case]}: horizontal section {section} (z = {height:g} m)")
+    baseline = runs_by_label.get(f"dtcc-qes {campaigns.AB_RESOLUTION:g} m")
+    if baseline is not None:
+        report.plot_centre_plane(baseline, pick(vertical), size, output / f"ab_{case.lower()}_centre.png", b=b,
+                                 reattachment=reattachment,
+                                 title=f"Case {AB_NAMES[case]} at {campaigns.AB_RESOLUTION:g} m: U/U_H on y = 0")
+
+
+def isolated_grid_report(runs, output):
+    """Cases A and B against grid spacing: probe changes per refinement, scores and reattachment."""
+    by_resolution = {r: compare.load_records(runs, campaigns.ab_baseline(r)) for r in campaigns.AB_GRID}
+    by_resolution = {r: records for r, records in by_resolution.items() if records}
+    if len(by_resolution) < 2:
+        return None
+    resolutions = sorted(by_resolution, reverse=True)
+    summary = dict(resolutions=resolutions,
+                   changes={f"{a:g}->{b:g}": gridstudy.changes(by_resolution[a], by_resolution[b])
+                            for a, b in zip(resolutions[:-1], resolutions[1:])},
+                   scores={}, features={}, cost={})
+    for r, records in by_resolution.items():
+        cases = sorted(case for case, _, _ in records)
+        summary["scores"][f"{r:g}"] = {name: scores for case in cases
+                                       for name, scores in _ab_scores(compare.isolated(records, case)).items()}
+        summary["features"][f"{r:g}"] = {case: _ab_features(records, case) for case in cases}
+        summary["cost"][f"{r:g}"] = {case: dict(cells=rec["grid"]["cells"], wall=rec["wall_seconds"],
+                                                rss_gib=rec["peak_rss_bytes"] / 2 ** 30,
+                                                iterations=rec["diagnostics"]["iterations"])
+                                     for (case, _, _), rec in records.items()}
+    (output / "isolated_grid.json").write_text(json.dumps(_clean(gridstudy.to_json(summary)), indent=1) + "\n")
+    descriptions = {"A": "Case A: 1:1:2 tower", "B": "Case B: 4:4:1 slab normal to the wind"}
+    for case in campaigns.AB_CASES:
+        panels = [(f"dtcc-qes, {r:g} m ({records[(case, '-', AB_LABEL)]['grid']['cells'] / 1e6:.1f} M cells)",
+                   compare.isolated(records, case)[0])
+                  for r, records in sorted(by_resolution.items(), reverse=True)
+                  if r <= 2.0 and (case, "-", AB_LABEL) in records]
+        if panels:
+            report.plot_speed_panels(panels, output / f"ab_{case.lower()}_speed_grid.png",
+                                     suptitle=f"{descriptions[case]}, computed against measured speed")
+    report.plot_scores_by_resolution({r: summary["scores"][f"{r:g}"] for r in by_resolution},
+                                     output / "ab_grid_scores.png", names=[n for n, _ in AB_EFFECT_SERIES],
+                                     title="Cases A and B: agreement against grid spacing")
+    return summary
+
+
+def isolated_sensitivity_report(runs, output):
+    """Cases A and B: one change from the baseline per variant (campaign ab_sensitivity)."""
+    base = compare.load_records(runs, campaigns.ab_baseline())
+    if len(base) < len(campaigns.AB_CASES):
+        return None
+    base_scores = {n: s for case in campaigns.AB_CASES for n, s in _ab_scores(compare.isolated(base, case)).items()}
+    base_features = {case: _ab_features(base, case) for case in campaigns.AB_CASES}
+    variants = {}
+    for name, specs in campaigns.ab_sensitivity_variants():
+        records = compare.load_records(runs, specs)
+        if len(records) < len(specs):
+            continue
+        scores = {n: s for case in campaigns.AB_CASES for n, s in _ab_scores(compare.isolated(records, case)).items()}
+        features = {case: _ab_features(records, case) for case in campaigns.AB_CASES}
+        deltas = {n: {k: scores[n][k] - base_scores[n][k] for k in ("hit_rate", "fb", "r", "spearman")}
+                  for n in scores if n in base_scores}
+        variants[name] = dict(deltas=deltas, scores=scores, features={
+            case: dict(sign_agreement=f["sign"]["all"]["agreement"], reverse_recall=f["sign"]["all"]["reverse_recall"],
+                       reattachment={z: e.get("simulated") for z, e in f["reattachment"].items()})
+            for case, f in features.items()})
+    summary = dict(base=dict(scores=base_scores, features={
+        case: dict(sign_agreement=f["sign"]["all"]["agreement"], reverse_recall=f["sign"]["all"]["reverse_recall"],
+                   reattachment={z: e.get("simulated") for z, e in f["reattachment"].items()})
+        for case, f in base_features.items()}), variants=variants)
+    (output / "isolated_sensitivity.json").write_text(json.dumps(_clean(summary), indent=1) + "\n")
+    if variants:
+        report.plot_effects({n: v["deltas"] for n, v in variants.items()}, output / "ab_sensitivity.png",
+                            series=AB_EFFECT_SERIES,
+                            title=f"Cases A and B at {campaigns.AB_RESOLUTION:g} m: score change from the baseline")
+    return summary
+
+
+def print_isolated(output, summary, grid, phase5):
+    print((output / "headline_ab.md").read_text())
+    for case, entry in summary["cases"].items():
+        print(f"Case {case}: repeatability of {entry['repeatability']['pairs']} duplicated points: "
+              + ", ".join(f"{q} mean |d| {entry['repeatability'][q]['mean_abs_difference']:.3f}"
+                          for q in compare.AB_QUANTITIES)
+              + f"; k masked (non-realisable stress) at {entry['k_masked']} probes")
+        for region, scores in entry["sign"]["by_region"].items():
+            print(f"  sign {region}: {scores}")
+        for name in (f"{case}-K", f"{case}-U"):
+            strata = entry["comparisons"][name]["strata"]["region"]
+            print(f"  {name} by region: " + ", ".join(f"{r} q {s['hit_rate']:.2f} bias {s['bias']:+.2f} (n {s['count']})"
+                                                     for r, s in strata.items() if "hit_rate" in s))
+    for row in summary.get("convergence", []):
+        print(f"convergence {row['case']} {row['resolution']:g} m: required {row['required_iterations']}, "
+              f"float32 vs float64 {row['float32_vs_float64']}")
+    if grid:
+        for pair, cases in grid["changes"].items():
+            for case, entry in cases.items():
+                print(f"grid {pair} {case}: p95 |dK| {entry['p95']:.3f}, max {entry['max']:.3f}, "
+                      f"changed {entry['changed_fraction']:.2f}, mean shift {entry['mean_shift']:+.3f}")
+        for r, table in grid["scores"].items():
+            print(f"scores {r} m: " + ", ".join(f"{n} q {s['hit_rate']:.2f} R {s['r']:.2f}" for n, s in table.items()))
+            print("   X_F: " + ", ".join(f"{c} {z} m {e.get('simulated')}" for c, f in grid["features"][r].items()
+                                         for z, e in f["reattachment"].items()))
+    if phase5:
+        for name, row in phase5["variants"].items():
+            print(f"ab variant {name}: " + ", ".join(f"{n} dq {d['hit_rate']:+.2f} dR {d['r']:+.2f}"
+                                                   for n, d in row["deltas"].items() if n[-1] in "KU")
+                  + " | " + ", ".join(f"{c} sign {f['sign_agreement']:.2f} X_F {f['reattachment']}"
+                                      for c, f in row["features"].items()))
+
+
 def case_e_xy(comparison):
     """Probe x, y for a comparison, from the measurement tables."""
     from aij import tables
@@ -346,14 +587,21 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--runs", type=Path, default=RUNS)
     parser.add_argument("--output", type=Path, default=OUTPUT)
-    parser.add_argument("--resolution", type=float, default=2.0, help="baseline resolution to compare [m]")
+    parser.add_argument("--resolution", type=float, default=2.0, help="Case D/E baseline resolution to compare [m]")
+    parser.add_argument("--only", choices=("de", "ab"), help="report only Cases D and E, or only Cases A and B")
     args = parser.parse_args(argv)
     args.output.mkdir(parents=True, exist_ok=True)
-    numerics_report(args.runs, args.output)
-    summary = comparison_report(args.runs, args.output, args.resolution)
-    grid = grid_report(args.runs, args.output)
-    phase5 = sensitivity_report(args.runs, args.output)
-    tuning = tuning_report(args.runs, args.output)
+    summary = grid = phase5 = tuning = isolated = None
+    if args.only != "ab":
+        numerics_report(args.runs, args.output)
+        summary = comparison_report(args.runs, args.output, args.resolution)
+        grid = grid_report(args.runs, args.output)
+        phase5 = sensitivity_report(args.runs, args.output)
+        tuning = tuning_report(args.runs, args.output)
+    if args.only != "de":
+        isolated = isolated_report(args.runs, args.output)
+        isolated_grid = isolated_grid_report(args.runs, args.output)
+        isolated_sensitivity = isolated_sensitivity_report(args.runs, args.output)
     if phase5:
         for group in ("variants", "screen"):
             for name, row in phase5[group].items():
@@ -401,6 +649,8 @@ def main(argv=None):
             extras = summary["split_fibre"]
             print(f"Case D split fibre: angle error median {extras['angle_error']['median']:.0f}°, "
                   f"within 30° {extras['angle_error']['within_30']:.2f}; k {extras.get('k', {}).get('scores')}")
+    if isolated:
+        print_isolated(args.output, isolated, isolated_grid, isolated_sensitivity)
     print(f"Wrote {args.output}")
 
 

@@ -2,7 +2,9 @@
 
 A record (``<key>.json``) holds the spec, provenance, grid, solver diagnostics,
 timings and the probe values; the probe-height plane goes to ``<key>.npz``.
-Monitor runs add the probe-speed history at every checkpoint.
+Monitor runs add the probe-speed history at every checkpoint. Cases A and B
+also store the other measured section heights and the vertical centre plane
+(y = 0) in the ``.npz``, and the centreline speeds near the ground in the record.
 """
 
 import hashlib
@@ -19,14 +21,20 @@ from pathlib import Path
 import numpy as np
 import shapely
 
-from . import ROOT, CASE_D_XLS, CASE_E_XLS, case_d, case_e, cityutil, grids, inflow, sampling, tables
+from . import ROOT, CASE_A_XLS, CASE_B_XLS, CASE_D_XLS, CASE_E_XLS, case_ab, case_d, case_e, cityutil, grids, inflow, \
+    sampling, tables
 from .runspec import FINE_TOP, MAX_ASPECT, RunSpec
 
 RECORD_SCHEMA = "aij-run-v1"
 REPO = ROOT.parent
 # Modules whose code changes a run's output; report and metrics code is deliberately excluded.
-RUN_MODULES = ("case_d", "case_e", "cityutil", "conventions", "dxf", "grids", "inflow", "prisms",
+RUN_MODULES = ("case_ab", "case_d", "case_e", "cityutil", "conventions", "dxf", "grids", "inflow", "prisms",
                "runner", "runspec", "sampling", "tables")
+XLS = {"A": CASE_A_XLS, "B": CASE_B_XLS, "D": CASE_D_XLS, "E": CASE_E_XLS}
+# Cases A and B: heights [m] of the centreline (y = 0) speeds kept in the record, for the reattachment
+# lengths (the lowest wake points of the vertical sections), and the spacing of those samples.
+CENTRELINE_HEIGHTS = {"A": (2.0,), "B": (0.8, 2.0)}
+CENTRELINE_STEP = 0.25
 
 
 def _sha256_files(paths) -> str:
@@ -59,6 +67,8 @@ def city(case: str, state: str = "-", variant: str = "exact"):
     """The City of a case in the dtcc-qes input contract (``cityutil.qes_city``)."""
     if case == "D":
         return cityutil.qes_city(case_d.build_case_d().city)
+    if case in ("A", "B"):
+        return cityutil.qes_city(case_ab.build_case_ab(case).city)
     if variant == "slabs_filled":
         return cityutil.qes_city(cityutil.fill_slabs(case_e.build_case_e(state).city))
     build = case_e.build_case_e if variant == "exact" else case_e.build_case_e_qes
@@ -81,8 +91,7 @@ def inputs(spec: RunSpec) -> dict:
     city_ = city(spec.case, spec.state, spec.city)
     rows = cityutil.footprints(city_)
     polygons, heights = [p for _, p, _ in rows], np.array([h for _, _, h in rows])
-    data = tables.load_inflow_d() if spec.case == "D" else tables.load_inflow_e()
-    probes = tables.load_points_d() if spec.case == "D" else tables.load_points_e()
+    data, probes = _tables(spec.case)
     options = {}
     if spec.inflow in ("measured", "canopy"):
         options.update(interpolation=spec.interpolation, roughness_length=spec.ground_roughness)
@@ -92,10 +101,10 @@ def inputs(spec: RunSpec) -> dict:
     # K is normalised by the approach flow; it differs from the run's inflow only for "canopy".
     normaliser = inflow.approach_profile(data, spec.inflow, spec.direction, **options)
     # Case E states share one vertical grid (that of "after"), so they differ only in the buildings.
-    top_heights = heights if spec.case == "D" else [60.0]
+    top_heights = [60.0] if spec.case == "E" else heights
     top = grids.required_top(top_heights, spec.clearance, data.reference["height"])
     layer = spec.probe_layer
-    faces = grids.vertical_faces(layer, top, FINE_TOP[spec.case],
+    faces = grids.vertical_faces(layer, top, FINE_TOP[spec.case], centre=grids.layer_centre(spec.case, layer),
                                  growth=grids.GROWTH if spec.vertical == "stretched" else None,
                                  max_dz=MAX_ASPECT * layer)
     solver = dict(tolerance=spec.tolerance, max_iterations=spec.max_iterations, precision=spec.precision)
@@ -112,13 +121,59 @@ def inputs(spec: RunSpec) -> dict:
     return dict(
         city=city_, polygons=polygons, probes=probes, profile=profile,
         reference_speed=inflow.reference_speed(normaliser),
-        run=dict(resolution=spec.resolution, bounds=grids.horizontal_bounds(spec.case, polygons, spec.padding),
+        run=dict(resolution=spec.resolution, bounds=grids.horizontal_bounds(spec.case, polygons, spec.padding,
+                                                                            spec.downstream),
                  vertical_grid=wind.VerticalGrid.from_faces(faces), solver=wind.Solver(**solver),
                  turbulence=wind.Turbulence() if spec.turbulence else None,
                  parameterizations=spec.parameterization_spec(),
                  footprints=None if spec.min_detail is None else wind.Footprints(
                      min_detail=spec.min_detail, exposed_faces=True, fallback="error"),
                  vertical_clearance=spec.clearance, max_cells=spec.max_cells))
+
+
+def _tables(case: str):
+    """(inflow table, probe points) of a case."""
+    if case in ("A", "B"):
+        return tables.load_inflow_ab(case), tables.load_points_ab(case)
+    if case == "D":
+        return tables.load_inflow_d(), tables.load_points_d()
+    return tables.load_inflow_e(), tables.load_points_e()
+
+
+def _isolated_fields(result, case: str, uref: float) -> tuple[dict, dict]:
+    """Cases A and B: the centreline speeds (record) and the section planes and centre plane (arrays).
+
+    Section planes (``plane_<z>_*``) are interpolated linearly in z, in m/s. The
+    centre plane is sampled trilinearly at y = 0 on the cell centres in x and z,
+    up to 2.5 H, as velocity / U_ref and k / U_ref².
+    """
+    x = np.asarray(result.x, dtype=np.float64) + result.origin[0]
+    z = np.asarray(result.z, dtype=np.float64)
+    behind = x[x > case_ab.size(case)[0] / 2]
+    line = np.arange(np.ceil(behind[0] / CENTRELINE_STEP) * CENTRELINE_STEP, behind[-1], CENTRELINE_STEP)
+    centreline = {}
+    for height in CENTRELINE_HEIGHTS[case]:
+        points = np.column_stack([line, np.zeros_like(line), np.full_like(line, height)])
+        sample = result.sample_points(points, "linear", frame="global")
+        centreline[f"{height:g}"] = dict(x=line, u=np.where(sample.valid, sample.velocity[:, 0] / uref, np.nan))
+    arrays = {}
+    measured = tables.load_results_ab(case)
+    heights = sorted({float(z_) for s, z_ in zip(measured.section, measured.xyz[:, 2]) if s != "vertical"})
+    for height in heights:
+        plane = result.sample(height, "linear")  # the 2 m plane too: its height is a face here, not a centre
+        arrays[f"plane_{height:g}_velocity"] = plane.velocity.astype(np.float32)
+        arrays[f"plane_{height:g}_valid"] = plane.valid
+    zc = z[z <= 2.5 * case_ab.size(case)[2]]
+    xx, zz = np.meshgrid(x, zc)
+    points = np.column_stack([xx.ravel(), np.zeros(xx.size), zz.ravel()])
+    sample = result.sample_points(points, "linear", frame="global")
+    shape = xx.shape
+    arrays.update(centre_x=x, centre_z=zc, centre_valid=sample.valid.reshape(shape),
+                  centre_velocity=(sample.velocity / uref).reshape(*shape, 3).astype(np.float32))
+    if sample.stress is not None:
+        k = np.where(sample.stress_valid, sampling.k_from_stress(sample.stress), np.nan) / uref ** 2
+        arrays["centre_k"] = k.reshape(shape).astype(np.float32)
+    return centreline, arrays
 
 
 def _peak_rss() -> int:
@@ -143,7 +198,10 @@ def run(spec: RunSpec) -> tuple[dict, dict]:
     wall = time.perf_counter() - started
     probes, uref = args["probes"], args["reference_speed"]
     sample = sampling.probe_sample(result, probes.xyz)
-    wall_distance = sampling.wall_distance(probes.xyz[:, :2], args["polygons"])
+    if spec.case in ("A", "B"):
+        wall_distance = case_ab.surface_distance(probes.xyz, spec.case)
+    else:
+        wall_distance = sampling.wall_distance(probes.xyz[:, :2], args["polygons"])
     probe = dict(ids=probes.ids, xyz=probes.xyz, wall_distance=wall_distance,
                  velocity=sample["velocity"], speed=sample["speed"], K=sample["speed"] / uref,
                  K_min=sample["speed_min"] / uref, K_max=sample["speed_max"] / uref,
@@ -157,7 +215,7 @@ def run(spec: RunSpec) -> tuple[dict, dict]:
         provenance=dict(git=git_state(), versions=metadata["versions"], environment=result.solver["environment"],
                         solver_policy_revision=_qes.solver_policy_revision, model=metadata["model"],
                         city_digest=city_digest(args["city"]),
-                        xls_sha256=cityutil.sha256(CASE_D_XLS if spec.case == "D" else CASE_E_XLS),
+                        xls_sha256=cityutil.sha256(XLS[spec.case]),
                         omp_num_threads=os.environ.get("OMP_NUM_THREADS"), host=platform.node()),
         grid=dict(shape=list(result.velocity.shape[:3]), cells=int(np.prod(result.velocity.shape[:3])),
                   origin=list(result.origin), resolution=float(result.resolution),
@@ -178,6 +236,9 @@ def run(spec: RunSpec) -> tuple[dict, dict]:
     if plane.stress is not None:
         stress = plane.stress
         arrays["k"] = (0.5 * (stress[..., 0] + stress[..., 3] + stress[..., 5])).astype(np.float32)
+    if spec.case in ("A", "B"):
+        record["centreline"], extra = _isolated_fields(result, spec.case, uref)
+        arrays.update(extra)
     record["peak_rss_bytes"] = _peak_rss()
     return record, arrays
 

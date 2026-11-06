@@ -1,6 +1,6 @@
 # Change requests from the AIJ validation
 
-R1–R6 would let the AIJ Case D and E Cities (see [`AIJ_CITY_MODELS.md`](AIJ_CITY_MODELS.md)) run without approximation. R7–R13 would make the validation itself ([`AIJ_VALIDATION_PLAN.md`](AIJ_VALIDATION_PLAN.md)) simpler to run and to interpret. R14–R17 come from its results (Phases 2–5, [`AIJ_VALIDATION.md`](AIJ_VALIDATION.md)).
+R1–R6 would let the AIJ Case D and E Cities (see [`AIJ_CITY_MODELS.md`](AIJ_CITY_MODELS.md)) run without approximation. R7–R13 would make the validation itself ([`AIJ_VALIDATION_PLAN.md`](AIJ_VALIDATION_PLAN.md)) simpler to run and to interpret. R14–R17 come from its results (Phases 2–5, [`AIJ_VALIDATION.md`](AIJ_VALIDATION.md)). R18–R19 come from Cases A and B ([`AIJ_AB_VALIDATION.md`](AIJ_AB_VALIDATION.md)).
 
 ## Summary for maintainers (Phase 6, 2026-11-02)
 
@@ -45,6 +45,8 @@ Open requests in priority order, each with the evidence that sets its priority:
 | R15 | dtcc-qes: expose the building-parameterisation flags | **Done** (`wind.Parameterizations`, 2026-11-02); used by the validation as `RunSpec.parameterizations` |
 | R16 | dtcc-qes: flag grid-sensitive receptors; smoother zone edges | **New** (Phase 4): medium for the Python flag, low for the native change |
 | R17 | dtcc-qes: a canopy-aware background inside built-up areas | **Open, medium** (filed in Phase 6); native |
+| R18 | dtcc-qes: roof separation on isolated buildings | **New** (Cases A/B, 2026-11-05), medium; native |
+| R19 | dtcc-qes: QES-Turb k in shear layers and non-realisable stresses | **New** (Cases A/B, 2026-11-05), medium; native, joins R11 |
 
 ## Recommendation before Phase 5 (2026-11-02)
 
@@ -501,3 +503,35 @@ What fails is the strength and the reach of a background applied over the whole 
 - improve the Case E change scores, or at least keep them.
 
 A per-case or per-district calibration does not satisfy it.
+
+
+## R18 (dtcc-qes): roof separation on isolated buildings. New, medium, native
+
+**Evidence (Cases A and B, `AIJ_AB_VALIDATION.md`, 1 m).**
+- The default rooftop model (code 1) has no effect on either isolated building: switching it off changes no mean-flow score by more than 0.004.
+- **Case A:** the tunnel's roof separation (reattachment at X_R = 0.52 b) is absent. 2 m above the roof the simulated U is 1.13–1.27 U_H; the tunnel measures 0.28 and 0.37 U_H over the roof centre and 0.95 at its windward edge.
+- **Case B:** 1.6 m above the slab, the measured U of 0.46, −0.05 and −0.13 U_H is simulated as 1.42, 1.26 and 1.14 U_H. The |U| bias above the roof is +0.29.
+- The vortex model (code 2) lifts the Case B pattern R by 0.11 but leaves q unchanged.
+
+**Request.**
+- Document when the code-1 model applies, and why it does not here.
+- Consider a roof-separation zone for buildings whose along-wind length is short relative to H (the Case A and B shapes), as the URock/QUIC-URB comparisons also miss it.
+
+**Acceptance.** It must:
+- raise the roof-region scores of both cases;
+- keep the wake scores;
+- keep the Case D/E scores within ±0.03.
+
+## R19 (dtcc-qes): QES-Turb k in shear layers and non-realisable stresses. New, medium, native
+
+**Evidence (Cases A and B).** These are like-for-like split-fibre k data.
+- **No skill:** QES-Turb scores q = 0.07 and 0.02, with R = 0.17 and 0.13.
+- **It overpredicts at roof height:** k/U_H² reaches 0.8–1.0 against at most 0.17 measured. The mixing length acts on the velocity step that the rooftop and wake zones impose.
+- **It is not realisable:** at 33 (A) and 22 (B) probes the stress tensor has a negative eigenvalue, and dtcc-qes masks k as invalid.
+- **Contrast with the districts:** in Cases D and E, k is 0.3–0.4 times too low (R11). One closure is wrong in opposite directions in the two settings.
+
+**Request.**
+- Bound the shear-layer mixing length, or smooth the parameterised velocity jumps before the gradients are taken.
+- Report the masked fraction in `result.turbulence`.
+
+Batch it with R11 under one re-qualification.

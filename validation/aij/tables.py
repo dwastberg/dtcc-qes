@@ -1,6 +1,7 @@
 """Measurement points, approach-flow profiles and measured results from the AIJ spreadsheets.
 
-Sheet layouts and units are documented in AIJ_VALIDATION_PLAN.md (F9, F10).
+Sheet layouts and units are documented in AIJ_VALIDATION_PLAN.md (F9, F10) for
+Cases D and E, and in AIJ_AB_VALIDATION.md (F1-F4) for Cases A and B.
 Empty and ``'-'`` cells are missing data: any cell that is not a number is NaN.
 Directions are meteorological degrees (see ``conventions``).
 """
@@ -10,8 +11,8 @@ from typing import NamedTuple
 import numpy as np
 import xlrd
 
-from . import CASE_D_XLS, CASE_E_XLS
-from .conventions import D_ANGLES, D_LABELS, E_LABELS, E_STATES, d_direction, e_direction
+from . import CASE_A_XLS, CASE_B_XLS, CASE_D_XLS, CASE_E_XLS
+from .conventions import AB_DIRECTION, D_ANGLES, D_LABELS, E_LABELS, E_STATES, d_direction, e_direction
 
 U_H = 6.65  # m/s, Case D inflow speed at the tower height (Inflow!C17)
 H_MODEL_MM = 250.0  # Case D tower height in the model
@@ -19,6 +20,24 @@ Z_R = 250.0  # m, Case E boundary-layer height at full scale (Inflow!C20)
 U_R = 7.8  # m/s, Case E inflow speed at Z_R (Inflow!C21)
 E_REFERENCE_HEIGHT = 15.9  # m, Case E normalisation height (the Niigata station height)
 E_QUANTUM = 0.019820405  # every Case E value is a multiple: U/U_R rounded to 0.01, divided by ~0.5045
+
+# Cases A and B have no drawing. Full scale puts the near-ground section at the 2 m
+# pedestrian height, as in Cases D and E (AIJ_AB_VALIDATION.md, D1): both buildings are then 32 m tall.
+A_B = 16.0  # m, Case A b at full scale: z = 0.125 b is 2 m
+A_MODEL_B_MM = 80.0  # Case A b in the wind tunnel (Meng & Hibi 1998), so the scale is 1:200
+B_B = 8.0  # m, Case B b at full scale: z = 12.5 mm is 2 m
+B_MODEL_B_MM = 50.0  # Case B b in the wind tunnel ("b=50mm in experiment", Geometry&Points C14), so 1:160
+AB_HEIGHT_B = {"A": 2.0, "B": 4.0}  # building height in b
+# Both cases: Dantec split-fibre probes, which resolve reverse flow (Meng & Hibi 1998; Shirasawa et al. 2003).
+# In Case A the streamwise and cross components were measured in separate traverses.
+AB_INSTRUMENT = {"A": "split_fibre", "B": "split_fibre"}
+SECTION_ID = 1000  # combined probe id of Cases A and B: SECTION_ID x section number + AIJ point number
+# (label, sheet, height of a horizontal section in b or None for the vertical section). The z column of the
+# z = 1.25b sheet repeats 0.125 under a "z/b" header; the sheet name and its values put it at 1.25 b (F3).
+A_SECTIONS = (("vertical", "Results (Ver. sec.)", None),
+              ("z=0.125b", "Results(Hol. sec.; z=0.125b）", 0.125),
+              ("z=1.25b", "Results (Hol. sec.; z=1.25b）", 1.25))
+B_SECTIONS = (("vertical", "Results (Ver. sec.)", None), ("z=12.5mm", "Results (Hol. sec.)", None))
 
 
 class Points(NamedTuple):
@@ -52,6 +71,23 @@ class SplitFibre(NamedTuple):
     speed_ratio: np.ndarray  # (n,) |(U, V, W)| / U_H as tabulated
     direction: float  # meteorological degrees
     reference: dict
+
+
+class VectorResults(NamedTuple):
+    """Case A or B at 0°: mean velocity and turbulence at the points of every measured section.
+
+    Points keep their AIJ numbers within a section; ``ids`` combine them with the
+    section number (``SECTION_ID``), so they are unique across sections.
+    """
+    case: str
+    ids: np.ndarray  # int, SECTION_ID x section number (from 1) + AIJ point number
+    section: np.ndarray  # str, the section label of each point
+    xyz: np.ndarray  # (n, 3) full-scale metres, origin at the building centre on the ground
+    velocity: np.ndarray  # (n, 3) U, V, W in m/s (wind-tunnel speeds)
+    variance: np.ndarray  # (n, 3) u'2, v'2, w'2 in m2/s2
+    k: np.ndarray  # (n,) m2/s2, ½ the sum of the variances
+    direction: float  # meteorological degrees
+    reference: dict  # height H [m, full scale] and speed U_H [m/s] of the normalisation
 
 
 class Inflow(NamedTuple):
@@ -186,3 +222,77 @@ def load_results_e(state: str, path=CASE_E_XLS) -> Measurements:
     directions = np.array([e_direction(label) for label in labels])
     return Measurements("E", state, "scalar_speed_ratio", "thermistor", points.ids, points.xyz,
                         labels, directions, values, dict(height=E_REFERENCE_HEIGHT, speed=None))
+
+
+def ab_source(case):
+    """(spreadsheet, sections, full-scale b) of Case A or B."""
+    if case not in ("A", "B"):
+        raise ValueError("case must be 'A' or 'B'")
+    return (CASE_A_XLS, A_SECTIONS, A_B) if case == "A" else (CASE_B_XLS, B_SECTIONS, B_B)
+
+
+def _rows(sheet, first) -> range:
+    """The data rows from ``first``: every row whose point number is a number."""
+    last = first
+    while last < sheet.nrows and sheet.cell_type(last, 0) == xlrd.XL_CELL_NUMBER:
+        last += 1
+    return range(first, last)
+
+
+def _ab_reference(case, heights, speeds) -> dict:
+    """H and the tabulated approach-flow speed at H (both tables have a point at H)."""
+    height = AB_HEIGHT_B[case] * (A_B if case == "A" else B_B)
+    at = np.flatnonzero(np.isclose(heights, height))
+    if len(at) != 1:
+        raise ValueError(f"Case {case} inflow has no single point at H = {height:g} m")
+    return dict(height=float(height), speed=float(speeds[at[0]]))
+
+
+def load_inflow_ab(case: str) -> Inflow:
+    """Case A ``Inflow`` B3:G26: z/b, U [m/s], σu, σv, σw [m/s], k [m2/s2].
+    Case B ``Inflow`` B4:H15: z [model mm], U [m/s], the 1/4 power law, u'2, v'2, w'2, k [m2/s2].
+
+    Heights are converted to full scale; speeds stay wind-tunnel speeds. The
+    reference is U_H, the tabulated speed at the building height.
+    """
+    path, _, b = ab_source(case)
+    sheet = _sheet(path, "Inflow")
+    if case == "A":
+        table = _values(sheet, range(2, 26), range(1, 7))
+        heights, k = table[:, 0] * b, table[:, 5]
+    else:
+        table = _values(sheet, range(3, 15), range(1, 8))
+        heights, k = table[:, 0] * b / B_MODEL_B_MM, table[:, 6]
+    speeds = table[:, 1]
+    return Inflow(case, heights, speeds, k, _ab_reference(case, heights, speeds))
+
+
+def load_results_ab(case: str) -> VectorResults:
+    """Every result sheet of Case A (A3:K) or B (A4:K): No., x, y, z, U, V, W, then
+    σu, σv, σw (A, m/s) or u'2, v'2, w'2 (B, m2/s2), then k = ½ Σ variances.
+
+    Case A coordinates are in b, Case B coordinates in model mm. The flow is
+    along +x in both (the "WIND" arrows of Fig. 2), so the direction is ``AB_DIRECTION``.
+    """
+    path, sections, b = ab_source(case)
+    book = xlrd.open_workbook(path)
+    parts = []
+    for number, (label, name, height) in enumerate(sections, 1):
+        sheet = book.sheet_by_name(name)
+        table = _values(sheet, _rows(sheet, 2 if case == "A" else 3), range(11))
+        xyz = table[:, 1:4] * (b if case == "A" else b / B_MODEL_B_MM)
+        if height is not None:
+            xyz[:, 2] = height * b
+        variance = table[:, 7:10] ** 2 if case == "A" else table[:, 7:10]
+        parts.append((SECTION_ID * number + table[:, 0].astype(int), np.full(len(table), label, dtype=object),
+                      xyz, table[:, 4:7], variance, table[:, 10]))
+    ids, section, xyz, velocity, variance, k = (np.concatenate(column) for column in zip(*parts))
+    inflow = load_inflow_ab(case)
+    if len(set(ids.tolist())) != len(ids):
+        raise ValueError(f"Case {case}: duplicate point numbers within a section")
+    return VectorResults(case, ids, section.astype(str), xyz, velocity, variance, k, AB_DIRECTION, inflow.reference)
+
+
+def load_points_ab(case: str) -> Points:
+    results = load_results_ab(case)
+    return Points(results.ids, results.xyz)

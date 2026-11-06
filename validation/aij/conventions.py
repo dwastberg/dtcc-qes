@@ -9,6 +9,8 @@ flow vector is (-sin φ, -cos φ). See AIJ_VALIDATION_PLAN.md, F8.
 - Case E: the "N" arrow next to the XLS map points to +y, and the result columns
   run clockwise from N. Hence φ = 22.5° · i, reading "N" as the direction the
   wind comes from.
+- Cases A and B: one direction. The "WIND" arrow of Fig. 2 points to +x, and
+  the data agree (U > 0 upstream, reverse flow behind the building), so φ = 270°.
 
 The checks below test these readings against the measurements alone, without
 the model (results in AIJ_VALIDATION.md).
@@ -25,6 +27,8 @@ D_LABELS = ("0 deg.", "22.5 deg.", "45 deg.")
 E_LABELS = ("N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
             "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW")
 E_STATES = ("before", "after")
+AB_LABEL = "0 deg."  # Cases A and B: the single measured direction, flow toward +x
+AB_DIRECTION = 270.0
 REFLECTIONS = {"y=x": (lambda x, y: (y, x)), "y=-x": (lambda x, y: (-y, -x)),
                "x-axis": (lambda x, y: (x, -y)), "y-axis": (lambda x, y: (-x, y))}
 

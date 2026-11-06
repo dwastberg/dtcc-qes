@@ -1,12 +1,12 @@
-"""Build the AIJ Case D and E dtcc-core Cities and write them to validation/output/.
+"""Build the AIJ Case A, B, D and E dtcc-core Cities and write them to validation/output/.
 
     uv run --group validate python validation/build_cities.py [--output DIR] [--resolution M] [--min-detail M]
 
 Writes one .dtcc file and one PNG per City, plus summary.json with geometry
 statistics, overlay/merge reports, measurement-point checks and two dtcc-qes
 grid checks: the strict default (``qes``) and contact-aware cleaning with
-``wind.Footprints`` (``qes_footprints``). See AIJ_CITY_MODELS.md for what each
-City contains.
+``wind.Footprints`` (``qes_footprints``). See AIJ_CITY_MODELS.md (D, E) and
+AIJ_AB_VALIDATION.md (A, B) for what each City contains.
 """
 
 import argparse
@@ -24,10 +24,14 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from aij import case_d, case_e, cityutil, tables  # noqa: E402
+from aij import case_ab, case_d, case_e, cityutil, tables  # noqa: E402
 
 
-def point_report(city, points):
+def point_report(city, points, case=None):
+    if case in ("A", "B"):  # probes above the roof lie inside the footprint in plan: use 3D distances
+        distance = case_ab.surface_distance(points.xyz, case)
+        return dict(points=len(points.ids), inside_buildings=[int(i) for i in points.ids[distance <= 0]],
+                    min_wall_distance=float(distance.min()))
     union = shapely.union_all([p for _, p, _ in cityutil.footprints(city)])
     inside = [int(i) for i, (x, y, _) in zip(points.ids, points.xyz) if union.contains(Point(x, y))]
     distances = [union.boundary.distance(Point(x, y)) for x, y, _ in points.xyz]
@@ -80,6 +84,8 @@ def main(argv=None):
 
     points_d, points_e = tables.load_points_d(), tables.load_points_e()
     builds = {
+        "aij_a": (case_ab.build_case_ab("A"), tables.load_points_ab("A")),
+        "aij_b": (case_ab.build_case_ab("B"), tables.load_points_ab("B")),
         "aij_d": (case_d.build_case_d(), points_d),
         "aij_e_before": (case_e.build_case_e("before"), points_e),
         "aij_e_after": (case_e.build_case_e("after"), points_e),
@@ -92,7 +98,8 @@ def main(argv=None):
         plot(built.city, points, args.output / f"{name}.png", name)
         summary[name] = dict(
             geometry=cityutil.summary(built.city), report=built.report,
-            points=point_report(built.city, points), qes=cityutil.qes_check(built.city, args.resolution),
+            points=point_report(built.city, points, built.city.attributes["case"][-1]),
+            qes=cityutil.qes_check(built.city, args.resolution),
             qes_footprints=cityutil.qes_check(built.city, args.resolution, footprints),
         )
         qes, resolved = summary[name]["qes"], summary[name]["qes_footprints"]
