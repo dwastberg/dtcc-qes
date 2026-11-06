@@ -75,8 +75,11 @@ static void condition_state(GridConfig grid, ModelSettings model, const Building
   }
 }
 
+#include "canyon_runner_checks.h"
+
 int main()
 {
+  canyon_runner_checks();
   GridConfig grid;
   grid.nx = fixture::nx; grid.ny = fixture::ny; grid.nz = fixture::nz;
   grid.cell_size = fixture::cell_size;

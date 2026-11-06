@@ -157,7 +157,7 @@ def run(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformP
 
 def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
                     turbulence_spec=None, height_policy="measured",
-                    _known_exclusions=()):
+                    _known_exclusions=(), _runner=None, _experiment=None):
     """Solve a validated prepared domain and assemble the common result metadata."""
     adaptive = solver.mode == "adaptive"
     if profile is None:
@@ -177,7 +177,7 @@ def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
         if not _known_exclusions:
             _warn_solver_outcome(str(UnacceptedResultError(None,None,exclusions=eligibility["exclusions"])),turbulence_spec)
         _known_exclusions = eligibility["exclusions"]
-    runner = _qes.WindRunner()
+    runner = _qes.WindRunner() if _runner is None else _runner
     try:
         turbulence_options = {}
         if turbulence_spec is not None:
@@ -185,10 +185,16 @@ def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
             native_turbulence.enabled = True
             native_turbulence.mixing_length_method = turbulence_spec.qes_method
             turbulence_options["turbulence"] = native_turbulence
-        runner.prepare(prepared.grid, prepared.model, **prepared.arrays, dz_layers=prepared.dz_layers,
-                       **turbulence_options)
+        if _runner is None:
+            runner.prepare(prepared.grid, prepared.model, **prepared.arrays, dz_layers=prepared.dz_layers,
+                           **turbulence_options)
         control_options = {} if solver.mode == "legacy" else {"control":solver._native(prepared.origin, geometry.crs)}
-        native = runner.solve(native_condition, native_solver, **control_options)
+        if _experiment is None:
+            native = runner.solve(native_condition, native_solver, **control_options)
+        else:
+            if solver.mode != "legacy":
+                raise ValueError("Research settings require an unqualified legacy solver")
+            native = runner._solve_experiment(native_condition, native_solver, **_experiment)
     finally:
         # Arrays already own their storage. A retained Python exception's
         # traceback must not retain the much larger prepared native domain.
@@ -248,6 +254,9 @@ def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
     if prepared.near_contacts:
         metadata["near_contacts"] = list(prepared.near_contacts)
     metadata["profile"] = profile_record
+    if _experiment is not None:
+        metadata["experiment"] = native["experiment"]
+        metadata["physical_model_identity"] = "research-e0-v1"
     turbulence_fields = None
     metadata["solver"] = dict(spec=solver.to_dict(), record=record,
         environment=dict(precision=solver.precision, backend=_qes.cpu_backend,

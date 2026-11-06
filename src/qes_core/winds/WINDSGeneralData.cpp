@@ -331,6 +331,9 @@ void WINDSGeneralData::applyWindProfile(const InflowCondition &inflow)
   return;
 }
 
+void joint_core_roof_audit(WINDSGeneralData*,const std::vector<float>&,const std::vector<float>&,const std::vector<float>&);
+void joint_horizontal_W_audit(WINDSGeneralData*,const std::vector<float>&);
+
 void WINDSGeneralData::applyParametrizations(const std::function<void(const char *)> &stage)
 {
   parameterizations.validateWakeDependencies();
@@ -368,6 +371,13 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
     qes::log::info() << "[QES-WINDS]\t Applying street canyon parameterization...\n";
     for (size_t i = 0; i < allBuildingsV.size(); i++) {
       allBuildingsV[building_id[i]]->streetCanyon(this);
+    }
+    if (research_aligned_canyon) {
+      const auto before_u=u0,before_v=v0,before_w=w0;
+      for (size_t i=0;i<allBuildingsV.size();++i)
+        allBuildingsV[building_id[i]]->streetCanyonModified(this);
+      joint_core_roof_audit(this,before_u,before_v,before_w);
+      joint_horizontal_W_audit(this,before_w);
     }
   } else if (parameterizations.streetCanyonFlag == 2) {
     qes::log::info() << "[QES-WINDS]\t Applying street canyon parameterization...\n";

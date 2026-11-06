@@ -22,7 +22,8 @@ public:
   void prepare(const GridConfig &, const ModelSettings &, const BuildingArrays &,
                const TurbulenceSettings &, Messages &);
   WindData solve(const WindCondition &, const SolverOptions &, Messages &, const SolverControl * = nullptr,
-                 const std::function<double()> &native_test_clock = {});
+                 const std::function<double()> &native_test_clock = {},
+                 const ExperimentOptions *experiment = nullptr);
 
   RunnerProgress progress() const;
   void output_transfer(std::uint64_t operation_id, bool finished, bool failed = false);

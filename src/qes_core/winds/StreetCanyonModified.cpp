@@ -47,8 +47,35 @@
  *
  * @param WGD :document this:
  */
+#include "canyon_kernel.h"
+#include "CanyonJoin.h"
+#include "CanyonPreflight.h"
+#include "CanyonRoofWriteTrace.h"
+#include "CanyonRoofProtection.h"
+
 void PolyBuilding::streetCanyonModified(WINDSGeneralData *WGD)
 {
+  const auto support=joint_support(*this,*WGD);
+  const double qualified_spacing=support.spacing;
+  if (!(qualified_spacing>0)) { ++WGD->canyon_fallback; ++WGD->canyon_fallback_reasons[support.reason]; return; }
+  const auto bounds=joint_bounds(*this,building_cent_x,building_cent_y,
+    std::atan2(WGD->v0[WGD->domain.face(i_building_cent,j_building_cent,k_end)],WGD->u0[WGD->domain.face(i_building_cent,j_building_cent,k_end)]));
+  if(WGD->research_canyon_model==dtcc_qes::CanyonModel::JoinedV1 &&
+     .4*qualified_spacing>=.5*(bounds.hi_y-bounds.lo_y)) {
+    ++WGD->canyon_fallback; ++WGD->canyon_fallback_reasons["collapsed_join_band"]; return;
+  }
+  if(WGD->research_canyon_model==dtcc_qes::CanyonModel::JoinedV1) {
+    const auto f=WGD->domain.face(i_building_cent,j_building_cent,k_end);
+    const double angle=std::atan2(WGD->v0[f],WGD->u0[f]);
+    for(std::size_t k=1;k<WGD->domain.z.size() && WGD->domain.z[k]<H;++k) {
+      const double u=WGD->canyon_incident_u.at(k),v=WGD->canyon_incident_v.at(k);
+      if(!(u*std::cos(angle)+v*std::sin(angle)>1e-8) ||
+         std::abs(-u*std::sin(angle)+v*std::cos(angle))>1e-5*std::max(1.,std::hypot(u,v))) {
+        ++WGD->canyon_fallback; ++WGD->canyon_fallback_reasons["unsupported_incident_profile"]; return;
+      }
+    }
+  }
+  ++WGD->canyon_qualified;
   auto [nx, ny, nz] = WGD->domain.getDomainCellNum();
   auto [dx, dy, dz] = WGD->domain.getDomainSize();
   float dxy = WGD->domain.dxy();
@@ -72,7 +99,7 @@ void PolyBuilding::streetCanyonModified(WINDSGeneralData *WGD)
   long icell_face, icell_cent;
 
   // FM -> needed for generalization (TODO)
-  // float canyon_center(0.0);
+  float canyon_center=0.;
   float canyon_width(0.0);
   // float canyon_R(0.0), canyon_L(0.0);
   // int canyon_R_flag(0), canyon_L_flag(0);// flag: 0 = undefined, 1=shear, 2=blending
@@ -150,7 +177,7 @@ void PolyBuilding::streetCanyonModified(WINDSGeneralData *WGD)
       // canyon_R_flag = -1;
 
       canyon_width = std::abs(yi[id] - yi[id + 1]);
-      // canyon_center = 0.5 * (yi[id] + yi[id + 1]);
+      canyon_center = 0.5 * (yi[id] + yi[id + 1]);
 
       // Loop through y locations along each face in rotated coordinates
       for (auto y_id = 0; y_id <= 2 * ceil(std::abs(yi[id] - yi[id + 1]) / dxy); y_id++) {
@@ -230,7 +257,7 @@ void PolyBuilding::streetCanyonModified(WINDSGeneralData *WGD)
               // x_id_max is last x_id before hitting downstream building
               x_id_max = x_id - 1;
               // Distance between two buildings
-              s = 0.5 * (x_id_max - x_id_min) * dxy;
+              s = qualified_spacing;
 
               // If inside the street canyon
               if (top_flag == 0) {
@@ -551,25 +578,33 @@ void PolyBuilding::streetCanyonModified(WINDSGeneralData *WGD)
                 // x-coord inside canyon
                 x_pos = x_u - x_wall_u;
                 // y-coord inside canyon (need generalization)
-                y_pos = y_u;
-                if (x_pos <= s + 0.001 && x_pos > -0.5 * dxy) {
+                y_pos = y_u - canyon_center;
+                const bool roof_protected_u=joint_canyon::protected_roof(
+                    x_pos,double(H)-double(WGD->domain.z[k]),z_pos);
+                if (x_pos <= s + 0.001 && roof_protected_u) ++WGD->canyon_roof_skipped;
+                if (x_pos <= s + 0.001 && x_pos > -0.5 * dxy && !roof_protected_u) {
+                  ++WGD->canyon_core_u;
                   icell_face = WGD->domain.face(i_u, j, k);
+                  const float before_overlay_u=WGD->u0[icell_face];
                   // street canyon parameterization
-                  fSC = pow(1.0 - (std::abs(y_pos) / (0.5 * canyon_width - 0.2 * x_pos)), 0.25);
+                  fSC = joint_canyon::core(x_pos,y_pos,canyon_width);
                   WGD->u0[icell_face] = along_vel_mag * cos(along_dir)
                                         + cross_vel_mag * fSC * (2 * x_pos / s) * 2 * (1 - x_pos / s) * cos(cross_dir);
                   // lateral wedge mixing layer
-                  if (0.5 * canyon_width - 0.2 * x_pos <= std::abs(y_pos) + dxy) {
+                  if (joint_canyon::lateral(x_pos,y_pos,canyon_width)) {
                     WGD->u0[icell_face] = along_vel_mag * cos(along_dir)
                                           - cross_vel_mag * cos(cross_dir)
                                               * log(WGD->domain.z[k] / WGD->z0) / log(WGD->domain.z[k_ref] / WGD->z0)
-                                              * tanh((std::abs(y_pos) - 0.5 * canyon_width + 0.2 * x_pos) / (0.2 * x_pos)) / tanh(1.0);
+                                              * joint_canyon::wedge(x_pos,std::abs(y_pos)-0.5*canyon_width+0.2*x_pos);
                   }
-                  // vertical (top) wedge mixing layer
-                  if (z_pos <= 0.2 * x_pos + dz) {
-                    WGD->u0[icell_face] = along_vel_mag * cos(along_dir)
-                                          - cross_vel_mag * cos(cross_dir) * tanh((0.2 * x_pos - z_pos) / (0.2 * x_pos)) / tanh(1.0);
-                  }
+                  if(WGD->research_canyon_model==dtcc_qes::CanyonModel::JoinedV1 &&
+                     (std::abs(y_pos)>=.5*canyon_width || (x_pos>0 && std::abs(y_pos)>.5*canyon_width-.4*x_pos)))
+                    WGD->u0[icell_face]=joint_canyon::joined(x_pos,y_pos,canyon_width,
+                      along_vel_mag*cos(along_dir),
+                      cross_vel_mag*(2*x_pos/s)*2*(1-x_pos/s)*cos(cross_dir),
+                      WGD->canyon_incident_u.at(k));
+                  // Both physical and voxel roof bands retain legacy initialization.
+                  joint_canyon_trace_write(WGD,*this,0,icell_face,before_overlay_u,x_pos,y_pos,k,k_ref,i_u*dx,(j+.5)*dy);
                 }
                 // end of u-velocity parameterization
 
@@ -591,24 +626,32 @@ void PolyBuilding::streetCanyonModified(WINDSGeneralData *WGD)
                 // x-coord inside canyon
                 x_pos = x_v - x_wall_v;
                 // y-coord inside canyon (need generalization)
-                y_pos = y_v;
-                if (x_pos <= s + 0.001 && x_pos > -0.5 * dxy) {
+                y_pos = y_v - canyon_center;
+                const bool roof_protected_v=joint_canyon::protected_roof(
+                    x_pos,double(H)-double(WGD->domain.z[k]),z_pos);
+                if (x_pos <= s + 0.001 && roof_protected_v) ++WGD->canyon_roof_skipped;
+                if (x_pos <= s + 0.001 && x_pos > -0.5 * dxy && !roof_protected_v) {
+                  ++WGD->canyon_core_v;
                   icell_face = WGD->domain.face(i, j_v, k);
+                  const float before_overlay_v=WGD->v0[icell_face];
                   // street canyon parameterization
-                  fSC = pow(1.0 - (std::abs(y_pos) / (0.5 * canyon_width - 0.2 * x_pos)), 0.25);
+                  fSC = joint_canyon::core(x_pos,y_pos,canyon_width);
                   WGD->v0[icell_face] = along_vel_mag * sin(along_dir)
                                         + cross_vel_mag * fSC * (2 * x_pos / s) * 2 * (1 - x_pos / s) * sin(cross_dir);
                   // lateral wedge mixing layer
-                  if (0.5 * canyon_width - 0.2 * x_pos <= std::abs(y_pos) + dxy) {
+                  if (joint_canyon::lateral(x_pos,y_pos,canyon_width)) {
                     WGD->v0[icell_face] = along_vel_mag * sin(along_dir)
                                           - cross_vel_mag * sin(cross_dir) * log(WGD->domain.z[k] / WGD->z0) / log(WGD->domain.z[k_ref] / WGD->z0)
-                                              * tanh((std::abs(y_pos) - 0.5 * canyon_width + 0.2 * x_pos) / (0.2 * x_pos)) / tanh(1.0);
+                                              * joint_canyon::wedge(x_pos,std::abs(y_pos)-0.5*canyon_width+0.2*x_pos);
                   }
-                  // vertical (top) wedge mixing layer
-                  if (z_pos <= 0.2 * x_pos + dz) {
-                    WGD->v0[icell_face] = along_vel_mag * sin(along_dir)
-                                          - cross_vel_mag * sin(cross_dir) * tanh((0.2 * x_pos - z_pos) / (0.2 * x_pos)) / tanh(1.0);
-                  }
+                  if(WGD->research_canyon_model==dtcc_qes::CanyonModel::JoinedV1 &&
+                     (std::abs(y_pos)>=.5*canyon_width || (x_pos>0 && std::abs(y_pos)>.5*canyon_width-.4*x_pos)))
+                    WGD->v0[icell_face]=joint_canyon::joined(x_pos,y_pos,canyon_width,
+                      along_vel_mag*sin(along_dir),
+                      cross_vel_mag*(2*x_pos/s)*2*(1-x_pos/s)*sin(cross_dir),
+                      WGD->canyon_incident_v.at(k));
+                  // Both physical and voxel roof bands retain legacy initialization.
+                  joint_canyon_trace_write(WGD,*this,1,icell_face,before_overlay_v,x_pos,y_pos,k,k_ref,(i+.5)*dx,j_v*dy);
                 }
                 // end of v-velocity parameterization
 
@@ -629,41 +672,8 @@ void PolyBuilding::streetCanyonModified(WINDSGeneralData *WGD)
                 // x-coord inside canyon
                 x_pos = x_w - x_wall_w;
                 // y-coord inside canyon (need generalization)
-                y_pos = y_w;
-                if (x_pos <= s + 0.001 && x_pos > -0.5 * dxy) {
-                  icell_cent = WGD->domain.cell(i, j, k);
-                  // Match the original canyon's geometry-mask invariant.
-                  if (WGD->icellflag[icell_cent] != 0 && WGD->icellflag[icell_cent] != 2
-                      && WGD->icellflag[WGD->domain.cellAdd(icell_cent, 0, 0, -1)] != 0
-                      && WGD->icellflag[WGD->domain.cellAdd(icell_cent, 0, 0, -1)] != 2) {
-                    icell_face = WGD->domain.face(i, j, k);
-                    if (reverse_flag == 0) {
-                      // flow go up along front face - down along back face
-                      WGD->w0[icell_face] = -std::abs(0.5 * cross_vel_mag * (1 - 2 * x_pos / s)) * (1 - 2 * (s - x_pos) / s);
-                    } else {
-                      // flow go down along front face - up along back face
-                      WGD->w0[icell_face] = std::abs(0.5 * cross_vel_mag * (1 - 2 * x_pos / s)) * (1 - 2 * (s - x_pos) / s);
-                    }
-                    WGD->icellflag[icell_cent] = 6;
-                    /* FM - need to add cell_flag for lateral and top mixing layer ??
-                    // lateral wedge mixing layer
-                    if (0.5 * canyon_width - 0.2 * x_pos <= std::abs(y_pos) + WGD->dxy) {
-                      WGD->w0[icell_face] = 0.0;
-                      WGD->icellflag[icell_cent] = 12;
-                    }
-                    // vertical (top) wedge mixing layer
-                    if (z_pos <= 0.2 * x_pos + WGD->dz) {
-                      WGD->w0[icell_face] = 0.0;
-                      WGD->icellflag[icell_cent] = 13;
-                    }
-                    */
-                  }
-                  /*
-                    if ((WGD->icellflag[icell_cent] != 7) && (WGD->icellflag[icell_cent] != 8)) {
-                    WGD->icellflag[icell_cent] = 6;
-                  }
-                  */
-                }
+                y_pos = y_w - canyon_center;
+                // Legacy W is preserved everywhere by this horizontal-only overlay.
                 // end of w-velocity parameterization
               }
             }
@@ -687,3 +697,6 @@ void PolyBuilding::streetCanyonModified(WINDSGeneralData *WGD)
     }
   }
 }
+
+#include "CanyonRoofAudit.h"
+#include "CanyonWAudit.h"

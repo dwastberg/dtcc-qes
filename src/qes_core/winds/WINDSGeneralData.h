@@ -32,6 +32,8 @@
 
 #pragma once
 
+#include <map>
+#include "dtcc/api/canyon_types.h"
 #include <functional>
 #include <vector>
 #include <memory>
@@ -110,6 +112,18 @@ public:
 
   /** Sets the initial field u0/v0/w0 to the inflow's log profile. */
   void applyWindProfile(const InflowCondition &);
+
+  // Private canyon state. Detached by WindRunner's solve scope on every exit.
+  dtcc_qes::CanyonModel research_canyon_model=dtcc_qes::CanyonModel::Legacy;
+  bool research_aligned_canyon=false;
+  bool canyon_trace_roof=false;
+  std::vector<double> canyon_roof_trace;
+  std::size_t canyon_voxel_roof_changes=0;
+  std::vector<float> canyon_incident_u,canyon_incident_v;
+  std::map<std::string,std::size_t> canyon_fallback_reasons;
+  std::size_t canyon_core_u=0,canyon_core_v=0,canyon_core_w=0,canyon_roof_skipped=0;
+  std::size_t canyon_changed_faces=0,canyon_roof_changes=0,canyon_audit_zones=0,canyon_W_changes=0;
+  std::size_t canyon_qualified=0,canyon_fallback=0,canyon_writes=0;
 
   void applyParametrizations(const std::function<void(const char *)> &stage = {});
 
