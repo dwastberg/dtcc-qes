@@ -243,3 +243,5 @@ __marimo__/
 # Local integration evidence includes native binaries and complete field archives.
 /experiments/integration/
 !/docs/CORE_RELIABILITY.md
+
+!/docs/PHYSICS_INTEGRATION_RESULTS.md
