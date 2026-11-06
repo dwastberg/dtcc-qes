@@ -60,6 +60,7 @@ void PoissonOperator::build(const WINDSGeneralData &wind, WINDSGeneralData *take
     } else for (unsigned axis = 0; axis < 6; ++axis) explicit_[axis] = *arrays[axis];
   }
   if (take) for (auto *a : {&take->e,&take->f,&take->g,&take->h,&take->m,&take->n}) std::vector<float>().swap(*a);
+  resources_.set_bytes(storage_bytes());
 }
 std::size_t PoissonOperator::storage_bytes() const {
   std::size_t bytes = masks_.capacity()*sizeof(std::uint8_t)+tables_.capacity()*sizeof(Stencil);
@@ -96,9 +97,13 @@ template<class Real> SolverState<Real>::SolverState(const PoissonOperator &op,
       factors_.push_back(omega/diagonal);
     }
   }
+  resources_.set_bytes(workspace_bytes());
 }
 
-template<class Real> void SolverState<Real>::begin(ConditionInputs input, int sweeps, StopRule rule) {
+template<class Real> void SolverState<Real>::begin(ConditionInputs input, int sweeps, StopRule rule,
+                                                  std::atomic<int> *completed_sweeps) {
+  completed_sweeps_=completed_sweeps;
+  if (completed_sweeps_) completed_sweeps_->store(0,std::memory_order_relaxed);
   phase_ = Phase::Failed;
   fields_.reset();
   last_trend_.reset(); collect_residual_ = false;
@@ -149,6 +154,7 @@ template<class Real> WorkReport SolverState<Real>::advance(int sweeps, bool coll
     for (int i = 0; i < work && termination() == Termination::None; ++i) {
       last_change_ = order_ == SweepOrder::RedBlack ? sweep_red_black() : sweep_lexicographic();
       ++iterations_;
+      if (completed_sweeps_) completed_sweeps_->store(iterations_,std::memory_order_relaxed);
     }
   } catch (...) { phase_ = Phase::Failed; fields_.reset(); throw; }
   return {iterations_-before,diagnostics(),termination()};

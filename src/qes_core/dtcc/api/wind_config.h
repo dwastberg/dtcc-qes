@@ -68,6 +68,7 @@ struct TurbulenceData {
 };
 
 struct WindData {
+  std::uint64_t operation_id = 0; // Binding transfer/progress correlation.
   int nx = 0, ny = 0, nz = 0;
   std::vector<float> x, y, z, z_faces, velocity;
   std::vector<std::int32_t> cell_flags;

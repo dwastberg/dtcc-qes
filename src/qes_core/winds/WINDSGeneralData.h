@@ -32,6 +32,7 @@
 
 #pragma once
 
+#include <functional>
 #include <vector>
 #include <memory>
 #include <cmath>
@@ -110,7 +111,7 @@ public:
   /** Sets the initial field u0/v0/w0 to the inflow's log profile. */
   void applyWindProfile(const InflowCondition &);
 
-  void applyParametrizations();
+  void applyParametrizations(const std::function<void(const char *)> &stage = {});
 
   void resetICellFlag();
   void ensureCutCellStorage();

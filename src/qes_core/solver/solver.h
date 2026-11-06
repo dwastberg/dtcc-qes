@@ -10,6 +10,8 @@
 #include <cstdint>
 #include <optional>
 #include <vector>
+#include <atomic>
+#include "dtcc/api/resource_usage.h"
 
 class WINDSGeneralData;
 
@@ -48,6 +50,7 @@ public:
   }
   float coefficient(int axis, std::size_t c) const;
 private:
+  dtcc_qes::ResourceAccount resources_{dtcc_qes::ResourceKind::Operator};
   bool compact_ = false;
   std::vector<std::uint8_t> masks_;
   std::vector<Stencil> tables_;
@@ -160,7 +163,10 @@ public:
   SolverState(const SolverState &) = delete;
   SolverState &operator=(const SolverState &) = delete;
 
-  void begin(ConditionInputs, int total_sweeps, StopRule = StopRule::LegacyTolerance);
+  // Optional observer belongs to the caller and must outlive the condition.
+  // Stores occur only after complete sweeps; numerical stopping is unaffected.
+  void begin(ConditionInputs, int total_sweeps, StopRule = StopRule::LegacyTolerance,
+             std::atomic<int> *completed_sweeps = nullptr);
   WorkReport advance(int work_sweeps, bool collect_residual_trend = false);
   Observation observe(LayerRange) const;
   void observe(LayerRange, CenteredDestination) const;
@@ -182,6 +188,7 @@ public:
   StudyState<Real> copy_state_for_study() const;
 
 private:
+  dtcc_qes::ResourceAccount resources_{dtcc_qes::ResourceKind::Workspace};
   // Preserve the legacy kernel names and arithmetic types inside the kernels.
   struct KernelFields {
     const std::vector<float> &u0, &v0, &w0;
@@ -203,6 +210,7 @@ private:
   std::uint64_t condition_epoch_ = 0;
   bool collect_residual_ = false;
   std::optional<ResidualTrend> last_trend_;
+  std::atomic<int> *completed_sweeps_ = nullptr;
   struct TrendTotals {
     double maximum = 0, weighted_square = 0, volume = 0;
     std::size_t cells = 0;

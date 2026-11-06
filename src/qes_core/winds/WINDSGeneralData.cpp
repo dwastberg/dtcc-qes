@@ -331,7 +331,7 @@ void WINDSGeneralData::applyWindProfile(const InflowCondition &inflow)
   return;
 }
 
-void WINDSGeneralData::applyParametrizations()
+void WINDSGeneralData::applyParametrizations(const std::function<void(const char *)> &stage)
 {
   parameterizations.validateWakeDependencies();
   for (auto *building : allBuildingsV) building->resetConditionState();
@@ -352,6 +352,7 @@ void WINDSGeneralData::applyParametrizations()
   //////////////////////////////////////////////////
   //   Far-Wake and Cavity Parameterizations     ///
   //////////////////////////////////////////////////
+  if (stage) stage("cavity");
   if (parameterizations.wakeFlag > 0) {
     qes::log::info() << "[QES-WINDS]\t Applying wake behind building parameterization...\n";
     for (size_t i = 0; i < allBuildingsV.size(); i++) {
@@ -362,6 +363,7 @@ void WINDSGeneralData::applyParametrizations()
   ///////////////////////////////////////////
   //   Street Canyon Parameterization     ///
   ///////////////////////////////////////////
+  if (stage) stage("wake");
   if (parameterizations.streetCanyonFlag == 1) {
     qes::log::info() << "[QES-WINDS]\t Applying street canyon parameterization...\n";
     for (size_t i = 0; i < allBuildingsV.size(); i++) {
@@ -377,6 +379,7 @@ void WINDSGeneralData::applyParametrizations()
   ///////////////////////////////////////////
   //      Sidewall Parameterization       ///
   ///////////////////////////////////////////
+  if (stage) stage("canyon");
   if (parameterizations.sidewallFlag > 0) {
     qes::log::info() << "[QES-WINDS]\t Applying sidewall parameterization...\n";
     for (size_t i = 0; i < allBuildingsV.size(); i++) {
@@ -388,6 +391,7 @@ void WINDSGeneralData::applyParametrizations()
   ///////////////////////////////////////////
   //      Rooftop Parameterization        ///
   ///////////////////////////////////////////
+  if (stage) stage("sidewall");
   if (parameterizations.rooftopFlag > 0) {
     qes::log::info() << "[QES-WINDS]\t Applying rooftop parameterization...\n";
     for (size_t i = 0; i < allBuildingsV.size(); i++) {
@@ -395,7 +399,9 @@ void WINDSGeneralData::applyParametrizations()
     }
   }
 
+  if (stage) stage("rooftop");
   wall->setVelocityZero(this);
+  if (stage) stage("solid_mask");
 
   auto finish_param = std::chrono::high_resolution_clock::now();// Finish recording execution time
 

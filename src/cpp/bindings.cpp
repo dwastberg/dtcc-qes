@@ -23,6 +23,31 @@ using Vertices = nb::ndarray<nb::numpy, const double, nb::shape<-1, 2>, nb::c_co
 using Floats = nb::ndarray<nb::numpy, const double, nb::ndim<1>, nb::c_contig, nb::device::cpu>;
 using Integers = nb::ndarray<nb::numpy, const std::int64_t, nb::ndim<1>, nb::c_contig, nb::device::cpu>;
 
+nb::dict resource_record() {
+  const auto usage=resource_usage();
+  nb::dict out;
+  const char *names[]={"wind_grid","poisson_operator","solver_workspace"};
+  for (std::size_t i=0;i<usage.categories.size();++i) {
+    const auto &c=usage.categories[i]; nb::dict value;
+    value["objects"]=c.objects; value["bytes"]=c.bytes;
+    value["peak_objects"]=c.peak_objects; value["peak_bytes"]=c.peak_bytes;
+    out[names[i]]=value;
+  }
+  out["scope"]="process live ownership; selected wind-grid vector capacities, Poisson storage and solver buffers; excludes geometry, coordinate arrays, separate turbulence storage, returned arrays and construction temporaries";
+  return out;
+}
+nb::dict progress_record(const WindRunner &runner) {
+  const auto p=runner.progress(); nb::dict out;
+  out["operation_id"]=p.operation_id; out["revision"]=p.revision;
+  out["operation"]=p.operation; out["phase"]=p.phase;
+  out["last_completed_stage"]=p.last_completed_stage;
+  out["completed_sweeps"]=p.completed_sweeps; out["last_checkpoint"]=p.last_checkpoint;
+  out["elapsed_seconds"]=p.started_at?p.observed_at-p.started_at:0.;
+  out["phase_seconds"]=p.phase_started_at?p.observed_at-p.phase_started_at:0.;
+  out["finished"]=p.finished; out["resources"]=resource_record();
+  return out;
+}
+
 template<typename Array>
 auto copy_input(const Array &array)
 {
@@ -132,6 +157,14 @@ nb::dict python_result(const WindData &data)
   nb::module_::import_("dtcc_qes._logging").attr("_log_solve")(result);
   return result;
 }
+nb::dict transfer_result(WindRunner &runner, const WindData &data) {
+  runner.output_transfer(data.operation_id,false);
+  try {
+    auto value=python_result(data);
+    runner.output_transfer(data.operation_id,true);
+    return value;
+  } catch (...) { runner.output_transfer(data.operation_id,false,true); throw; }
+}
 }
 
 NB_MODULE(_qes, m)
@@ -155,6 +188,8 @@ NB_MODULE(_qes, m)
   m.attr("legacy_method_id") = legacy_method_id;
   m.attr("pedestrian_method_id") = pedestrian_method_id;
   m.def("_core_grid_shape", &dtcc_qes::core_grid_shape);
+  m.def("_resource_usage", &resource_record);
+  m.def("_reset_resource_peaks", &reset_resource_peaks);
 
   nb::class_<GridConfig>(m, "GridConfig")
     .def(nb::init<>())
@@ -222,6 +257,7 @@ NB_MODULE(_qes, m)
      nb::arg("ring_offsets").noconvert().none()=nb::none(),"threads"_a=nb::none());
   nb::class_<WindRunner>(m, "WindRunner")
     .def(nb::init<>())
+    .def_prop_ro("_progress", &progress_record)
     .def("prepare", [](WindRunner &runner, const GridConfig &grid, const ModelSettings &model,
                        Vertices vertices, Integers offsets, Floats heights, Floats base_heights, Integers ids,
                        Floats dz_layers, const TurbulenceSettings *turbulence, Integers ring_offsets) {
@@ -259,7 +295,7 @@ NB_MODULE(_qes, m)
         clock=[steps,index] {return (*steps)[std::min((*index)++,steps->size()-1)];};
       }
       try {
-        return python_result(native_call([&](Messages &messages) { return runner.solve(wind, solver, messages,settings ? &*settings : nullptr,clock); }));
+        return transfer_result(runner,native_call([&](Messages &messages) { return runner.solve(wind, solver, messages,settings ? &*settings : nullptr,clock); }));
       } catch (const BudgetExhausted &failure) {
         auto cls=nb::module_::import_("dtcc_qes.solver_control").attr("BudgetExhaustedError");
         auto error=cls(control_binding::encode(failure.record));

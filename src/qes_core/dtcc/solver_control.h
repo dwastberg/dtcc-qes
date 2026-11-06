@@ -20,7 +20,7 @@ public:
   void configure_adaptive(const std::vector<std::string> &unsupported_reasons);
   bool adaptive_enabled() const {return adaptive_;}
   [[noreturn]] void numerical_failure(const std::string &);
-  template<class Real> void run(solver::SolverState<Real> &state) {
+  template<class Real> void run(solver::SolverState<Real> &state, std::atomic<int> *completed_checkpoint = nullptr) {
     if (!check("before_monitor_compile")) return;
     auto started = now();
     auto monitor_spec=record.effective_monitor;
@@ -32,7 +32,7 @@ public:
         r.bounds.k_first,r.bounds.k_last},r.excluded_lateral_cells,r.excluded_highest_cells});
     record.timings.monitoring_seconds += now()-started;
     check("after_monitor_compile");
-    capture(state);
+    capture(state,completed_checkpoint);
     check("after_initial_checkpoint");
     while (state.termination() == solver::Termination::None) {
       const int before = state.diagnostics().iterations;
@@ -46,13 +46,13 @@ public:
       record.legacy_tolerance_satisfied = diagnostics.converged;
       if (!check("after_sweep",record.iterations)) break;
       if(adaptive_ && invalid_initial_support_) {
-        capture(state);if(!check("after_invalid_support_checkpoint",record.iterations))break;
+        capture(state,completed_checkpoint);if(!check("after_invalid_support_checkpoint",record.iterations))break;
         record.termination_reason="invalid_support";record.assessment_reason="invalid_required_or_empty_support";
         break;
       }
       if (record.iterations%record.requested.checkpoint_interval == 0 || state.termination() != solver::Termination::None) {
         if (!check("before_checkpoint",record.iterations)) break;
-        capture(state);
+        capture(state,completed_checkpoint);
         if (!check("after_checkpoint",record.iterations)) break;
         if(adaptive_ && record.assessment && record.assessment->ready) {
           if(!check("before_finalization",record.iterations))break;
@@ -83,7 +83,7 @@ private:
   std::size_t policy_bytes_ = 0;
   PedestrianDecision policy_;
   void save_history();
-  template<class Real> void capture(const solver::SolverState<Real> &state) {
+  template<class Real> void capture(const solver::SolverState<Real> &state, std::atomic<int> *completed_checkpoint) {
     const double started = now();
     const auto &checkpoint=monitor_->capture(state,started-started_);
     if(adaptive_) {
@@ -94,6 +94,7 @@ private:
     }
     record.timings.monitoring_seconds += now()-started;
     ++record.checkpoint_count;
+    if (completed_checkpoint) completed_checkpoint->store(checkpoint.iteration,std::memory_order_relaxed);
   }
   template<class Real> void assess(const solver::SolverState<Real> &state,const MonitorCheckpoint &checkpoint) {
     const auto residual=state.equation_residual();

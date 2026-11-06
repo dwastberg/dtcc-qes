@@ -239,3 +239,7 @@ __marimo__/
 
 !/docs/solver-control-requalification.md
 !/docs/data/feature-merge/phase9.json
+
+# Local integration evidence includes native binaries and complete field archives.
+/experiments/integration/
+!/docs/CORE_RELIABILITY.md
