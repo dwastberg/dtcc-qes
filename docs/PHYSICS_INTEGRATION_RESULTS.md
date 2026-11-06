@@ -6,11 +6,18 @@ accuracy. The existing pedestrian-v1 solver policy is requalified for the native
 source/arithmetic identity below, within its unchanged profile, precision,
 geometry and thread-team scope.
 
-`660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8`
+`0065015d928341ecaaefd10728560b683c1e0630175599d554ebe6a6ad3188d8`
 
 This identity uses AppleClang 17.0.0.17000404, Release arithmetic and contraction
 on. Other source/arithmetic identities follow the existing
 [requalification procedure](solver-control-requalification.md).
+
+The identity above includes the November source cleanup; its fresh compatibility,
+sanitizer, packaging and runtime evidence is recorded in the
+[main source review](CODE_REVIEW_2026_11.md). The physical AIJ campaign and release
+checks below describe the earlier integration at
+`660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8`; they remain historical evidence.
+The cleanup changes no scientific formulas or public defaults.
 
 ## Included changes
 

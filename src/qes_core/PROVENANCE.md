@@ -236,3 +236,23 @@ frozen pedestrian policy, so adaptive results remain `unqualified_build`.
 module and result metadata. The frozen qualification revision is unchanged;
 compiler identity alone is not treated as qualification. Generic regression and
 package checks do not establish new policy or physical/model qualification.
+
+### Main-source cleanup (November 2026)
+
+The earlier “kept for their own decisions” entry is historical. The CPU core now
+removes the unreachable cut-cell implementation and storage, the unavailable
+OptiX mixing backend and its ray/mesh/BVH utilities, unused device declarations,
+canopy hooks and the obsolete matrix inverse. Cut-cell setup had no construction
+path for its helper; supported geometry has always used stair-step cells. Wall
+setup retains its stair-step coefficient arithmetic and removes cut-cell
+reconciliation and redundant neighbor writes. Turbulence methods 0/1 remain.
+
+`StreetCanyonModified` is still used by the protected horizontal overlays and
+by native ring/exposure checks. Non-local mixing remains a callable inherited
+core model; the public bridge continues to disable it. These are not discarded
+canopy/wake research implementations. The private canyon contract is now
+`CanyonOptions`/`CanyonData`, with only implemented controls.
+
+The runner's scoped cleanup owns failure cleanup; its write-only phase enum and
+redundant catch-all cleanup were removed. Public progress remains independently
+synchronized. See `docs/CODE_REVIEW_2026_11.md` for scope and verification.

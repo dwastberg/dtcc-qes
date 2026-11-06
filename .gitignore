@@ -252,3 +252,5 @@ __marimo__/
 /docs/data/physics-integration/*
 !/docs/data/physics-integration/progress.json
 !/docs/data/physics-integration/release-artifacts.json
+
+!/docs/CODE_REVIEW_2026_11.md
