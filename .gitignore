@@ -245,3 +245,10 @@ __marimo__/
 !/docs/CORE_RELIABILITY.md
 
 !/docs/PHYSICS_INTEGRATION_RESULTS.md
+
+# Small integration records are versioned; large execution artifacts stay local.
+!/docs/PHYSICS_EXPERIMENT_INTEGRATION_PLAN.md
+!/docs/data/physics-integration/
+/docs/data/physics-integration/*
+!/docs/data/physics-integration/progress.json
+!/docs/data/physics-integration/release-artifacts.json

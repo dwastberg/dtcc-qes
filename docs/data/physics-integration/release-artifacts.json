@@ -1,0 +1,51 @@
+{
+  "qualified_policy": "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8",
+  "implementation_revision": "c2ab9acb788972c71d455461e061c5f5f02a4aa2",
+  "target_revision": "6e205c003cd44ec0ad8a785c0dbd0c402940ed19",
+  "artifacts": {
+    "dtcc_qes-0.1.0b1.tar.gz": {
+      "bytes": 1388588969,
+      "sha256": "e6d6ecdb7bf9eff1dbf1a4516e649f3de594b76832575bd752b0a80e29f2228c"
+    },
+    "dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl": {
+      "bytes": 466578,
+      "sha256": "5502364363f189953e806a2c909a72d84bb8b72be01275da347dc82d62ef1bc8"
+    }
+  },
+  "artifact_directory": "experiments/integration/attempt-006/promoted-artifacts",
+  "evidence_indexes": {
+    "experiments/integration/attempt-004/artifact-index.json": "b424c2814f24a48bd2c6521526c494245db1a69a0c538657b9c2db4a2e0b4d08",
+    "experiments/integration/attempt-005/artifact-index.json": "995327bab6158e3e4aee2268b9ca20d618fc920619bc16a3c37a5ea91d28a0ba",
+    "experiments/integration/attempt-006/artifact-index.json": "fdb3aa3b6734e4536e3cef001517edd060c2a9f3d2da7c0054c0127460a9df1d"
+  },
+  "full_AIJ": {
+    "passed": true,
+    "answers": 74,
+    "conditions": 37,
+    "active": 1,
+    "inactive_bitwise_conditions": 36,
+    "archive_parity": true,
+    "paired_quantities": 15,
+    "archive_stage_W_files_checked": 148,
+    "checks": 2964,
+    "worker_wall_seconds": 827.5958428357262,
+    "peak_rss_bytes": 2524594176,
+    "memory_cap": null,
+    "all_deadlines_pass": true,
+    "fixed_work": true,
+    "physical_promotion": false
+  },
+  "release_checks": {
+    "python_per_backend": {
+      "passed": 1952,
+      "historical_skips": 16
+    },
+    "policy_workers": 24,
+    "thread_backend_comparisons": 12,
+    "ordinary_cases_per_comparison": 429,
+    "records_per_comparison": 4774,
+    "wheel_canyon_lifecycle_tests": 24
+  },
+  "cost_scope": "Actual shipped wheel passes the unchanged balanced cost gate. Initial unpaired costs failed and one extra direct-build aggregate contrast remains flagged; review and all observations are retained. No speedup claim.",
+  "storage": "Large artifacts remain local and ignored; durable archival is required before publication."
+}

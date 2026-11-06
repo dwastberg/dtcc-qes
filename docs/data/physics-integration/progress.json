@@ -1,0 +1,1090 @@
+{
+  "status": "committed_to_main",
+  "target_revision": "6e205c003cd44ec0ad8a785c0dbd0c402940ed19",
+  "checkout": "/Users/dagwastberg/repos/dtcc/dtcc-qes",
+  "patch_sha256": "4cca8fa52f81fe8b4214ac5ab875519f42f53a050724844be41112eb8ea6285c",
+  "selected_files": {
+    "pyproject.toml": "ba5144ee63b7cb3ebce392c256a0c6e5524888929b3fd880aa1c3e37e56e3a12",
+    "tests/test_adaptive_control.py": "5723e0ac471333450b8e9c206761168b666f6077a4357dbb0b7a2d381230c33c",
+    "tests/test_canyon_aij.py": "201e26bb4f8a11228a399c0b35969e68afabd1ae36ba47e190901ca5d6cb6b1e",
+    "tests/test_parameterizations.py": "245423d6835b316b2990d71681b27a70ce3b363e345ba3b53fb210027468c2a0",
+    "tests/test_stage_sampling.py": "38d035adab9045cc337c6fd38a041fa38f25883acd0c870b0cc5a23f67494752",
+    "tests/test_validation_controller.py": "80b0ffa2f85f36c74443d0503804ded6c56e014ccf06d41687b7eb6d21a2ec65",
+    "tests/test_validation_regression.py": "f61c7a0e0303a4f4130fc3580576012d4dcb8f5b334ef34b5ed0f38907a197d6",
+    "tools/check_physics_archive.py": "17ce6edfdbcb085170da43df2a530b085b99f34edbd99a62ff3027905018081e",
+    "validation/AIJ_AB_VALIDATION.md": "521006f8ee6b999e3580a27d9bc7e99074a6adaf4aa65a796479c86efb4d983d",
+    "validation/AIJ_VALIDATION.md": "bbb470a974f0c9d05cd73f9bc0576cf0e08c38d360dd1ace94c90c0684989e74",
+    "validation/DTCC_REQUESTS.md": "b1e1dc8c2ea628cde965484dbaa8acca085b11117bb5fd59637e9cafd569f85d",
+    "validation/REFERENCE_DATA.md": "fe1f1487fcefefd63f8af0e71c97ce59350f3f1d5fee90cd2c7b8179566fea42",
+    "validation/aij/__init__.py": "1ac67c62a94614ed3542d50e6ac7c094085b66199ff3f5bd96129fa485b91652",
+    "validation/aij/campaigns.py": "335fc67ec044853682a517848646feffb3a3efd8543c8544968ccbc1bc4915b1",
+    "validation/aij/case_ab.py": "3e99ef1cf20afb91e59a7dd2dc57c190898af2dbfd3f942b18389bc9d3ad811b",
+    "validation/aij/cityutil.py": "cb7e83f5d06662773ed03f18ac57d067ef1998977a4592eb4f5a1d01e8ba62c6",
+    "validation/aij/compare.py": "a5b0ba7b3cb638ad7ee424544aeb57becc20cba68b4f0500f3ea2315f3360a98",
+    "validation/aij/controller.py": "92dcd1c7c2a1e515d35707bffffb597e6129b6df8272d87099d0af94fae987cb",
+    "validation/aij/conventions.py": "2d5c94afa7c1f8d3328cd1b943127d6350329d3e8ba3f411dacfca56a8970aef",
+    "validation/aij/evidence.py": "ce37d4a78be4ec15f83080bdfd413494ecf41e07c9981b28ba2ccbb1471cc9ac",
+    "validation/aij/grids.py": "c2230504722e469216a82afea85922b7cf893a3ac6848be07b2ed73c024fbc1b",
+    "validation/aij/inflow.py": "26616482b7cc91036411188fcf9113d8b5223edf1fc124bb878fdecb0a10a841",
+    "validation/aij/metrics.py": "2a85a9ac41385c7c61720916eb0a8a7f351055848362a7a1336f54d0560de383",
+    "validation/aij/report.py": "9c3212ebc7bbee87b9ed6fee7c9062df485bb42bc130988097fd999a9e5473b4",
+    "validation/aij/runner.py": "21e2f303a91ba646fb04d13beb31d541c734550b7819ef3b636832ebfebc4809",
+    "validation/aij/runspec.py": "876c94304a9b1d57f75563854f2bc9afd8e9c2143174d199bd739f7316115322",
+    "validation/aij/stage_sampling.py": "3cae8ab6299e12ac3c6d042cd30a13710d7807abd6d99d7ec870e8755a973ee4",
+    "validation/aij/tables.py": "44fe1670b6c68fefa6c4bd9c6a7accdc5616464dc012967f539e44213ce4a4be",
+    "validation/aij/workers.py": "297b5c74084c752d12f0ad274ca0faa43e00a8c7e95668d702d4158f62207f32",
+    "validation/build_cities.py": "7535b5a57d7dc066cf08ff2d8fb457343e427951a4b5033e3fb4e95d7335db09",
+    "validation/report_validation.py": "2cc3ede27106cd64b0893ff40b15bea383be86d7b96dfad4c5bd3aa430c12adc",
+    "validation/rerun_regression.py": "ba69d3aaeba4d810abe82b30389bea8d59ba557f6d91b4240751a91d29553264",
+    "validation/tests/__init__.py": "db08d77839b0fafbafb1c0228fae6d4c629bfcbb9709db51ff8fe8cb329df5f1",
+    "validation/tests/test_case_ab.py": "6198f8f38d40fde3e187c89df38bb66df78e5adc9bad70c53e6e48532c57c776"
+  },
+  "tests": {
+    "A-tests": {
+      "tests": "145",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "50.418"
+    },
+    "A-framework-tests": {
+      "tests": "35",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "8.263"
+    },
+    "all-tests-004": {
+      "tests": "1944",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "50",
+      "time": "123.370",
+      "passed": 1894
+    },
+    "compatibility-final": {
+      "tests": "61",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "7.613",
+      "passed": 61
+    },
+    "native-sampler-tests": {
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.488",
+      "passed": 2
+    },
+    "sdist-clean-tests": {
+      "tests": "26",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.831",
+      "passed": 26
+    },
+    "all-openmp-001": {
+      "tests": "1950",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "16",
+      "time": "134.247",
+      "passed": 1934
+    },
+    "all-serial-001": {
+      "tests": "1950",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "16",
+      "time": "131.053",
+      "passed": 1934
+    },
+    "ctest-openmp": {
+      "tests": "50",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "8",
+      "passed": 50
+    },
+    "ctest-serial": {
+      "tests": "47",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "6",
+      "passed": 47
+    },
+    "ctest-sanitizer": {
+      "tests": "47",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "290",
+      "passed": 47
+    },
+    "lifecycle-002": {
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.268",
+      "passed": 6
+    },
+    "C-focused-final": {
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time": 10.889,
+      "passed": 24
+    },
+    "C-all-openmp": {
+      "tests": 1968,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 16,
+      "time": 141.218,
+      "passed": 1952
+    },
+    "C-all-serial": {
+      "tests": 1968,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 16,
+      "time": 501.58,
+      "passed": 1952
+    },
+    "C-ctest-openmp": {
+      "tests": 56,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time": 8.0,
+      "passed": 56
+    },
+    "C-ctest-serial": {
+      "tests": 53,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time": 25.0,
+      "passed": 53
+    },
+    "C-ctest-sanitizer": {
+      "tests": 53,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time": 462.0,
+      "passed": 53
+    },
+    "C-sdist-smoke": {
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time": 12.089,
+      "passed": 24
+    },
+    "D-all-openmp": {
+      "tests": 1968,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 16,
+      "passed": 1952,
+      "time": 129.574
+    },
+    "D-all-serial": {
+      "tests": 1968,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 16,
+      "passed": 1952,
+      "time": 142.879
+    },
+    "D-isolated-002-wheel-canyon": {
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 24,
+      "time": 67.553
+    },
+    "D-promoted-wheel-canyon": {
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 24,
+      "time": 10.319
+    }
+  },
+  "archive": {
+    "passed": true,
+    "quantities": 15,
+    "records": 74,
+    "native_solves": 0
+  },
+  "native_source_modified_this_step": true,
+  "source_snapshot_files": 271,
+  "dirty_paths_preserved": 2594,
+  "new_native_smoke_answers": {
+    "prior_foundation": 4,
+    "B": "Two full API/validation suites; 144 native CTests; 429 matched compatibility cases in each of three packages; focused cost checks. No new physical AIJ selection matrix.",
+    "C": "Two full API/validation suites; 162 native CTests plus six separately instrumented helper runs; 429 compatibility cases in each of two packages; six-attempt qualification; four off-face answers; four D controls/answers; focused costs and extracted-sdist smoke checks. No complete physical AIJ matrix."
+  },
+  "pending": [
+    "durable_evidence_archive_before_release"
+  ],
+  "evidence_root": "experiments/integration/attempt-006",
+  "scope_source_edits": [
+    "experiments/joint_screen/canyon_aij_analysis.py",
+    "tests/test_canyon_aij.py",
+    "validation/DTCC_REQUESTS.md",
+    "validation/aij/__init__.py",
+    "validation/aij/metrics.py",
+    "validation/tests/test_case_ab.py"
+  ],
+  "optional_check_skips": {
+    "Build vertical_grid_study or set DTCC_QES_STUDY_EXECUTABLE for worker integration": 7,
+    "Build vertical_grid_study for worker integration": 10,
+    "Native study executable not built": 1,
+    "Build the native check_monitor target for monitor/public-sampler parity": 8,
+    "Build with DTCC_QES_BUILD_TESTS=ON to run native safety checks": 4,
+    "Build with DTCC_QES_BUILD_TESTS=ON to run native runner checks": 2,
+    "Build the native vertical_grid_study target for sampler parity": 2,
+    "Archived exact parity requires lexicographic ordering and the recorded toolchain": 8,
+    "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle": 8
+  },
+  "installed_native_sha256": "28dce889bba25eafd81fa02d6895f51de908028045100561ab6fa35fadb5eeef",
+  "isolated_python_package": "/private/tmp/dtcc-qes-integration-validation-package",
+  "native_matrix_answers_this_step": 74,
+  "archive_verification": "experiments/integration/attempt-002/archive-clean.json",
+  "source_distribution_verification": "experiments/integration/attempt-002/sdist-clean-verification.json",
+  "research_compatibility_patch": "experiments/integration/attempt-002/research-compatibility.patch",
+  "earlier_checkpoint": "experiments/integration/attempt-001/progress.json",
+  "tests_are_release_qualification": true,
+  "resolved_test_failures": [
+    "manufactured probe unintentionally selected fallback",
+    "duplicate test module names across two suites",
+    "qualified-build assumptions for unqualified baseline",
+    "unclosed validation reference hash file"
+  ],
+  "B_only_patch": "experiments/integration/attempt-003/B-runner-lifecycle.patch",
+  "combined_patch": "experiments/integration/attempt-006/A-B-C-D-combined.patch",
+  "B_selected_files": {
+    ".gitignore": "f20b80b79746bc2a3d8c9be97405cb20017712b981e41b2d385fb2f07c88fb76",
+    "docs/CORE_RELIABILITY.md": "b4266fdf939d616954499e36baab762d50c1b4c45603bbddaf233977b6daa865",
+    "src/cpp/bindings.cpp": "115cebbcd8ae228c9b3edce040396009f5afaa2b8fd357fcbee388dee1e5dda1",
+    "src/qes_core/dtcc/api/wind_config.h": "f0558a840dd54bf3838600d5afd08861a04991d86f7e3b34548adecb8363b243",
+    "src/qes_core/dtcc/api/wind_runner.h": "c9d2c61efced312b20d3506f905257c55ddd876ddd17d4b94d6c182ac3b70ae7",
+    "src/qes_core/dtcc/api/resource_usage.h": "1abbc15fd62a6b90dd4ac90178ce7daabc8317d7a5de2df1e1a2494e55c396e9",
+    "src/qes_core/dtcc/api/runner_progress.h": "2474679fc5cc06dded696b96a50583db3176085f86de95faf3b5ca8f3a54fb8d",
+    "src/qes_core/dtcc/solver_control.h": "063fcbba9f62c727a72573072b4239757e4fb9b9adc69d41a8ad5e26e2306cfe",
+    "src/qes_core/dtcc/wind_runner.cpp": "d8e3ed116e40df23099526a87a6f81b924918c6fd6b317edb9f600e308604a91",
+    "src/qes_core/solver/solver.cpp": "826eee8f0c5c20c7705125b9364a3ef3b53554114db803de931ded99e1e51a32",
+    "src/qes_core/solver/solver.h": "2b56026412c5e144291e8b8154a694db5ea3a965671104072e2fe540638f5927",
+    "src/qes_core/winds/WINDSGeneralData.cpp": "3d1b355f32d3aecedfa0683be15d8a8315cb1a48a5ea491af5bea717220836cf",
+    "src/qes_core/winds/WINDSGeneralData.h": "6582c1351e82228dde191eac58ee1be7a501b70902288c92ca606d8ec608d116",
+    "tests/test_runner_lifecycle.py": "16b97a1a42d406ca127363412dcae49811e532f7953cf9a6b24493cdb6368435"
+  },
+  "B_field_comparison": {
+    "passed": true,
+    "cases_per_build": 429,
+    "stored_records_per_pair": 4774,
+    "reference_revision": "6e205c003cd44ec0ad8a785c0dbd0c402940ed19",
+    "reference_identity": "b26d15fdddf75e672f0bf6f9594e6789c9ae49fe5df49c4153001368591df074",
+    "candidate_identity": "d860fa1a3191c28756d62d800b72e071ef57efa7c1002da38d66156c297ad2db",
+    "comparisons": [
+      {
+        "baseline": "baseline",
+        "candidate": "openmp",
+        "identity_pair": [
+          "b26d15fdddf75e672f0bf6f9594e6789c9ae49fe5df49c4153001368591df074",
+          "d860fa1a3191c28756d62d800b72e071ef57efa7c1002da38d66156c297ad2db"
+        ],
+        "compared_records": 4774,
+        "differences": []
+      },
+      {
+        "baseline": "baseline",
+        "candidate": "serial",
+        "identity_pair": [
+          "b26d15fdddf75e672f0bf6f9594e6789c9ae49fe5df49c4153001368591df074",
+          "d860fa1a3191c28756d62d800b72e071ef57efa7c1002da38d66156c297ad2db"
+        ],
+        "compared_records": 4774,
+        "differences": []
+      },
+      {
+        "baseline": "openmp",
+        "candidate": "serial",
+        "identity_pair": [
+          "d860fa1a3191c28756d62d800b72e071ef57efa7c1002da38d66156c297ad2db",
+          "d860fa1a3191c28756d62d800b72e071ef57efa7c1002da38d66156c297ad2db"
+        ],
+        "compared_records": 4774,
+        "differences": []
+      }
+    ]
+  },
+  "B_cost_guard": {
+    "passed": true,
+    "rule": "Investigate median regression exceeding both 10 percent and 0.01 seconds; report all observations and range",
+    "rows": [
+      {
+        "name": "wind-only",
+        "baseline_median_seconds": 0.006051791016943753,
+        "candidate_median_seconds": 0.004609041032381356,
+        "ratio": 0.7615995032672149,
+        "delta_seconds": -0.001442749984562397,
+        "needs_review": false,
+        "baseline_observations": [
+          0.006051791016943753,
+          0.0058322910917922854,
+          0.006695416988804936,
+          0.006103415973484516,
+          0.005762874963693321
+        ],
+        "candidate_observations": [
+          0.00445783301256597,
+          0.004378458950668573,
+          0.004609041032381356,
+          0.004701541969552636,
+          0.00481862504966557
+        ]
+      },
+      {
+        "name": "combined",
+        "baseline_median_seconds": 0.026740624918602407,
+        "candidate_median_seconds": 0.024552499991841614,
+        "ratio": 0.9181722591217903,
+        "delta_seconds": -0.0021881249267607927,
+        "needs_review": false,
+        "baseline_observations": [
+          0.027952541946433485,
+          0.028357291012071073,
+          0.025254625012166798,
+          0.02489012503065169,
+          0.026740624918602407
+        ],
+        "candidate_observations": [
+          0.024597791954874992,
+          0.024552499991841614,
+          0.024012124980799854,
+          0.02519462490454316,
+          0.024474832927808166
+        ]
+      },
+      {
+        "name": "export",
+        "baseline_median_seconds": 0.027240291936323047,
+        "candidate_median_seconds": 0.025125958025455475,
+        "ratio": 0.9223821126509936,
+        "delta_seconds": -0.002114333910867572,
+        "needs_review": false,
+        "baseline_observations": [
+          0.026931916014291346,
+          0.027240291936323047,
+          0.025941082974895835,
+          0.0294342499691993,
+          0.05097691691480577
+        ],
+        "candidate_observations": [
+          0.025125958025455475,
+          0.02508391602896154,
+          0.025987333967350423,
+          0.026476416969671845,
+          0.025102625018917024
+        ]
+      }
+    ],
+    "interpretation": "Focused small public-call/export cost guard; not an urban speedup claim"
+  },
+  "native_source_edit_location": "Qualified implementation committed to main; excluded prototype sources preserved in the named stash",
+  "installed_native_unchanged": true,
+  "prior_checkpoint": "experiments/integration/attempt-004/progress.json",
+  "resolved_B_test_setup_issues": [
+    "unsupported float32 tolerance in initial progress test",
+    "collect unrelated Python objects before ownership baseline"
+  ],
+  "C_only_patch": "experiments/integration/attempt-004/C-protected-canyon.patch",
+  "C_patch_sha256": "89639aada818afcbcd49fd3840331db920e8e1a7a1f639743cc443c719d6fa2a",
+  "C_selected_files": {
+    "CMakeLists.txt": "3079ffaeb90cdedd6e432844966ea46a2952360f2cfe76fd59d8154a620992d9",
+    "pyproject.toml": "b9517ffcf20aad41e19d4a66768f1bedb0ccc5d3731dab2516b3fb71522f28e9",
+    "src/cpp/bindings.cpp": "5de610403d0fb9881f4dafdab9360f81e0b60c0d74bf28f7c978be858dc101aa",
+    "src/dtcc_qes/wind.py": "3efb954b8064774ac946459631a0b977434e3b205c50286b855a56d4545df97f",
+    "src/qes_core/dtcc/api/canyon_contract.h": "fb2744a5e5364874068dbf81fcb0de3c8548d6a9aa65b3028de6e0c82ec2a843",
+    "src/qes_core/dtcc/api/canyon_types.h": "6e37954d0d1918cc7e6e4a10589a15f8416375b5173ceac0afe0c29ff620338e",
+    "src/qes_core/dtcc/api/experiment_types.h": "d4caa31bbf76b5a5addfbf397dc8cb845a71f1968a0e4315f2257d48adc4ee26",
+    "src/qes_core/dtcc/api/wind_config.h": "0d69d1e4f3154873f76bdfbffa3bc1223afb8393621148b3410ff8d8ba84c6d3",
+    "src/qes_core/dtcc/api/wind_runner.h": "6dc9bfcb225336c587538856f770428501e62c70295e54d72ae3a880cb6ef82e",
+    "src/qes_core/dtcc/wind_runner.cpp": "f3d9cc6e0c5a6d13528332eeb60d756bfb400b6851a2d7d8f585a02ff26d5fa8",
+    "src/qes_core/winds/CanyonJoin.h": "18f2cf73fb68e90b95a49917271f56b51920e4f01e7a09568b7b65636502393f",
+    "src/qes_core/winds/CanyonPreflight.h": "0695c0bc7bbef632b3d69fa1d9f6156eb7ac65d621615cefbb8193e601273590",
+    "src/qes_core/winds/CanyonRoofAudit.h": "11dec334bf9dd12033884d5b6f40e49a4c7d4bc71784480cfef32d089d04c4a0",
+    "src/qes_core/winds/CanyonRoofProtection.h": "0a9901b24055378679ea80d6e1fed9967171c55cc2a5f5100b49ec483a673bdd",
+    "src/qes_core/winds/CanyonRoofWriteTrace.h": "b9cc1df642e894e0b0cfe10000f55d45697e83843fcb12dbc352fdc0e3529181",
+    "src/qes_core/winds/CanyonWAudit.h": "1eba05ac005e31768aa3a5805093bdc92f70d57949a6689deaa4e7658fd992c3",
+    "src/qes_core/winds/StreetCanyonModified.cpp": "be2caeb367f50d1c9b27ede6ba5d89389398302e5cc94cdb0d7899f424ee2d96",
+    "src/qes_core/winds/WINDSGeneralData.cpp": "f38ac02e2d92cd34eb7cb53022fb56aa849777bda04b6f8875f7de498c6571c4",
+    "src/qes_core/winds/WINDSGeneralData.h": "9ab01904eb9f7445def8d78ceb0e26f0a3685bc1906df2f37c3fee5eeff4ef25",
+    "src/qes_core/winds/canyon_kernel.h": "76062c5e6168d399c79abb8678852cde9c57e2f9b326aef10fb7cd1f08c58390",
+    "tests/fixtures/canyon.py": "7dde5020e07c496cf70e366fd1ca2e855458fe57f21285632a2099c1f5178e15",
+    "tests/native/canyon_runner_checks.h": "b6af1e51da97cef3387210a975d881071ae382774edf3eb0e11de493d3e509c8",
+    "tests/native/check_canyon_core_audit.cpp": "8b25c42d8cc2b8764da1dddd3638efea705a2b3f5d301eedfb9497d18f0e87d9",
+    "tests/native/check_canyon_horizontal_audit.cpp": "be808004fa82ca10c486bfb30287706f23e53cb0e4130342570bd6d8f829c49e",
+    "tests/native/check_canyon_join.cpp": "a34dba147aba27f42af22c28542bc67d6c1b1e8dd685093d1fdfed57e3a3a269",
+    "tests/native/check_canyon_kernel.cpp": "2e97c8078503a3edcbb8aec13ae68f102e64bda7cde626961d08afa9d31c359d",
+    "tests/native/check_canyon_preflight.cpp": "006e8040b1c930bfedb4722f366d291e54379a97e707d43d5091241bfc10526e",
+    "tests/native/check_canyon_roof_protection.cpp": "e7ca37c86ce12e1baef0f7f7cdf8f7bf917828ae8a1d148383d6bece9a59f0a2",
+    "tests/native/check_runner.cpp": "82228c042eece255afb2304e9c46c9ea478a7fd7a6d4dd252e72740c5a00f535",
+    "tests/test_canyon_integration.py": "d24eb1370fdc1d6dd5055f842daeffa0732899e0f56c913764dfb53078d21252",
+    "tools/check_canyon_archive.py": "54fca600960bb86c58cfb3a87d2d03e8e69adf1096c94b504124253a5b048a3d",
+    "tools/qualify_canyon.py": "c8e0c4eb46332fefd95e6b879d0fabd9a9fdb8b315a0c6194d5f260065a53a80",
+    "validation/CANYON_EXPERIMENT.md": "6a220213b0d8f91051c120707c228f5f033176f26597c099491e7142a839c1fc",
+    "validation/aij/canyon.py": "ef072ce6f926e0240c92309ac50fdd6a0277cea02d7c2b3204ada6bd9872ba12",
+    "validation/specifications/canyon-join-v1.json": "69ebbd560b8a562cabdde1451d8a456e3e3d96e503c3e32a97708a462d2fe689",
+    "validation/specifications/canyon-join-v1.md": "c8513faec41e1f672a09d9a1558c18451150fe8db4f1ac432dffb7e51b290957"
+  },
+  "C_identity": {
+    "openmp": "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8",
+    "serial": "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8",
+    "sanitizer": "048f0b1f4d99a3c7d1d9b948ab3b19e2a1c3b6df411a23320593158d1173cde7",
+    "hooks": "493743edc6d1da2bd1dbae9b8a9ea29219376680ccfc58228fa04d0ce5ad1e0d",
+    "installed_native": "/Users/dagwastberg/repos/dtcc/dtcc-qes/.venv/lib/python3.13/site-packages/dtcc_qes/_qes.cpython-313-darwin.so",
+    "installed_sha256": "28dce889bba25eafd81fa02d6895f51de908028045100561ab6fa35fadb5eeef",
+    "installed_unchanged": true
+  },
+  "C_field_comparison": {
+    "passed": true,
+    "cases_per_build": 429,
+    "outcomes": {
+      "openmp": {
+        "returncode": 0,
+        "seconds": 7.499377291998826,
+        "policy": "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8"
+      },
+      "serial": {
+        "returncode": 0,
+        "seconds": 5.168434125022031,
+        "policy": "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8"
+      }
+    },
+    "comparisons": [
+      {
+        "baseline": "attempt-003/baseline",
+        "candidate": "openmp",
+        "identity_pair": [
+          "b26d15fdddf75e672f0bf6f9594e6789c9ae49fe5df49c4153001368591df074",
+          "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8"
+        ],
+        "compared_records": 4774,
+        "differences": []
+      },
+      {
+        "baseline": "attempt-003/openmp",
+        "candidate": "openmp",
+        "identity_pair": [
+          "d860fa1a3191c28756d62d800b72e071ef57efa7c1002da38d66156c297ad2db",
+          "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8"
+        ],
+        "compared_records": 4774,
+        "differences": []
+      },
+      {
+        "baseline": "attempt-003/baseline",
+        "candidate": "serial",
+        "identity_pair": [
+          "b26d15fdddf75e672f0bf6f9594e6789c9ae49fe5df49c4153001368591df074",
+          "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8"
+        ],
+        "compared_records": 4774,
+        "differences": []
+      },
+      {
+        "baseline": "attempt-003/openmp",
+        "candidate": "serial",
+        "identity_pair": [
+          "d860fa1a3191c28756d62d800b72e071ef57efa7c1002da38d66156c297ad2db",
+          "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8"
+        ],
+        "compared_records": 4774,
+        "differences": []
+      },
+      {
+        "baseline": "openmp",
+        "candidate": "serial",
+        "identity_pair": [
+          "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8",
+          "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8"
+        ],
+        "compared_records": 4774,
+        "differences": []
+      }
+    ],
+    "baseline_reuse": "Frozen attempt-003 main and B field archives; no new baseline solves",
+    "memory_cap": null,
+    "timeout_seconds_per_worker": 180
+  },
+  "C_cost_guard": {
+    "passed": true,
+    "rule": "Investigate median regression exceeding both 10 percent and 0.01 seconds; report all observations and range",
+    "rows": [
+      {
+        "name": "wind-only",
+        "baseline_median_seconds": 0.005582374986261129,
+        "candidate_median_seconds": 0.00522404199000448,
+        "ratio": 0.9358099380391771,
+        "delta_seconds": -0.0003583329962566495,
+        "needs_review": false,
+        "baseline_observations": [
+          0.005175958969630301,
+          0.0060700420290231705,
+          0.005582374986261129,
+          0.005692749982699752,
+          0.005336250062100589
+        ],
+        "candidate_observations": [
+          0.004906417103484273,
+          0.005935083026997745,
+          0.005050084087997675,
+          0.00522404199000448,
+          0.00578533299267292
+        ],
+        "baseline_range": [
+          0.005175958969630301,
+          0.0060700420290231705
+        ],
+        "candidate_range": [
+          0.004906417103484273,
+          0.005935083026997745
+        ]
+      },
+      {
+        "name": "combined",
+        "baseline_median_seconds": 0.02591179101727903,
+        "candidate_median_seconds": 0.026316917035728693,
+        "ratio": 1.015634813439932,
+        "delta_seconds": 0.0004051260184496641,
+        "needs_review": false,
+        "baseline_observations": [
+          0.025896666920743883,
+          0.026777999941259623,
+          0.025403790990822017,
+          0.026121208094991744,
+          0.02591179101727903
+        ],
+        "candidate_observations": [
+          0.02885679097380489,
+          0.026583957951515913,
+          0.026316917035728693,
+          0.025032834033481777,
+          0.024750999989919364
+        ],
+        "baseline_range": [
+          0.025403790990822017,
+          0.026777999941259623
+        ],
+        "candidate_range": [
+          0.024750999989919364,
+          0.02885679097380489
+        ]
+      },
+      {
+        "name": "export",
+        "baseline_median_seconds": 0.026388457976281643,
+        "candidate_median_seconds": 0.026546249981038272,
+        "ratio": 1.0059795841385828,
+        "delta_seconds": 0.00015779200475662947,
+        "needs_review": false,
+        "baseline_observations": [
+          0.026405750075355172,
+          0.026420291978865862,
+          0.026388457976281643,
+          0.026146542048081756,
+          0.026190292090177536
+        ],
+        "candidate_observations": [
+          0.027700457954779267,
+          0.026546249981038272,
+          0.027756833005696535,
+          0.02545416704379022,
+          0.025830707978457212
+        ],
+        "baseline_range": [
+          0.026146542048081756,
+          0.026420291978865862
+        ],
+        "candidate_range": [
+          0.02545416704379022,
+          0.027756833005696535
+        ]
+      }
+    ],
+    "interpretation": "Focused ordinary public-call/export guard; no urban speedup inference"
+  },
+  "C_qualification": {
+    "report": "experiments/integration/attempt-004/qualification/report.json",
+    "passed": true,
+    "attempts": 6,
+    "checks": 99,
+    "successful_field_answers": 5,
+    "expected_exceptions": 1,
+    "archived_fields_exact": true,
+    "physical_promotion": false
+  },
+  "C_archive_checks": {
+    "offface": {
+      "report": "experiments/integration/attempt-004/offface/report.json",
+      "passed": true,
+      "answers": 4,
+      "checks": 54
+    },
+    "D_zero": {
+      "report": "experiments/integration/attempt-004/D-zero-final/report.json",
+      "passed": true,
+      "final_answers": 2,
+      "checks": 21,
+      "earlier_controls": 2,
+      "earlier_issues": [
+        "Wrong raw-helper solver descriptor; frozen baseline key now selected",
+        "Raw NumPy arrays passed to JSON comparator; saved records and hashes now used"
+      ]
+    }
+  },
+  "C_standalone_sanitizer": {
+    "passed": true,
+    "tests": [
+      {
+        "name": "check_canyon_core_audit",
+        "returncode": 0,
+        "seconds": 0.277437457931228
+      },
+      {
+        "name": "check_canyon_horizontal_audit",
+        "returncode": 0,
+        "seconds": 0.1776947499020025
+      },
+      {
+        "name": "check_canyon_join",
+        "returncode": 0,
+        "seconds": 0.17169791599735618
+      },
+      {
+        "name": "check_canyon_kernel",
+        "returncode": 0,
+        "seconds": 0.17913800000678748
+      },
+      {
+        "name": "check_canyon_preflight",
+        "returncode": 0,
+        "seconds": 0.17944212502334267
+      },
+      {
+        "name": "check_canyon_roof_protection",
+        "returncode": 0,
+        "seconds": 0.17550291598308831
+      }
+    ],
+    "memory_cap": null
+  },
+  "C_source_distribution": {
+    "report": "experiments/integration/attempt-004/sdist-verification.json",
+    "source_files": 192,
+    "passed": true,
+    "smoke_tests": 24,
+    "wheel_qualification": false
+  },
+  "C_source_snapshot_files": 192,
+  "C_frozen_epoch": "experiments/integration/attempt-004/epoch.json",
+  "C_review_source_manifest": "experiments/integration/attempt-004/review-source.json",
+  "C_final_source_archive": "experiments/integration/attempt-004/candidate-source-final.tar.gz",
+  "C_patch_verification": "experiments/integration/attempt-004/patch-verification.json",
+  "C_new_test_count": 18,
+  "C_ordinary_compatibility_cases_per_build": 429,
+  "C_named_archive_verification_attempts": {
+    "qualification": 6,
+    "offface": 4,
+    "D_controls_and_final_pair": 4,
+    "total": 14,
+    "field_answers": 13,
+    "expected_exceptions": 1,
+    "scientific_campaign_ledger_modified": false
+  },
+  "memory_cap": null,
+  "C_artifact_index": "experiments/integration/attempt-004/artifact-index.json",
+  "AIJ_evidence": "experiments/integration/attempt-005",
+  "D_evidence": "experiments/integration/attempt-006",
+  "AIJ_expected_answers": 74,
+  "AIJ_result": {
+    "passed": true,
+    "answers": 74,
+    "conditions": 37,
+    "active": 1,
+    "inactive_bitwise_conditions": 36,
+    "archive_parity": true,
+    "paired_quantities": 15,
+    "archive_stage_W_files_checked": 148,
+    "checks": 2964,
+    "worker_wall_seconds": 827.5958428357262,
+    "peak_rss_bytes": 2524594176,
+    "memory_cap": null,
+    "all_deadlines_pass": true,
+    "fixed_work": true,
+    "physical_promotion": false
+  },
+  "AIJ_report": "experiments/integration/attempt-005/aij/REPORT.md",
+  "AIJ_artifact_index": "experiments/integration/attempt-005/artifact-index.json",
+  "D_thread_matrix": {
+    "baseline_revision": "6e205c003cd44ec0ad8a785c0dbd0c402940ed19",
+    "candidate": "worktree",
+    "allow_added_contraction": false,
+    "ordering_migration": false,
+    "comparisons": [
+      {
+        "kind": "revision",
+        "backend": "openmp",
+        "threads": 1,
+        "cases": 429,
+        "records": 4774,
+        "differences": [],
+        "required": true
+      },
+      {
+        "kind": "revision",
+        "backend": "openmp",
+        "threads": 2,
+        "cases": 429,
+        "records": 4774,
+        "differences": [],
+        "required": true
+      },
+      {
+        "kind": "revision",
+        "backend": "openmp",
+        "threads": 4,
+        "cases": 429,
+        "records": 4774,
+        "differences": [],
+        "required": true
+      },
+      {
+        "kind": "revision",
+        "backend": "openmp",
+        "threads": 8,
+        "cases": 429,
+        "records": 4774,
+        "differences": [],
+        "required": true
+      },
+      {
+        "kind": "team",
+        "threads": [
+          1,
+          2
+        ],
+        "records": 4774,
+        "differences": []
+      },
+      {
+        "kind": "team",
+        "threads": [
+          1,
+          4
+        ],
+        "records": 4774,
+        "differences": []
+      },
+      {
+        "kind": "team",
+        "threads": [
+          1,
+          8
+        ],
+        "records": 4774,
+        "differences": []
+      },
+      {
+        "kind": "revision",
+        "backend": "serial",
+        "threads": 1,
+        "cases": 429,
+        "records": 4774,
+        "differences": [],
+        "required": true
+      },
+      {
+        "kind": "backend",
+        "threads": 1,
+        "records": 4774,
+        "differences": [],
+        "required": true
+      },
+      {
+        "kind": "backend",
+        "threads": 2,
+        "records": 4774,
+        "differences": [],
+        "required": true
+      },
+      {
+        "kind": "backend",
+        "threads": 4,
+        "records": 4774,
+        "differences": [],
+        "required": true
+      },
+      {
+        "kind": "backend",
+        "threads": 8,
+        "records": 4774,
+        "differences": [],
+        "required": true
+      }
+    ],
+    "native_consolidation": true,
+    "identity_pair": [
+      "b26d15fdddf75e672f0bf6f9594e6789c9ae49fe5df49c4153001368591df074",
+      "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8"
+    ],
+    "passed": true
+  },
+  "D_policy_workers": {
+    "passed": true,
+    "count": 24,
+    "report": "experiments/integration/attempt-006/policy-workers/summary.json"
+  },
+  "D_combined_baselines": {
+    "nonadaptive_cases": 27,
+    "adaptive_cases": 4,
+    "all_exact": true
+  },
+  "D_release_qualification": true,
+  "qualified_policy_revision": "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8",
+  "D_only_patch": "experiments/integration/attempt-006/D-release-requalification.patch",
+  "D_patch_sha256": "39e067873caf0ff52e6d1627abcd87a1aec287335774b79108687da69fa671cc",
+  "D_selected_files": {
+    ".gitignore": "e8ab0fa1fddac51024fe17986a038af49e3fee0ab72ea29dacb08c29b6ce9ffd",
+    "docs/PHYSICS_INTEGRATION_RESULTS.md": "4987948577cc36a760544943e74b400802166a58db88db196f7eebfd483d9699",
+    "src/qes_core/dtcc/pedestrian_qualification.h": "72067b0a563e6dfb6f8813431270fc55b05cebb6d62c1b5f1a4de2183bc31a0b",
+    "tools/run_canyon_integration.py": "db81c382bd13ae47c9052ad6c59408b573d8b58cae7ac55ff9cf9c2ffb8cbefc"
+  },
+  "D_source_verification": "experiments/integration/attempt-006/source-change-verification.json",
+  "D_gate_report": "experiments/integration/attempt-006/gates.json",
+  "D_artifacts": {
+    "passed": true,
+    "files": {
+      "dtcc_qes-0.1.0b1.tar.gz": {
+        "bytes": 1388588969,
+        "sha256": "e6d6ecdb7bf9eff1dbf1a4516e649f3de594b76832575bd752b0a80e29f2228c"
+      },
+      "dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl": {
+        "bytes": 466578,
+        "sha256": "5502364363f189953e806a2c909a72d84bb8b72be01275da347dc82d62ef1bc8"
+      }
+    },
+    "wheel_package": "/private/tmp/dtcc-qes-integration-D-promoted-wheel-package",
+    "source": "/private/tmp/dtcc-qes-integration-D-promoted-sdist/dtcc_qes-0.1.0b1",
+    "qualified_policy": "660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8",
+    "installed_user_package_modified": false
+  },
+  "D_cost_review": {
+    "passed": true,
+    "scope": "Actual shipped OpenMP wheel versus preceding qualified main; all three unchanged joint 10% and 0.01 s thresholds pass",
+    "rule": "Median regression exceeding both 10 percent and 0.01 seconds; medians of three per-worker medians",
+    "release_contrasts": [
+      {
+        "baseline": "main",
+        "candidate": "wheel",
+        "name": "wind-only",
+        "baseline_median_seconds": 0.02814962505362928,
+        "candidate_median_seconds": 0.017194416956044734,
+        "ratio": 0.6108222373579321,
+        "delta_seconds": -0.010955208097584546,
+        "needs_review": false,
+        "per_worker_medians": {
+          "main": [
+            0.02814962505362928,
+            0.029979292070493102,
+            0.019841249915771186
+          ],
+          "wheel": [
+            0.017194416956044734,
+            0.015752209001220763,
+            0.02445549995172769
+          ]
+        }
+      },
+      {
+        "baseline": "main",
+        "candidate": "wheel",
+        "name": "combined",
+        "baseline_median_seconds": 0.0943759580841288,
+        "candidate_median_seconds": 0.08919579198118299,
+        "ratio": 0.945111379973191,
+        "delta_seconds": -0.005180166102945805,
+        "needs_review": false,
+        "per_worker_medians": {
+          "main": [
+            0.1261067499872297,
+            0.0943759580841288,
+            0.08061258308589458
+          ],
+          "wheel": [
+            0.09364370792172849,
+            0.07734537497162819,
+            0.08919579198118299
+          ]
+        }
+      },
+      {
+        "baseline": "main",
+        "candidate": "wheel",
+        "name": "export",
+        "baseline_median_seconds": 0.11215175001416355,
+        "candidate_median_seconds": 0.0924033340997994,
+        "ratio": 0.8239134394971978,
+        "delta_seconds": -0.01974841591436416,
+        "needs_review": false,
+        "per_worker_medians": {
+          "main": [
+            0.13875112496316433,
+            0.11215175001416355,
+            0.09578362503089011
+          ],
+          "wheel": [
+            0.4094730829820037,
+            0.08905354200396687,
+            0.0924033340997994
+          ]
+        }
+      }
+    ],
+    "initial_failed_observations": "cost-comparison.json",
+    "balanced_diagnostic_report": "cost-investigation/report.json",
+    "balanced_overall_passed": false,
+    "diagnostic_review": {
+      "aggregate_flag": {
+        "baseline": "main",
+        "candidate": "direct",
+        "name": "combined",
+        "baseline_median_seconds": 0.0943759580841288,
+        "candidate_median_seconds": 0.1078552498947829,
+        "ratio": 1.142825483145171,
+        "delta_seconds": 0.013479291810654104,
+        "needs_review": true,
+        "per_worker_medians": {
+          "main": [
+            0.1261067499872297,
+            0.0943759580841288,
+            0.08061258308589458
+          ],
+          "direct": [
+            0.1078552498947829,
+            0.08500425005331635,
+            0.561939709004946
+          ]
+        }
+      },
+      "paired_deltas_seconds": [
+        -0.018251500092446804,
+        -0.009371708030812442,
+        0.48132712591905147
+      ],
+      "paired_ratios": [
+        0.8552694435920754,
+        0.9006981415493732,
+        6.970868411525608
+      ],
+      "median_paired_delta_seconds": -0.009371708030812442,
+      "median_paired_ratio": 0.9006981415493732,
+      "resolution": "Review completed: direct arm faster in two of three matched rounds; one large spike drives the additional aggregate flag. All core flags/work match and actual wheel passes every release contrast. Timing variation is an inference from these observations and concurrent system load; no speedup is claimed."
+    },
+    "thresholds_changed": false,
+    "observations_dropped": false,
+    "additional_timing_rounds": 0
+  },
+  "D_cost_diagnostic_overall_passed": false,
+  "D_original_cost_guard_passed": false,
+  "D_artifact_setup_resolutions": [
+    {
+      "failed_gate": "isolated-wheel",
+      "replacement_gate": "isolated-002-wheel",
+      "reason": "Explicit existing Make generator, no dependency installation"
+    },
+    {
+      "failed_gate": "isolated-artifact-check",
+      "replacement_gate": "isolated-002-artifact-check",
+      "reason": "Restored unchanged archived fixture directory omitted by staging copy"
+    },
+    {
+      "failed_gate": "isolated-002-wheel-install",
+      "replacement_gate": "isolated-002-wheel-install-external",
+      "reason": "macOS uv panic in sandbox; same local wheel installed outside sandbox into private target"
+    }
+  ],
+  "D_native_gate_reuse": {
+    "reason": "C compiled source and build flags unchanged; frozen source verified",
+    "directory": "experiments/integration/attempt-004",
+    "ctest": {
+      "openmp": 56,
+      "serial": 53,
+      "sanitizer": 53
+    },
+    "standalone_sanitizer": 6
+  },
+  "D_artifact_index": "experiments/integration/attempt-006/artifact-index.json",
+  "D_patch_verification": "experiments/integration/attempt-006/patch-verification.json",
+  "merge_or_release_performed": true,
+  "validation_checkout": "/private/tmp/dtcc-qes-integration-20261106",
+  "implementation_revision": "c2ab9acb788972c71d455461e061c5f5f02a4aa2",
+  "implementation_commits": [
+    {
+      "commit": "60387d4310595ded149a12f77a84b3878dc6dfc7",
+      "title": "validation: add AIJ A/B adapters and shared-coverage reports",
+      "tree": "88bffa3822ebed15a743fc3942f317936604630d"
+    },
+    {
+      "commit": "0b31f5d1319b288ce6a6f427b2b416f2c51faf73",
+      "title": "validation: extract bounded controller and canonical stage sampling",
+      "tree": "4e03dc1a793bdce9aca89ea1f948e884ead786d3"
+    },
+    {
+      "commit": "bc773dabc6ad1d74515403b547c5287bb994bc7c",
+      "title": "core: isolate runner lifecycle and progress accounting",
+      "tree": "5d37773d1b9589e2a63c1091a102b82a3361712e"
+    },
+    {
+      "commit": "ca0c06610712400202dc9416263bfd9237b846e3",
+      "title": "physics: freeze canyon join and roof-protection helpers",
+      "tree": "c739a32a2848a61a7648b08f5da8130133020905"
+    },
+    {
+      "commit": "cedffcae3753163d403c26c89a7b387964679aef",
+      "title": "physics: integrate protected canyon models behind private selectors",
+      "tree": "ae6f4eb5a2007861606eb50a77c46bf70bf6b242"
+    },
+    {
+      "commit": "c2ab9acb788972c71d455461e061c5f5f02a4aa2",
+      "title": "validation: requalify integrated solver and complete AIJ coverage",
+      "tree": "53945765bc98ada92ac6d061457b8997cf4e871d"
+    }
+  ],
+  "research_preservation": {
+    "stash": "8a4a130a9b6db378b35a7e299a928c3368ad1a4a",
+    "base": "6e205c003cd44ec0ad8a785c0dbd0c402940ed19",
+    "verified_source_files": 99,
+    "backup": "experiments/integration/attempt-007/research-source-backup.tar.gz"
+  },
+  "publication_performed": false,
+  "documentation_commit_groups": [
+    "literature findings and scientific screening ledger",
+    "integration qualification and artifact provenance"
+  ]
+}
