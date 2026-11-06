@@ -65,14 +65,20 @@ def test_oblique_fallback_keeps_complete_legacy_field():
 
 @pytest.mark.parametrize("kwargs", [dict(canyon_model="invented"), dict(omega=1.9),
     dict(checkpoints=[1]), dict(wake_composition=1), dict(building_order=1),
-    dict(canopy_factors=np.array([1.],dtype=np.float32)), dict(export_projection=True)])
+    dict(canopy_factors=np.array([1.],dtype=np.float32)), dict(export_projection=True),
+    dict(canopy_shape=[0, 0, 0]), dict(canopy_origin=[0., 0.]), dict(canopy_pitch=20.),
+    dict(canopy_taper=10.), dict(canopy_occupied=None), dict(checkpoint_layers=[0, 1]),
+    dict(target_velocity=None), dict(target_mass=[]), dict(boundary_flux_area=0.),
+    dict(boundary_flux_tolerance=1e-4), dict(export_limit_bytes=1024),
+    dict(export_mixing_length=False), dict(wake_attribution=False), dict(wake_event_limit=100000)])
 def test_invalid_or_stacked_options_cannot_contaminate_reused_runner(kwargs):
     session = CanyonSession(); args = fixture()
     try:
         baseline, _ = session.run(args)
         condition = wind._native_condition(session.prepared.domain["profile"])
         options = wind._native_solver(args["run"]["solver"])
-        with pytest.raises(ValueError): session.runner._solve_experiment(condition, options, **kwargs)
+        with pytest.raises(ValueError if "canyon_model" in kwargs else TypeError):
+            session.runner._solve_experiment(condition, options, **kwargs)
         restored, _ = session.run(args)
         assert bits(baseline.velocity, restored.velocity)
     finally: session.close()

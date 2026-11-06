@@ -37,13 +37,12 @@
 
 #include "util/QESLog.h"
 #include "TURBGeneralData.h"
-#include "util/UnsupportedFeature.h"
+#include "util/QESException.h"
 #include <algorithm>
 #include <cmath>
 #include <limits>
 #include <sstream>
 
-// TURBGeneralData::TURBGeneralData(Args* arguments, URBGeneralData* WGD){
 TURBGeneralData::TURBGeneralData(const TurbulenceConfig &config, WINDSGeneralData *WGD)
   : domain(WGD->domain)
 {
@@ -54,11 +53,7 @@ TURBGeneralData::TURBGeneralData(const TurbulenceConfig &config, WINDSGeneralDat
   m_WGD = WGD;
 
   const int method = config.methodLocalMixing;
-  bool supported = method == 0 || method == 1;
-#ifdef HAS_OPTIX
-  supported = supported || method == 3;
-#endif
-  if (!supported) {
+  if (method != 0 && method != 1) {
     std::ostringstream message;
     message << "Unsupported turbulence mixing-length method: " << method;
     throw qes::InputError(message.str());
@@ -138,8 +133,6 @@ TURBGeneralData::TURBGeneralData(const TurbulenceConfig &config, WINDSGeneralDat
   } else if (config.methodLocalMixing == 1) {
     qes::log::info() << "[QES-TURB]\t Computing Local Mixing Length using serial code...\n";
     localMixing = std::make_unique<LocalMixingSerial>();
-  } else if (config.methodLocalMixing == 3) {
-    localMixing = std::make_unique<LocalMixingOptix>();
   }
 
   localMixing->defineMixingLength(config, m_WGD);
@@ -287,10 +280,6 @@ void TURBGeneralData::run()
   qes::log::info() << "[QES-TURB]\t Computing local mixing length model..." << std::endl;
   getTurbulentViscosity();
 
-  //  if (m_WGD->canopy) {
-  //    qes::log::info() << "Applying canopy wake turbulence parameterization...\n";
-  //    m_WGD->canopy->applyCanopyTurbulenceWake(m_WGD, this);
-  //  }
   qes::log::info() << "[QES-TURB]\t Computing Stess Tensor..." << std::endl;
   stressTensor();
   // qes::log::info()<<"\t\t Stress Tensor computed."<<std::endl;
@@ -638,42 +627,6 @@ void TURBGeneralData::stressTensor()
     tyz[cellID] = tyz_temp;
     tzz[cellID] = tzz_temp;
   }
-}
-
-void TURBGeneralData::invert3(double &A_11,
-                              double &A_12,
-                              double &A_13,
-                              double &A_21,
-                              double &A_22,
-                              double &A_23,
-                              double &A_31,
-                              double &A_32,
-                              double &A_33)
-{
-
-  // calculate the determinant
-  double det = A_11 * (A_22 * A_33 - A_23 * A_32) - A_12 * (A_21 * A_33 - A_23 * A_31) + A_13 * (A_21 * A_32 - A_22 * A_31);
-
-  // calculate the inverse
-  double Ainv_11 = (A_22 * A_33 - A_23 * A_32) / det;
-  double Ainv_12 = -(A_12 * A_33 - A_13 * A_32) / det;
-  double Ainv_13 = (A_12 * A_23 - A_22 * A_13) / det;
-  double Ainv_21 = -(A_21 * A_33 - A_23 * A_31) / det;
-  double Ainv_22 = (A_11 * A_33 - A_13 * A_31) / det;
-  double Ainv_23 = -(A_11 * A_23 - A_13 * A_21) / det;
-  double Ainv_31 = (A_21 * A_32 - A_31 * A_22) / det;
-  double Ainv_32 = -(A_11 * A_32 - A_12 * A_31) / det;
-  double Ainv_33 = (A_11 * A_22 - A_12 * A_21) / det;
-
-  A_11 = Ainv_11;
-  A_12 = Ainv_12;
-  A_13 = Ainv_13;
-  A_21 = Ainv_21;
-  A_22 = Ainv_22;
-  A_23 = Ainv_23;
-  A_31 = Ainv_31;
-  A_32 = Ainv_32;
-  A_33 = Ainv_33;
 }
 
 void TURBGeneralData::matMult(const double &A11,

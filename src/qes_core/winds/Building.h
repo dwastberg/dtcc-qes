@@ -34,7 +34,7 @@
 #include <algorithm>
 
 #include "util/PolygonVertex.h"
-#include "CutVertex.h"
+#include <vector>
 
 using namespace std;
 
@@ -49,9 +49,7 @@ class TURBGeneralData;
  *
  * Holds the basic information and funcitons that every building should have.
  *
- * @sa Canopy
  * @sa PolyBuilding
- * @sa RectangularBuilding
  * @sa WINDSGeneralData
  * @sa TURBGeneralData
  */
@@ -60,21 +58,10 @@ class Building
 protected:
 public:
   int ID{}; /**< :document this: */
-  float building_rotation{}; /**< :document this: */
-  float canopy_rotation{}; /**< :document this: */
-  float x_start{}; /**< :document this: */
-  float y_start{}; /**< :document this: */
-  float L{}; /**< Length of the building */
-  float W{}; /**< Width of the building */
 
   ///@{
   /** index of start and end of building in stair-step method */
   int i_start{}, i_end{}, j_start{}, j_end{}, k_end{}, k_start{};
-  ///@}
-
-  ///@{
-  /** index of start and end of building in cut-cell method */
-  int i_cut_start{}, i_cut_end{}, j_cut_start{}, j_cut_end{}, k_cut_end{};
   ///@}
 
   float H{}; /**< Height of the building */
@@ -164,22 +151,6 @@ public:
   }
 
   virtual void polygonWake(WINDSGeneralData *WGD, int building_id)
-  {
-  }
-
-  virtual void canopyVegetation(WINDSGeneralData *WGD, int building_id)
-  {
-  }
-
-  virtual void canopyWake(WINDSGeneralData *wgd, int building_id)
-  {
-  }
-
-  virtual void canopyTurbulenceWake(WINDSGeneralData *wgd, TURBGeneralData *TGD, int buildind_id)
-  {
-  }
-
-  virtual void canopyStress(WINDSGeneralData *wgd, TURBGeneralData *TGD, int buildind_id)
   {
   }
 

@@ -9,9 +9,7 @@ if(ENABLE_OPENMP)
   target_link_libraries(qesbuild INTERFACE OpenMP::OpenMP_CXX)
 endif()
 
-add_library(qesutil STATIC
-  util/QESLog.cpp util/BVH.cpp util/HitRecord.cpp
-  util/Mesh.cpp util/Triangle.cpp util/Ray.cpp util/SphereDirections.cpp)
+add_library(qesutil STATIC util/QESLog.cpp)
 target_link_libraries(qesutil PUBLIC qesbuild)
 target_include_directories(qesutil PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/util")
 set_target_properties(qesutil PROPERTIES POSITION_INDEPENDENT_CODE ON)
@@ -19,8 +17,7 @@ set_target_properties(qesutil PROPERTIES POSITION_INDEPENDENT_CODE ON)
 add_library(qeswindscore STATIC
   dtcc/turbulence_reference.cpp
   qes/Domain.cpp
-  winds/Cell.cpp winds/CutCell.cpp winds/CutBuilding.cpp
-  winds/LocalMixingDefault.cpp winds/LocalMixingSerial.cpp winds/LocalMixingOptix.cpp
+  winds/LocalMixingDefault.cpp winds/LocalMixingSerial.cpp
   winds/PolyBuilding.cpp
   solver/solver.cpp solver/cpu_float32.cpp solver/cpu_float64.cpp
   winds/TURBGeneralData.cpp winds/TURBWall.cpp winds/TURBWallBuilding.cpp winds/TURBWallTerrain.cpp

@@ -42,7 +42,7 @@
 
 #include <chrono>
 #include <utility>
-#include "util/UnsupportedFeature.h"
+#include "util/QESException.h"
 
 #define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
 #define PBWIDTH 60
@@ -274,14 +274,6 @@ void WINDSGeneralData::allocateMemory()
   v.resize(numcell_face, 0.0);
   w.resize(numcell_face, 0.0);
 
-}
-
-void WINDSGeneralData::ensureCutCellStorage()
-{
-  const auto count = domain.numCellCentered();
-  building_volume_frac.resize(count, 1.0f);
-  ni.resize(count, 0.0f); nj.resize(count, 0.0f); nk.resize(count, 0.0f);
-  center_id.resize(count, 1); wall_distance.resize(count, 0.0f);
 }
 
 void WINDSGeneralData::ensureMixingLengthStorage()

@@ -198,6 +198,8 @@ if(DTCC_QES_BUILD_TESTS)
   foreach(check check_canyon_join check_canyon_roof_protection check_canyon_core_audit check_canyon_horizontal_audit check_canyon_preflight check_canyon_kernel)
     add_executable(${check} tests/native/${check}.cpp)
     target_include_directories(${check} PRIVATE src/qes_core src/qes_core/winds)
+    # Pure helpers need the same sanitizer instrumentation as the core checks.
+    target_link_libraries(${check} PRIVATE qesbuild)
     add_test(NAME ${check} COMMAND ${check})
   endforeach()
   add_executable(check_contacts tests/native/check_contacts.cpp $<TARGET_OBJECTS:qesbridge>)

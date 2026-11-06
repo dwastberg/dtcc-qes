@@ -81,7 +81,6 @@ public:
    *
    */
   int nx() const { return domainData.nx; }
-  const int &tnx = domainData.nx;
   int ny() const { return domainData.ny; }
   int nz() const { return domainData.nz; }
 
@@ -177,7 +176,6 @@ private:
   QESgrid domainData{};
 
 public:
-  std::vector<float> z0_domain_u, z0_domain_v;
   std::vector<float> dz_array; /**< :Array contain dz values: */
   ///@{
   /** :Location of center of cell in x,y and z directions: */
@@ -186,22 +184,5 @@ public:
   std::vector<float> z_face; /**< :Location of the bottom face of the cell in z-direction: */
 };
 
-#if 0
-// data that is tied more directly to the domain initialization
-// rather specific to wind solving (e, g, g, etc...) type of data...
-class DomainParameters
-{
-public:
-  DomainParameters(DomainInfo dinfo);
-
-    initializeElements( ... ???  );
-
-
-  private:
-
-    // Keep local copy of DomainInfo given by the construtor...
-    Domain dInfo;
-};
-#endif
 
 }// namespace qes

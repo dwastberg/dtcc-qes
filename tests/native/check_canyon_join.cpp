@@ -12,10 +12,10 @@ int main() {
   bool rejected=false;
   try { dtcc_qes::canyon_model_parse("guessed"); } catch(const std::invalid_argument&) { rejected=true; }
   require(rejected,"unknown selector must fail");
-  dtcc_qes::ExperimentOptions e;e.canyon_model=dtcc_qes::CanyonModel::JoinedV1;
+  dtcc_qes::CanyonOptions e;e.canyon_model=dtcc_qes::CanyonModel::JoinedV1;
   dtcc_qes::ModelSettings m;
   dtcc_qes::validate_canyon_contract(e,m,false);
-  auto reject=[&](const dtcc_qes::ExperimentOptions& options,const dtcc_qes::ModelSettings& model,bool turbulence) {
+  auto reject=[&](const dtcc_qes::CanyonOptions& options,const dtcc_qes::ModelSettings& model,bool turbulence) {
     bool failed=false;
     try { dtcc_qes::validate_canyon_contract(options,model,turbulence); }
     catch(const std::invalid_argument&) { failed=true; }
@@ -31,9 +31,6 @@ int main() {
   e.canyon_baseline_turbulence=false;
   m.high_rise_flag=1;reject(e,m,false);m.high_rise_flag=0;
   m.street_canyon_flag=0;reject(e,m,false);m.street_canyon_flag=1;
-  e.wake_composition=1;reject(e,m,false);e.wake_composition=0;
-  e.canopy_factors={1};reject(e,m,false);e.canopy_factors.clear();
-  e.checkpoints={1};reject(e,m,false);e.checkpoints.clear();
   e.canyon_model=static_cast<dtcc_qes::CanyonModel>(99);reject(e,m,false);
   const double x=5,W=10,s=3,b=5,A=-1,incident=2;
   const double f=std::pow(.25,.25),q0=-f;

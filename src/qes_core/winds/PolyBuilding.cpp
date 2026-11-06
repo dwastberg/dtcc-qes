@@ -40,7 +40,6 @@
  */
 
 #include "PolyBuilding.h"
-#include "CutBuilding.h"
 #include <limits>
 
 // These take care of the circular reference
@@ -141,7 +140,6 @@ void PolyBuilding::setCellFlags(WINDSGeneralData *WGD, int building_number)
 {
   const float dx = WGD->domain.dx(), dy = WGD->domain.dy();
 
-  int mesh_type_flag = WGD->meshTypeFlag;
 
   // Loop to calculate maximum and minimum of x and y values of the building
   x_min = x_max = polygonVertices[0].x_poly;
@@ -183,14 +181,6 @@ void PolyBuilding::setCellFlags(WINDSGeneralData *WGD, int building_number)
     }
   }
 
-  // Define cut end index of the building in z-direction
-  for (auto k = 0u; k < WGD->domain.z.size(); k++) {
-    k_cut_end = k;
-    if (height_eff <= WGD->domain.z_face[k + 1]) {
-      break;
-    }
-  }
-
   // Find out which cells are going to be inside the polygone
   // Based on Wm. Randolph Franklin, "PNPOLY - Point Inclusion in Polygon Test"
   // Check the center of each cell, if it's inside, set that cell to building
@@ -212,10 +202,6 @@ void PolyBuilding::setCellFlags(WINDSGeneralData *WGD, int building_number)
     }
   }
 
-  if (mesh_type_flag == 1)// Cut-cell method for buildings
-  {
-    cutBuilding->setCutCellFlags(WGD, this, building_number);
-  }
 }
 
 bool PolyBuilding::faceExposed(const WINDSGeneralData *WGD, std::size_t edge, double x, double y, int k) const {

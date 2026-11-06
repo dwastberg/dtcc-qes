@@ -82,10 +82,7 @@ private:
   {}
 
   const int icellflag_terrain = 2;
-  const int icellflag_cutcell = 8;
 
   const int iturbflag_stairstep = 2;
-  const int iturbflag_cutcell = 3;
 
-  bool use_cutcell = false;
 };

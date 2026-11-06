@@ -75,9 +75,6 @@ protected:
   void get_stairstep_wall_id(WINDSGeneralData *, int);
   void set_stairstep_wall_flag(TURBGeneralData *, int);
 
-  void get_cutcell_wall_id(WINDSGeneralData *, int);
-  void set_cutcell_wall_flag(TURBGeneralData *, int);
-
   void set_loglaw_stairstep_at_id_cc(WINDSGeneralData *, TURBGeneralData *, int, int, float);
 
   virtual void set_loglaw_stairstep(WINDSGeneralData *, TURBGeneralData *) = 0;
@@ -98,8 +95,6 @@ protected:
 
   // cells above wall (for stair-step methods for Wall BC)
   std::vector<int> stairstep_wall_id;
-  // cut-cell cells
-  std::vector<int> cutcell_wall_id;
 
 private:
 };

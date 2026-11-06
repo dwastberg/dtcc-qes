@@ -82,10 +82,7 @@ private:
   {}
 
   const int icellflag_building = 0;
-  const int icellflag_cutcell = 7;
 
   const int iturbflag_stairstep = 4;
-  const int iturbflag_cutcell = 5;
 
-  bool use_cutcell = false;
 };

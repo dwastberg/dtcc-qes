@@ -81,8 +81,6 @@ struct WindRunner::Impl {
   double tolerance = 0;
   float relaxation = 1.78f;
   double preparation_seconds = 0;
-  enum class Phase { Prepared, Initialized, Solving, Finalized };
-  Phase phase = Phase::Prepared;
 
   Impl(const GridConfig &g, const ModelSettings &m, const BuildingArrays &b,
        const TurbulenceSettings &t)
@@ -101,10 +99,10 @@ struct WindRunner::Impl {
     const auto &d=*data;
     std::size_t bytes=0;
     for (const auto *a : {&d.z0_domain_u,&d.z0_domain_v,&d.e,&d.f,&d.g,&d.h,&d.m,&d.n,
-                         &d.building_volume_frac,&d.ni,&d.nj,&d.nk,&d.wall_distance,&d.terrain,
+                         &d.terrain,
                          &d.base_height,&d.effective_height,&d.u0,&d.v0,&d.w0,&d.u,&d.v,&d.w})
       bytes+=a->capacity()*sizeof(float);
-    for (const auto *a : {&d.ibuilding_flag,&d.building_id,&d.icellflag,&d.icellflag_initial,&d.center_id,&d.terrain_face_id})
+    for (const auto *a : {&d.ibuilding_flag,&d.building_id,&d.icellflag,&d.icellflag_initial,&d.terrain_face_id})
       bytes+=a->capacity()*sizeof(int);
     bytes+=d.mixingLengths.capacity()*sizeof(double);
     resources.set_bytes(bytes);
@@ -143,7 +141,7 @@ void WindRunner::prepare(const GridConfig &grid, const ModelSettings &model,
 
 WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &options, Messages &messages,
                           const SolverControl *control,const std::function<double()> &native_test_clock,
-                          const ExperimentOptions *experiment)
+                          const CanyonOptions *experiment)
 {
   const auto steady_now = [] {return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();};
   const double native_started=steady_now();
@@ -169,9 +167,6 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
     for(const auto& c:experiment->cells)
       if(c[0]<0 || c[0]>=state.grid.nx || c[1]<0 || c[1]>=state.grid.ny || c[2]<0 || c[2]>=state.grid.nz)
         throw qes::InputError("Research sample cell is outside the physical domain");
-    if(!std::isfinite(experiment->boundary_flux_area) || experiment->boundary_flux_area<0 ||
-       !std::isfinite(experiment->boundary_flux_tolerance) || experiment->boundary_flux_tolerance<=0)
-      throw qes::InputError("Invalid research boundary-flux normalization");
     result.experiment.emplace();
     result.experiment->canyon_model=experiment->canyon_model;
     result.experiment->sample_count=experiment->cells.size();
@@ -227,7 +222,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
       state.data->canyon_changed_faces=state.data->canyon_roof_changes=state.data->canyon_audit_zones=state.data->canyon_W_changes=0;
       state.data->canyon_qualified=state.data->canyon_fallback=state.data->canyon_writes=0;
       state.refresh_memory();
-      state.phase = Impl::Phase::Prepared;
+
       if (!success) { state.solver.reset(); state.precision_solver.reset(); }
     }
   } scope{state};
@@ -296,7 +291,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
     }
   }
   state.refresh_memory();
-  state.phase = Impl::Phase::Initialized;
+
   timings.initialization_seconds = now()-phase_started;
   if (controller) {
     controller->check("after_initialization");
@@ -309,7 +304,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
       if (controller) controller->check("before_rhs");
       workspace.begin(solver::ConditionInputs(data),options.max_iterations,
         controller && controller->adaptive_enabled()?solver::StopRule::FixedSweeps:solver::StopRule::LegacyTolerance, &completed_sweeps_);
-      state.phase = Impl::Phase::Solving;
+
       timings.rhs_seconds = now()-phase_started;
       progress_phase("projection");
       if (controller) {
@@ -328,7 +323,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
       stage_progress("projection");
       state.refresh_memory();
       timings.finalization_seconds = now()-phase_started;
-      state.phase = Impl::Phase::Finalized;
+
       result.divergence = {mass.interior_max,mass.interior_rms,mass.top_band_max,mass.cells,mass.top_band_cells};
       capture("projection",true);
       if (experiment && experiment->diagnose_flux) {
@@ -377,12 +372,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
     state.tolerance = tolerance;
     state.relaxation = relaxation;
   } catch (const qes::RuntimeError &error) {
-    state.solver.reset();state.precision_solver.reset();state.phase=Impl::Phase::Prepared;
     if(controller && control->mode=="adaptive")controller->numerical_failure(error.what());
-    throw;
-  } catch (...) {
-    state.solver.reset(); state.precision_solver.reset();
-    state.phase = Impl::Phase::Prepared;
     throw;
   }
 

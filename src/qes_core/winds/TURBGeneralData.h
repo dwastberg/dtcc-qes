@@ -47,7 +47,6 @@
 #include "LocalMixing.h"
 #include "LocalMixingDefault.h"
 #include "LocalMixingSerial.h"
-#include "LocalMixingOptix.h"
 
 
 /**
@@ -87,10 +86,6 @@ public:
   // long numcell_cent; /**< Total number of cell-centered values in domain */
   // long numcell_face; /**< Total number of face-centered values in domain */
 
-  // nt - number of time instance in data
-  int nt;
-  // time vector
-  std::vector<float> t;
 
   ///@{
   /** grid information */
@@ -157,16 +152,6 @@ public:
   std::vector<double> mixingLengths; /**< distance to the wall */
 
 
-  void invert3(double &A_11,
-               double &A_12,
-               double &A_13,
-               double &A_21,
-               double &A_22,
-               double &A_23,
-               double &A_31,
-               double &A_32,
-               double &A_33);
-
   void matMult(const double &A_11,
                const double &A_12,
                const double &A_13,
@@ -206,7 +191,6 @@ public:
 protected:
   WINDSGeneralData *m_WGD;
 
-  void getDerivativesGPU();
 
   void getTurbulentViscosity();
   void stressTensor();

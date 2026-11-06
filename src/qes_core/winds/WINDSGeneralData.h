@@ -39,7 +39,6 @@
 #include <memory>
 #include <cmath>
 
-
 #define _USE_MATH_DEFINES
 #define MIN_S(x, y) ((x) < (y) ? (x) : (y))
 #define MAX_S(x, y) ((x) > (y) ? (x) : (y))
@@ -54,31 +53,7 @@
 #include "LocalMixingDefault.h"
 #include "LocalMixingSerial.h"
 
-#include "CutCell.h"
 #include "Wall.h"
-
-
-#ifdef HAS_OPTIX
-
-// Needed to ensure that std::max and std::min are available
-// since the optix.h headers eventually include windows.h on WIN32
-// systems.  Windows overrides max and min and the following will
-// force that off and thus allow std::max and std::min to work as
-// desired.
-#ifdef WIN32
-#define NOMINMAX
-#endif
-
-#include "OptixRayTrace.h"
-#endif
-
-
-struct WINDSDeviceData
-{
-  float *u;
-  float *v;
-  float *w;
-};
 
 /**
  * @class WindsGeneralData
@@ -128,7 +103,6 @@ public:
   void applyParametrizations(const std::function<void(const char *)> &stage = {});
 
   void resetICellFlag();
-  void ensureCutCellStorage();
   void ensureMixingLengthStorage();
   bool isSolid(const int &);
   bool isTerrain(const int &);
@@ -144,36 +118,11 @@ public:
   float cavity_factor = 1.0; /**< :document this: */
   float wake_factor = 0.0; /**< :document this: */
   float lengthf_coeff = 1.5; /**< :document this: */
-  float theta{}; /**< :document this: */
-  // int icell_face;
-  // int icell_cent;
 
   // General QES Domain Data -- winds does not create this... provide const & in constructor of WINDS...
   qes::Domain domain;
 
   BuildingParameterizations parameterizations; /**< Empirical models applied per solve */
-  int meshTypeFlag = 0; /**< 0 stair-step buildings; cut cells (1) are not built */
-
-  ///@{
-  /** Number of cells */
-  // int nx, ny, nz;
-  ///@}
-  ///@{
-  /** Grid resolution */
-  // float dx, dy, dz;
-  ///@}
-  // float dxy; /**< Minimum value between dx and dy */
-
-  float halo_x{}, halo_y{};
-  int halo_index_x{}, halo_index_y{};
-
-  // long numcell_cout{}; /**< :document this: */
-  // long numcell_cout_2d; /**< :document this: */
-  // long numcell_cent; /**< Total number of cell-centered values in domain */
-  // long numcell_face; /**< Total number of face-centered values in domain */
-
-  // std::vector<size_t> start; /**< :document this: */
-  // std::vector<size_t> count; /**< :document this: */
 
   ///@{
   /** :Values of z0 for u and v components: */
@@ -185,14 +134,6 @@ public:
   std::vector<Building *> allBuildingsV; /**< :Vector contains all of the building elements: */
 
   float z0{}; /**< In wallLogBC */
-
-  // std::vector<float> dz_array; /**< :Array contain dz values: */
-  ///@{
-  /** :Location of center of cell in x,y and z directions: */
-  // std::vector<float> x, y, z;
-  ///@}
-  // std::vector<float> z_face; /**< :Location of the bottom face of the cell in z-direction: */
-
 
   ///@{
   /** Coefficient for SOR solver */
@@ -207,14 +148,6 @@ public:
                         11 = Canopy vegetation, 12 = Fire) */
   std::vector<int> icellflag_initial;
 
-  std::vector<float> building_volume_frac; /**< Cut-cell building volume fraction */
-
-  ///@{
-  /** Normal components of the cut surface for the solid elements (Building or Terrain) */
-  std::vector<float> ni, nj, nk;
-  ///@}
-  std::vector<float> wall_distance; /**< :Distance of the cell center from the cut face: */
-  std::vector<int> center_id; /**< :Defines whether a cell center is inside a solid (0) or air (1): */
   std::vector<float> terrain; /**< :document this: */
   std::vector<int> terrain_face_id; /**< Sensor function (inputWindProfile) */
 
@@ -236,59 +169,15 @@ public:
   ///@}
 
   // local Mixing class and data
-  LocalMixing *localMixing{}; /**< :document this: */
   std::vector<double> mixingLengths; /**< :document this: */
 
   int id{}; /**< :document this: */
 
-  // [FM Feb.28.2020] there 2 variables are not used anywhere
-  // std::vector<float> site_canopy_H;
-  // std::vector<float> site_atten_coeff;
-
-  float convergence{}; /**< :document this: */
-
-  // Canopy functions
-  // std::vector<float> canopy_atten;   /**< Canopy attenuation coefficient */
-  // std::vector<float> canopy_top;	   /**< Canopy height */
-  // std::vector<int> canopy_top_index; /**< Canopy top index */
-  // std::vector<float> canopy_z0;	   /**< Canopy surface roughness */
-  // std::vector<float> canopy_ustar;   /**< Velocity gradient at the top of canopy */
-  // std::vector<float> canopy_d;	   /**< Canopy displacement length */
-
-
   float max_velmag{}; /**< In polygonWake */
 
-  Cell *cells{}; /**< :document this: */
-  // bool DTEHFExists = false;
-  CutCell *cut_cell = nullptr; /**< :document this: */
   std::unique_ptr<Wall> wall; /**< :document this: */
 
-  // NetCDFInput* NCDFInput;     /**< :document this: */
-  ///@{
-  /** :document this: */
-  // int ncnx, ncny, ncnz, ncnt;
-  ///@}
-
-  ///@{
-  /** Building cut-cell (rectangular building) */
-  std::vector<std::vector<std::vector<float>>> x_cut;
-  std::vector<std::vector<std::vector<float>>> y_cut;
-  std::vector<std::vector<std::vector<float>>> z_cut;
-  std::vector<std::vector<int>> num_points;
-  std::vector<std::vector<float>> coeff;
-  ///@}
-
-  WINDSDeviceData d_data{};
-  void allocateDevice();
-  void freeDevice();
-  void copyDataToDevice();
-  void copyDataFromDevice();
-
 protected:
-  // void defineHorizontalGrid();
-  // void defineVerticalGrid();
-  // void defineVerticalStretching(const float &);
-  // void defineVerticalStretching(const std::vector<float> &);
 
   void allocateMemory();
 };

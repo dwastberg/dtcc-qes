@@ -21,7 +21,6 @@ using namespace dtcc_qes;
 namespace {
 using Vertices = nb::ndarray<nb::numpy, const double, nb::shape<-1, 2>, nb::c_contig, nb::device::cpu>;
 using Floats = nb::ndarray<nb::numpy, const double, nb::ndim<1>, nb::c_contig, nb::device::cpu>;
-using Floats32 = nb::ndarray<nb::numpy, const float, nb::ndim<1>, nb::c_contig, nb::device::cpu>;
 using Integers = nb::ndarray<nb::numpy, const std::int64_t, nb::ndim<1>, nb::c_contig, nb::device::cpu>;
 
 nb::dict resource_record() {
@@ -315,53 +314,27 @@ NB_MODULE(_qes, m)
        nb::arg("turbulence").none() = nb::none(),
        nb::arg("ring_offsets").noconvert().none() = nb::none())
     .def("_solve_experiment", [](WindRunner &runner, const WindCondition &condition, const SolverOptions &options,
-                                float omega, bool export_projection, bool diagnose_flux, std::size_t limit,
-                                std::vector<std::array<int,3>> cells,std::vector<int> checkpoints,
-                                std::array<int,2> checkpoint_layers,Floats32 target_velocity,
-                                std::vector<double> target_mass,double boundary_flux_area,double boundary_flux_tolerance,
-                                Floats32 canopy_factors,Floats32 canopy_occupied,std::array<int,3> canopy_shape,
-                                std::array<double,2> canopy_origin,double canopy_pitch,double canopy_taper,
-                                int building_order,bool export_mixing_length,bool wake_attribution,std::size_t wake_event_limit,
-                                int wake_composition,const std::string& canyon_model,bool canyon_capture,
-                                bool canyon_baseline_turbulence,bool canyon_trace_roof) {
-      ExperimentOptions research;
-      research.canyon_model=canyon_model_parse(canyon_model);
-      research.canyon_capture=canyon_capture;
-      research.canyon_trace_roof=canyon_trace_roof;
-      research.canyon_baseline_turbulence=canyon_baseline_turbulence;
-      research.omega=omega;research.export_projection=export_projection;research.export_limit_bytes=limit;
-      research.diagnose_flux=diagnose_flux;
-      research.cells=std::move(cells);
-      research.checkpoints=std::move(checkpoints);research.checkpoint_layers=checkpoint_layers;
-      if(target_velocity.is_valid())research.target_velocity=copy_input(target_velocity);
-      research.target_mass=std::move(target_mass);
-      research.boundary_flux_area=boundary_flux_area;research.boundary_flux_tolerance=boundary_flux_tolerance;
-      if(canopy_factors.is_valid()) research.canopy_factors=copy_input(canopy_factors);
-      if(canopy_occupied.is_valid()) research.canopy_occupied=copy_input(canopy_occupied);
-      research.canopy_shape=canopy_shape; research.canopy_origin=canopy_origin;
-      research.canopy_pitch=canopy_pitch; research.canopy_taper=canopy_taper;
-      research.building_order=building_order; research.export_mixing_length=export_mixing_length;
-      research.wake_attribution=wake_attribution; research.wake_event_limit=wake_event_limit;
-      research.wake_composition=wake_composition;
-      const WindCondition wind=condition;
-      const SolverOptions solver=options;
-      return transfer_result(runner,native_call([&](Messages &messages) {
-        return runner.solve(wind,solver,messages,nullptr,{},&research);
+                                bool diagnose_flux, std::vector<std::array<int,3>> cells,
+                                const std::string &canyon_model, bool canyon_capture,
+                                bool canyon_baseline_turbulence, bool canyon_trace_roof) {
+      CanyonOptions canyon;
+      canyon.canyon_model = canyon_model_parse(canyon_model);
+      canyon.canyon_capture = canyon_capture;
+      canyon.canyon_trace_roof = canyon_trace_roof;
+      canyon.canyon_baseline_turbulence = canyon_baseline_turbulence;
+      canyon.diagnose_flux = diagnose_flux;
+      canyon.cells = std::move(cells);
+      const WindCondition wind = condition;
+      const SolverOptions solver = options;
+      return transfer_result(runner, native_call([&](Messages &messages) {
+        return runner.solve(wind, solver, messages, nullptr, {}, &canyon);
       }));
-    }, "condition"_a,"options"_a=SolverOptions{},nb::kw_only(),"omega"_a=1.78f,
-       "export_projection"_a=false,"diagnose_flux"_a=false,"export_limit_bytes"_a=512ull*1024*1024,
-       "cells"_a=std::vector<std::array<int,3>>{},"checkpoints"_a=std::vector<int>{},
-       "checkpoint_layers"_a=std::array<int,2>{0,1},nb::arg("target_velocity").noconvert().none()=nb::none(),
-       "target_mass"_a=std::vector<double>{},"boundary_flux_area"_a=0.,"boundary_flux_tolerance"_a=1e-4,
-       nb::arg("canopy_factors").noconvert().none()=nb::none(),nb::arg("canopy_occupied").noconvert().none()=nb::none(),
-       "canopy_shape"_a=std::array<int,3>{0,0,0},"canopy_origin"_a=std::array<double,2>{0,0},
-       "canopy_pitch"_a=20.,"canopy_taper"_a=10.,"building_order"_a=0,"export_mixing_length"_a=false,
-       "wake_attribution"_a=false,"wake_event_limit"_a=100000,"wake_composition"_a=0,
-       "canyon_model"_a="legacy","canyon_capture"_a=false,"canyon_baseline_turbulence"_a=false,
-       "canyon_trace_roof"_a=false)
+    }, "condition"_a, "options"_a=SolverOptions{}, nb::kw_only(), "diagnose_flux"_a=false,
+       "cells"_a=std::vector<std::array<int,3>>{}, "canyon_model"_a="legacy", "canyon_capture"_a=false,
+       "canyon_baseline_turbulence"_a=false, "canyon_trace_roof"_a=false)
 #ifdef DTCC_QES_CANYON_TEST_HOOKS
     .def("_test_canyon_failure", [](WindRunner& runner,const WindCondition& condition,const SolverOptions& options) {
-      ExperimentOptions e;e.canyon_model=CanyonModel::JoinedV1;e.test_canyon_failure=true;
+      CanyonOptions e;e.canyon_model=CanyonModel::JoinedV1;e.test_canyon_failure=true;
       native_call([&](Messages& messages) { return runner.solve(condition,options,messages,nullptr,{},&e); });
     },"condition"_a,"options"_a)
 #endif

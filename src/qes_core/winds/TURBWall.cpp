@@ -165,35 +165,6 @@ void TURBWall::set_stairstep_wall_flag(TURBGeneralData *TGD, int cellflag)
   return;
 }
 
-void TURBWall::get_cutcell_wall_id(WINDSGeneralData *WGD, int cellflag)
-{
-  auto [nx, ny, nz] = WGD->domain.getDomainCellNum();
-
-  for (int k = 0; k < nz - 2; k++) {
-    for (int j = 1; j < ny - 2; j++) {
-      for (int i = 1; i < nx - 2; i++) {
-        int id = WGD->domain.cell(i, j, k);
-        if (WGD->icellflag[id] == cellflag) {
-          cutcell_wall_id.push_back(id);
-        }
-      }
-    }
-  }
-
-  return;
-}
-
-void TURBWall::set_cutcell_wall_flag(TURBGeneralData *TGD, int cellflag)
-{
-  for (size_t id = 0; id < cutcell_wall_id.size(); ++id) {
-    int idcell = cutcell_wall_id.at(id);
-    TGD->iturbflag.at(idcell) = cellflag;
-  }
-
-  return;
-}
-
-
 void TURBWall::set_loglaw_stairstep_at_id_cc(WINDSGeneralData *WGD,
                                              TURBGeneralData *TGD,
                                              int id_cc,

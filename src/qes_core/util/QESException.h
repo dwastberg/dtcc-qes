@@ -37,11 +37,6 @@ class InputError : public std::invalid_argument
 public:
   using std::invalid_argument::invalid_argument;
 };
-class UnsupportedFeature : public std::runtime_error
-{
-public:
-  using std::runtime_error::runtime_error;
-};
 class RuntimeError : public std::runtime_error
 {
 public:

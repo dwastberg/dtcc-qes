@@ -41,8 +41,6 @@
 
 #include "Building.h"
 
-class CutBuilding;
-
 using namespace std;
 
 using std::endl;
@@ -96,8 +94,6 @@ protected:
 
   std::vector<float> upwind_rel_dir; /**< :document this: */
 
-  CutBuilding *cutBuilding = nullptr;
-
 public:
   void prepareParameterFaces(WINDSGeneralData *WGD);
   bool faceExposed(const WINDSGeneralData *WGD, std::size_t edge, double x, double y, int k) const;
@@ -119,8 +115,6 @@ public:
   virtual ~PolyBuilding()
   {
   }
-
-  // friend class CutBuilding;
 
   /**
    * Creates a polygon type building.

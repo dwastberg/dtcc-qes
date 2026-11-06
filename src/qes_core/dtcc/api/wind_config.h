@@ -7,7 +7,7 @@
 #include <optional>
 #include "control_types.h"
 #include "profile_types.h"
-#include "experiment_types.h"
+#include "canyon_validation_types.h"
 
 namespace dtcc_qes {
 // Private numerical contract. Coordinates are metres in a local, flat frame.
@@ -81,7 +81,7 @@ struct WindData {
   std::size_t building_count = 0;
   std::optional<TurbulenceData> turbulence;
   std::optional<ControlRecord> control;
-  std::optional<ExperimentData> experiment;
+  std::optional<CanyonData> experiment;
   ControlTimings timings; // Always measured, including legacy solves.
 };
 }

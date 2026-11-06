@@ -271,16 +271,14 @@ static void operator_lifetime() {
 
 static void optional_allocations() {
   auto data = fixture(true); // Includes stair-step buildings and Wall::defineWalls.
-  for (const auto *a : {&data->building_volume_frac,&data->ni,&data->nj,&data->nk,&data->wall_distance})
-    require(a->empty() && !a->capacity(), "Stair-step geometry allocated cut-cell fields");
-  require(data->center_id.empty() && data->mixingLengths.empty(), "Wind-only geometry allocated optional fields");
-  data->ensureCutCellStorage();
-  require(data->building_volume_frac.size() == std::size_t(data->domain.numCellCentered())
-       && data->building_volume_frac.front() == 1 && data->center_id.front() == 1
-       && data->ni.front() == 0 && data->wall_distance.front() == 0, "Cut-cell defaults changed");
-  data->building_volume_frac.front() = .25f;
-  data->ensureCutCellStorage();
-  require(data->building_volume_frac.front() == .25f, "Cut-cell allocation reset existing geometry");
+  require(data->mixingLengths.empty() && !data->mixingLengths.capacity(),
+          "Wind-only geometry allocated mixing lengths");
+  data->ensureMixingLengthStorage();
+  require(data->mixingLengths.size() == std::size_t(data->domain.numCellCentered())
+          && data->mixingLengths.front() == 0, "Mixing-length defaults changed");
+  data->mixingLengths.front() = .25;
+  data->ensureMixingLengthStorage();
+  require(data->mixingLengths.front() == .25, "Mixing allocation reset existing values");
 }
 
 int main() {

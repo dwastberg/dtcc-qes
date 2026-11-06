@@ -1015,16 +1015,10 @@ void run(const std::string &mode)
             "Last safe reference layer should be accepted by the core guard");
   } else if (mode == "methods") {
     Case fixture;
-    for (int method : {-1, 2, 5}) {
+    for (int method : {-1, 2, 3, 4, 5}) {
       fixture.params.methodLocalMixing = method;
       rejects([&] { fixture.construct(); }, "mixing");
     }
-#ifndef HAS_OPTIX
-    fixture.params.methodLocalMixing = 3;
-    rejects([&] { fixture.construct(); }, "mixing");
-#endif
-    fixture.params.methodLocalMixing = 4;
-    rejects([&] { fixture.construct(); }, "mixing");
     fixture.params.methodLocalMixing = 0;
     require(!fixture.construct()->icellfluid.empty(), "Rejected method damaged later setup");
   } else if (mode == "ownership") {

@@ -13,7 +13,7 @@ static void canyon_runner_checks() {
     WindRunner runner;Messages messages;runner.prepare(grid,model,geometry,messages);
     SolverOptions options;options.precision="float64";options.max_iterations=200;
     WindCondition condition{5.,270.,10.};
-    ExperimentOptions experiment;experiment.canyon_capture=true;
+    CanyonOptions experiment;experiment.canyon_capture=true;
     const auto parent=runner.solve(condition,options,messages,nullptr,{},&experiment);
     for(const auto selector : {CanyonModel::HorizontalReferenceV1,CanyonModel::JoinedV1}) {
       experiment.canyon_model=selector;
@@ -28,9 +28,9 @@ static void canyon_runner_checks() {
       require(result.cell_flags==parent.cell_flags,"Overlay changed geometry flags");
       for(const auto value:result.velocity) require(std::isfinite(value),"Nonfinite overlay output");
     }
-    experiment.wake_composition=1;
+    experiment.canyon_model=static_cast<CanyonModel>(99);
     rejects<std::invalid_argument>([&]{runner.solve(condition,options,messages,nullptr,{},&experiment);});
-    experiment.wake_composition=0;experiment.canyon_model=CanyonModel::Legacy;
+    experiment.canyon_model=CanyonModel::Legacy;
     const auto restored=runner.solve(condition,options,messages,nullptr,{},&experiment);
     require(restored.velocity==parent.velocity,"Rejected canyon option contaminated reused geometry");
     require(restored.experiment->canyon_changed_faces==0,"Canyon counters escaped solve scope");

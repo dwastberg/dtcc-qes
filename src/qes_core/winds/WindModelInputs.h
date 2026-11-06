@@ -62,8 +62,7 @@ struct InflowCondition
 /** QES-Turb settings (formerly TURBParams and the grid's stretching flag). */
 struct TurbulenceConfig
 {
-  int methodLocalMixing = 0; /**< 0 height, 1 serial wall distance, 3 OptiX */
-  int mlSamplesPerAirCell = 0; /**< OptiX samples per air cell */
+  int methodLocalMixing = 0; /**< 0 height, 1 serial wall distance */
   std::optional<Vector3Float> sigConst; /**< sigma/u* constants; QES defaults when empty */
   bool flagNonLocalMixing = false;
   int buildingWallFlag = 2, terrainWallFlag = 2; /**< 1 log law, 2 finite differences */

@@ -76,3 +76,14 @@ AIJ matrix uses capped fixed work; it is not tolerance-converged qualification.
 Native source edits invalidate the existing solver-policy identity. The normal
 path requires the repository's release requalification procedure; experimental
 canyon calls remain outside adaptive pedestrian-policy acceptance.
+
+## Narrow native interface
+
+The private `_solve_experiment` entry point now accepts only `canyon_model`,
+`canyon_capture`, `canyon_trace_roof`, `canyon_baseline_turbulence`, `cells` and
+`diagnose_flux`. Removed canopy, wake-composition, ordering, omega, checkpoint,
+target and export controls raise `TypeError`, including their historical default
+values. They had no implementation in the integrated core. Unknown canyon model
+names still raise `ValueError`. The result metadata identifies this path as
+`protected-canyon-v1`; numerical fields and the canyon diagnostic schema are
+unchanged.

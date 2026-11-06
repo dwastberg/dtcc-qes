@@ -39,32 +39,17 @@ TURBWallBuilding::TURBWallBuilding(const TurbulenceConfig &config,
                                    WINDSGeneralData *WGD,
                                    TURBGeneralData *TGD)
 {
-  if (WGD->meshTypeFlag == 1) {
-    use_cutcell = true;
-    // fill array with cellid  of cutcell cells
-    get_cutcell_wall_id(WGD, icellflag_cutcell);
-    // fill itrublfag with cutcell flag
-    set_cutcell_wall_flag(TGD, iturbflag_cutcell);
-
-    // [FM] temporary fix -> use stairstep within the cut-cell
-    get_stairstep_wall_id(WGD, icellflag_building);
-    set_stairstep_wall_flag(TGD, iturbflag_stairstep);
+  // use stairstep
+  get_stairstep_wall_id(WGD, icellflag_building);
+  set_stairstep_wall_flag(TGD, iturbflag_stairstep);
+  if (config.buildingWallFlag == 1) {
+    comp_wall_velocity_deriv = &TURBWallBuilding::set_loglaw_stairstep;
+  } else if (config.buildingWallFlag == 2) {
     comp_wall_velocity_deriv = &TURBWallBuilding::comp_velocity_deriv_finitediff_stairstep;
-    comp_wall_stress_deriv = &TURBWallBuilding::comp_stress_deriv_finitediff_stairstep;
   } else {
-    use_cutcell = false;
-    // use stairstep
-    get_stairstep_wall_id(WGD, icellflag_building);
-    set_stairstep_wall_flag(TGD, iturbflag_stairstep);
-    if (config.buildingWallFlag == 1) {
-      comp_wall_velocity_deriv = &TURBWallBuilding::set_loglaw_stairstep;
-    } else if (config.buildingWallFlag == 2) {
-      comp_wall_velocity_deriv = &TURBWallBuilding::comp_velocity_deriv_finitediff_stairstep;
-    } else {
-      comp_wall_velocity_deriv = nullptr;
-    }
-    comp_wall_stress_deriv = &TURBWallBuilding::comp_stress_deriv_finitediff_stairstep;
+    comp_wall_velocity_deriv = nullptr;
   }
+  comp_wall_stress_deriv = &TURBWallBuilding::comp_stress_deriv_finitediff_stairstep;
 
   return;
 }
