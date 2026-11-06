@@ -1,0 +1,18 @@
+{
+  "schema": "qes-canyon-join-v1",
+  "candidate": "joined_v1",
+  "gamma": 0.3,
+  "core_exponent": 0.25,
+  "streamwise_profile": "4r(1-r), r=x/S",
+  "mixing_growth": 0.2,
+  "inner_edge": "W/2-2delta",
+  "outer_edge": "W/2",
+  "closure": "minimum integrated squared curvature with retained-core inner value/slope and incident-profile outer value/zero transverse slope",
+  "outer_background": "horizontally uniform incident profile at target height before building parameterizations",
+  "incident_eligibility": "all positive-height sub-roof layers aligned with roof wind and strictly forward; otherwise whole-building fallback",
+  "collapsed_band": "whole-building legacy fallback when 0.4S >= W/2",
+  "W": "complete legacy initialization",
+  "roof": "legacy protected vertical wedge",
+  "fitting": false,
+  "physical_status": "unassessed"
+}
