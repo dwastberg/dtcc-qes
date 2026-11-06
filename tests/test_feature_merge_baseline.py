@@ -12,6 +12,33 @@ import pytest
 baseline = load_tool("feature_merge_baseline", Path(__file__).parents[1]/"tools/feature_merge_baseline.py")
 
 
+def test_monitor_storage_migration_is_exact_owned_and_keeps_decisions():
+    original = {"case": {"metadata": {"solver": {"record": {
+        "monitor_bytes": 1000, "accepted": False, "iterations": 25}}}}}
+    migrated = baseline.monitor_storage_cases(original, -56)
+    record = migrated["case"]["metadata"]["solver"]["record"]
+    assert record == {"monitor_bytes": 944, "accepted": False, "iterations": 25}
+    assert original["case"]["metadata"]["solver"]["record"]["monitor_bytes"] == 1000
+    assert baseline.monitor_storage_cases(original, -55) != migrated
+    changed = json.loads(json.dumps(original))
+    changed["case"]["metadata"]["solver"]["record"]["accepted"] = True
+    assert baseline.monitor_storage_cases(changed, -56) != migrated
+
+
+@pytest.mark.parametrize("value", [True, 1.5, -1, 0, 55, None])
+def test_monitor_storage_migration_rejects_invalid_counts(value):
+    rows = {"case": {"metadata": {"solver": {"record": {"monitor_bytes": value}}}}}
+    with pytest.raises(ValueError, match="storage"):
+        baseline.monitor_storage_cases(rows, -56)
+
+
+def test_monitor_storage_exception_requires_declared_native_migration(tmp_path):
+    with pytest.raises(ValueError, match="identity pair"):
+        baseline.compare(tmp_path, tmp_path, monitor_storage_delta=-56)
+    with pytest.raises(ValueError, match="identity pair"):
+        baseline.compare(tmp_path, tmp_path, ("old", "new"), monitor_storage_delta=-56)
+
+
 def archives(tmp_path):
     roots = [tmp_path/"a", tmp_path/"b"]
     for root in roots:

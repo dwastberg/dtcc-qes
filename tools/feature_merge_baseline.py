@@ -461,7 +461,30 @@ def native_consolidation_cases(case_rows,identity,*,baseline=False):
     return result
 
 
-def compare(baseline, candidate, identity_pair=None, *, select="all", native_consolidation=False):
+def monitor_storage_cases(case_rows, delta):
+    """Apply a declared sizeof(Monitor) change, preserving every other field.
+
+    The caller must supply an independently measured layout delta and an exact
+    native identity pair. This is storage accounting, never a numerical tolerance.
+    """
+    if type(delta) is not int:
+        raise ValueError("Monitor storage delta must be an integer")
+    result = deepcopy(case_rows)
+    for row in result.values():
+        record = (row.get("metadata", {}).get("solver") or {}).get("record")
+        if record is None:
+            continue
+        value = record.get("monitor_bytes")
+        if type(value) is not int or value <= 0 or value + delta <= 0:
+            raise ValueError("Invalid monitor storage accounting")
+        record["monitor_bytes"] = value + delta
+    return result
+
+
+def compare(baseline, candidate, identity_pair=None, *, select="all", native_consolidation=False,
+            monitor_storage_delta=0):
+    if monitor_storage_delta and (identity_pair is None or not native_consolidation):
+        raise ValueError("Monitor storage migration requires native consolidation and an exact identity pair")
     a, b = [json.loads((p/"manifest.json").read_text()) for p in (baseline,candidate)]
     differences = []
     for key in ("lock_sha256", "backend", "omp_num_threads", "compiler"):
@@ -491,6 +514,8 @@ def compare(baseline, candidate, identity_pair=None, *, select="all", native_con
                     record["policy_revision"]="declared native identity"
         ca=native_consolidation_cases(ca,identity_pair[1],baseline=True)
         cb=native_consolidation_cases(cb,identity_pair[1])
+    if monitor_storage_delta:
+        ca = monitor_storage_cases(ca, monitor_storage_delta)
     if ca != cb:
         differences += ["metadata/"+k for k in sorted(ca.keys() | cb.keys())
                         if ca.get(k) != cb.get(k)]
@@ -512,12 +537,15 @@ if __name__ == "__main__":
     parser.add_argument("--compare", nargs=2, type=Path)
     parser.add_argument("--identity-pair", nargs=2)
     parser.add_argument("--native-consolidation",action="store_true",help="Declared Phase 9 clocks, exclusions and qualification provenance additions")
+    parser.add_argument("--monitor-storage-delta", type=int, default=0,
+                        help="Independently measured change in sizeof(Monitor); requires native consolidation and identity pair")
     parser.add_argument("--costs", type=Path, help="write focused baseline costs and predeclared default-study limits")
     parser.add_argument("--select", choices=("all", "adaptive", "non-adaptive"), default="all")
     args = parser.parse_args()
     if args.compare:
         raise SystemExit(0 if compare(*args.compare,args.identity_pair,select=args.select,
-            native_consolidation=args.native_consolidation) else 1)
+            native_consolidation=args.native_consolidation,
+            monitor_storage_delta=args.monitor_storage_delta) else 1)
     if args.costs:
         if args.api is None:
             parser.error("--costs requires --api")

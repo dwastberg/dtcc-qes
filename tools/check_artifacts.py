@@ -5,6 +5,7 @@ import gzip
 import hashlib
 import io
 import json
+import re
 from email.parser import BytesParser
 from pathlib import Path
 import tarfile
@@ -14,6 +15,33 @@ import zipfile
 def require(condition, message):
     if not condition:
         raise ValueError(message)
+
+
+GPU_SOURCE = re.compile(
+    r"cuda|cublas|cufft|curand|cusparse|cusolver|nvrtc|nvcc|optix|opencl|"
+    r"vulkan|sycl|rocm|gpu|"
+    r"__(?:global|device|host|shared|constant|managed)__|"
+    r"\bhip(?:Malloc|Free|LaunchKernel|LaunchKernelGGL|Memcpy|DeviceSynchronize)|"
+    r"\bcl(?:CreateContext|CreateBuffer|EnqueueNDRangeKernel)|"
+    r"[<\"](?:CL|hip|thrust)/|Metal/|Metal::|\bMTLDevice\b|"
+    r"#\s*pragma\s+acc\b|#\s*pragma\s+omp\s+(?:begin\s+declare\s+|declare\s+)?target\b",
+    re.IGNORECASE,
+)
+GPU_SUFFIXES = {".cu", ".cuh", ".ptx", ".cubin", ".fatbin", ".cl", ".metal", ".spv"}
+SOURCE_SUFFIXES = {".py", ".pyi", ".c", ".cc", ".cpp", ".cxx", ".h", ".hh", ".hpp", ".hxx", ".cmake", ".toml"}
+
+
+def check_cpu_only_files(names, read):
+    """Reject device code/build hooks in runtime files, not historical evidence."""
+    for name in names:
+        path = Path(name)
+        require(path.suffix.lower() not in GPU_SUFFIXES and not GPU_SOURCE.search(name),
+                f"GPU file in CPU-only package: {name}")
+        if path.suffix.lower() in SOURCE_SUFFIXES or path.name == "CMakeLists.txt":
+            content = read(name).decode("utf-8")
+            match = GPU_SOURCE.search(content)
+            require(match is None, f"GPU code/build hook in CPU-only package: {name}: "
+                    f"{match.group() if match else ''}")
 
 
 def check_metadata(data):
@@ -28,6 +56,7 @@ def check_metadata(data):
 def check_wheel(path):
     with zipfile.ZipFile(path) as archive:
         names = archive.namelist()
+        check_cpu_only_files(names, archive.read)
         metadata = next(name for name in names if name.endswith(".dist-info/METADATA"))
         check_metadata(archive.read(metadata))
         prefix = metadata.rsplit("/", 1)[0] + "/licenses/"
@@ -39,7 +68,7 @@ def check_wheel(path):
                 "Wheel omits native extension")
         for name in ("wind.py", "result.py", "_city.py", "footprints.py", "_footprints.py", "vertical_grid.py", "_auto_grid.py",
                      "_turbulence_domain.py", "turbulence.py", "comfort.py", "datasets.py",
-                     "_dataset_city.py", "solver_control.py", "profiles.py", "_log.py", "_validation.py", "_qes_revision.txt"):
+                     "_dataset_city.py", "_statistics.py", "parameterizations.py", "solver_control.py", "profiles.py", "_log.py", "_validation.py", "_qes_revision.txt"):
             require("dtcc_qes/" + name in names, f"Wheel omits {name}")
         require(len(archive.read("dtcc_qes/_qes_revision.txt").strip()) == 40, "Missing source revision")
 
@@ -47,8 +76,13 @@ def check_wheel(path):
 def check_sdist(path):
     with tarfile.open(path) as archive:
         members = {name.split("/", 1)[1]: name for name in archive.getnames() if "/" in name}
+        check_cpu_only_files(
+            [name for name in members if name.startswith("src/") or name in ("CMakeLists.txt", "pyproject.toml")],
+            lambda name: archive.extractfile(members[name]).read(),
+        )
         for name in (
             "src/qes_core/dtcc/api/preflight.h", "src/qes_core/dtcc/api/turbulence_reference.h",
+            "src/qes_core/dtcc/api/canyon_validation_types.h", "src/dtcc_qes/_statistics.py",
             "src/qes_core/dtcc/turbulence_reference.cpp", "tests/native/building_fixtures.h",
             "tests/fixtures/geometry.py", "tests/fixtures/specs.py", "tests/fixtures/support.py",
             "docs/solver-control-requalification.md", "docs/solver-control.md",

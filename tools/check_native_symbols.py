@@ -12,7 +12,7 @@ import re
 import subprocess
 from pathlib import Path
 
-CATEGORIES = ("termination", "console", "file_io", "io_libraries")
+CATEGORIES = ("termination", "console", "file_io", "io_libraries", "gpu")
 TERMINATION = {"exit", "_exit", "_Exit", "quick_exit", "abort", "__assert_fail", "__assert_rtn"}
 CONSOLE = {
     "stdout", "stderr", "printf", "vprintf", "puts", "putchar", "fprintf",
@@ -48,6 +48,9 @@ def categories_for(symbol: str) -> set[str]:
         categories.add("file_io")
     if any(re.match(r"(?:nc_|GDAL|OGR|CPL)", name) for name in spellings) or re.search(r"\b(?:netCDF::|boost::program_options::)", symbol):
         categories.add("io_libraries")
+    if any(re.match(r"(?:_*(?:cuda|cu[A-Z]|cublas|cufft|curand|cusparse|cusolver|nvrtc|optix|hip[A-Z]|cl[A-Z]|vk[A-Z]))", name)
+           for name in spellings) or re.search(r"\b(?:sycl|Metal|MTL)::", symbol):
+        categories.add("gpu")
     return categories
 
 
