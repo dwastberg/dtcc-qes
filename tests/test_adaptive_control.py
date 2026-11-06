@@ -56,10 +56,13 @@ def test_accepted_legacy_false_suppresses_nonconvergence_warning(caplog):
 def test_unaccepted_warns_even_when_legacy_tolerance_passes(caplog):
     r=wind.run(city(), bounds=(0,0,0,160,160,64), solver=replace(settings(), max_iterations=1, tolerance=100), speed=5, direction=270)
     assert r.diagnostics.converged and not r.solver["record"]['accepted']
-    assert 'unaccepted' in caplog.text
+    assert ('unaccepted' if qualified_build() else 'unqualified_build') in caplog.text
     with pytest.raises(wind.UnacceptedResultError) as e:
         wind.run(city(), bounds=(0,0,0,160,160,64), solver=replace(settings(), max_iterations=1, raise_on_failure=True), speed=5, direction=270)
-    assert e.value.record['termination_reason']=='iteration_limit'
+    if qualified_build():
+        assert e.value.record['termination_reason']=='iteration_limit'
+    else:
+        assert e.value.record is None and 'unqualified_build' in e.value.exclusions
     if qualified_build():
         assert run(solver=replace(settings(), max_iterations=600, raise_on_failure=True)).solver['record']['accepted']
 

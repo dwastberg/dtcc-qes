@@ -77,7 +77,10 @@ def test_non_default_settings_are_outside_pedestrian_policy(monkeypatch):
     with pytest.raises(wind.UnacceptedResultError) as error:
         wind.run(tower_city(), **dict(options, solver=pedestrian_solver(raise_on_failure=True)),
                  parameterizations=wind.Parameterizations(high_rise=1))
-    assert "unqualified_model_settings" in error.value.exclusions
+    # An experimental native build is rejected at input preflight, before the
+    # prepared-model check exercised above. It must not inherit qualification.
+    expected = "unqualified_model_settings" if _qes.solver_policy_build_supported else "unqualified_build"
+    assert expected in error.value.exclusions
 
 
 @pytest.mark.parametrize("operation", [wind.run, wind.preview_grid])
