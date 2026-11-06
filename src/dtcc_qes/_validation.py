@@ -1,7 +1,19 @@
 """Strict scalar validation without native or DTCC dependencies."""
 import math
+from collections.abc import Mapping
 from numbers import Integral,Real
 import numpy as np
+
+
+def versioned_mapping(payload, name, *, schema_name=None):
+    """Copy a version-1 specification without accepting bool/float versions."""
+    if not isinstance(payload, Mapping):
+        raise ValueError(f"{name} must be a versioned mapping")
+    fields = dict(payload)
+    version = fields.pop("schema_version", None)
+    if type(version) is not int or version != 1:
+        raise ValueError(f"Unsupported {schema_name or name} schema_version; expected 1")
+    return fields
 
 
 def real(value,name,*,positive=False,nonnegative=False,float32=False) -> float:

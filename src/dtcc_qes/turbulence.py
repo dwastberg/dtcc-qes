@@ -6,7 +6,8 @@ from typing import Literal
 
 import numpy as np
 
-from .result import _STRESS_RELATIVE_TOLERANCE, _velocity_magnitude
+from ._validation import versioned_mapping
+from ._statistics import _STRESS_RELATIVE_TOLERANCE, _velocity_magnitude
 
 NUMERICS_VERSION = "dtcc-qes-turbulence-v1"
 
@@ -35,13 +36,7 @@ class Turbulence:
 
     @classmethod
     def from_dict(cls, payload):
-        from collections.abc import Mapping
-        if not isinstance(payload, Mapping):
-            raise ValueError("turbulence must be a versioned mapping")
-        args = dict(payload)
-        version = args.pop("schema_version", None)
-        if type(version) is not int or version != 1:
-            raise ValueError("Unsupported turbulence schema_version; expected 1")
+        args = versioned_mapping(payload, "turbulence")
         try:
             return cls(**args)
         except TypeError as error:

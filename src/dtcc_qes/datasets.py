@@ -18,7 +18,7 @@ from ._dataset_city import prepare_city
 from ._footprints import plan_footprint_domain
 from .solver_control import Solver
 from .turbulence import Turbulence, NUMERICS_VERSION
-from .result import _stress_validity, _turbulence_intensity
+from ._statistics import _stress_validity, _turbulence_intensity
 
 __all__ = ["QESWindArgs", "QESWindDataset"]
 

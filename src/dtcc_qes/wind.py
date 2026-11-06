@@ -179,15 +179,9 @@ def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
         _known_exclusions = eligibility["exclusions"]
     runner = _qes.WindRunner() if _runner is None else _runner
     try:
-        turbulence_options = {}
-        if turbulence_spec is not None:
-            native_turbulence = _qes.TurbulenceSettings()
-            native_turbulence.enabled = True
-            native_turbulence.mixing_length_method = turbulence_spec.qes_method
-            turbulence_options["turbulence"] = native_turbulence
         if _runner is None:
             runner.prepare(prepared.grid, prepared.model, **prepared.arrays, dz_layers=prepared.dz_layers,
-                           **turbulence_options)
+                           turbulence=_native_turbulence(turbulence_spec))
         control_options = {} if solver.mode == "legacy" else {"control":solver._native(prepared.origin, geometry.crs)}
         if _experiment is None:
             native = runner.solve(native_condition, native_solver, **control_options)
@@ -213,6 +207,16 @@ def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
             _warn_solver_outcome(str(failure), turbulence_spec)
     elif record is not None and record["termination_reason"] == "time_limit" and not _known_exclusions:
         _warn_solver_outcome(f"Wind solve reached time_limit after {diagnostics.iterations} iterations", turbulence_spec)
+    return _result_from_native(native, diagnostics, geometry, prepared, solver,
+        vertical_grid=vertical_grid, turbulence_spec=turbulence_spec,
+        height_policy=height_policy, experimental=_experiment is not None)
+
+
+def _result_from_native(native, diagnostics, geometry, prepared, solver, *,
+                        vertical_grid, turbulence_spec, height_policy, experimental):
+    """Assemble owned fields and provenance after execution/failure handling."""
+    profile_record = prepared.domain["profile"]
+    record = native.get("control")
     model_names = ("wall_roughness", "rooftop_flag", "upwind_cavity_flag", "street_canyon_flag",
                    "street_intersection_flag", "wake_flag", "high_rise_flag", "sidewall_flag")
     metadata = dict(
@@ -254,9 +258,9 @@ def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
     if prepared.near_contacts:
         metadata["near_contacts"] = list(prepared.near_contacts)
     metadata["profile"] = profile_record
-    if _experiment is not None:
+    if experimental:
         metadata["experiment"] = native["experiment"]
-        metadata["physical_model_identity"] = "research-e0-v1"
+        metadata["physical_model_identity"] = "protected-canyon-v1"
     turbulence_fields = None
     metadata["solver"] = dict(spec=solver.to_dict(), record=record,
         environment=dict(precision=solver.precision, backend=_qes.cpu_backend,
@@ -523,16 +527,21 @@ def _native_solver(solver):
     return options
 
 
+def _native_turbulence(turbulence):
+    if turbulence is None:
+        return None
+    settings = _qes.TurbulenceSettings()
+    settings.enabled = True
+    settings.mixing_length_method = turbulence.qes_method
+    return settings
+
+
 def _preflight_eligibility(prepared,geometry,profile,solver,turbulence):
     view=dict(mode=solver.mode,policy=solver.policy,exclusions=[],pending_runtime_checks=[])
     if solver.mode!="adaptive":
         return view
-    settings=None
-    if turbulence is not None:
-        settings=_qes.TurbulenceSettings();settings.enabled=True
-        settings.mixing_length_method=turbulence.qes_method
     view.update(_qes._pedestrian_preflight(prepared.grid,prepared.model,
         _native_condition(prepared.domain["profile"]),_native_solver(solver),
         solver._native(prepared.origin,geometry.crs),**prepared.arrays,
-        dz_layers=prepared.dz_layers,turbulence=settings))
+        dz_layers=prepared.dz_layers,turbulence=_native_turbulence(turbulence)))
     return view

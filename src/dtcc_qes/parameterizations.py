@@ -2,7 +2,7 @@
 
 from dataclasses import asdict, dataclass
 
-from ._validation import integer, real
+from ._validation import integer, real, versioned_mapping
 
 # Highest supported code per model; the native bridge enforces the same ranges
 # (model_inputs.cpp). Field names map to the native ``<name>_flag`` settings.
@@ -47,13 +47,7 @@ class Parameterizations:
 
     @classmethod
     def from_dict(cls, payload):
-        from collections.abc import Mapping
-        if not isinstance(payload, Mapping):
-            raise ValueError("parameterizations must be a versioned mapping")
-        args = dict(payload)
-        version = args.pop("schema_version", None)
-        if type(version) is not int or version != 1:
-            raise ValueError("Unsupported parameterizations schema_version; expected 1")
+        args = versioned_mapping(payload, "parameterizations")
         try:
             return cls(**args)
         except TypeError as error:

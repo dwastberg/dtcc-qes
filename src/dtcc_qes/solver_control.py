@@ -1,7 +1,7 @@
 """Bounded execution and versioned, opt-in pedestrian numerical assessment."""
 from dataclasses import asdict, dataclass
 from typing import Literal
-from ._validation import real as _number, integer as _integer
+from ._validation import real as _number, integer as _integer, versioned_mapping
 
 
 @dataclass(frozen=True)
@@ -152,13 +152,7 @@ class Solver:
 
     @classmethod
     def from_dict(cls, payload):
-        from collections.abc import Mapping
-        if not isinstance(payload, Mapping):
-            raise ValueError("solver must be a versioned mapping")
-        value = dict(payload)
-        version = value.pop("schema_version", None)
-        if type(version) is not int or version != 1:
-            raise ValueError("Unsupported solver schema_version; expected 1")
+        value = versioned_mapping(payload, "solver")
         try:
             if value.get("monitor") is not None:
                 monitor = dict(value.pop("monitor"))

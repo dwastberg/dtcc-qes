@@ -6,10 +6,9 @@ prototype candidates, pending accuracy/cost validation.
 """
 
 from dataclasses import asdict, dataclass
-import math
 
 import numpy as np
-from ._validation import real
+from ._validation import real, versioned_mapping
 
 GENERATOR_VERSION = "explicit-v1"
 AUTO_GENERATOR_VERSION = "auto-v1-prototype"
@@ -185,12 +184,7 @@ class VerticalGrid:
     @classmethod
     def from_dict(cls, payload):
         from collections.abc import Mapping
-        if not isinstance(payload, Mapping):
-            raise ValueError("vertical_grid must be a versioned mapping")
-        args = dict(payload)
-        version = args.pop("schema_version", None)
-        if type(version) is not int or version != 1:
-            raise ValueError("Unsupported vertical-grid schema_version; expected 1")
+        args = versioned_mapping(payload, "vertical_grid", schema_name="vertical-grid")
         mode = args.pop("mode", None)
         if mode == "explicit" and set(args) == {"faces"}:
             return cls.from_faces(args["faces"])

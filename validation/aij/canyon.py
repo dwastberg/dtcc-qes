@@ -47,13 +47,8 @@ class CanyonSession:
                 settings.get("height_policy", "measured"), turbulence=turbulence is not None,
                 footprints=settings.get("footprints"), parameterizations=settings.get("parameterizations", wind.Parameterizations()))
             runner = _qes.WindRunner()
-            extra = {}
-            if turbulence is not None:
-                native = _qes.TurbulenceSettings(); native.enabled = True
-                native.mixing_length_method = turbulence.qes_method
-                extra["turbulence"] = native
             runner.prepare(prepared.grid, prepared.model, **prepared.arrays,
-                           dz_layers=prepared.dz_layers, **extra)
+                           dz_layers=prepared.dz_layers, turbulence=wind._native_turbulence(turbulence))
             self.geometry, self.prepared, self.runner, self.key = geometry, prepared, runner, key
             self.preparations += 1
             preparation_seconds = perf_counter() - begin
