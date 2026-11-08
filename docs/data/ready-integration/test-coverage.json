@@ -1,0 +1,85 @@
+{
+  "schema": "ready-integration-test-coverage-v1",
+  "arms": {
+    "openmp": {
+      "distinct_tests": 2070,
+      "passed": 2054,
+      "historical_skips": {
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[flat]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[flat_oblique]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[one_building]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_oblique]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_wall]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_thin_wall]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_nonuniform]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_nonuniform_wall]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[flat]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[flat_oblique]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[one_building]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_oblique]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_wall]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_thin_wall]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_nonuniform]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_nonuniform_wall]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle"
+      },
+      "reports": {
+        "pytest-openmp.xml": "29f4aeebe11b3bf1e7843569c06ddc5d8d635a48e21c3bc94acf66a37984468e",
+        "pytest-compatibility.xml": "f9c3fbe34b1cf78ef89d184db3fcd7acfbd6afb37130ed6a49c874c3617a3003",
+        "pytest-native-integration-openmp.xml": "b81148a198ae7cc7ad24717d46b2f67f352272a9ac01837657acc7f8dfa78a56"
+      }
+    },
+    "serial": {
+      "distinct_tests": 2070,
+      "passed": 2054,
+      "historical_skips": {
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[flat]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[flat_oblique]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[one_building]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_oblique]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_wall]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_thin_wall]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_nonuniform]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_nonuniform_wall]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[flat]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[flat_oblique]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[one_building]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_oblique]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_wall]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_thin_wall]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_nonuniform]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_nonuniform_wall]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle"
+      },
+      "reports": {
+        "pytest-serial.xml": "71e7e3e6770f968754c117301dcf2bd21e5e45d699eef1583c24894cfa71be48",
+        "pytest-native-integration-serial.xml": "f5d2139deaf109def03cb743ed9e09a8e7fc3fce059606d3748aad8d307cf9df"
+      }
+    },
+    "installed-wheel": {
+      "distinct_tests": 2070,
+      "passed": 2054,
+      "historical_skips": {
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[flat]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[flat_oblique]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[one_building]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_oblique]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_wall]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_thin_wall]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_nonuniform]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence::test_public_fields_match_audited_standalone_reference[building_nonuniform_wall]": "Archived exact parity requires lexicographic ordering and the recorded toolchain",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[flat]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[flat_oblique]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[one_building]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_oblique]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_wall]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_thin_wall]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_nonuniform]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle",
+        "tests.test_turbulence_reference::test_bound_runner_turbulence_matches_audited_reference[building_nonuniform_wall]": "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle"
+      },
+      "reports": {
+        "pytest-wheel.xml": "5fce91fc4b7de91dd0cd5ff41ee164d133a1d91537134db6a6a423df8baa05c6",
+        "pytest-native-integration-openmp.xml": "b81148a198ae7cc7ad24717d46b2f67f352272a9ac01837657acc7f8dfa78a56"
+      }
+    }
+  },
+  "scope": "Full tests plus validation/tests with warnings as errors; native-worker omissions closed by explicit executable paths; only historical ordering/toolchain fixtures remain skipped"
+}

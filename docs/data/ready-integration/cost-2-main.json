@@ -1,0 +1,152 @@
+{
+  "repetitions": 5,
+  "warmups": 1,
+  "backend": "OpenMP CPU",
+  "policy_revision": "0065015d928341ecaaefd10728560b683c1e0630175599d554ebe6a6ad3188d8",
+  "omp_num_threads": "4",
+  "clock": "time.perf_counter; durations include the entire named public operation",
+  "review_rule": "Investigate median regression exceeding both 10 percent and 0.01 seconds; report all observations and range",
+  "default_study": {
+    "reference_precision": "float64",
+    "initial_reference_tolerance": 1e-07,
+    "stability_tolerance": 1e-08,
+    "stability_p95_K": 1e-05,
+    "stability_max_K": 0.0001,
+    "candidate_p95_K": 0.0005,
+    "candidate_max_K": 0.001,
+    "selection": "Fastest median public call among candidates passing both error limits on both cities; require reference convergence and tightening stability"
+  },
+  "measurements": {
+    "wind-only": {
+      "work": {
+        "request": {
+          "id": "scalar",
+          "profile": "scalar",
+          "grid": "uniform",
+          "mode": "legacy",
+          "precision": "float32",
+          "turbulence": null
+        },
+        "shape": [
+          32,
+          40,
+          40
+        ],
+        "iterations": 30,
+        "diagnostics": {
+          "iterations": 30,
+          "max_lagrange_multiplier_change": 0.04438591003417969,
+          "tolerance": 9.999999747378752e-06,
+          "converged": false,
+          "max_divergence": 0.016425609588623047,
+          "rms_divergence": 0.004557330673784753,
+          "top_band_max_divergence": 0.004350582137703896,
+          "divergence_cell_count": 43120,
+          "top_band_cell_count": 1444,
+          "precision": "float32"
+        }
+      },
+      "seconds": [
+        0.005405334057286382,
+        0.005440499982796609,
+        0.005101624992676079,
+        0.005151999997906387,
+        0.006273500039242208
+      ],
+      "median_seconds": 0.005405334057286382,
+      "minimum_seconds": 0.005101624992676079,
+      "maximum_seconds": 0.006273500039242208
+    },
+    "combined": {
+      "work": {
+        "request": {
+          "id": "cost-combined",
+          "profile": "turning",
+          "grid": "uniform",
+          "mode": "bounded",
+          "precision": "float32",
+          "turbulence": "height"
+        },
+        "shape": [
+          32,
+          40,
+          40
+        ],
+        "iterations": 30,
+        "diagnostics": {
+          "iterations": 30,
+          "max_lagrange_multiplier_change": 0.06592845916748047,
+          "tolerance": 9.999999747378752e-06,
+          "converged": false,
+          "max_divergence": 0.025478124618530273,
+          "rms_divergence": 0.006658473980521753,
+          "top_band_max_divergence": 0.004109636414796114,
+          "divergence_cell_count": 43120,
+          "top_band_cell_count": 1444,
+          "precision": "float32"
+        }
+      },
+      "seconds": [
+        0.026509833056479692,
+        0.024972124956548214,
+        0.024580625002272427,
+        0.02457799995318055,
+        0.02481558290310204
+      ],
+      "median_seconds": 0.02481558290310204,
+      "minimum_seconds": 0.02457799995318055,
+      "maximum_seconds": 0.026509833056479692
+    },
+    "export": {
+      "work": {
+        "request": {
+          "id": "cost-combined",
+          "profile": "turning",
+          "grid": "uniform",
+          "mode": "bounded",
+          "precision": "float32",
+          "turbulence": "height"
+        },
+        "shape": [
+          32,
+          40,
+          40
+        ],
+        "iterations": 30,
+        "diagnostics": {
+          "iterations": 30,
+          "max_lagrange_multiplier_change": 0.06592845916748047,
+          "tolerance": 9.999999747378752e-06,
+          "converged": false,
+          "max_divergence": 0.025478124618530273,
+          "rms_divergence": 0.006658473980521753,
+          "top_band_max_divergence": 0.004109636414796114,
+          "divergence_cell_count": 43120,
+          "top_band_cell_count": 1444,
+          "precision": "float32"
+        },
+        "outputs": [
+          "velocity",
+          "speed",
+          "cell_flags",
+          "speedup",
+          "stress",
+          "tke",
+          "streamwise_std",
+          "turbulence_intensity",
+          "stress_valid"
+        ]
+      },
+      "seconds": [
+        0.026289458968676627,
+        0.027026375057175756,
+        0.025664375047199428,
+        0.027336833998560905,
+        0.026452665915712714
+      ],
+      "median_seconds": 0.026452665915712714,
+      "minimum_seconds": 0.025664375047199428,
+      "maximum_seconds": 0.027336833998560905
+    }
+  }
+}

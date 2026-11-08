@@ -1,0 +1,65 @@
+{
+  "schema": "ready-integration-memory-assessment-v1",
+  "accepted": true,
+  "directed_workers": 16,
+  "reviewed_flags": [
+    {
+      "key": "f536f3697b5ceedb",
+      "case": "A",
+      "original_rss_ratio": 1.1903461692705444,
+      "review_rss_ratio": 0.9819175388473678,
+      "comparison": "three fresh workers per implementation; ratio of medians"
+    },
+    {
+      "key": "619891fb6b410b83",
+      "case": "B",
+      "original_rss_ratio": 1.1341287816875647,
+      "review_rss_ratio": 0.9969522772883431,
+      "comparison": "three fresh workers per implementation; ratio of medians"
+    },
+    {
+      "key": "60cc2496a7653530",
+      "case": "E",
+      "original_rss_ratio": 1.1231141232162927,
+      "review_rss_ratio": 0.9934372631720952,
+      "comparison": "one fresh worker per implementation for this flagged direction"
+    },
+    {
+      "key": "5919e57b547631ee",
+      "case": "E",
+      "original_rss_ratio": 1.155453407954599,
+      "review_rss_ratio": 1.0004721341654532,
+      "comparison": "one fresh worker per implementation for this flagged direction"
+    }
+  ],
+  "full_fields_and_returned_sizes_identical": true,
+  "tracked_native_ownership_identical": true,
+  "active_allocation_ratio_ranges": {
+    "size_in_use": [
+      0.9798396738723233,
+      1.0113499492506113
+    ],
+    "max_size_in_use": [
+      0.9269593551383781,
+      1.0402147980394185
+    ],
+    "size_allocated": [
+      0.9624751320573506,
+      1.0161500142780087
+    ]
+  },
+  "conclusion": "No sustained material RSS or active allocation regression was identified. All four original RSS increases failed to reproduce; default native buffer ownership and complete returned fields/sizes agree. Accept the selected integration without a memory implementation change.",
+  "interpretation": "Observed system memory compression and allocator/residency variability are consistent with the unstable original RSS readings. This does not establish the exact OS cause or a memory speedup. Initial import-time reserved allocator space varies; it is distinct from in-use or resident memory and converges during the large native allocation stages.",
+  "limits": [
+    "One host and limited directed repeats; this is a regression review, not a portable memory bound.",
+    "Native counters cover wind grids, operators and workspaces, not every allocation.",
+    "Darwin malloc-zone statistics exclude direct VM mappings; summed zone high-water values are not a simultaneous process peak.",
+    "The full-field hashing step touches returned pages; before/after phases are recorded separately.",
+    "The supported fixed-work flow results retain their existing physical and convergence limitations."
+  ],
+  "sources": {
+    "full-comparison/report.json": "1cb35f365f9837e063f1c4ac4912d6452610e96869da2f5fa1b3e030407ef20a",
+    "memory-review/report.json": "9f8ffe9078bd05f5f864000acfe97676803f970006e3896e4d9c199690d2eaee",
+    "memory-review-e/report.json": "a9ee0519569c2885b022943bc24fd66b4b704eacdb4bd3798120ed4eecb9f142"
+  }
+}

@@ -1,0 +1,5 @@
+[  5%] Built target qesutil
+[ 74%] Built target qeswindscore
+[100%] Built target qesbridge
+Native symbol audit passed (termination, console, file_io, io_libraries, gpu; 11 inputs)
+[100%] Built target check_native_symbols

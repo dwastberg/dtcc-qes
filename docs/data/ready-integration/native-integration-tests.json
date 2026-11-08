@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "rows": [
+    {
+      "backend": "openmp",
+      "package": "/private/tmp/dtcc-qes-ready-integration/build/ready-integration/installed-wheel",
+      "passed": 34,
+      "skipped": 0
+    },
+    {
+      "backend": "serial",
+      "package": "/private/tmp/dtcc-qes-ready-integration/build/ready-integration/qualified-serial-package",
+      "passed": 34,
+      "skipped": 0
+    }
+  ]
+}

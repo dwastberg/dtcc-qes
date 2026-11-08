@@ -1,0 +1,11 @@
+{
+  "Build vertical_grid_study or set DTCC_QES_STUDY_EXECUTABLE for worker integration": 7,
+  "Build vertical_grid_study for worker integration": 10,
+  "Native study executable not built": 1,
+  "Build the native check_monitor target for monitor/public-sampler parity": 8,
+  "Build with DTCC_QES_BUILD_TESTS=ON to run native safety checks": 4,
+  "Build with DTCC_QES_BUILD_TESTS=ON to run native runner checks": 2,
+  "Build the native vertical_grid_study target for sampler parity": 2,
+  "Archived exact parity requires lexicographic ordering and the recorded toolchain": 8,
+  "Archived exact fixtures require lexicographic ordering and their recorded toolchain; S2 red/black parity is checked against the immutable S1a OpenMP oracle": 8
+}

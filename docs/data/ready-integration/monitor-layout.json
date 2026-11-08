@@ -1,0 +1,10 @@
+{
+  "main": {
+    "monitor": 664,
+    "receptor_record": 1096
+  },
+  "candidate": {
+    "monitor": 664,
+    "receptor_record": 1256
+  }
+}

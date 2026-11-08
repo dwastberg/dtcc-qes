@@ -1,0 +1,32 @@
+{
+  "workers": 4,
+  "comparisons": [
+    {
+      "key": "60cc2496a7653530",
+      "original_rss": {
+        "candidate": 3782180864,
+        "main": 3367583744
+      },
+      "repeated_rss": {
+        "main": 4129243136,
+        "candidate": 4102144000
+      },
+      "fields_identical": true,
+      "returned_bytes_identical": true
+    },
+    {
+      "key": "5919e57b547631ee",
+      "original_rss": {
+        "candidate": 3615981568,
+        "main": 3129491456
+      },
+      "repeated_rss": {
+        "candidate": 4131487744,
+        "main": 4129538048
+      },
+      "fields_identical": true,
+      "returned_bytes_identical": true
+    }
+  ],
+  "status": "complete_pending_assessment"
+}

@@ -1,0 +1,10 @@
+{
+  "notes": [
+    "The first geometry extraction test retained a reference-partition variable after removing that policy. It was replaced by an independent explicit geometric partition.",
+    "That new test initially used physical y=8 as local eta; the geometry origin is y=16. Corrected expected partition eta=-8 before the geometry commit. No production algorithm changed.",
+    "The first sdist/wheel command requested unavailable Ninja; the final build used CMAKE_GENERATOR=Unix Makefiles, matching the validated native builds.",
+    "The initial isolated wheel install selected system Python 3.14 and rejected the cp313 wheel. Repeated with explicit Python 3.13.11; runtime checks verify the isolated installed path.",
+    "ASan/UBSan checks disabled leak detection on macOS; address/undefined-behavior checks completed, including all 18 trace tests.",
+    "Thirty-four native-worker Python tests need explicit executable paths; run after timing workers, before merge. Sixteen historical lexicographic/toolchain fixtures remain inapplicable; current red/black parity is tested against main."
+  ]
+}

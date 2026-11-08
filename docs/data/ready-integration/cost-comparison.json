@@ -1,0 +1,60 @@
+{
+  "passed": true,
+  "comparisons": {
+    "wind-only": {
+      "median_seconds": {
+        "main": 0.005405334057286382,
+        "candidate": 0.00509499991312623
+      },
+      "ratio": 0.9425874255187204,
+      "delta_seconds": -0.0003103341441601515,
+      "review": false
+    },
+    "combined": {
+      "median_seconds": {
+        "main": 0.02481558290310204,
+        "candidate": 0.02499516704119742
+      },
+      "ratio": 1.0072367487314968,
+      "delta_seconds": 0.00017958413809537888,
+      "review": false
+    },
+    "export": {
+      "median_seconds": {
+        "main": 0.026010124944150448,
+        "candidate": 0.02616487501654774
+      },
+      "ratio": 1.005949608959187,
+      "delta_seconds": 0.00015475007239729166,
+      "review": false
+    }
+  },
+  "worker_order": [
+    [
+      0,
+      "main"
+    ],
+    [
+      0,
+      "candidate"
+    ],
+    [
+      1,
+      "candidate"
+    ],
+    [
+      1,
+      "main"
+    ],
+    [
+      2,
+      "main"
+    ],
+    [
+      2,
+      "candidate"
+    ]
+  ],
+  "repetitions_per_worker": 5,
+  "worker_rounds": 3
+}

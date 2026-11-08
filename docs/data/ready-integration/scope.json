@@ -3,7 +3,7 @@
   "target_main": "f17db8ee504b2961b55a4f66f85bbbaa261ae142",
   "research_source": "f44b9b1",
   "remote_main_verified": true,
-  "status": "in_progress",
+  "status": "qualified_final_packaging_pending",
   "changesets": {
     "A": "Sampling support, fixed-population comparison, historical records and actual native identity",
     "B": "Opt-in turbulence checkpoint diagnostics and bounded read-only flow/tensor tracing",
@@ -29,5 +29,38 @@
     "reviewed selected changes merged to main and installed-package smoke check"
   ],
   "maximum_full_regression_workers": 148,
-  "physics_candidate_workers": 0
+  "physics_candidate_workers": 0,
+  "commits": {
+    "A": "7ba6c2c",
+    "B": "72e47f6",
+    "C": "a131891",
+    "compatibility_guard": "4c813fc"
+  },
+  "qualification_identity": "4b2d7e381dce204fbbec240d8ff26bcd3a3d432abf79f30b3accb31c40137de7",
+  "production_qualification_promoted": true,
+  "checks_completed": [
+    "focused sampling and diagnostic tests",
+    "OpenMP and serial native tests",
+    "Python and validation suites, both backends and installed wheel",
+    "24 frozen adaptive policy workers",
+    "429-case revision/backend/thread matrix",
+    "31 feature-intersection cases and corruption controls",
+    "ASan/UBSan native checks and 18 Python trace checks",
+    "CPU-only symbol checks",
+    "sdist/wheel build, artifact audit, isolated install, runtime smoke and parity",
+    "three-round focused cost comparison",
+    "full 74-condition paired regression: 148 workers, exact probes/planes/diagnostics and 30 measured-score comparisons",
+    "34 native-worker integration tests per backend, no skips in that subset",
+    "12 A/B directed memory workers: complete field hashes/returned bytes/tracked native ownership exact; median RSS A -1.8%, B -0.3%",
+    "All four initial RSS flags reviewed by 16 directed workers; no sustained material increase; exact fields/sizes/native ownership"
+  ],
+  "remaining": [
+    "build and verify final source distribution and wheel",
+    "archive raw evidence, finalize checksums and source audit",
+    "commit qualification evidence, merge into main and post-merge smoke/full tests"
+  ],
+  "evidence_status": "Selected-source audit finalized; final distribution, durable archive and final checksum index pending",
+  "queued_checks": [],
+  "memory_review_instrumentation": "Phase peak RSS, scoped native ownership, Darwin malloc-zone statistics, returned-array sizes and complete field hashes",
+  "additional_memory_review": "Two E-before directions (ENE and WSW) exceeded the paired 10% RSS threshold; prepare one instrumented repeat per arm and direction, four workers total, after the 12-worker A/B review"
 }

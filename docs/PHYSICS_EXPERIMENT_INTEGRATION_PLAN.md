@@ -1,5 +1,108 @@
 # Integrating the physics experiment changes
 
+## Selective integration after the pedestrian campaign — 2026-11-08
+
+Target `main`: `f17db8ee504b2961b55a4f66f85bbbaa261ae142`. Preserve the
+research branch at `f44b9b1` and all original validation artifacts. Work on
+`integrate/ready-wind-tools` in an isolated checkout. This integration changes
+observability and internal utilities; it makes no new physical accuracy claim.
+
+1. **Sampling and provenance.** Include positive-weight interpolation support,
+   explicit rejection/fallback information, owned contributor snapshots,
+   fixed-population comparison and backwards-compatible record reading. Hash
+   the actual imported native extension, including editable installations.
+2. **Opt-in diagnostics.** Extract bounded turbulence receptor checkpoints and
+   read-only face, actor and tensor traces. Keep default solves unchanged; test
+   diagnostic on/off equality, storage bounds, failed-capture recovery and
+   ownership. Reject unsupported adaptive trace requests.
+3. **Internal geometry.** Include independent physical face-intersection,
+   obstacle-visibility and finite-face integration helpers with manufactured
+   geometry and quadrature tests. Exclude the runtime application, velocity
+   formulation and reference-sampling policy.
+4. **Combined release gate.** Freeze the candidate and compare it with actual
+   `main`: all Python and validation tests; OpenMP, serial and sanitizer native
+   checks; CPU-only symbol audits; the 429-case numerical matrix at 1/2/4/8
+   threads and serial; 31 feature intersections; and all 24 frozen adaptive
+   policy workers. Allow only explicitly declared metadata/storage changes.
+   Build an isolated sdist and a wheel from it, install the wheel separately,
+   and verify its imported path, identity, runtime and tests. Run one fresh
+   paired 74-condition AIJ matrix (148 workers maximum), alternating order and
+   using identical inputs/work. Compare every existing probe/plane field,
+   measured scores, coverage, timings and peak RSS. Investigate material cost
+   regressions with a small directed check, not a new physics campaign.
+5. **Merge and establish the next baseline.** Promote the candidate's adaptive
+   qualification identity only after the gates pass. Commit the source audit,
+   compact evidence and limitations, merge the qualified stack into `main`,
+   verify the merged tree and repeat installed-package smoke checks. Leave the
+   research branch and its raw evidence available for the next investigation.
+
+Keep the incoming-energy prototype, bounded-consistent covariance model and
+its extraction optimization, and physical-pairs V1/V2 runtime/reference changes
+on the research branch. They need separate physical qualification. Existing
+fixed-work non-convergence and physical deficiencies remain explicit; exact
+regression preservation does not convert them into physical acceptance.
+
+Progress and gates: [scope manifest](data/ready-integration/scope.json).
+
+### Remaining completion sequence
+
+The selected source is already extracted in three reviewable commits:
+`7ba6c2c` (sampling/provenance), `72e47f6` (diagnostics) and `a131891`
+(internal geometry). Keep this runtime source frozen while completing the
+following gates. Do not add physics fixes to this integration.
+
+1. **Finish the existing paired AIJ campaign.** Preserve its manifest and all
+   outcomes; do not restart it or replace an inconvenient result. Require 74
+   complete main/candidate pairs, exact existing probes, planes, masks and
+   numerical diagnostics, unchanged measured scores and measurement coverage,
+   and only the declared diagnostic additions. Review timing and RSS separately
+   from numerical parity. Fixed-work non-convergence remains a known limitation.
+2. **Close the test-collection gap.** Run the 34 native-worker tests that were
+   skipped because the isolated build paths were unspecified, on both OpenMP
+   and serial builds with explicit executable paths. Require no skips in this
+   subset. Document the other 16 archived toolchain/order fixtures as historical
+   exclusions; current numerical behavior is covered by the fresh parity matrix.
+3. **Resolve the A/B memory flag.** After the timed campaign, run the prepared
+   12-worker directed review: three repeats each of main and candidate for A and
+   B at 1 m, with alternating order and unchanged numerical settings. Compare
+   peak RSS, native ownership counters, Darwin allocator statistics, returned
+   array sizes and whole-field hashes at defined phases. Retain system memory
+   observations. Native counters and allocator statistics have limited scope;
+   neither alone establishes total process memory. Do not accept the flagged
+   RSS increase merely because the system uses compression. Require a supported
+   explanation or fix a demonstrated allocation regression and rerun the checks
+   invalidated by that fix. Review any additional material timing/memory flags
+   revealed by the complete campaign before merging.
+4. **Finalize qualification and the distribution.** Only after these gates pass,
+   promote the tested native qualification identity. Include the compatibility
+   checker's explicit allowance for the new disabled-monitor metadata and its
+   rejection tests. Build the final sdist, build the wheel from that sdist, audit
+   packaged sources/licenses, install into an isolated target, and verify actual
+   imports, native identity, runtime smoke and numerical parity. Preserve the
+   user's existing installation throughout.
+5. **Make the evidence durable and review the final diff.** Update the results
+   document with exact test counts, historical exclusions, measured comparison,
+   timing/memory conclusions and physical limitations. Track a small source and
+   evidence manifest with checksums. Archive the new raw records, arrays, logs
+   and package artifacts under a fresh ignored validation output directory;
+   preserve the original research artifacts. Recheck that no runtime V1/V2,
+   incoming-energy or covariance-model changes entered the selected diff.
+6. **Integrate and verify main.** Recheck the target main revision. If it is
+   unchanged, fast-forward local main to the qualified stack from the isolated
+   checkout, preserving the research checkout and its untracked files. If main
+   advanced, reconcile it and rerun the affected gates before integration.
+   Verify the actual merged source and qualification identity, then run the
+   installed-package smoke check. Record the resulting main commit as the next
+   baseline before resuming the canyon investigation.
+
+Completion means the selected changes are on main, every applicable release
+check has passed, every material regression flag has a documented resolution,
+and the evidence is retrievable. It does not mean the existing wind model has
+passed new physical acceptance criteria or that all historical skips have become
+applicable to the current implementation.
+
+## Earlier integration — completed 2026-11-06
+
 Status: changesets A–D, the complete AIJ comparison and release requalification
 are complete and the implementation is committed to `main`, 2026-11-06.
 The six implementation commits reproduce the exact qualified source tree.

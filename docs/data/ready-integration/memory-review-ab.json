@@ -1,0 +1,537 @@
+{
+  "workers": 12,
+  "cases": {
+    "A": {
+      "median_peak_rss_bytes": {
+        "main": 2299609088.0,
+        "candidate": 2258026496.0
+      },
+      "ratio": 0.9819175388473678,
+      "fields_identical": true,
+      "returned_bytes_identical": true,
+      "rss_values": {
+        "main": [
+          2325889024,
+          2270756864,
+          2299609088
+        ],
+        "candidate": [
+          2299625472,
+          2258026496,
+          2256715776
+        ]
+      },
+      "phases": {
+        "initial": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 228507648.0,
+            "candidate": 228098048.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 141416.0,
+              "size_in_use": 57381088.0,
+              "max_size_in_use": 60402688.0,
+              "size_allocated": 87343104.0
+            },
+            "candidate": {
+              "blocks_in_use": 141470.0,
+              "size_in_use": 57258160.0,
+              "max_size_in_use": 60131616.0,
+              "size_allocated": 89538560.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 54.0,
+            "size_in_use": -122928.0,
+            "max_size_in_use": -271072.0,
+            "size_allocated": 2195456.0
+          }
+        },
+        "before_wind_run": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 229883904.0,
+            "candidate": 229523456.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 141710.0,
+              "size_in_use": 57272336.0,
+              "max_size_in_use": 60953632.0,
+              "size_allocated": 87343104.0
+            },
+            "candidate": {
+              "blocks_in_use": 141764.0,
+              "size_in_use": 57081824.0,
+              "max_size_in_use": 60249792.0,
+              "size_allocated": 89554944.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 54.0,
+            "size_in_use": -190512.0,
+            "max_size_in_use": -703840.0,
+            "size_allocated": 2211840.0
+          }
+        },
+        "native_prepare": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 1370177536.0,
+            "candidate": 1370996736.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 141920.0,
+              "size_in_use": 1178016336.0,
+              "max_size_in_use": 1186996272.0,
+              "size_allocated": 1189150720.0
+            },
+            "candidate": {
+              "blocks_in_use": 141975.0,
+              "size_in_use": 1170256320.0,
+              "max_size_in_use": 1187826480.0,
+              "size_allocated": 1191362560.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 55.0,
+            "size_in_use": -7760016.0,
+            "max_size_in_use": 830208.0,
+            "size_allocated": 2211840.0
+          }
+        },
+        "native_solve_and_transfer": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 2197127168.0,
+            "candidate": 2194423808.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 142041.0,
+              "size_in_use": 1628559008.0,
+              "max_size_in_use": 1644684336.0,
+              "size_allocated": 1616920576.0
+            },
+            "candidate": {
+              "blocks_in_use": 142096.0,
+              "size_in_use": 1620178256.0,
+              "max_size_in_use": 1641501696.0,
+              "size_allocated": 1619116032.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 55.0,
+            "size_in_use": -8380752.0,
+            "max_size_in_use": -3182640.0,
+            "size_allocated": 2195456.0
+          }
+        },
+        "after_wind_run": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 2225897472.0,
+            "candidate": 2223276032.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 141983.0,
+              "size_in_use": 477781040.0,
+              "max_size_in_use": 513894464.0,
+              "size_allocated": 469204992.0
+            },
+            "candidate": {
+              "blocks_in_use": 142039.0,
+              "size_in_use": 471033552.0,
+              "max_size_in_use": 510694400.0,
+              "size_allocated": 459735040.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 56.0,
+            "size_in_use": -6747488.0,
+            "max_size_in_use": -3200064.0,
+            "size_allocated": -9469952.0
+          }
+        },
+        "after_full_field_hashing": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 2225897472.0,
+            "candidate": 2223276032.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 141983.0,
+              "size_in_use": 477781040.0,
+              "max_size_in_use": 513894464.0,
+              "size_allocated": 469204992.0
+            },
+            "candidate": {
+              "blocks_in_use": 142039.0,
+              "size_in_use": 471033552.0,
+              "max_size_in_use": 510694400.0,
+              "size_allocated": 459735040.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 56.0,
+            "size_in_use": -6747488.0,
+            "max_size_in_use": -3200064.0,
+            "size_allocated": -9469952.0
+          }
+        },
+        "after_probes": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 2225913856.0,
+            "candidate": 2223489024.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 142931.0,
+              "size_in_use": 477814224.0,
+              "max_size_in_use": 513894464.0,
+              "size_allocated": 477659136.0
+            },
+            "candidate": {
+              "blocks_in_use": 143081.0,
+              "size_in_use": 471109824.0,
+              "max_size_in_use": 510877184.0,
+              "size_allocated": 459735040.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 150.0,
+            "size_in_use": -6704400.0,
+            "max_size_in_use": -3017280.0,
+            "size_allocated": -17924096.0
+          }
+        },
+        "after_isolated_planes": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 2299609088.0,
+            "candidate": 2258026496.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 143727.0,
+              "size_in_use": 475141520.0,
+              "max_size_in_use": 586867984.0,
+              "size_allocated": 488210432.0
+            },
+            "candidate": {
+              "blocks_in_use": 143875.0,
+              "size_in_use": 465562512.0,
+              "max_size_in_use": 544002768.0,
+              "size_allocated": 495435776.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 148.0,
+            "size_in_use": -9579008.0,
+            "max_size_in_use": -42865216.0,
+            "size_allocated": 7225344.0
+          }
+        },
+        "after_workflow": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 2299609088.0,
+            "candidate": 2258026496.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 143682.0,
+              "size_in_use": 84662704.0,
+              "max_size_in_use": 216687888.0,
+              "size_allocated": 118030336.0
+            },
+            "candidate": {
+              "blocks_in_use": 143833.0,
+              "size_in_use": 73588784.0,
+              "max_size_in_use": 173822672.0,
+              "size_allocated": 125255680.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 151.0,
+            "size_in_use": -11073920.0,
+            "max_size_in_use": -42865216.0,
+            "size_allocated": 7225344.0
+          }
+        }
+      }
+    },
+    "B": {
+      "median_peak_rss_bytes": {
+        "main": 2408366080.0,
+        "candidate": 2401026048.0
+      },
+      "ratio": 0.9969522772883431,
+      "fields_identical": true,
+      "returned_bytes_identical": true,
+      "rss_values": {
+        "main": [
+          2408366080,
+          2384461824,
+          2411560960
+        ],
+        "candidate": [
+          2401026048,
+          2417885184,
+          2392408064
+        ]
+      },
+      "phases": {
+        "initial": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 229261312.0,
+            "candidate": 228851712.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 141437.0,
+              "size_in_use": 57377872.0,
+              "max_size_in_use": 61393024.0,
+              "size_allocated": 97288192.0
+            },
+            "candidate": {
+              "blocks_in_use": 141514.0,
+              "size_in_use": 57275248.0,
+              "max_size_in_use": 60910400.0,
+              "size_allocated": 87310336.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 77.0,
+            "size_in_use": -102624.0,
+            "max_size_in_use": -482624.0,
+            "size_allocated": -9977856.0
+          }
+        },
+        "before_wind_run": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 230621184.0,
+            "candidate": 230309888.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 141716.0,
+              "size_in_use": 56876240.0,
+              "max_size_in_use": 61407904.0,
+              "size_allocated": 97353728.0
+            },
+            "candidate": {
+              "blocks_in_use": 141794.0,
+              "size_in_use": 56712176.0,
+              "max_size_in_use": 61041472.0,
+              "size_allocated": 87310336.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 78.0,
+            "size_in_use": -164064.0,
+            "max_size_in_use": -366432.0,
+            "size_allocated": -10043392.0
+          }
+        },
+        "native_prepare": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 1432600576.0,
+            "candidate": 1429684224.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 141930.0,
+              "size_in_use": 1227620304.0,
+              "max_size_in_use": 1248217632.0,
+              "size_allocated": 1265745920.0
+            },
+            "candidate": {
+              "blocks_in_use": 142007.0,
+              "size_in_use": 1231272592.0,
+              "max_size_in_use": 1244719584.0,
+              "size_allocated": 1246216192.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 77.0,
+            "size_in_use": 3652288.0,
+            "max_size_in_use": -3498048.0,
+            "size_allocated": -19529728.0
+          }
+        },
+        "native_solve_and_transfer": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 2318778368.0,
+            "candidate": 2314993664.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 142052.0,
+              "size_in_use": 1705219600.0,
+              "max_size_in_use": 1746776560.0,
+              "size_allocated": 1724268544.0
+            },
+            "candidate": {
+              "blocks_in_use": 142130.0,
+              "size_in_use": 1714430448.0,
+              "max_size_in_use": 1742741408.0,
+              "size_allocated": 1716961280.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 78.0,
+            "size_in_use": 9210848.0,
+            "max_size_in_use": -4035152.0,
+            "size_allocated": -7307264.0
+          }
+        },
+        "after_wind_run": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 2347761664.0,
+            "candidate": 2338947072.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 141994.0,
+              "size_in_use": 494057152.0,
+              "max_size_in_use": 557214256.0,
+              "size_allocated": 504725504.0
+            },
+            "candidate": {
+              "blocks_in_use": 142074.0,
+              "size_in_use": 497331984.0,
+              "max_size_in_use": 547566640.0,
+              "size_allocated": 497418240.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 80.0,
+            "size_in_use": 3274832.0,
+            "max_size_in_use": -9647616.0,
+            "size_allocated": -7307264.0
+          }
+        },
+        "after_full_field_hashing": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 2347827200.0,
+            "candidate": 2338996224.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 141994.0,
+              "size_in_use": 494057152.0,
+              "max_size_in_use": 557214256.0,
+              "size_allocated": 504725504.0
+            },
+            "candidate": {
+              "blocks_in_use": 142074.0,
+              "size_in_use": 497331984.0,
+              "max_size_in_use": 547566640.0,
+              "size_allocated": 497418240.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 80.0,
+            "size_in_use": 3274832.0,
+            "max_size_in_use": -9647616.0,
+            "size_allocated": -7307264.0
+          }
+        },
+        "after_probes": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 2348154880.0,
+            "candidate": 2339323904.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 142988.0,
+              "size_in_use": 494098912.0,
+              "max_size_in_use": 557462128.0,
+              "size_allocated": 505806848.0
+            },
+            "candidate": {
+              "blocks_in_use": 143154.0,
+              "size_in_use": 497421952.0,
+              "max_size_in_use": 547784688.0,
+              "size_allocated": 506888192.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 166.0,
+            "size_in_use": 3323040.0,
+            "max_size_in_use": -9677440.0,
+            "size_allocated": 1081344.0
+          }
+        },
+        "after_isolated_planes": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 2408366080.0,
+            "candidate": 2401026048.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 144103.0,
+              "size_in_use": 495170496.0,
+              "max_size_in_use": 615670928.0,
+              "size_allocated": 516374528.0
+            },
+            "candidate": {
+              "blocks_in_use": 144278.0,
+              "size_in_use": 500790656.0,
+              "max_size_in_use": 606140208.0,
+              "size_allocated": 524713984.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 175.0,
+            "size_in_use": 5620160.0,
+            "max_size_in_use": -9530720.0,
+            "size_allocated": 8339456.0
+          }
+        },
+        "after_workflow": {
+          "native_resources_identical": true,
+          "median_peak_rss_bytes": {
+            "main": 2408366080.0,
+            "candidate": 2401026048.0
+          },
+          "median_allocator": {
+            "main": {
+              "blocks_in_use": 144060.0,
+              "size_in_use": 80285728.0,
+              "max_size_in_use": 225682576.0,
+              "size_allocated": 126386176.0
+            },
+            "candidate": {
+              "blocks_in_use": 144238.0,
+              "size_in_use": 87620336.0,
+              "max_size_in_use": 216151856.0,
+              "size_allocated": 134709248.0
+            }
+          },
+          "allocator_candidate_minus_main": {
+            "blocks_in_use": 178.0,
+            "size_in_use": 7334608.0,
+            "max_size_in_use": -9530720.0,
+            "size_allocated": 8323072.0
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "passed": true,
+  "identity_pair": [
+    "0065015d928341ecaaefd10728560b683c1e0630175599d554ebe6a6ad3188d8",
+    "4b2d7e381dce204fbbec240d8ff26bcd3a3d432abf79f30b3accb31c40137de7"
+  ],
+  "comparisons": [
+    {
+      "kind": "revision",
+      "backend": "openmp",
+      "threads": 1,
+      "cases": 429,
+      "records": 4774,
+      "differences": []
+    },
+    {
+      "kind": "revision",
+      "backend": "openmp",
+      "threads": 2,
+      "cases": 429,
+      "records": 4774,
+      "differences": []
+    },
+    {
+      "kind": "revision",
+      "backend": "openmp",
+      "threads": 4,
+      "cases": 429,
+      "records": 4774,
+      "differences": []
+    },
+    {
+      "kind": "revision",
+      "backend": "openmp",
+      "threads": 8,
+      "cases": 429,
+      "records": 4774,
+      "differences": []
+    },
+    {
+      "kind": "revision",
+      "backend": "serial",
+      "threads": 1,
+      "cases": 429,
+      "records": 4774,
+      "differences": []
+    },
+    {
+      "kind": "threads",
+      "threads": 2,
+      "records": 4774,
+      "differences": []
+    },
+    {
+      "kind": "threads",
+      "threads": 4,
+      "records": 4774,
+      "differences": []
+    },
+    {
+      "kind": "threads",
+      "threads": 8,
+      "records": 4774,
+      "differences": []
+    },
+    {
+      "kind": "backends",
+      "threads": 1,
+      "records": 4774,
+      "differences": []
+    },
+    {
+      "kind": "backends",
+      "threads": 2,
+      "records": 4774,
+      "differences": []
+    },
+    {
+      "kind": "backends",
+      "threads": 4,
+      "records": 4774,
+      "differences": []
+    },
+    {
+      "kind": "backends",
+      "threads": 8,
+      "records": 4774,
+      "differences": []
+    }
+  ]
+}

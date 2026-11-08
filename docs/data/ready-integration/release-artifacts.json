@@ -1,0 +1,10 @@
+{
+  "schema": "ready-integration-release-artifacts-v1",
+  "status": "final_source_distribution_pending",
+  "expected_native_revision": "4b2d7e381dce204fbbec240d8ff26bcd3a3d432abf79f30b3accb31c40137de7",
+  "source_audit_sha256": "7af8bb3c09c1be5c700b2fb0b1b65aa112a17642e60ebd0987b165d00bfde2cd",
+  "qualification_package_verified": true,
+  "final_distribution_verified": false,
+  "durable_raw_archive": null,
+  "note": "Final artifact hashes are necessarily recorded outside the artifact being hashed. Earlier successful packaging before evidence finalization is retained in package-before-final-evidence.log; it is superseded by the final source build."
+}
