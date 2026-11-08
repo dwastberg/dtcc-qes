@@ -5,6 +5,17 @@ memory growth and the repeated 1 m reverse-order timeout. These changes preserve
 the solver equations, stopping rules and default relaxation factors. They do
 not establish the cause of either observation or qualify a new numerical policy.
 
+## Internal geometric utilities
+
+`winds/PhysicalCanyonGeometry.h` and `PhysicalCanyonCoverage.h` provide physical
+face intersections, first-obstacle visibility, clipped finite-face areas and
+quadrature. They have no runtime dispatcher or velocity formulation. The canyon
+reference-point and reference-sampling policies are not included. Native checks
+use independent areas and polynomial integrals, transformations, height-dependent
+occlusion, ambiguous geometry, partial coverage, partition ownership and explicit
+complexity limits. These checks establish the helper contracts; they do not
+qualify a canyon flow model or any pedestrian-wind accuracy claim.
+
 ## Workspace replacement
 
 Changing precision, tolerance or experimental omega releases the obsolete

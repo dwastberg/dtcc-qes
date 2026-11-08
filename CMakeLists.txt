@@ -195,7 +195,7 @@ if(DTCC_QES_BUILD_TESTS)
   target_include_directories(check_runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
   target_link_libraries(check_runner PRIVATE dtcc_qes_internal Threads::Threads)
   add_test(NAME runner_lifecycle COMMAND check_runner)
-  foreach(check check_canyon_join check_canyon_roof_protection check_canyon_core_audit check_canyon_horizontal_audit check_canyon_preflight check_canyon_kernel)
+  foreach(check check_canyon_join check_canyon_roof_protection check_canyon_core_audit check_canyon_horizontal_audit check_canyon_preflight check_canyon_kernel check_physical_canyon_geometry check_physical_canyon_coverage)
     add_executable(${check} tests/native/${check}.cpp)
     target_include_directories(${check} PRIVATE src/qes_core src/qes_core/winds)
     # Pure helpers need the same sanitizer instrumentation as the core checks.
