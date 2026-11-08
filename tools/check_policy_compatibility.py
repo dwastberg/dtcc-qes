@@ -2,7 +2,8 @@
 
 Rerun the frozen S7 release workers against freshly built serial/OpenMP
 packages. Require exact fields, diagnostics and numerical decisions; the only
-permitted provenance change is the declared native implementation revision.
+permitted provenance change by default is the declared native implementation
+revision. An explicit option permits the added monitor turbulence=False field.
 This does not qualify any new inflow family or change policy thresholds.
 """
 from __future__ import annotations
@@ -21,7 +22,15 @@ from compare_native_builds import stage_package
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def check(output, serial, openmp):
+def monitor_compatible(current, frozen, allow_disabled_turbulence=False):
+    """Permit only an explicitly requested, false diagnostic-field addition."""
+    if allow_disabled_turbulence and isinstance(current, dict) and isinstance(frozen, dict):
+        if "turbulence" not in frozen and current.get("turbulence") is False:
+            current = {key: value for key, value in current.items() if key != "turbulence"}
+    return comparable(current) == comparable(frozen)
+
+
+def check(output, serial, openmp, allow_disabled_turbulence=False):
     output.mkdir(parents=True, exist_ok=False)
     evidence = ROOT / "docs/data/solver-control-s7"
     protocol = json.loads((evidence / "release-online-protocol.json").read_text())
@@ -39,7 +48,8 @@ def check(output, serial, openmp):
     report = dict(passed=False, native_revision=revisions["serial"],
         previous_revision=expected[0]["control"]["policy_revision"],
         frozen_manifest_sha256=hashlib.sha256((evidence / "manifest.json").read_bytes()).hexdigest(),
-        lock_sha256=hashlib.sha256((ROOT / "uv.lock").read_bytes()).hexdigest(), workers=[])
+        lock_sha256=hashlib.sha256((ROOT / "uv.lock").read_bytes()).hexdigest(),
+        allow_disabled_turbulence_monitor=allow_disabled_turbulence, workers=[])
     for req, old in zip(protocol["rows"], expected):
         print(req["id"], req["case"], req["variant"], flush=True)
         package = output / ("serial" if req.get("backend") == "serial" else "openmp")
@@ -57,7 +67,8 @@ def check(output, serial, openmp):
         if row.get("control") is not None:
             for key in ["accepted", "accuracy_status", "assessment_reason", "assessment",
                         "assessment_history", "checkpoint_history", "method", "monitor"]:
-                if comparable(row["control"].get(key)) != comparable(old["control"].get(key)):
+                if not monitor_compatible(row["control"].get(key), old["control"].get(key),
+                                          allow_disabled_turbulence and key == "monitor"):
                     differences.append("control/" + key)
             if row["control"]["policy_revision"] != revisions["serial"]:
                 differences.append("control/policy_revision")
@@ -67,7 +78,7 @@ def check(output, serial, openmp):
             raise ValueError(f"Frozen policy regression in {req['id']}: {differences}")
     report["passed"] = True
     (output / "summary.json").write_text(json.dumps(report, indent=2) + "\n")
-    print(f"All {len(expected)} frozen workers match exactly; only source identity changed.")
+    print(f"All {len(expected)} frozen workers match; declared identity and disabled-monitor metadata exceptions only.")
 
 
 if __name__ == "__main__":
@@ -75,5 +86,8 @@ if __name__ == "__main__":
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--serial", type=Path, required=True)
     parser.add_argument("--openmp", type=Path, required=True)
+    parser.add_argument("--allow-disabled-turbulence-monitor", action="store_true",
+                        help="Allow only the new monitor turbulence=False metadata field")
     args = parser.parse_args()
-    check(args.output.resolve(), args.serial.resolve(), args.openmp.resolve())
+    check(args.output.resolve(), args.serial.resolve(), args.openmp.resolve(),
+          args.allow_disabled_turbulence_monitor)

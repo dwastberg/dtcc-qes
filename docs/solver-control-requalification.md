@@ -28,15 +28,23 @@ thresholds; it does not qualify new inflow families or physical accuracy.
    ```sh
    .venv/bin/python tools/check_policy_compatibility.py \
      --serial ISOLATED_SERIAL --openmp ISOLATED_OPENMP \
-     --output FRESH_WORKER_DIRECTORY
+     --output FRESH_WORKER_DIRECTORY --allow-disabled-turbulence-monitor
    ```
 
    Exact fields, diagnostics, acceptance, status, reasons, assessment histories,
-   checkpoint histories, method and monitors must match. Only declared native
-   identity and validated elapsed times differ. Run adaptive combined-baseline
+   checkpoint histories, method and monitors must match. The explicit monitor
+   option permits only the added `turbulence=False` metadata field relative to
+   frozen S7; enabling it or changing other monitor fields still fails. Apart
+   from that addition, only declared native identity and validated elapsed
+   times differ. Run adaptive combined-baseline
    cases, preflight, excluded profiles/precision/turbulence/thread teams,
    deterministic completed-work deadlines, and the full `pytest -W error` suite
    against both intended isolated packages.
+   With custom build directories, set `DTCC_QES_STUDY_EXECUTABLE`,
+   `DTCC_QES_MONITOR_EXECUTABLE` and `DTCC_QES_NATIVE_TEST` to that backend's
+   `vertical_grid_study`, `check_monitor` and `check_safety` executables. The
+   runner and physics checks default to siblings of `check_safety`. This ensures
+   native/Python integration tests execute instead of skipping absent defaults.
 5. Build an isolated sdist and a wheel from that sdist. Run
    `tools/check_artifacts.py` and `tools/wheel_runtime_smoke.py` against the
    installed wheel. Verify the imported path, qualified identity and acceptance.
