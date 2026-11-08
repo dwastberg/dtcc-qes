@@ -1,0 +1,50 @@
+{
+  "schema": "ready-integration-completion-audit-v1",
+  "requirements_satisfied": true,
+  "tested_main_commit": "d462289f4011e87c16c999ddfabb56440993b92d",
+  "requirements": [
+    {
+      "requirement": "Selected changes are integrated into main",
+      "evidence": "post-merge-source-audit.json: selected commits are ancestors of main; reviewed source hashes match"
+    },
+    {
+      "requirement": "Default predictions and measured validation are preserved",
+      "evidence": "full-comparison.json: 74 paired conditions, existing probes/planes/diagnostics and 30 measured comparisons exact"
+    },
+    {
+      "requirement": "Applicable tests pass on main and supported backends",
+      "evidence": "pytest-post-merge.xml.gz: 2054 passed, 16 justified historical skips; test-coverage.json includes serial/OpenMP follow-ups"
+    },
+    {
+      "requirement": "Diagnostics, ownership, bounds and native correctness are tested",
+      "evidence": "Qualified native suites 58/55, sanitizer native 55 and Python trace 18; all passed"
+    },
+    {
+      "requirement": "Thread/backend and adaptive policy behavior are preserved",
+      "evidence": "native-parity.json: 12 exact comparisons of 429-case matrix; combined-comparison.json: 31 cases; policy-workers.json: 24 workers"
+    },
+    {
+      "requirement": "Material performance and memory flags are resolved",
+      "evidence": "No full-matrix timing flag; cost-comparison.json passes; memory-assessment.json resolves all four RSS flags using 16 directed workers"
+    },
+    {
+      "requirement": "Distribution contains qualified source and runtime",
+      "evidence": "Final artifact/license audit passed; 45 selected packaged sources match; 22 runtime files equal the fully validated wheel; fresh actual-import and smoke checks passed"
+    },
+    {
+      "requirement": "Evidence is durable and experimental physics stays separate",
+      "evidence": "1275 raw files copied and verified in repository-owned output archive; source audit excludes V1/V2 runtime, incoming-energy and covariance prototypes"
+    },
+    {
+      "requirement": "Post-merge source and installed package are verified",
+      "evidence": "post-merge-source-audit.json and post-merge-wheel-smoke.log.gz pass on main"
+    }
+  ],
+  "limits": [
+    "Physical accuracy is unchanged; all 74 canonical cases remain fixed-work, not legacy-tolerance-converged.",
+    "Sixteen historical ordering/toolchain fixtures remain inapplicable, with reasons retained.",
+    "Memory review is a limited single-host regression assessment, not a portable memory bound.",
+    "Main is updated locally; the research checkout and its installation were preserved."
+  ],
+  "evidence_only_followup": "The final commit records this evidence and scope status; it changes no runtime, tests, validation logic or reviewed source files."
+}

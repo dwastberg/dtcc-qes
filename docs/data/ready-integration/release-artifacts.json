@@ -1,6 +1,6 @@
 {
   "schema": "ready-integration-release-artifacts-v1",
-  "status": "verified_ready_to_merge",
+  "status": "complete_on_local_main",
   "expected_native_revision": "4b2d7e381dce204fbbec240d8ff26bcd3a3d432abf79f30b3accb31c40137de7",
   "source_audit_sha256": "7af8bb3c09c1be5c700b2fb0b1b65aa112a17642e60ebd0987b165d00bfde2cd",
   "qualification_package_verified": true,
@@ -36,5 +36,17 @@
     "fp_contract": "on"
   },
   "runtime_verification": "All 22 runtime files are byte-identical to the qualified wheel; actual final-wheel imports, supported identity and runtime smoke passed afresh.",
-  "source_verification": "All 45 selected source files and the packaged source audit match the frozen source commit."
+  "source_verification": "All 45 selected source files and the packaged source audit match the frozen source commit.",
+  "tested_main_commit": "d462289f4011e87c16c999ddfabb56440993b92d",
+  "post_merge_tests": {
+    "passed": 2054,
+    "historical_skips": 16,
+    "failed": 0
+  },
+  "post_merge_smoke_passed": true,
+  "post_merge_archive": {
+    "path": "/Users/dagwastberg/repos/dtcc/dtcc-qes/validation/output/ready-integration-20261108/post-merge",
+    "index_sha256": "8c3aa729ddc4f3ad810565fa8220c9572e1dbcab76c5d5c3e4c50018b7710b0a",
+    "files": 5
+  }
 }
