@@ -16,7 +16,7 @@ from pathlib import Path
 import numpy as np
 import shapely
 
-from . import case_ab, case_e, cityutil, metrics, tables
+from . import case_ab, case_e, cityutil, metrics, sampling, tables
 from .conventions import AB_LABEL
 from .runspec import RunSpec
 
@@ -58,8 +58,64 @@ def load_records(runs: Path, specs) -> dict:
     for spec in specs:
         path = Path(runs) / spec.case / f"{spec.key}.json"
         if path.exists():
-            out[(spec.case, spec.state, spec.label)] = json.loads(path.read_text())
+            from .runner import read_record
+            out[(spec.case, spec.state, spec.label)] = read_record(json.loads(path.read_text()))
     return out
+
+
+def paired_sampling_scores(parent, candidate, measured, *, quantity='k', parent_scale=1.,
+                           candidate_scale=1., height=2., ground_elevation=0., eligible=None):
+    """Fixed parent population plus explicit operator/coverage cohorts, by ID.
+
+    Measurements are in parent ID order, already normalized to their own
+    reference. A missing candidate never produces a complete-population score.
+    Old records retain unknown support reasons. Same-operator scores require
+    the same actual point/method and the requested physical height in both arms.
+    """
+    pids=list(parent['ids']);cids=list(candidate['ids'])
+    if len(set(pids))!=len(pids) or len(set(cids))!=len(cids):raise ValueError('Duplicate observation IDs')
+    if not np.isfinite([parent_scale,candidate_scale]).all() or min(parent_scale,candidate_scale)<=0:
+        raise ValueError('Comparison scales must be finite and positive')
+    measured=np.asarray(measured,float)
+    if measured.shape!=(len(pids),):raise ValueError('Measurements must follow parent observation IDs')
+    lookup={id_:i for i,id_ in enumerate(cids)};at=np.array([lookup.get(id_,-1) for id_ in pids])
+    present=at>=0
+    def aligned(values,fill=np.nan):
+        values=np.asarray(values);out=np.full((len(pids),*values.shape[1:]),fill,dtype=values.dtype if isinstance(fill,str) else float)
+        out[present]=values[at[present]];return out
+    a=np.asarray(parent[quantity],float)/parent_scale;b=aligned(np.asarray(candidate[quantity],float))/candidate_scale
+    p=sampling.provenance(parent);c=sampling.provenance(candidate)
+    xyz=np.asarray(p['requested'],float);actual=np.asarray(p['sampled'],float)
+    cxyz=aligned(np.asarray(c['requested'],float));cactual=aligned(np.asarray(c['sampled'],float))
+    pm=np.asarray(p['method'],str);cm=aligned(np.asarray(c['method'],object),fill='unknown')
+    same_request=np.all(np.isclose(xyz,cxyz,rtol=0,atol=1e-9),axis=1)
+    same_point=np.all(np.isclose(actual,cactual,rtol=0,atol=1e-9),axis=1)
+    same_method=(pm==cm)&(pm!='unknown')&(pm!='none')
+    at_height=np.isclose(actual[:,2],xyz[:,2],rtol=0,atol=1e-9)&np.isclose(cactual[:,2],cxyz[:,2],rtol=0,atol=1e-9)
+    target=np.isfinite(measured)
+    if eligible is not None:target &= np.asarray(eligible,bool)
+    if height is not None:target &= np.isclose(xyz[:,2]-ground_elevation,height,rtol=0,atol=1e-9)
+    parent_valid=target&np.isfinite(a);common=parent_valid&np.isfinite(b)
+    lost=parent_valid&~np.isfinite(b);recovered=target&~np.isfinite(a)&np.isfinite(b)
+    unchanged=same_request&same_point&same_method&at_height
+    relocated=((np.isfinite(actual).all(axis=1)&np.any(~np.isclose(actual,xyz,rtol=0,atol=1e-9),axis=1))
+        |(np.isfinite(cactual).all(axis=1)&np.any(~np.isclose(cactual,cxyz,rtol=0,atol=1e-9),axis=1))
+        |(pm=='nearest_fluid')|(cm=='nearest_fluid'))
+    def scores(mask,values=b):
+        # Undefined correlations at tiny/constant strata remain NaN.
+        import warnings
+        with warnings.catch_warnings(),np.errstate(invalid='ignore',divide='ignore'):
+            warnings.filterwarnings('ignore',message='Mean of empty slice',category=RuntimeWarning)
+            return metrics.scores(values[mask],measured[mask],w=0. if quantity=='k' else metrics.W)
+    def cohort(mask):
+        return dict(count=int(mask.sum()),ids=np.asarray(pids)[mask],baseline=scores(mask,a),candidate=scores(mask),
+            squared_error_reduction=float(np.sum((a[mask]-measured[mask])**2-(b[mask]-measured[mask])**2)))
+    return dict(parent_count=int(parent_valid.sum()),common_count=int(common.sum()),no_coverage_loss=not lost.any(),
+        lost_ids=np.asarray(pids)[lost],recovered_ids=np.asarray(pids)[recovered],
+        baseline=scores(parent_valid,a),candidate_complete=scores(parent_valid) if not lost.any() else None,
+        common=cohort(common),same_operator_at_requested_height=cohort(common&unchanged),
+        changed_operator=cohort(common&~unchanged),relocated_or_fallback=cohort(common&relocated),
+        parent_provenance=p,candidate_provenance=c)
 
 
 def _matrix(records, case, state, labels, quantity, ids):

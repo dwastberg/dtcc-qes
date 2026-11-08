@@ -25,11 +25,11 @@ from . import ROOT, CASE_A_XLS, CASE_B_XLS, CASE_D_XLS, CASE_E_XLS, case_ab, cas
     sampling, tables
 from .runspec import FINE_TOP, MAX_ASPECT, RunSpec
 
-RECORD_SCHEMA = "aij-run-v1"
+RECORD_SCHEMA = "aij-run-v2"
 REPO = ROOT.parent
 # Modules whose code changes a run's output; report and metrics code is deliberately excluded.
 RUN_MODULES = ("case_ab", "case_d", "case_e", "cityutil", "conventions", "dxf", "grids", "inflow", "prisms",
-               "runner", "runspec", "sampling", "tables")
+               "runner", "runspec", "sampling", "sampling_geometry", "tables")
 XLS = {"A": CASE_A_XLS, "B": CASE_B_XLS, "D": CASE_D_XLS, "E": CASE_E_XLS}
 # Cases A and B: heights [m] of the centreline (y = 0) speeds kept in the record, for the reattachment
 # lengths (the lowest wake points of the vertical sections), and the spacing of those samples.
@@ -39,7 +39,7 @@ CENTRELINE_STEP = 0.25
 
 def _sha256_files(paths) -> str:
     digest = hashlib.sha256()
-    for path in sorted(paths):
+    for path in sorted(paths, key=lambda p: Path(p).name):
         digest.update(str(Path(path).name).encode())
         digest.update(Path(path).read_bytes())
     return digest.hexdigest()
@@ -47,12 +47,22 @@ def _sha256_files(paths) -> str:
 
 @lru_cache(maxsize=1)
 def fingerprint() -> str:
-    """Hash of the code that determines a run: the validation modules and the dtcc_qes package."""
+    """Hash execution sources and the loaded extension, including editable installs."""
     import dtcc_qes
+    from dtcc_qes import _qes
     package = Path(dtcc_qes.__file__).parent
     paths = [ROOT / "aij" / f"{name}.py" for name in RUN_MODULES]
-    paths += sorted(package.glob("*.py")) + sorted(package.glob("_qes*.so")) + sorted(package.glob("_qes*.pyd"))
+    paths += sorted(package.glob("*.py"))
+    # Editable Python sources and the imported native extension can live in
+    # different directories. Hash the actual imported module exactly once.
+    paths.append(Path(_qes.__file__))
     return _sha256_files(paths)
+
+
+def native_identity() -> dict:
+    from dtcc_qes import _qes
+    path = Path(_qes.__file__).resolve()
+    return dict(path=str(path), sha256=hashlib.sha256(path.read_bytes()).hexdigest())
 
 
 def git_state() -> dict:
@@ -189,7 +199,7 @@ def _history(record, reference_speed) -> dict:
     return dict(iterations=iterations, K=k, truncated=bool(record.get("history_truncated")))
 
 
-def run(spec: RunSpec) -> tuple[dict, dict]:
+def run(spec: RunSpec, *, geometry_diagnostics=False) -> tuple[dict, dict]:
     """Solve ``spec``; return the JSON record and the probe-height plane arrays."""
     from dtcc_qes import _qes, wind
     started = time.perf_counter()
@@ -205,13 +215,16 @@ def run(spec: RunSpec) -> tuple[dict, dict]:
     probe = dict(ids=probes.ids, xyz=probes.xyz, wall_distance=wall_distance,
                  velocity=sample["velocity"], speed=sample["speed"], K=sample["speed"] / uref,
                  K_min=sample["speed_min"] / uref, K_max=sample["speed_max"] / uref,
-                 method=sample["method"], sampled=sample["sampled"], radius=sample["radius"])
+                 method=sample["method"], sampled=sample["sampled"], radius=sample["radius"],
+                 sampling_provenance=sample['sampling_provenance'])
     if "k" in sample:
-        probe.update(k=sample["k"], K_scalar=np.sqrt(sample["speed"] ** 2 + 2 * sample["k"]) / uref)
+        probe.update(k=sample["k"], K_scalar=np.sqrt(sample["speed"] ** 2 + 2 * sample["k"]) / uref,
+                     stress=sample['stress'],stress_valid=sample['stress_valid'])
     metadata = result.metadata
     footprints = metadata.get("footprints")
     record = dict(
         schema=RECORD_SCHEMA, key=spec.key, name=spec.name, spec=spec.to_dict(), fingerprint=fingerprint(),
+        native=native_identity(),
         provenance=dict(git=git_state(), versions=metadata["versions"], environment=result.solver["environment"],
                         solver_policy_revision=_qes.solver_policy_revision, model=metadata["model"],
                         city_digest=city_digest(args["city"]),
@@ -227,6 +240,9 @@ def run(spec: RunSpec) -> tuple[dict, dict]:
         footprints=None if footprints is None else dict(counts=footprints["counts"], fallbacks=footprints["fallbacks"]),
         ignored_city_objects=metadata["ignored_city_objects"],
         probes=probe)
+    if geometry_diagnostics:
+        from .sampling_geometry import summarize_result
+        record['geometry_support']=summarize_result(result,cityutil.footprints(args['city']),probes.xyz)
     if spec.monitor:
         record["history"] = _history(result.solver["record"], uref)
     plane = result.sample(grids.PROBE_HEIGHT, "nearest")
@@ -275,4 +291,13 @@ def write(record: dict, arrays: dict, directory: Path) -> Path:
 
 def load(directory: Path, key: str) -> dict | None:
     path = Path(directory) / f"{key}.json"
-    return json.loads(path.read_text()) if path.exists() else None
+    return read_record(json.loads(path.read_text())) if path.exists() else None
+
+
+def read_record(record):
+    """Read v1/v2 records without inventing unavailable historical support."""
+    if record.get('schema') not in ('aij-run-v1',RECORD_SCHEMA):
+        raise ValueError('Unsupported AIJ run record schema')
+    probes=dict(record['probes'])
+    probes['sampling_provenance']=sampling.provenance(probes)
+    return {**record,'probes':probes}

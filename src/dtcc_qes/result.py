@@ -152,6 +152,37 @@ class WindSample(_SampleStatistics):
 
 
 @dataclass(frozen=True)
+class SamplingSupport:
+    """Sampling-time evidence, independent of editable sample values and masks.
+
+    Geometric support requires an in-range stencil with no positive solid
+    weight. Computed/source/interpolant masks are independent; they are None
+    when turbulence was not requested. Contributor indices use physical i,j,k
+    order, with -1 and zero weight in inactive slots. Coordinates use the
+    sample's frame. Details allocate at most eight slots per requested point.
+    """
+    geometric: np.ndarray
+    solid_weight: np.ndarray
+    computed: np.ndarray | None
+    contributors_valid: np.ndarray | None
+    interpolant_valid: np.ndarray | None
+    reasons: tuple[tuple[str, ...], ...]
+    contributors: dict | None = None
+
+    def to_dict(self):
+        """JSON-compatible owned summary, including details only if requested."""
+        def plain(value):
+            if isinstance(value, np.ndarray):return plain(value.tolist())
+            if isinstance(value, dict):return {k:plain(v) for k,v in value.items()}
+            if isinstance(value, (tuple,list)):return [plain(v) for v in value]
+            if isinstance(value,float) and not np.isfinite(value):return None
+            return value
+        return plain(dict(schema_version=1, geometric=self.geometric, solid_weight=self.solid_weight,
+            computed=self.computed, contributors_valid=self.contributors_valid,
+            interpolant_valid=self.interpolant_valid, reasons=self.reasons, contributors=self.contributors))
+
+
+@dataclass(frozen=True)
 class WindPointSample(_SampleStatistics):
     """Owned probe arrays in input order, with coordinates in ``frame``.
 
@@ -176,6 +207,7 @@ class WindPointSample(_SampleStatistics):
     stress: np.ndarray | None = None
     stress_valid: np.ndarray | None = None
     _stress_contributors_valid: np.ndarray | None = field(default=None, repr=False, compare=False, kw_only=True)
+    support: SamplingSupport | None = field(default=None, kw_only=True)
 
     @property
     def speed(self):
@@ -379,7 +411,8 @@ class WindResult:
                           requested, sampled, method, self.origin, self.crs,stress,stress_valid,
                           _stress_contributors_valid=contributors)
 
-    def sample_points(self, points, method="nearest", *, frame="local") -> WindPointSample:
+    def sample_points(self, points, method="nearest", *, frame="local", diagnostics=False,
+                      include_contributors=False) -> WindPointSample:
         """Sample finite probe coordinates supplied as an (n,3) numeric array.
 
         Coordinates are local metres by default: z is height above flat ground.
@@ -400,7 +433,17 @@ class WindResult:
         velocity. Optional stresses follow ``sample``'s independent coverage
         and contributor validity rules. Work/storage scale with probe count,
         without copying or masking the full wind volume.
+
+        ``diagnostics=True`` attaches independent geometric, computed, source
+        covariance and interpolant evidence in ``sample.support``. Reason codes
+        can coexist. ``include_contributors=True`` additionally records the
+        positive-weight cells, coordinates and masks, and requires diagnostics.
+        These options never change interpolation, values or validity policy.
         """
+        if not isinstance(diagnostics,bool) or not isinstance(include_contributors,bool):
+            raise ValueError("diagnostics and include_contributors must be booleans")
+        if include_contributors and not diagnostics:
+            raise ValueError("include_contributors requires diagnostics=True")
         if not isinstance(method, str) or method not in ("nearest", "linear"):
             raise ValueError("method must be 'nearest' or 'linear'")
         if not isinstance(frame, str) or frame not in ("local", "global"):
@@ -458,6 +501,7 @@ class WindResult:
                     or any(not np.isfinite(axis).all() or np.any(axis[1:] <= axis[:-1]) for axis in axes)):
                 raise ValueError("global coordinate precision must preserve finite, distinct cell centres and faces")
         supported = ((requested >= lower) & (requested <= upper)).all(axis=1)
+        in_domain = supported.copy() if diagnostics else None
         lows, highs, weights = [], [], []
         sampled = np.empty_like(requested)
         for dim, axis in enumerate(axes):
@@ -485,13 +529,25 @@ class WindResult:
         valid = supported.copy()
         fields = self.turbulence
         stress = stress_valid = contributors = None
+        support = None
+        if diagnostics:
+            solid_weight=np.zeros(len(requested));nonfinite_velocity=np.zeros(len(requested),bool)
+            nonfinite_stress=np.zeros(len(requested),bool)
+            invalid_source=np.zeros(len(requested),bool)
+            details=None
+            if include_contributors:
+                details=dict(indices=np.full((len(requested),8,3),-1,dtype=np.int64),
+                    points=np.full((len(requested),8,3),np.nan),weights=np.zeros((len(requested),8)),
+                    solid=np.zeros((len(requested),8),bool),
+                    computed=None if fields is None else np.zeros((len(requested),8),bool),
+                    covariance_valid=None if fields is None else np.zeros((len(requested),8),bool))
         if fields is not None:
             if fields.stress.shape != (*shape, 6) or fields.computed.shape != shape:
                 raise ValueError("Turbulence stress and coverage must match the result's coordinate axes")
             stress = np.zeros((len(requested), 6), dtype=np.float64)
             covered = supported.copy()
             contributors = supported.copy()
-        for corner in product((0, 1), repeat=3):
+        for slot,corner in enumerate(product((0, 1), repeat=3)):
             active = supported.copy()
             weight = np.ones(len(requested), dtype=np.float64)
             indices = []
@@ -500,28 +556,56 @@ class WindResult:
                 if high:
                     active &= highs[dim] != lows[dim]
                 weight *= weights[dim] if high else 1 - weights[dim]
-            rows = np.flatnonzero(active)
+            rows = np.flatnonzero(active & (weight>0))
             if not len(rows):
                 continue
             index = tuple(indices[dim][rows] for dim in (2, 1, 0))
             values = np.asarray(self.velocity[index], dtype=np.float64)
             flags = self.cell_flags[index]
             valid[rows] &= (flags != 0) & (flags != 2) & np.isfinite(values).all(axis=-1)
+            if diagnostics:
+                solid=(flags==0)|(flags==2)
+                solid_weight[rows]+=weight[rows]*solid
+                nonfinite_velocity[rows] |= ~np.isfinite(values).all(axis=-1)
+                if details is not None:
+                    details['indices'][rows,slot]=np.column_stack([indices[d][rows] for d in range(3)])
+                    details['points'][rows,slot]=np.column_stack([axes[d][indices[d][rows]] for d in range(3)])
+                    details['weights'][rows,slot]=weight[rows];details['solid'][rows,slot]=solid
             with np.errstate(invalid="ignore", over="ignore"):
                 velocity[rows] += weight[rows, None] * values
             if fields is not None:
                 values = np.asarray(fields.stress[index], dtype=np.float64)
                 covered[rows] &= fields.computed[index]
-                contributors[rows] &= fields.computed[index] & _stress_validity(values)[0]
+                cell_valid=_stress_validity(values)[0]
+                contributors[rows] &= fields.computed[index] & cell_valid
+                if diagnostics:
+                    nonfinite_stress[rows] |= ~np.isfinite(values).all(axis=-1)
+                    invalid_source[rows] |= fields.computed[index]&~cell_valid
+                    if details is not None:
+                        details['computed'][rows,slot]=fields.computed[index]
+                        details['covariance_valid'][rows,slot]=cell_valid
                 with np.errstate(invalid="ignore", over="ignore"):
                     stress[rows] += weight[rows, None] * values
         valid &= np.isfinite(velocity).all(axis=-1)
         velocity[~valid] = np.nan
         if fields is not None:
             stress[~covered] = np.nan
-            stress_valid = contributors & _stress_validity(stress)[0]
+            interpolant_valid = _stress_validity(stress)[0]
+            stress_valid = contributors & interpolant_valid
+        if diagnostics:
+            reasons=dict(outside_domain=~in_domain,outside_center_range=in_domain&~supported,
+                positive_solid_weight=solid_weight>0,nonfinite_velocity=nonfinite_velocity)
+            if fields is not None:
+                reasons.update(uncomputed_contributor=supported&~covered,
+                    invalid_contributor_covariance=invalid_source,
+                    invalid_interpolant=covered&~interpolant_valid,nonfinite_stress=nonfinite_stress)
+            solid_weight[~supported]=np.nan
+            support=SamplingSupport(supported&(solid_weight==0),solid_weight,
+                None if fields is None else covered.copy(),None if fields is None else contributors.copy(),
+                None if fields is None else interpolant_valid.copy(),
+                tuple(tuple(name for name,mask in reasons.items() if mask[i]) for i in range(len(requested))),details)
         return WindPointSample(requested, sampled, velocity, valid, method, frame, self.origin, self.crs,
-                               stress, stress_valid, _stress_contributors_valid=contributors)
+                               stress, stress_valid, _stress_contributors_valid=contributors,support=support)
 
     def to_dtcc(self, *, include_speedup=False):
         """Return independent cell fields in DTCC's y, x, z-fastest order.

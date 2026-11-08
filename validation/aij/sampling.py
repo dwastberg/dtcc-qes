@@ -34,6 +34,20 @@ def k_from_stress(stress) -> np.ndarray:
     return 0.5 * (stress[:, 0] + stress[:, 3] + stress[:, 5])
 
 
+def provenance(probes):
+    """Read sampling provenance, retaining unknown support for older records."""
+    if 'sampling_provenance' in probes:
+        value=probes['sampling_provenance']
+        if value.get('schema_version')!=1:raise ValueError('Unsupported sampling provenance version')
+        return value
+    requested=np.asarray(probes['xyz'],float)
+    actual=np.asarray(probes.get('sampled',np.full_like(requested,np.nan)),float)
+    methods=np.asarray(probes.get('method',['unknown']*len(requested)),str)
+    return dict(schema_version=1,requested=requested,sampled=actual,method=methods,
+        horizontal_displacement=np.linalg.norm(actual[:,:2]-requested[:,:2],axis=1),
+        height_change=actual[:,2]-requested[:,2],requested_support=None,sampled_support=None)
+
+
 def probe_sample(result, xyz, *, radius: float | None = None) -> dict:
     """Velocity, speed, stress and sampling provenance at global probe coordinates.
 
@@ -44,7 +58,8 @@ def probe_sample(result, xyz, *, radius: float | None = None) -> dict:
     xyz = np.asarray(xyz, dtype=np.float64)
     resolution = float(result.resolution)
     radius = max(1.0, resolution) if radius is None else radius
-    linear = result.sample_points(xyz, "linear", frame="global")
+    linear = result.sample_points(xyz, "linear", frame="global", diagnostics=True)
+    requested_support=linear.support.to_dict();sampled_support=linear.support.to_dict()
     velocity = linear.velocity.copy()
     sampled = linear.sampled_points.copy()
     method = np.where(linear.valid, LINEAR, NONE).astype(object)
@@ -57,7 +72,8 @@ def probe_sample(result, xyz, *, radius: float | None = None) -> dict:
         candidates = _offsets(resolution, resolution * np.sqrt(2.0))
         best = np.full(len(missing), np.inf)
         for offset in candidates:
-            near = result.sample_points(xyz[missing] + offset, "nearest", frame="global")
+            near = result.sample_points(xyz[missing] + offset, "nearest", frame="global",diagnostics=True)
+            near_support=near.support.to_dict()
             distance = np.linalg.norm(near.sampled_points - xyz[missing], axis=1)
             take = near.valid & (distance < best) & (distance <= resolution * np.sqrt(2.0) + 1e-9)
             for row in np.flatnonzero(take):
@@ -66,6 +82,8 @@ def probe_sample(result, xyz, *, radius: float | None = None) -> dict:
                 velocity[i] = near.velocity[row]
                 sampled[i] = near.sampled_points[row]
                 method[i] = NEAREST_FLUID
+                for key in ('geometric','solid_weight','computed','contributors_valid','interpolant_valid','reasons'):
+                    if sampled_support[key] is not None:sampled_support[key][i]=near_support[key][row]
                 if stress is not None:
                     stress[i] = near.stress[row]
                     stress_valid[i] = near.stress_valid[row]
@@ -79,6 +97,9 @@ def probe_sample(result, xyz, *, radius: float | None = None) -> dict:
         speed_max = np.where(ok, np.fmax(speed_max, near.speed), speed_max)
     out = dict(velocity=velocity, speed=speed, method=method.astype(str), sampled=sampled,
                speed_min=speed_min, speed_max=speed_max, radius=radius)
+    out['sampling_provenance']=dict(schema_version=1,requested=xyz.copy(),sampled=sampled.copy(),
+        method=method.astype(str),horizontal_displacement=np.linalg.norm(sampled[:,:2]-xyz[:,:2],axis=1),
+        height_change=sampled[:,2]-xyz[:,2],requested_support=requested_support,sampled_support=sampled_support)
     if stress is not None:
         k = k_from_stress(stress)
         out.update(stress=stress, stress_valid=stress_valid, k=np.where(stress_valid, k, np.nan))

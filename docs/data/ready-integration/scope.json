@@ -1,0 +1,33 @@
+{
+  "schema": "ready-component-integration-v1",
+  "target_main": "f17db8ee504b2961b55a4f66f85bbbaa261ae142",
+  "research_source": "f44b9b1",
+  "remote_main_verified": true,
+  "status": "in_progress",
+  "changesets": {
+    "A": "Sampling support, fixed-population comparison, historical records and actual native identity",
+    "B": "Opt-in turbulence checkpoint diagnostics and bounded read-only flow/tensor tracing",
+    "C": "Internal physical geometry and finite-face integration helpers with independent manufactured tests",
+    "D": "Combined clean-package qualification, fresh main/candidate regression, documentation and merge"
+  },
+  "excluded": [
+    "incoming-energy model",
+    "bounded-consistent covariance model and its extraction optimization",
+    "physical_pairs_v1/v2 runtime selection, application and reference sampling",
+    "large research archives and local caches"
+  ],
+  "gates": [
+    "default numerical parity with actual main",
+    "diagnostic on/off parity and bounded storage",
+    "failure/reuse/ownership correctness",
+    "geometry invariants and independent integration oracles",
+    "all applicable Python/validation/native tests",
+    "sanitizer and CPU-only symbol checks",
+    "clean wheel and sdist installation",
+    "OpenMP and serial parity matrices",
+    "74-condition fresh main/candidate comparison",
+    "reviewed selected changes merged to main and installed-package smoke check"
+  ],
+  "maximum_full_regression_workers": 148,
+  "physics_candidate_workers": 0
+}
