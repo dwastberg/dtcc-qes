@@ -1,10 +1,40 @@
 {
   "schema": "ready-integration-release-artifacts-v1",
-  "status": "final_source_distribution_pending",
+  "status": "verified_ready_to_merge",
   "expected_native_revision": "4b2d7e381dce204fbbec240d8ff26bcd3a3d432abf79f30b3accb31c40137de7",
   "source_audit_sha256": "7af8bb3c09c1be5c700b2fb0b1b65aa112a17642e60ebd0987b165d00bfde2cd",
   "qualification_package_verified": true,
-  "final_distribution_verified": false,
-  "durable_raw_archive": null,
-  "note": "Final artifact hashes are necessarily recorded outside the artifact being hashed. Earlier successful packaging before evidence finalization is retained in package-before-final-evidence.log; it is superseded by the final source build."
+  "final_distribution_verified": true,
+  "durable_raw_archive": {
+    "path": "/Users/dagwastberg/repos/dtcc/dtcc-qes/validation/output/ready-integration-20261108",
+    "repository_relative_path": "validation/output/ready-integration-20261108",
+    "files": 1275,
+    "bytes": 6581673092,
+    "index_sha256": "72a2f03fe0ad869b9f5d15d88d9d532a4bb079cd571c6d9202681c2389aa9a26",
+    "copy_verification": "Every copied file was checked against its source SHA-256."
+  },
+  "note": "Artifact hashes and subsequent merge/test evidence are maintained outside the distribution being hashed. The package source commit is fixed; later evidence updates do not alter runtime or reviewed source files.",
+  "source_commit": "7a5ff442cd72c7ce3187399a8da461ad8ca4ea29",
+  "artifacts": {
+    "dtcc_qes-0.1.0b1-cp313-cp313-macosx_15_0_arm64.whl": {
+      "sha256": "ddeb25edf807da39cf93ccc36eee8d0c6f5717538f243a65288bba550c0afeff",
+      "bytes": 451341
+    },
+    "dtcc_qes-0.1.0b1.tar.gz": {
+      "sha256": "219eead5da22c0681013030f8c65e83056ca590d642f47c20fb3db83e7c97324",
+      "bytes": 1388991179
+    }
+  },
+  "final_native": {
+    "path": "/private/tmp/dtcc-qes-ready-integration/build/ready-integration/final-wheel/dtcc_qes/_qes.cpython-313-darwin.so",
+    "sha256": "d96acdf8e5c75a260d6c87e13a65e57bc49ddc9787e7fa862c330cd3b12696f2",
+    "policy_revision": "4b2d7e381dce204fbbec240d8ff26bcd3a3d432abf79f30b3accb31c40137de7",
+    "supported": true,
+    "backend": "OpenMP CPU",
+    "compiler": "AppleClang",
+    "compiler_version": "17.0.0.17000404",
+    "fp_contract": "on"
+  },
+  "runtime_verification": "All 22 runtime files are byte-identical to the qualified wheel; actual final-wheel imports, supported identity and runtime smoke passed afresh.",
+  "source_verification": "All 45 selected source files and the packaged source audit match the frozen source commit."
 }

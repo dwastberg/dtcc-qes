@@ -1,0 +1,10 @@
+{
+  "path": "/private/tmp/dtcc-qes-ready-integration/build/ready-integration/final-wheel/dtcc_qes/_qes.cpython-313-darwin.so",
+  "sha256": "d96acdf8e5c75a260d6c87e13a65e57bc49ddc9787e7fa862c330cd3b12696f2",
+  "policy_revision": "4b2d7e381dce204fbbec240d8ff26bcd3a3d432abf79f30b3accb31c40137de7",
+  "supported": true,
+  "backend": "OpenMP CPU",
+  "compiler": "AppleClang",
+  "compiler_version": "17.0.0.17000404",
+  "fp_contract": "on"
+}

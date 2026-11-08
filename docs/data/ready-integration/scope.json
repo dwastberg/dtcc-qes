@@ -3,7 +3,7 @@
   "target_main": "f17db8ee504b2961b55a4f66f85bbbaa261ae142",
   "research_source": "f44b9b1",
   "remote_main_verified": true,
-  "status": "qualified_final_packaging_pending",
+  "status": "ready_to_merge",
   "changesets": {
     "A": "Sampling support, fixed-population comparison, historical records and actual native identity",
     "B": "Opt-in turbulence checkpoint diagnostics and bounded read-only flow/tensor tracing",
@@ -34,7 +34,8 @@
     "A": "7ba6c2c",
     "B": "72e47f6",
     "C": "a131891",
-    "compatibility_guard": "4c813fc"
+    "compatibility_guard": "4c813fc",
+    "qualification": "7a5ff44"
   },
   "qualification_identity": "4b2d7e381dce204fbbec240d8ff26bcd3a3d432abf79f30b3accb31c40137de7",
   "production_qualification_promoted": true,
@@ -52,14 +53,15 @@
     "full 74-condition paired regression: 148 workers, exact probes/planes/diagnostics and 30 measured-score comparisons",
     "34 native-worker integration tests per backend, no skips in that subset",
     "12 A/B directed memory workers: complete field hashes/returned bytes/tracked native ownership exact; median RSS A -1.8%, B -0.3%",
-    "All four initial RSS flags reviewed by 16 directed workers; no sustained material increase; exact fields/sizes/native ownership"
+    "All four initial RSS flags reviewed by 16 directed workers; no sustained material increase; exact fields/sizes/native ownership",
+    "Final source distribution and wheel audit; all selected packaged sources verified; actual final installed runtime/identity smoke passed; all runtime bytes identical to qualified wheel",
+    "1275 raw artifacts copied to a fresh repository-owned output directory and every copy verified by SHA-256"
   ],
   "remaining": [
-    "build and verify final source distribution and wheel",
-    "archive raw evidence, finalize checksums and source audit",
-    "commit qualification evidence, merge into main and post-merge smoke/full tests"
+    "merge qualified stack into local main",
+    "post-merge installed-package smoke, full applicable tests and source/identity audit"
   ],
-  "evidence_status": "Selected-source audit finalized; final distribution, durable archive and final checksum index pending",
+  "evidence_status": "Reviewed source audit, final distribution, raw archive and compact checksums finalized; post-merge evidence pending",
   "queued_checks": [],
   "memory_review_instrumentation": "Phase peak RSS, scoped native ownership, Darwin malloc-zone statistics, returned-array sizes and complete field hashes",
   "additional_memory_review": "Two E-before directions (ENE and WSW) exceeded the paired 10% RSS threshold; prepare one instrumented repeat per arm and direction, four workers total, after the 12-worker A/B review"

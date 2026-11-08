@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "source_commit": "7a5ff442cd72c7ce3187399a8da461ad8ca4ea29",
+  "selected_files_verified": 45,
+  "source_audit_in_distribution_matches": true,
+  "runtime_package_files_byte_identical": 22
+}

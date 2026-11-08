@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "method": "exact byte identity of every runtime package file, including the native extension",
+  "runtime_files": {
+    "_footprints.py": "854d04923f5e1878b184bd0899c4b70b5a85944be2bb7fc0ab8e495f0551c4ef",
+    "turbulence.py": "47d568508b55ff4e39c0f246e00b42731cf97a5a62ec264e77a3e57135bbf1e7",
+    "_logging.py": "1896cb16e46006494eb84d09b34153f15f68dc9418c536675319836092c0d44b",
+    "_qes.cpython-313-darwin.so": "d96acdf8e5c75a260d6c87e13a65e57bc49ddc9787e7fa862c330cd3b12696f2",
+    "_turbulence_domain.py": "c5eeeaa3b3cc0625317a7bc69d2766840f6785b8325b4437ceeec720279001d2",
+    "parameterizations.py": "7c58d60dc1642dea3f8b136bdef1be38f0d0aa435174da5565f0203e01e276ee",
+    "comfort.py": "946c214ae920ed7f32ba336a0a9d1eb1a951c13e3e7543c28bd6525db6da094a",
+    "_dataset_city.py": "2d351e914776b3a2932da72b2c3325746a45a722f2adb32c19a4fd98d66bc7a1",
+    "vertical_grid.py": "54ab7fe16f00f694b1ef2c7b1366be514e9f74cb5bc4b6764012d216b616e6ac",
+    "datasets.py": "724060a120cb9f422586a6df10049afe792508efe5b9f478563da5b4f6bf1c76",
+    "wind.py": "734d69af91f057f14102b5c8b1cecba8759bcbb1906afa72ec3b4ed57dbb528e",
+    "__init__.py": "af01eab80634bc9480e23334d9cb76bf68ae65d46a9dfdd6b48aee7d96b62619",
+    "footprints.py": "d13255b633761545a24f6d483a6b951a19181752a715b6bd617fcebb1df74c52",
+    "result.py": "50120e57e6a411ef0c564606c6307b2e202937e91f188c6e495435b0564f195b",
+    "_validation.py": "97f858fa0de2415296c8a81a92dc31abc7b8ad2a1c1c110801e955f0a854a8ac",
+    "_statistics.py": "7204b15ee54e413b7ae33210dbffa6f116ad112aac7fd5010b17eec6070bbf94",
+    "_auto_grid.py": "98527ff0692c52989d1c5168160fada4f83f1262c05bfd515eaf8ab3e8a607c9",
+    "solver_control.py": "a8a64e5513f20d1e8eb420a219827859ff316f3d934e824c7861c82121841e38",
+    "_qes_revision.txt": "3af20c06fb2c3b1bc61d3e4341bf170029cdd246e185b91805b24c928ad0ccd3",
+    "_city.py": "128d9df2e2d3ff1b9bf12db72d599c13b7393575212def03ba0df1aec43f1bc9",
+    "profiles.py": "b0234b76a5eb83c148be44c9bc692dff6b248a8422ec83a15d62f73521912737",
+    "_log.py": "f6e2d6a038e428a18aa5d9c1d27bcb6ea60440d5d6ace0310fd4ecc292d1a8ca"
+  },
+  "reference": "installed-wheel: full 74-condition paired validation, 429-case wheel/direct comparison and 2054-test coverage already verified",
+  "numerical_reference_report_sha256": "02b6887d751feb83b3c7dff1cb6ab57038c0eda0aef047ae2fbc62af81ab1b18",
+  "fresh_matrix_rerun": false,
+  "reason": "The final wheel runtime is byte-identical to the qualified wheel; numerical results carry over without rerunning identical code. Actual installed imports, qualified identity and runtime smoke were checked afresh."
+}
