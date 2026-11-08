@@ -454,6 +454,8 @@ void TURBGeneralData::getTurbulentViscosity()
     NU_T = LM * LM * sqrt(2.0 * SijSij);
     TKE = pow((NU_T / (cPope * LM)), 2.0);
 
+    if (production_observer) production_observer(cellID,NU_T,TKE);
+
     if (TKE > tkeBound)
       TKE = tkeBound;
 
@@ -552,9 +554,13 @@ void TURBGeneralData::stressTensor()
     txz[cellID] = -2.0 * (NU_T * Sxz);
     tyz[cellID] = -2.0 * (NU_T * Syz);
 
+    if (stress_observer) stress_observer(0,cellID,
+      {txx[cellID],txy[cellID],txz[cellID],tyy[cellID],tyz[cellID],tzz[cellID]});
+
     auto &direction = directions[domain.cell2d(i, j)];
     if (!std::isfinite(direction[0])) direction = rotationDirection(i, j);
     const auto [c, s] = direction;
+    if (orientation_observer) orientation_observer(cellID,c,s);
 
     // Q has columns (streamwise, crosswind, vertical) in Cartesian coordinates.
     // Wind-aligned stress is Q^T * tau * Q, so R = Q^T here.
@@ -626,6 +632,8 @@ void TURBGeneralData::stressTensor()
     tyy[cellID] = tyy_temp;
     tyz[cellID] = tyz_temp;
     tzz[cellID] = tzz_temp;
+    if (stress_observer) stress_observer(1,cellID,
+      {txx[cellID],txy[cellID],txz[cellID],tyy[cellID],tyz[cellID],tzz[cellID]});
   }
 }
 
@@ -768,5 +776,7 @@ void TURBGeneralData::boundTurbFields()
       tzz[cellID] = -stressBound;
     if (tzz[cellID] > stressBound)
       tzz[cellID] = stressBound;
+    if (stress_observer) stress_observer(2,cellID,
+      {txx[cellID],txy[cellID],txz[cellID],tyy[cellID],tyz[cellID],tzz[cellID]});
   }
 }

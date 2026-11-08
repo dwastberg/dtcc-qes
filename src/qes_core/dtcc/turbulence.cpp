@@ -12,6 +12,57 @@
 #include <stdexcept>
 
 namespace dtcc_qes {
+MonitorReceptorRecord::TurbulenceSample turbulence_sample(const TURBGeneralData &turb,
+    const WINDSGeneralData &wind, MonitorLocation point)
+{
+  using Sample = MonitorReceptorRecord::TurbulenceSample;
+  Sample out;
+  const auto invalid = [] { Sample sample;sample.stress.fill(std::numeric_limits<double>::quiet_NaN());
+    sample.gradient.fill(std::numeric_limits<double>::quiet_NaN());return sample; };
+  struct Support {int lo=0,hi=0;double weight=0;bool valid=false;};
+  const auto bracket=[](const auto &axis,double value,int begin) {
+    Support s;
+    if(!std::isfinite(value) || value<axis[begin] || value>axis.back())return s;
+    auto at=std::lower_bound(axis.begin()+begin,axis.end(),value,[](float a,double b){return double(a)<b;});
+    s.hi=int(at-axis.begin());s.lo=s.hi;s.valid=true;
+    if(double(*at)!=value){s.lo=s.hi-1;s.weight=(value-axis[s.lo])/(double(axis[s.hi])-axis[s.lo]);}
+    return s;
+  };
+  const auto &d=wind.domain;
+  const auto x=bracket(d.x,point.x,0),y=bracket(d.y,point.y,0),z=bracket(d.z,point.height_agl,1);
+  if(!x.valid || !y.valid || !z.valid)return invalid();
+  const std::vector<float> *gradients[]={&turb.Gxx,&turb.Gxy,&turb.Gxz,&turb.Gyx,&turb.Gyy,&turb.Gyz,
+                                       &turb.Gzx,&turb.Gzy,&turb.Gzz};
+  const float bound=turb.getUpperBound()*turb.getFrictionVelocity()*turb.getFrictionVelocity();
+  out.computed=out.contributors_valid=true;
+  for(int kk=0;kk<(z.lo==z.hi?1:2);++kk)for(int jj=0;jj<(y.lo==y.hi?1:2);++jj)
+    for(int ii=0;ii<(x.lo==x.hi?1:2);++ii) {
+      const double weight=(ii?x.weight:(x.lo==x.hi?1:1-x.weight))
+        *(jj?y.weight:(y.lo==y.hi?1:1-y.weight))*(kk?z.weight:(z.lo==z.hi?1:1-z.weight));
+      if(!(weight>0))continue;
+      const auto c=d.cell(ii?x.hi:x.lo,jj?y.hi:y.lo,kk?z.hi:z.lo);
+      // Same computed range as TURBGeneralData (exclude the physical shell).
+      const int i=ii?x.hi:x.lo,j=jj?y.hi:y.lo,k=kk?z.hi:z.lo;
+      if(i<1 || i>=d.nx()-2 || j<1 || j>=d.ny()-2 || k<1 || k>=d.nz()-2
+          || wind.icellflag[c]==0 || wind.icellflag[c]==2)return invalid();
+      StressTensor stress{turb.txx[c],turb.txy[c],turb.txz[c],turb.tyy[c],turb.tyz[c],turb.tzz[c]};
+      out.contributors_valid &= stress_validity(stress).valid;
+      const float sxx=turb.Gxx[c],syy=turb.Gyy[c],szz=turb.Gzz[c];
+      const float sxy=.5f*(turb.Gxy[c]+turb.Gyx[c]),sxz=.5f*(turb.Gxz[c]+turb.Gzx[c]),syz=.5f*(turb.Gyz[c]+turb.Gzy[c]);
+      const float ss=sxx*sxx+syy*syy+szz*szz+2.f*(sxy*sxy+sxz*sxz+syz*syz);
+      const float lm=turb.Lm[c],nu=lm*lm*std::sqrt(2.f*ss);
+      const float uncapped=std::pow(nu/(.55f*lm),2.f);
+      out.mixing_length+=weight*lm;out.tke+=weight*turb.tke[c];out.uncapped_tke+=weight*uncapped;
+      out.capped |= bound>0 && turb.tke[c]>=bound;
+      for(int n=0;n<6;++n){out.stress[n]+=weight*stress[n];out.capped |= bound>0 && std::abs(stress[n])>=bound;}
+      for(int n=0;n<9;++n)out.gradient[n]+=weight*(*gradients[n])[c];
+    }
+  StressTensor stress;
+  for(int n=0;n<6;++n)stress[n]=float(out.stress[n]);
+  out.valid=out.contributors_valid && stress_validity(stress).valid;
+  return out;
+}
+
 void configure_turbulence(TurbulenceConfig &params, const TurbulenceSettings &settings)
 {
   if (settings.mixing_length_method != 0 && settings.mixing_length_method != 1)

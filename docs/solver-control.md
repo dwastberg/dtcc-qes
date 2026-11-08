@@ -56,6 +56,31 @@ checkpoint copies. Numerical acceptance is restricted to the declared ROI and
 receptors; full-volume, grid-independent, turbulence and physical accuracy are
 outside that scope.
 
+For bounded runs with turbulence enabled, `MonitorSpec(turbulence=True)` adds
+stress, the native velocity gradient, mixing length, TKE, reconstructed uncapped
+TKE and stress-validity information to each receptor checkpoint. It defaults to
+false and is rejected for adaptive runs. Each requested checkpoint reruns the
+turbulence calculation on the completed mean-flow iterate, so it adds work and
+can consume a time budget sooner. It does not change the fixed-work trajectory
+or establish turbulence accuracy. Receptor payloads count toward the monitor's
+existing history and memory limits.
+
+The private native `WindRunner._solve_trace` entry point captures selected
+physical `(i, j, k)` cells through the ordered mean-flow stages and native stress
+construction. It requires bounded control, enabled turbulence and legacy
+physics. Tensor stages are `pre_anisotropy`, `post_anisotropy` and `post_bound`;
+`uncapped_constitutive` is explicitly a reconstruction, not an executed stage.
+The result owns its storage, and observers detach on success and failure.
+
+Captures allow at most 512 face cells, 4,096 tensor cells, 1,024 frames and
+100,000 canyon decision rows (50,000 by default). Duplicate or out-of-domain
+cells and invalid actor indices fail. Reaching a frame or decision limit raises
+instead of silently truncating. `building_frames=False` retains whole-stage
+frames and suppresses per-building frames for large scenes. The building index
+table scales with the prepared scene. Tracing is opt-in; ordinary solves do not
+allocate trace buffers. This private diagnostic interface provides evidence for
+investigations and is not a supported alternative physics model.
+
 ## Timings and reproduction
 
 `metadata["timings"]` documents nested public-call, preparation and native

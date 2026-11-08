@@ -209,6 +209,24 @@ template<class Real> MassDiagnostics SolverState<Real>::diagnose(MassRegion regi
   return mass_diagnostics(operator_,fields_->icellflag,
       [&](int c,int i,int j,int k) { return face_value(c,i,j,k); },region,flux);
 }
+template<class Real> void SolverState<Real>::observe_faces(FaceDestination out) const {
+  require_iterate();
+  const auto immutable = [&](const std::vector<float> &a) {
+    return &a == &fields_->u0 || &a == &fields_->v0 || &a == &fields_->w0;
+  };
+  if (immutable(out.u) || immutable(out.v) || immutable(out.w)
+      || &out.u == &out.v || &out.u == &out.w || &out.v == &out.w)
+    throw qes::InputError("Observation face destinations must be distinct from immutable solver inputs");
+  const auto count = std::size_t(domain.numFaceCentered());
+  out.u.resize(count); out.v.resize(count); out.w.resize(count);
+#pragma omp parallel for if(order_ == SweepOrder::RedBlack)
+  for (int k = 0; k < domain.nz(); ++k)
+    for (int j = 0; j < domain.ny(); ++j) for (int i = 0; i < domain.nx(); ++i) {
+      const auto f = domain.face(i,j,k);
+      out.u[f] = face_value(0,i,j,k); out.v[f] = face_value(1,i,j,k); out.w[f] = face_value(2,i,j,k);
+    }
+}
+
 template<class Real> void SolverState<Real>::finalize(FaceDestination out, std::optional<CenteredDestination> centered,
                                                      MassDiagnostics *final_mass) {
   require_iterate();

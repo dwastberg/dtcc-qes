@@ -58,4 +58,3 @@ New run records also identify the actual imported native extension by its path
 and SHA256. The execution fingerprint includes that binary even when an editable
 installation stores it separately from the Python sources. Older records retain
 their original identities; unavailable historical native identity is not inferred.
-

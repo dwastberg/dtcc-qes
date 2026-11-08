@@ -36,6 +36,7 @@
 #include <array>
 #include <memory>
 #include <vector>
+#include <functional>
 
 #include "qes/Domain.h"
 
@@ -63,6 +64,12 @@ public:
   {}
 
   virtual void run();
+
+  // Read-only native observer, installed only for final diagnostic capture.
+  // Caller owns its lifetime and must detach it on every exit.
+  std::function<void(int,int,const std::array<float,6>&)> stress_observer;
+  std::function<void(int,float,float)> production_observer; // cell, native viscosity, uncapped energy
+  std::function<void(int,double,double)> orientation_observer; // cell, actual cosine, sine
 
   float getReferenceHeight() const noexcept { return zRef; }
   float getReferenceSpeed() const noexcept { return uRef; }

@@ -13,6 +13,8 @@ class SolverController {
 public:
   explicit SolverController(const SolverControl &,MonotonicClock = {});
   ControlRecord record;
+  // Native-only model observer; never called through Python.
+  std::function<void(MonitorCheckpoint &)> checkpoint_observer;
   double now() const;
   double elapsed() const {return now()-started_;}
   bool check(const char *phase,int completed = 0);
@@ -86,6 +88,7 @@ private:
   template<class Real> void capture(const solver::SolverState<Real> &state, std::atomic<int> *completed_checkpoint) {
     const double started = now();
     const auto &checkpoint=monitor_->capture(state,started-started_);
+    if (checkpoint_observer) monitor_->augment_latest(checkpoint_observer);
     if(adaptive_) {
       if(checkpoint.initial) {
         invalid_initial_support_=!checkpoint.required_receptors_valid

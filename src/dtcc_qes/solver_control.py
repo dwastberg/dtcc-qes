@@ -58,6 +58,7 @@ class MonitorSpec:
     global_mass: bool = False
     mass_regions: tuple[MassRegion, ...] = ()
     low_flow_fraction: float | None = None
+    turbulence: bool = False
 
     def __post_init__(self):
         region = tuple(self.region)
@@ -81,7 +82,7 @@ class MonitorSpec:
         for values in ([r.id for r in self.receptors], [r.name for r in self.mass_regions]):
             if len(set(values)) != len(values):
                 raise ValueError("Monitor IDs/names must be unique")
-        if self.frame not in ("local", "world") or not isinstance(self.global_mass, bool):
+        if self.frame not in ("local", "world") or not isinstance(self.global_mass, bool) or not isinstance(self.turbulence, bool):
             raise ValueError("Monitor frame must be local/world and global_mass boolean")
         for name in ("short_window", "long_window", "history_limit", "memory_limit_bytes"):
             object.__setattr__(self, name, _integer(getattr(self, name), name))

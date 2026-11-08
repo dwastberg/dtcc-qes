@@ -154,6 +154,36 @@ nb::dict python_result(const WindData &data)
     out["stage_flags"]=owned_array(e.stage_flags,nb::make_tuple(e.stages.size(),e.sample_count),"int32");
     result["experiment"]=out;
   }
+  if(data.trace) {
+    const auto &t=*data.trace;nb::dict trace;
+    trace["schema"]="read-only-construction-trace-v2";
+    trace["cells"]=t.cells;trace["tensor_cells"]=t.tensor_cells;
+    trace["cell_coordinates"]=owned_array(t.cell_coordinates,nb::make_tuple(t.cells.size(),3),"float32");
+    trace["tensor_coordinates"]=owned_array(t.tensor_coordinates,nb::make_tuple(t.tensor_cells.size(),3),"float32");
+    trace["tensor_stages"]=std::vector<std::string>{"pre_anisotropy","post_anisotropy","post_bound"};
+    trace["tensors"]=owned_array(t.tensors,nb::make_tuple(3,t.tensor_cells.size(),6),"float32");
+    trace["tensor_found"]=owned_array(t.found,nb::make_tuple(3,t.tensor_cells.size()),"uint8");
+    trace["property_columns"]=std::vector<std::string>{"dudx","dudy","dudz","dvdx","dvdy","dvdz","dwdx","dwdy","dwdz",
+      "mixing_length","viscosity","internal_k","uncapped_k","bound"};
+    trace["properties"]=owned_array(t.properties,nb::make_tuple(t.tensor_cells.size(),14),"float32");
+    trace["uncapped_constitutive_reconstruction"]=owned_array(t.uncapped_constitutive,nb::make_tuple(t.tensor_cells.size(),6),"float32");
+    trace["tensor_flags"]=t.tensor_flags;trace["wall_flags"]=t.wall_flags;
+    trace["neighbour_flags"]=owned_array(t.neighbour_flags,nb::make_tuple(t.tensor_cells.size(),6),"int32");
+    trace["building_columns"]=std::vector<std::string>{"native_index","source_integer_id","centroid_x","centroid_y","centroid_i","centroid_j",
+      "xmin","ymin","xmax","ymax","height"};
+    trace["buildings"]=owned_array(t.buildings,nb::make_tuple(t.buildings.size()/11,11),"float64");
+    trace["orientation_columns"]=std::vector<std::string>{"cosine","sine","sigUConst","sigVConst","sigWConst"};
+    trace["orientations"]=owned_array(t.orientations,nb::make_tuple(t.tensor_cells.size(),5),"float64");
+    trace["canyon_events"]=t.canyon_events;trace["canyon_actors"]=t.canyon_actors;
+    trace["canyon_values"]=owned_array(t.canyon_values,nb::make_tuple(t.canyon_events.size(),16),"float64");
+    nb::list frames;
+    for(const auto &frame:t.frames) {
+      nb::dict row;row["stage"]=frame.stage;row["building"]=frame.building;
+      row["faces"]=owned_array(frame.faces,nb::make_tuple(t.cells.size(),6),"float32");
+      row["flags"]=frame.flags;frames.append(row);
+    }
+    trace["frames"]=frames;result["trace"]=trace;
+  }
   result["turbulence"] = nb::none();
   if (data.turbulence) {
     const auto &t = *data.turbulence;
@@ -313,6 +343,19 @@ NB_MODULE(_qes, m)
        nb::kw_only(), nb::arg("dz_layers").noconvert().none() = nb::none(),
        nb::arg("turbulence").none() = nb::none(),
        nb::arg("ring_offsets").noconvert().none() = nb::none())
+    .def("_solve_trace", [](WindRunner &runner,const WindCondition &condition,const SolverOptions &options,
+                            nb::dict control,std::vector<std::array<int,3>> cells,
+                            std::vector<std::array<int,3>> tensor_cells,std::size_t maximum_frames,
+                            std::vector<int> canyon_buildings,std::size_t maximum_decisions,bool building_frames) {
+      const WindCondition wind=condition;const SolverOptions solver=options;
+      const auto settings=control_binding::parse(control);
+      const ReadOnlyTraceOptions trace{std::move(cells),std::move(tensor_cells),maximum_frames,std::move(canyon_buildings),maximum_decisions,building_frames};
+      return transfer_result(runner,native_call([&](Messages &messages) {
+        return runner.solve(wind,solver,messages,&settings,{},nullptr,&trace);
+      }));
+    },"condition"_a,"options"_a=SolverOptions{},nb::kw_only(),"control"_a,
+      "cells"_a=std::vector<std::array<int,3>>{},"tensor_cells"_a=std::vector<std::array<int,3>>{},"maximum_frames"_a=1024,
+      "canyon_buildings"_a=std::vector<int>{},"maximum_decisions"_a=50000,"building_frames"_a=true)
     .def("_solve_experiment", [](WindRunner &runner, const WindCondition &condition, const SolverOptions &options,
                                 bool diagnose_flux, std::vector<std::array<int,3>> cells,
                                 const std::string &canyon_model, bool canyon_capture,

@@ -326,7 +326,8 @@ void WINDSGeneralData::applyWindProfile(const InflowCondition &inflow)
 void joint_core_roof_audit(WINDSGeneralData*,const std::vector<float>&,const std::vector<float>&,const std::vector<float>&);
 void joint_horizontal_W_audit(WINDSGeneralData*,const std::vector<float>&);
 
-void WINDSGeneralData::applyParametrizations(const std::function<void(const char *)> &stage)
+void WINDSGeneralData::applyParametrizations(const std::function<void(const char *)> &stage,
+    const std::function<void(const char *,int)> &building_observer)
 {
   parameterizations.validateWakeDependencies();
   for (auto *building : allBuildingsV) building->resetConditionState();
@@ -341,6 +342,7 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
     qes::log::info() << "[QES-WINDS]\t Applying upwind cavity parameterization...\n";
     for (size_t i = 0; i < allBuildingsV.size(); i++) {
       allBuildingsV[building_id[i]]->upwindCavity(this);
+      if (building_observer) building_observer("cavity",building_id[i]);
     }
   }
 
@@ -352,6 +354,7 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
     qes::log::info() << "[QES-WINDS]\t Applying wake behind building parameterization...\n";
     for (size_t i = 0; i < allBuildingsV.size(); i++) {
       allBuildingsV[building_id[i]]->polygonWake(this, building_id[i]);
+      if (building_observer) building_observer("wake",building_id[i]);
     }
   }
 
@@ -363,6 +366,7 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
     qes::log::info() << "[QES-WINDS]\t Applying street canyon parameterization...\n";
     for (size_t i = 0; i < allBuildingsV.size(); i++) {
       allBuildingsV[building_id[i]]->streetCanyon(this);
+      if (building_observer) building_observer("canyon",building_id[i]);
     }
     if (research_aligned_canyon) {
       const auto before_u=u0,before_v=v0,before_w=w0;
@@ -375,6 +379,7 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
     qes::log::info() << "[QES-WINDS]\t Applying street canyon parameterization...\n";
     for (size_t i = 0; i < allBuildingsV.size(); i++) {
       allBuildingsV[building_id[i]]->streetCanyonModified(this);
+      if (building_observer) building_observer("canyon",building_id[i]);
     }
   }
 
@@ -386,6 +391,7 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
     qes::log::info() << "[QES-WINDS]\t Applying sidewall parameterization...\n";
     for (size_t i = 0; i < allBuildingsV.size(); i++) {
       allBuildingsV[building_id[i]]->sideWall(this);
+      if (building_observer) building_observer("sidewall",building_id[i]);
     }
   }
 
@@ -398,6 +404,7 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
     qes::log::info() << "[QES-WINDS]\t Applying rooftop parameterization...\n";
     for (size_t i = 0; i < allBuildingsV.size(); i++) {
       allBuildingsV[building_id[i]]->rooftop(this);
+      if (building_observer) building_observer("rooftop",building_id[i]);
     }
   }
 

@@ -9,6 +9,7 @@
 #include "turbulence.h"
 #include "winds/TURBGeneralData.h"
 #include "winds/WINDSGeneralData.h"
+#include "read_only_trace.h"
 #include <stdexcept>
 #include <chrono>
 #ifdef _OPENMP
@@ -141,7 +142,7 @@ void WindRunner::prepare(const GridConfig &grid, const ModelSettings &model,
 
 WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &options, Messages &messages,
                           const SolverControl *control,const std::function<double()> &native_test_clock,
-                          const CanyonOptions *experiment)
+                          const CanyonOptions *experiment,const ReadOnlyTraceOptions *trace)
 {
   const auto steady_now = [] {return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();};
   const double native_started=steady_now();
@@ -158,10 +159,19 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
   if (!impl_) throw std::runtime_error("Prepare the runner before solving");
   auto &state = *impl_;
   auto &data = *state.data;
+  if(trace && (experiment || !control || control->mode!="bounded" || !state.turbulence))
+    throw qes::InputError("Read-only trace requires bounded legacy-physics turbulence and no research settings");
+  if(control && control->monitor.turbulence && (!state.turbulence || control->mode=="adaptive"))
+    throw qes::InputError("Turbulence monitoring requires enabled turbulence and bounded solver control");
   if(experiment && control) throw qes::InputError("Research settings cannot inherit a solver qualification");
   if(experiment) validate_canyon_contract(*experiment,state.model,state.inputs.turbulence_enabled,
                                         state.inputs.turbulence.methodLocalMixing);
   WindData result;
+  std::unique_ptr<ReadOnlyTraceRecorder> trace_recorder;
+  if(trace) {
+    result.trace.emplace();
+    trace_recorder=std::make_unique<ReadOnlyTraceRecorder>(*trace,data,*result.trace);
+  }
   result.operation_id=progress().operation_id;
   if(experiment) {
     for(const auto& c:experiment->cells)
@@ -215,6 +225,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
       state.data->research_canyon_model=CanyonModel::Legacy;
       state.data->research_aligned_canyon=false;
       state.data->canyon_trace_roof=false;state.data->canyon_roof_trace.clear();
+      state.data->canyon_decision_observer={};state.data->canyon_decision_buildings.clear();
       state.data->canyon_voxel_roof_changes=0;
       state.data->canyon_incident_u.clear();state.data->canyon_incident_v.clear();
       state.data->canyon_fallback_reasons.clear();
@@ -226,6 +237,12 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
       if (!success) { state.solver.reset(); state.precision_solver.reset(); }
     }
   } scope{state};
+  if(trace_recorder && !trace->canyon_buildings.empty()) {
+    data.canyon_decision_buildings.insert(trace->canyon_buildings.begin(),trace->canyon_buildings.end());
+    data.canyon_decision_observer=[&](const char *code,int actor,const std::array<double,16> &values) {
+      trace_recorder->canyon(code,actor,values);
+    };
+  }
   data.research_canyon_model=experiment ? experiment->canyon_model : CanyonModel::Legacy;
   data.research_aligned_canyon=data.research_canyon_model!=CanyonModel::Legacy;
   data.canyon_trace_roof=experiment && experiment->canyon_trace_roof;
@@ -265,9 +282,15 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
     }
   }
   capture("inflow");
+  if(trace_recorder)trace_recorder->frame("inflow");
   stage_progress("inflow");
   progress_phase("parameterization");
-  data.applyParametrizations([&](const char *name) { capture(name); stage_progress(name); });
+  data.applyParametrizations([&](const char *name) {
+    capture(name);stage_progress(name);
+    if(trace_recorder)trace_recorder->frame(name);
+  },trace_recorder?std::function<void(const char *,int)>{[&](const char *name,int building) {
+    trace_recorder->frame(name,building);
+  }}:std::function<void(const char *,int)>{});
   if(experiment) {
     auto& out=*result.experiment;
     out.canyon_model=data.research_canyon_model;
@@ -309,7 +332,18 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
       progress_phase("projection");
       if (controller) {
         controller->check("after_rhs");
+        if(control->monitor.turbulence)controller->checkpoint_observer=[&](MonitorCheckpoint &checkpoint) {
+          workspace.observe_faces(solver::FaceDestination(data));
+          state.turbulence->run();
+          const auto &monitor=controller->record.effective_monitor;
+          for(auto &receptor:checkpoint.receptors) {
+            auto location=receptor.location;
+            if(monitor.frame==MonitorFrame::World){location.x-=monitor.origin[0];location.y-=monitor.origin[1];}
+            receptor.turbulence=turbulence_sample(*state.turbulence,data,location);
+          }
+        };
         controller->run(workspace,&completed_checkpoint_);
+        controller->checkpoint_observer={};
       } else {
         const double started=now();
         workspace.advance(options.max_iterations);
@@ -326,6 +360,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
 
       result.divergence = {mass.interior_max,mass.interior_rms,mass.top_band_max,mass.cells,mass.top_band_cells};
       capture("projection",true);
+      if(trace_recorder)trace_recorder->frame("projection",-1,true);
       if (experiment && experiment->diagnose_flux) {
         progress_phase("flux_diagnostics");
         const auto flux=workspace.diagnose({},solver::FluxOptions{true,condition.speed,{}});
@@ -379,7 +414,23 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
   if(!controller)timings.solve_seconds=steady_now()-native_started;
   phase_started = now();
   progress_phase("postprocessing");
-  if (state.turbulence) state.turbulence->run();
+  if (state.turbulence) {
+    struct ObserverScope {
+      TURBGeneralData &turb;
+      ~ObserverScope(){turb.stress_observer={};turb.production_observer={};turb.orientation_observer={};}
+    } observer_scope{*state.turbulence};
+    if(trace_recorder)state.turbulence->stress_observer=[&](int stage,int cell,const std::array<float,6> &values) {
+      trace_recorder->stress(stage,cell,values);
+    };
+    if(trace_recorder)state.turbulence->production_observer=[&](int cell,float viscosity,float uncapped) {
+      trace_recorder->production(cell,viscosity,uncapped);
+    };
+    if(trace_recorder)state.turbulence->orientation_observer=[&](int cell,double c,double s) {
+      trace_recorder->orientation(cell,c,s);
+    };
+    state.turbulence->run();
+    if(trace_recorder)trace_recorder->properties(*state.turbulence);
+  }
   state.refresh_memory();
 
   if (state.turbulence) result.turbulence = turbulence_fields(*state.turbulence, state.grid);

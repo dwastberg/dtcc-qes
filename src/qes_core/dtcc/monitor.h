@@ -51,6 +51,10 @@ public:
   std::size_t history_size() const { return history_count_; }
   const MonitorCheckpoint &history_at(std::size_t chronological) const;
   const std::vector<MonitorSample> &samples() const;
+  void augment_latest(const std::function<void(MonitorCheckpoint &)> &observer) {
+    if (!history_count_) throw std::logic_error("No checkpoint to augment");
+    observer(history_[(next_history_+history_.size()-1)%history_.size()]);
+  }
 private:
   struct ReceptorSupport {
     Support vertical;

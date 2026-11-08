@@ -33,6 +33,8 @@
 #pragma once
 
 #include <map>
+#include <set>
+#include <array>
 #include "dtcc/api/canyon_types.h"
 #include <functional>
 #include <vector>
@@ -92,6 +94,8 @@ public:
   dtcc_qes::CanyonModel research_canyon_model=dtcc_qes::CanyonModel::Legacy;
   bool research_aligned_canyon=false;
   bool canyon_trace_roof=false;
+  std::set<int> canyon_decision_buildings;
+  std::function<void(const char *,int,const std::array<double,16>&)> canyon_decision_observer;
   std::vector<double> canyon_roof_trace;
   std::size_t canyon_voxel_roof_changes=0;
   std::vector<float> canyon_incident_u,canyon_incident_v;
@@ -100,7 +104,8 @@ public:
   std::size_t canyon_changed_faces=0,canyon_roof_changes=0,canyon_audit_zones=0,canyon_W_changes=0;
   std::size_t canyon_qualified=0,canyon_fallback=0,canyon_writes=0;
 
-  void applyParametrizations(const std::function<void(const char *)> &stage = {});
+  void applyParametrizations(const std::function<void(const char *)> &stage = {},
+                            const std::function<void(const char *,int)> &building_observer = {});
 
   void resetICellFlag();
   void ensureMixingLengthStorage();

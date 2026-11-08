@@ -169,6 +169,7 @@ public:
              std::atomic<int> *completed_sweeps = nullptr);
   WorkReport advance(int work_sweeps, bool collect_residual_trend = false);
   Observation observe(LayerRange) const;
+  void observe_faces(FaceDestination) const; // Pure materialization; retains resumable phase.
   void observe(LayerRange, CenteredDestination) const;
   MassDiagnostics diagnose(MassRegion = {}, FluxOptions = {}) const;
   // Same physical region and fluid eligibility as diagnose(), including the

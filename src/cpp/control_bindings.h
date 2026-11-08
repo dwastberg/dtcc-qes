@@ -24,7 +24,7 @@ inline SolverControl parse(nb::dict d) {
   if (!d.contains("monitor")) throw std::invalid_argument("Solver controls require an explicit monitor");
   auto m=nb::cast<nb::dict>(d["monitor"]);
   keys(m,{"region","heights","receptors","frame","origin","crs","short_window","long_window","history_limit",
-          "memory_limit_bytes","global_mass","mass_regions","low_flow_fraction"});
+          "memory_limit_bytes","global_mass","mass_regions","low_flow_fraction","turbulence"});
   if(!m.contains("region")) throw std::invalid_argument("Monitor requires an explicit region");
   const auto r=nb::cast<std::array<double,4>>(m["region"]);c.monitor.region={r[0],r[1],r[2],r[3]};
   auto &s=c.monitor;std::string frame="local";read(m,"frame",frame);
@@ -33,6 +33,7 @@ inline SolverControl parse(nb::dict d) {
   read(m,"heights",s.heights);read(m,"origin",s.origin);read(m,"crs",s.crs);
   read(m,"short_window",s.short_window);read(m,"long_window",s.long_window);read(m,"history_limit",s.history_limit);
   read(m,"memory_limit_bytes",s.memory_limit_bytes);read(m,"global_mass",s.global_mass);read(m,"low_flow_fraction",s.low_flow_fraction);
+  read(m,"turbulence",s.turbulence);
   if(m.contains("receptors")) for(auto value : nb::cast<nb::list>(m["receptors"])) {
     auto q=nb::cast<nb::dict>(value);keys(q,{"id","x","y","height_agl","required"});MonitorReceptor r;
     r.id=nb::cast<std::string>(q["id"]);r.location={nb::cast<double>(q["x"]),nb::cast<double>(q["y"]),nb::cast<double>(q["height_agl"])};
@@ -78,7 +79,18 @@ inline nb::dict encode(const MonitorWindow &v) {
   E(vector_change);E(speed_change);E(vector_over_uref);E(speed_factor_change);E(ratios);d["hotspots"]=records(v.hotspots);return d;
 }
 inline nb::dict encode(const MonitorHeightRecord &v) {nb::dict d;F(height_agl);F(points);F(valid);E(peak);E(short_change);E(long_change);return d;}
-inline nb::dict encode(const MonitorReceptorRecord &v) {nb::dict d;F(receptor);F(required);E(location);E(sample);F(speed);F(speed_factor);E(short_change);E(long_change);return d;}
+inline nb::dict encode(const MonitorReceptorRecord &v) {
+  nb::dict d;F(receptor);F(required);E(location);E(sample);F(speed);F(speed_factor);E(short_change);E(long_change);
+  if(v.turbulence) {
+    const auto &t=*v.turbulence;nb::dict q;
+    q["computed"]=t.computed;q["contributors_valid"]=t.contributors_valid;q["valid"]=t.valid;q["capped"]=t.capped;
+    q["stress"]=t.stress;q["gradient"]=t.gradient;
+    q["mixing_length"]=t.computed?scalar(t.mixing_length):nb::none();
+    q["tke"]=t.computed?scalar(t.tke):nb::none();q["uncapped_tke"]=t.computed?scalar(t.uncapped_tke):nb::none();
+    d["turbulence"]=q;
+  }
+  return d;
+}
 inline nb::dict encode(const MonitorFlux &v) {
   nb::dict d;F(net_cell_flux);F(boundary_flux);F(absolute_cell_flux);F(throughflow);F(low_flow_cells);F(resolved_cells);F(unassessed_cells);F(relative_max);F(relative_rms);return d;
 }
@@ -102,6 +114,7 @@ inline nb::dict encode(const PolicyEvidence &v) {
 inline nb::dict encode(const MonitorSpec &v) {
   nb::dict d;d["region"]=nb::make_tuple(v.region.x_first,v.region.x_last,v.region.y_first,v.region.y_last);
   F(heights);F(origin);F(crs);F(reference_speed);F(short_window);F(long_window);F(history_limit);F(memory_limit_bytes);F(global_mass);F(low_flow_fraction);
+  F(turbulence);
   d["frame"]=v.frame==MonitorFrame::Local ? "local" : "world";
   nb::list receptors;
   for(const auto &r:v.receptors) {auto q=encode(r.location);q["id"]=r.id;q["required"]=r.required;receptors.append(q);}

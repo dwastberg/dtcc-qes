@@ -8,6 +8,7 @@
 #include "control_types.h"
 #include "profile_types.h"
 #include "canyon_validation_types.h"
+#include "read_only_trace_types.h"
 
 namespace dtcc_qes {
 // Private numerical contract. Coordinates are metres in a local, flat frame.
@@ -66,6 +67,7 @@ struct TurbulenceData {
   float roughness_length = 0, displacement_height = 0, upper_bound = 0;
   std::size_t computed_cells = 0, capped_cells = 0, invalid_stress_cells = 0;
   std::size_t rotation_fallback_columns = 0;
+
 };
 
 struct WindData {
@@ -82,6 +84,7 @@ struct WindData {
   std::optional<TurbulenceData> turbulence;
   std::optional<ControlRecord> control;
   std::optional<CanyonData> experiment;
+  std::optional<ReadOnlyTraceData> trace;
   ControlTimings timings; // Always measured, including legacy solves.
 };
 }

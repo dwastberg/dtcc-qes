@@ -31,6 +31,7 @@ struct MonitorSpec {
   std::size_t short_window = 1, long_window = 2, history_limit = 64;
   std::size_t memory_limit_bytes = 64*1024*1024;
   bool global_mass = false;
+  bool turbulence = false; // Opt-in native receptor diagnostics; no stopping criterion.
   std::vector<MonitorCellRegion> mass_regions; // Additional physical index boxes.
   // Absent means relative mass imbalance is unassessed. Any supplied value is
   // experimental; S3 has no calibrated acceptance threshold or acceptance state.
@@ -80,6 +81,13 @@ struct MonitorReceptorRecord {
   MonitorSample sample;
   std::optional<double> speed, speed_factor;
   MonitorWindow short_change, long_change;
+  struct TurbulenceSample {
+    bool computed = false, contributors_valid = false, valid = false, capped = false;
+    std::array<double,6> stress{};
+    std::array<double,9> gradient{}; // xx,xy,xz,yx,yy,yz,zx,zy,zz; s^-1.
+    double mixing_length = 0, tke = 0, uncapped_tke = 0;
+  };
+  std::optional<TurbulenceSample> turbulence;
 };
 struct MonitorFlux {
   double net_cell_flux = 0, boundary_flux = 0, absolute_cell_flux = 0, throughflow = 0;
