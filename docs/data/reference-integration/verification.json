@@ -1,0 +1,91 @@
+{
+  "archive": {
+    "path": "qualification-evidence.tar.gz",
+    "sha256": "93ac3c6e3c2d0ccdf96a9b8cd105e3c13cce1a3fe84b53797521de32a1dd8d19",
+    "bytes": 38681965,
+    "files": 449
+  },
+  "raw_local_root": "/private/tmp/dtcc-qes-reference-integration/build/reference-integration",
+  "larger_local_artifacts": {
+    "candidate-features.npz": {
+      "sha256": "a9ca2d2d3a41308f399abb89020fa8d14387193187b93ea523202a4b6d37c04d",
+      "bytes": 67269912
+    },
+    "candidate-openmp-1.npz": {
+      "sha256": "c2a30b6aa99bb3c5613425ce96efb193e4db5b0fb4a07a46ac323538391e96f0",
+      "bytes": 311301991
+    },
+    "candidate-openmp-2.npz": {
+      "sha256": "c2a30b6aa99bb3c5613425ce96efb193e4db5b0fb4a07a46ac323538391e96f0",
+      "bytes": 311301991
+    },
+    "candidate-openmp-4.npz": {
+      "sha256": "c2a30b6aa99bb3c5613425ce96efb193e4db5b0fb4a07a46ac323538391e96f0",
+      "bytes": 311301991
+    },
+    "candidate-openmp-8.npz": {
+      "sha256": "c2a30b6aa99bb3c5613425ce96efb193e4db5b0fb4a07a46ac323538391e96f0",
+      "bytes": 311301991
+    },
+    "candidate-serial-1.npz": {
+      "sha256": "70e0c3f7ad30cd6cb8dd8e3ab9967c42d66f31948fe570e21bb716235b41c45f",
+      "bytes": 311302175
+    },
+    "candidate-unqualified-matrix.npz": {
+      "sha256": "2deb4437e3454aa1d15675b5f0ba92593fcbfb339ca7a6e3b3f00c1fd55d0da5",
+      "bytes": 311302195
+    },
+    "main-features.npz": {
+      "sha256": "b00e2e12725dd1bd8dd2a72eeef0fb3379ae24a61c247616d310306ee7650d8e",
+      "bytes": 67232608
+    },
+    "main-matrix.npz": {
+      "sha256": "2d57325afc8b04a9d3163895f704850064d776364ecd2458f13aa4879b2b78b7",
+      "bytes": 311285615
+    },
+    "main-openmp-1.npz": {
+      "sha256": "2d57325afc8b04a9d3163895f704850064d776364ecd2458f13aa4879b2b78b7",
+      "bytes": 311285615
+    },
+    "main-openmp-2.npz": {
+      "sha256": "2d57325afc8b04a9d3163895f704850064d776364ecd2458f13aa4879b2b78b7",
+      "bytes": 311285615
+    },
+    "main-openmp-4.npz": {
+      "sha256": "2d57325afc8b04a9d3163895f704850064d776364ecd2458f13aa4879b2b78b7",
+      "bytes": 311285615
+    },
+    "main-openmp-8.npz": {
+      "sha256": "2d57325afc8b04a9d3163895f704850064d776364ecd2458f13aa4879b2b78b7",
+      "bytes": 311285615
+    },
+    "main-serial-1.npz": {
+      "sha256": "0d3ee031c04986b8c95dee34f619483ae0b7e8a14720b5189213568bf57a6416",
+      "bytes": 311285827
+    },
+    "pre-certificate-matrix.npz": {
+      "sha256": "0bb08fe6afc90ec9dbc83b8800ef997d749a7ecaf8ec061400d0fe237ad9fc81",
+      "bytes": 311302171
+    },
+    "release-wheel-matrix.npz": {
+      "sha256": "e4d49af87bff29baae83fe7248b3f338b6608db96716c71621b82fcca194710a",
+      "bytes": 311301987
+    },
+    "wheel-matrix.npz": {
+      "sha256": "c0b90640ae93e1af5b5e07da1e06a4cf67a4fcd7c7857ce94cc79f32e543c5b0",
+      "bytes": 311301983
+    },
+    "staged-dist/dtcc_qes-0.1.0b1.tar.gz": {
+      "sha256": "872bbb1222078aa7ca71583619efdb94c5dfab09799502e1cdd1e87b95263915",
+      "bytes": 1391407422
+    }
+  },
+  "full_capture_bundle": {
+    "path": "/Users/dagwastberg/repos/dtcc/dtcc-qes/validation/output/reference-integration/integration-20261109-001/qualification-captures.tar.gz",
+    "sha256": "49927a1067b25720cd8f658096b6d4117115d155322faaa16baa12cf0d596e4f",
+    "bytes": 717249474
+  },
+  "policy_identity": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed",
+  "source_epoch": "87a48fb plus promoted qualification header; numerical source hashes equal qualified builds",
+  "original_user_installation_preserved": true
+}

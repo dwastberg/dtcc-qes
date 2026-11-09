@@ -1,0 +1,49 @@
+{
+  "baseline": "eef9c6c04f629c7f4cab06f4b10e2be800c30e3d",
+  "implementation": [
+    "292f659",
+    "f81d905",
+    "87a48fb"
+  ],
+  "native_identity": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed",
+  "files": {
+    "CMakeLists.txt": "9cedea459377bf5ff8fec3d0b9b9842fea6194cac93172889f2b2c4acf11bb22",
+    "src/cpp/bindings.cpp": "f4b1086a4ca7acfeedb450dec532a63456cc35a11577954b0508afebd31b87b1",
+    "src/dtcc_qes/turbulence.py": "09b525d4369c340a736418b58ed3d7cc08722892ec7614f4a5f30473d75ee927",
+    "src/qes_core/dtcc/api/reference_sampling.h": "4b203a0c01ac4d2817877e954b4dbbf0c2478ce4165e6d762e9c1446aa77081b",
+    "src/qes_core/dtcc/api/stress_validity.h": "7575689dd0b4abd3d39a8cde4bfcf8ff548559d6f4fc622d3233ebfca5a62820",
+    "src/qes_core/dtcc/api/wind_config.h": "a83a40988200cf7dc9bac03e8729635b0c2245c34de8c79eebddb578cff0409d",
+    "src/qes_core/dtcc/pedestrian_qualification.h": "affbd240ec1a76f7b5854dfce5a3cb00cac0de59ebcd53a1d0352956a448b264",
+    "src/qes_core/dtcc/turbulence.cpp": "bc7769b0ba94733d0fe4d1e68d993c5b01e212477436c825d73283439ed691b1",
+    "src/qes_core/dtcc/turbulence_reference.cpp": "ffe74ba209b32a6f904d3b568aa8fe61f31c418ef0cd6701b32ae6164e4469dd",
+    "src/qes_core/winds/TURBGeneralData.cpp": "43f9b24ff72144fc17f641a9e68f403a862d2f41713d7e5e5a23b44c3cc07edb",
+    "src/qes_core/winds/TURBGeneralData.h": "2e16f9281f05745be06a8afb7741c172c5eca2fbf8162bc7ef210bbdf3ee2293",
+    "tests/native/check_reference_support.cpp": "290651f59d040e188f8764fd88df88d4f6535e5e0ff7204a33f42264d3232fc9",
+    "tests/native/check_stress_certificate.cpp": "0d0214ea94ac82b4c7bf9bb2d7c82da8d31f4af5bc0d1f0a16b8fc3ef4d58231",
+    "tests/native/check_turbulence.cpp": "61932d95536d2157b30ed940ec375ab13be27dbd04dcc28acf7cce043234cee4",
+    "tests/native/reference_sampling_candidate.h": "16b6dce6f43c4590d4b0f7bc594f9fcb898de9cdee5c8d8c28bffa9d9e8ce5ab",
+    "tests/native/reference_sampling_probe.cpp": "900a79765e1387b7ac85ea51c42c490733944f6ec6731493e46e1caa8cd2e15b",
+    "tests/native/replay_covariance.h": "b1278727c41ffb59c14b146bfe759a8d2b398662364841032819296a7d904b89",
+    "tests/native/stress_replay_probe.cpp": "0c76c5c1e808403413ff4cc176a5083a950aa8a578d3f8fee0db3574cfe041be",
+    "tests/test_dataset_turbulence.py": "f8ae52fa24a627d44d57288468115204dcfd89b47e7f4ff5134448091693f8b1",
+    "tests/test_example.py": "5d6236425c36f34f4dadf37d70adb62411b5c7f5e83bdbf34f5fdf0cd957a3ac",
+    "tests/test_reference_integration_audit.py": "83f8c84fe3ae021f156297d6b7990d9307c06f50aa8abdd78099d53664680b2e",
+    "tests/test_reference_sampling.py": "b76c5abc5aaead2b0eed5c318ca912d21ff6b70a3ecad34d65ef3ed4898d325d",
+    "tests/test_runner.py": "7a21b642f8c38b26c50d863e24a4311b746462196d16acf8bf2d132d88de2b9c",
+    "tests/test_turbulence_domain.py": "4fcf805a4e27fb4dd0cea301d04218f353db90ef5f4e28f1f34a510267a87999",
+    "tools/qualify_reference_integration.py": "0ce6e679c93b9b939e8cf4b82cf054c83c4d43d75df2fe0848316a6052183f19"
+  },
+  "excluded_runtime": [
+    "physical_pairs_v1/v2",
+    "incoming_energy",
+    "bounded_consistent_v1",
+    "gradient_smoothing",
+    "actor_composition_changes",
+    "rotation_reference_changes"
+  ],
+  "additional_invalid_probes": [
+    "A site 1015",
+    "E-after site 60"
+  ],
+  "physical_qualification": false
+}
