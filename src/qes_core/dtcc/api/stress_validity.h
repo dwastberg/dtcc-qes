@@ -60,6 +60,17 @@ inline StressValidity stress_validity(const StressTensor &stress) noexcept
   return {minimum >= -tolerance, minimum, radius, tolerance};
 }
 
+// Boolean-only consumers can prove PSD by symmetric diagonal dominance. This
+// does not change the raw eigenvalue/tolerance contract above: inconclusive
+// tensors, including negative eigenvalues near its tolerance, use that policy.
+inline bool stress_is_valid(const StressTensor &stress) noexcept
+{
+  for(float value:stress)if(!std::isfinite(value))return false;
+  const double xy=std::abs(double(stress[1])),xz=std::abs(double(stress[2])),yz=std::abs(double(stress[4]));
+  if(double(stress[0])>=xy+xz && double(stress[3])>=xy+yz && double(stress[5])>=xz+yz)return true;
+  return stress_validity(stress).valid;
+}
+
 inline double streamwise_variance(const StressTensor &stress,
                                   const std::array<double, 3> &velocity) noexcept
 {

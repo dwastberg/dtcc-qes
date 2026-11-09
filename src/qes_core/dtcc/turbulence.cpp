@@ -156,7 +156,7 @@ TurbulenceData turbulence_fields(const TURBGeneralData &turb, const GridConfig &
       for (float component : stress) capped = capped || std::abs(component) >= bound;
     }
     result.state[cell] = capped ? 2 : 1;
-    result.stress_valid[cell] = stress_validity(stress).valid;
+    result.stress_valid[cell] = stress_is_valid(stress);
     ++result.computed_cells;
     if (capped) ++result.capped_cells;
     if (!result.stress_valid[cell]) ++result.invalid_stress_cells;
