@@ -209,6 +209,8 @@ if(DTCC_QES_BUILD_TESTS)
   target_include_directories(check_physics PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
   target_link_libraries(check_physics PRIVATE dtcc_qes_internal)
   add_test(NAME staggered_flux COMMAND check_physics)
+  add_executable(stress_replay_probe tests/native/stress_replay_probe.cpp)
+  target_link_libraries(stress_replay_probe PRIVATE dtcc_qes_internal)
   add_executable(check_turbulence tests/native/check_turbulence.cpp $<TARGET_OBJECTS:qesbridge>)
   target_link_libraries(check_turbulence PRIVATE dtcc_qes_internal)
   foreach(mode low_top ref_in_top_cell ref_above_top reference_boundary methods ownership references lifecycle

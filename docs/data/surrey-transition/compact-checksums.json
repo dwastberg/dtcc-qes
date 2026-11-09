@@ -1,0 +1,14 @@
+{
+  "README.md": "59a4a5ef8f5194d9081089c17127744984cca2830aa08b4eac1872a60ab47807",
+  "analysis-report.json.gz": "c20a3ea1d7173bbcfd0cfb16b07c9245eb80d18fd8f1643ebcf25af556f314b6",
+  "campaign-manifest.json.gz": "00aba97518d9b6aa6043bab45689e2b710b143cfdc52241fc12c617e6497787c",
+  "campaign-report.json.gz": "c82cf9bfa9b33b3d65d914334565343d3b8007874771ac72ddc57a9704ba08f3",
+  "fetch_response.png": "716c2e665e6117c752b15fd4838167cb74e6494ad1402bf2fec6e0f4494bf765",
+  "geometry.png": "6ee38472fffcc6d7b213837a76a2a300bfc43a59da32218b198746b30240cce1",
+  "historical-checksums.json": "1ced8c33bfef70264da0b8cbf25d93f8e7942a7ae3fb1d278fdbe93bc21e8e8c",
+  "ledger.json.gz": "4ba14089152151e11cf99dc501fe54e02be44c20e1d1bbb953b69955b39179d5",
+  "profiles.png": "deecdc4b8ed328c7f39162974dd22881db404a00af0f3c8bd2c7796b915add8e",
+  "street_centreline.png": "8eaed64a700fd4792af2485f0f6ee9fb8c2b01ed691d2da6c61a75e9baf6c076",
+  "summary.json": "e43ae3cda67f6d93ff753e55727add5980d0b0be09fc13d791c737840d1d6dde",
+  "verification.json": "cc9a821fa70a14ded331a443d10567f47c2b61c91be5adc2a042e8325bf77753"
+}

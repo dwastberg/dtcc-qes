@@ -1,0 +1,80 @@
+{
+  "schema": "surrey-transition-verification-v1",
+  "date": "2026-11-09",
+  "verified": {
+    "docs/data/surrey-background": {
+      "files": 18,
+      "checksums_sha256": "ec0350a98ac525a26003c899b775ab3422af300658fa733c81696690d8b8822b"
+    },
+    "docs/data/next-pedestrian-campaign/stress-reference-audit": {
+      "files": 29,
+      "checksums_sha256": "3f5e7725e752cb0572997e4ee33b2e89f95f735bfe975c7eaee129ad00bb72d1"
+    },
+    "validation/output/surrey-transition/campaign-001": {
+      "files": 100,
+      "checksums_sha256": "909596a3ca6af8edf64b618b6bc13f77db817bfbf338913772a49b72b203b0e1"
+    },
+    "validation/output/surrey-transition/analysis-003": {
+      "files": 9,
+      "checksums_sha256": "c26f36da9925cc4997a684f278ad81c9c185b3ebaa3b47b8342b4d9e85abbaaa"
+    }
+  },
+  "current_source_sha256": {
+    "validation/surrey_transition.py": "c408dd2b3bcc7c31463c6f7624f81f0b7059eb2f63bbc70df0aa60c08ef9d3e6",
+    "validation/analyse_surrey_transition.py": "2e6d8ac0b50f212a7583639ce96b88dbf52115fe5818ddd411161e869466b6eb",
+    "validation/tests/test_surrey_transition.py": "bf25f61426bd27e236cdbcbbaba92fe376a5a6851701c328bbead11e69c86ebf",
+    "validation/specifications/surrey_transition_v1.json": "383aeb32a4c16ad9358741e1506156574877659ce6aad64b0bd0b260aae61b2c",
+    "validation/SURREY_TRANSITION_PROTOCOL.md": "c62d872a4d3062ad17beefea31a64a440e9942e6895bb0643cbbd8ccd217030a",
+    "validation/SURREY_TRANSITION_RESULTS.md": "37a9fba468ce4894ebf2fe558e26fcde5c59bd139b40343239bd0c6f1a6ffb3a"
+  },
+  "epoch": {
+    "sources": {
+      "validation/surrey_transition.py": "c408dd2b3bcc7c31463c6f7624f81f0b7059eb2f63bbc70df0aa60c08ef9d3e6",
+      "validation/surrey_background.py": "f0524f8e6581e48e27dd358fadfc6f433939449f12ac9f8bb2137814a8fd64b9",
+      "validation/SURREY_TRANSITION_PROTOCOL.md": "c62d872a4d3062ad17beefea31a64a440e9942e6895bb0643cbbd8ccd217030a",
+      "validation/specifications/surrey_transition_v1.json": "383aeb32a4c16ad9358741e1506156574877659ce6aad64b0bd0b260aae61b2c",
+      "validation/specifications/surrey_background_v1.json": "e54aca62f49a8ff0dbc846fa7da016155708f0dc47f7ab65172656af25d110e2"
+    },
+    "protocol_sha256": "383aeb32a4c16ad9358741e1506156574877659ce6aad64b0bd0b260aae61b2c",
+    "native_sha256": "7b46a2afb0561de7f345bc74a2b43b2dc49b012d505527d694081eb4e1e1b921",
+    "native_policy_revision": "531fc9437391360b528cc907c0302007c76b5be4e6eac16e4ce942864ccf2a36",
+    "native_matches_background_binary": true,
+    "native_matches_background_build_identity": true,
+    "python": {
+      "_footprints.py": "854d04923f5e1878b184bd0899c4b70b5a85944be2bb7fc0ab8e495f0551c4ef",
+      "turbulence.py": "52b48df05463e6e6e4a8b051aae6237dd70b650a5f762feadb3482ea7a9c7f56",
+      "_logging.py": "1896cb16e46006494eb84d09b34153f15f68dc9418c536675319836092c0d44b",
+      "_turbulence_domain.py": "c5eeeaa3b3cc0625317a7bc69d2766840f6785b8325b4437ceeec720279001d2",
+      "parameterizations.py": "7c58d60dc1642dea3f8b136bdef1be38f0d0aa435174da5565f0203e01e276ee",
+      "comfort.py": "946c214ae920ed7f32ba336a0a9d1eb1a951c13e3e7543c28bd6525db6da094a",
+      "_dataset_city.py": "2d351e914776b3a2932da72b2c3325746a45a722f2adb32c19a4fd98d66bc7a1",
+      "vertical_grid.py": "54ab7fe16f00f694b1ef2c7b1366be514e9f74cb5bc4b6764012d216b616e6ac",
+      "datasets.py": "724060a120cb9f422586a6df10049afe792508efe5b9f478563da5b4f6bf1c76",
+      "wind.py": "459ba60cd260bcad010e3238bcf6f47c7676ce17665b0045c8c757e6dcbe5492",
+      "__init__.py": "af01eab80634bc9480e23334d9cb76bf68ae65d46a9dfdd6b48aee7d96b62619",
+      "footprints.py": "d13255b633761545a24f6d483a6b951a19181752a715b6bd617fcebb1df74c52",
+      "result.py": "c98e1233b4e54564d368ff834e084f680d034b32dd68c3670a8628b46eeb6e8b",
+      "_validation.py": "97f858fa0de2415296c8a81a92dc31abc7b8ad2a1c1c110801e955f0a854a8ac",
+      "_statistics.py": "7204b15ee54e413b7ae33210dbffa6f116ad112aac7fd5010b17eec6070bbf94",
+      "_auto_grid.py": "98527ff0692c52989d1c5168160fada4f83f1262c05bfd515eaf8ab3e8a607c9",
+      "solver_control.py": "a8a64e5513f20d1e8eb420a219827859ff316f3d934e824c7861c82121841e38",
+      "_city.py": "128d9df2e2d3ff1b9bf12db72d599c13b7393575212def03ba0df1aec43f1bc9",
+      "profiles.py": "b0234b76a5eb83c148be44c9bc692dff6b248a8422ec83a15d62f73521912737",
+      "_log.py": "f6e2d6a038e428a18aa5d9c1d27bcb6ea60440d5d6ace0310fd4ecc292d1a8ca"
+    }
+  },
+  "analysis_source_sha256": "2e6d8ac0b50f212a7583639ce96b88dbf52115fe5818ddd411161e869466b6eb",
+  "tests": {
+    "passed": 167,
+    "skipped": 8,
+    "failed": 0,
+    "warnings_as_errors": true
+  },
+  "geometry_masks_exact": true,
+  "maximum_solid_volume_relative_error": 1.476214164242151e-07,
+  "maximum_checkpoint_change_over_Uref": 4.474546388271623e-08,
+  "maximum_cell_flux_divergence_over_Uref": 1.2526288802528054e-07,
+  "native_call_seconds": 61.249944125069305,
+  "worker_seconds": 76.62458174815401,
+  "maximum_peak_rss_bytes": 2015051776
+}

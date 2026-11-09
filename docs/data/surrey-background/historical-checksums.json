@@ -1,0 +1,20 @@
+{
+  "README.md": "76113ce0e9ac17fd7553a85f83ced00c5aa7f22c4b1371d07a7a27de24dccd15",
+  "baseline-001.log.gz": "df91368f41c4d53b6d4448bd604aca92f78d1b150bb83f4d86d00b7f1f783d25",
+  "baseline-002.log.gz": "99371ba23214d020aae03f0601a4a8e76bfff9cc3c9233526d3ebdbfd79c7fb4",
+  "baseline-evidence.tar.gz": "85e2a182cecf08ef8ba04499601ac7e50e8aed6814e110d9ae9ff763006abf2e",
+  "manifest.json.gz": "1bd50ddff849805fd0bd032b088a178bf743a3fe5126e084acb45b7fdfa3d106",
+  "measured_adjustment.png": "7c0e4a23d3516e7a73ad58724bc7f20c9fba01422085dcdc972b99337750de6f",
+  "observations.csv.gz": "6ee044fe88a19a6c6a6f9801a44a499089394c78793ba2ec085e8eaaa3a5e47b",
+  "predictions.csv.gz": "bbb6944fcfbac99174aaf4ece5213d4f8a0bbffd0578a80bb18dcbe19f52b4d4",
+  "profiles.png": "1df03239e014c1405e3459410a6528f5d31da566f2515fad2e271c2c8fba4fdd",
+  "published-log-context.csv.gz": "3ee77da03d661c25178d4f4a046770ecbcd813a6f3ae9057788745c35adb726a",
+  "reference-audit-004.json.gz": "9f15a8fb445fbfb154a20baaea46aa22457ca47350954db9ae0dfb68837fb03f",
+  "report.json.gz": "949215ff3169aad4fbfe13b08a9a2f020181639dba180dad46c861b6096b1658",
+  "setup-attempt-evidence.tar.gz": "cbfe4affa7f46bcdc315273729a2d8447b42845143d98cb13a3396f54174f981",
+  "summary.json": "625cda6e1ec7496b20b431e5fe5ec88fd4361b4550417d0fd7de6f435c0a601b",
+  "tests.log.gz": "5d7951236f38eb55319ba4d37b1a6edf880c8f65a424ae07cb6edb069b240ff9",
+  "tests.xml.gz": "d95eed1e6ede3a2d5a8349d3b7af1bbcdb30e5a1fb4339d453d0e481fec547ff",
+  "verification-sources.tar.gz": "27ea17deb294c8bffe0a35d79b423c6a04085be102b7a751a9ac3f12b146afbc",
+  "verification.json": "bc62960ba9cfdacb21443e000f3723cd4b2e5726bf82de33201c67c47fb99c9d"
+}

@@ -1,0 +1,119 @@
+{
+  "schema": "reference-sampling-summary-v1",
+  "date": "2026-11-09",
+  "manufactured_profile_cases": 48,
+  "native_mean_reproductions": 6,
+  "fixed_mean_reference_arms": 4,
+  "source_instances": 4836,
+  "all_manufactured_guards_pass": true,
+  "all_reproduction_guards_pass": true,
+  "default_reference_changed": false,
+  "physical_qualification": false,
+  "new_aij_launches": 0,
+  "grid_comparisons": {
+    "empty": {
+      "legacy": {
+        "reference_speed_relative_gap": 0.003531783992776205,
+        "bound_relative_gap": 0.007076023523954866,
+        "developed_k_relative_gap": 0.006493199484534085
+      },
+      "wide_sum": {
+        "reference_speed_relative_gap": 0.0035639839563987863,
+        "bound_relative_gap": 0.007140649022932655,
+        "developed_k_relative_gap": 0.006505360622106382
+      },
+      "interpolate": {
+        "reference_speed_relative_gap": -0.00014169627822058217,
+        "bound_relative_gap": -0.0002833835833646603,
+        "developed_k_relative_gap": 0.005048594085899749
+      },
+      "interpolate_wide": {
+        "reference_speed_relative_gap": -0.00012761912090653027,
+        "bound_relative_gap": -0.000255186939499219,
+        "developed_k_relative_gap": 0.005048685740570269
+      }
+    },
+    "street": {
+      "legacy": {
+        "reference_speed_relative_gap": 0.015539377765251938,
+        "bound_relative_gap": 0.03132022281957125,
+        "developed_k_relative_gap": 0.07907764605290835
+      },
+      "wide_sum": {
+        "reference_speed_relative_gap": 0.015516761767057075,
+        "bound_relative_gap": 0.03127426006034395,
+        "developed_k_relative_gap": 0.07907791994098523
+      },
+      "interpolate": {
+        "reference_speed_relative_gap": -0.00020158879186726875,
+        "bound_relative_gap": -0.0004032218967856549,
+        "developed_k_relative_gap": 0.0785197984106758
+      },
+      "interpolate_wide": {
+        "reference_speed_relative_gap": -0.00011356417285979248,
+        "bound_relative_gap": -0.00022706022653617985,
+        "developed_k_relative_gap": 0.07851954486082224
+      }
+    },
+    "block": {
+      "legacy": {
+        "reference_speed_relative_gap": 0.009166954041461395,
+        "bound_relative_gap": 0.0184178580180685,
+        "developed_k_relative_gap": null
+      },
+      "wide_sum": {
+        "reference_speed_relative_gap": 0.009063549731792575,
+        "bound_relative_gap": 0.018209157704023093,
+        "developed_k_relative_gap": null
+      },
+      "interpolate": {
+        "reference_speed_relative_gap": -0.00018568321983380986,
+        "bound_relative_gap": -0.0003713386249319939,
+        "developed_k_relative_gap": null
+      },
+      "interpolate_wide": {
+        "reference_speed_relative_gap": -0.000115858926360346,
+        "bound_relative_gap": -0.00023171444351188786,
+        "developed_k_relative_gap": null
+      }
+    }
+  },
+  "source_effects": {
+    "empty-coarse": {
+      "source_instances": 804,
+      "changed_sources": 176,
+      "maximum_source_component_change": 0.0054582953453063965,
+      "sampled_stresses_bitwise_equal": false
+    },
+    "street-coarse": {
+      "source_instances": 804,
+      "changed_sources": 8,
+      "maximum_source_component_change": 0.024534165859222412,
+      "sampled_stresses_bitwise_equal": false
+    },
+    "block-coarse": {
+      "source_instances": 804,
+      "changed_sources": 78,
+      "maximum_source_component_change": 0.04636800289154053,
+      "sampled_stresses_bitwise_equal": false
+    },
+    "empty-fine": {
+      "source_instances": 808,
+      "changed_sources": 132,
+      "maximum_source_component_change": 0.0033319294452667236,
+      "sampled_stresses_bitwise_equal": false
+    },
+    "street-fine": {
+      "source_instances": 808,
+      "changed_sources": 0,
+      "maximum_source_component_change": 0.0,
+      "sampled_stresses_bitwise_equal": true
+    },
+    "block-fine": {
+      "source_instances": 808,
+      "changed_sources": 80,
+      "maximum_source_component_change": 0.02339901775121689,
+      "sampled_stresses_bitwise_equal": false
+    }
+  }
+}

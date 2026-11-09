@@ -1,0 +1,23 @@
+{
+  "README.md": "d809c73c39635e649420919b212ffd1a4f2a280063cc0fdcf1be539e43a676d8",
+  "analysis-evidence.tar.gz": "c3250ab57d22e82ee93aa4e153e85b3e6f7134c09a2694e54e0b2a596b4a845a",
+  "analysis-report.json.gz": "ba7caf932ee6ea700ec1bdba71efb2b7e333c08e87ee3cc8c69a32a0a37b747d",
+  "analysis.log.gz": "3c940949e49768db82844ff0594ea162bbc9ccecbd5ab77e59c0b4a1b7b5d3a4",
+  "build-identity.txt": "fb74b5c6958a751711b149c1caad955ebaaff3be27870bee902114e4dcc3e1f9",
+  "build.log.gz": "27cc8abf891beab64482478d3681d55da56b7515f5f458d4ac58e05ea8c6dae5",
+  "configure.log.gz": "ffa0c307989b6e1537887eaa19d32d377dd0ee44033fddd5fb31f4155c435916",
+  "manufactured-checks.json.gz": "69bbd3e11b9a190d4018a66832b404fb8db61c3932ccefc7a6b99eee4cd72c84",
+  "manufactured.json.gz": "1af25bff3453e3fc42fe64d9e11bcd879f0edcc7885a8e11958977cd4e844ffd",
+  "manufactured.png": "fd1b8dcc913eac23f2e2edf82f3530a5a7fed7f8cee16525e17dabc5cfd7f9e7",
+  "study-evidence.tar.gz": "8da0d16a0c45d66f124bd889e7bc6e7371decbb4e05e88c91eaa13244175069a",
+  "study-manifest.json.gz": "0ed658d07140f6d7b71c5ca8e26cf4e8fd64888c11f3a8b28bde5aaf87802282",
+  "study-report.json.gz": "520792bad88078a27901fafd390d69df0c72ccfe454001e065a499c3f69f6b45",
+  "study.log.gz": "620a3669117f57595afcdf24cfd019104df2907efbafb6356ee0b375f8a03fbb",
+  "summary.csv.gz": "c7fb78f653d4a773c08b34b5c1cd66932b786eeb624906d402c2a1c50972e9fa",
+  "summary.json": "178e816ea768ef5f43aba782714a4c4b68aefbeeaded16a9ae3069540449210f",
+  "surrey_effect.png": "789636b5a2752a45fc32d12c2fbc5b5938d0ba069f2741d7b56e15183946a365",
+  "tests.log.gz": "8541de440aeb4a4f166979915f3c75198272e72adeaf139e2b568df9b57f5059",
+  "tests.xml.gz": "57fd0c554bac69ba170db5cf65a7541a63504f928548f1d298a66d25978d47af",
+  "verification-sources.tar.gz": "cf7ad4b1c8a0e9dca90b3aa9b24b5f05b1feb640035703cbd9be4a7833407bf9",
+  "verification.json": "a96922ddb3fb01fa788cf91e10076688f72aab63900b6f93159ca9e0f9e2c138"
+}

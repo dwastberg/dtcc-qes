@@ -1,0 +1,38 @@
+{
+  "schema": "surrey-background-verification-v1",
+  "date": "2026-11-09",
+  "benchmark_raw_files_verified": 63,
+  "previous_archive_files_unchanged": 29,
+  "previous_archive_checksums_sha256": "3f5e7725e752cb0572997e4ee33b2e89f95f735bfe975c7eaee129ad00bb72d1",
+  "raw_run_checksums_sha256": "bd43db943ae09c3f15bf7a6ae1bf548cd0c1c7bab3d20dc32ae4d1bc7c5c6da0",
+  "current_source_sha256": {
+    "validation/surrey_background.py": "f0524f8e6581e48e27dd358fadfc6f433939449f12ac9f8bb2137814a8fd64b9",
+    "validation/specifications/surrey_background_v1.json": "e54aca62f49a8ff0dbc846fa7da016155708f0dc47f7ab65172656af25d110e2",
+    "validation/SURREY_BACKGROUND_PROTOCOL.md": "1187604094f45b09b8dcc7590d3e03f4f4c4d63276fbdbbf174af4658f776ee6",
+    "validation/SURREY_BACKGROUND_RESULTS.md": "1268fed7d97922cce65dc144770545ee813a7ef46bef4c7b7ef14a71abd07fb6",
+    "validation/audit_surrey_reference.py": "c58e992c31037e436708f5626435fe40ce486e1cfbab504214d3a6b9f133f24a",
+    "validation/tests/test_reference_audit.py": "a6cd699272f1285cb618393aedb827f8e5a312fd5faf1bf88003396ab0a15447",
+    "validation/tests/test_surrey_background.py": "63e9f582543dafb871f73a427a3652825edcf74c274ed50e82c1ca4d53936342"
+  },
+  "tests": {
+    "passed": 159,
+    "skipped": 8,
+    "failed": 0,
+    "warnings_as_errors": true
+  },
+  "source_export_sha256": "5df976850e88312267ab9617d6c600960884d425cea5f6c4dbc60d3373f75717",
+  "native": {
+    "path": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/surrey-background/package/dtcc_qes/_qes.cpython-313-darwin.so",
+    "sha256": "7b46a2afb0561de7f345bc74a2b43b2dc49b012d505527d694081eb4e1e1b921",
+    "policy_revision": "531fc9437391360b528cc907c0302007c76b5be4e6eac16e4ce942864ccf2a36",
+    "build_identity_sha256": "531fc9437391360b528cc907c0302007c76b5be4e6eac16e4ce942864ccf2a36"
+  },
+  "setup_attempt": {
+    "name": "baseline-001",
+    "native_solves": 0,
+    "reason": "Solver construction rejected tolerance below float32 epsilon"
+  },
+  "earlier_import_preflight": "Rejected installed native extension when editable import redirection bypassed staged package; no solve launched",
+  "successful_run": "baseline-002",
+  "previous_research_native_unchanged_sha256": "3a6b5f9436dff5c6aa7ba1d9e00eb33c74c09e932872e846755d4d0159004b5d"
+}

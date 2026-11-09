@@ -1,0 +1,54 @@
+{
+  "schema": "reference-sampling-verification-v1",
+  "date": "2026-11-09",
+  "verified": {
+    "docs/data/surrey-background": {
+      "files": 18,
+      "checksums_sha256": "ec0350a98ac525a26003c899b775ab3422af300658fa733c81696690d8b8822b"
+    },
+    "docs/data/surrey-transition": {
+      "files": 25,
+      "checksums_sha256": "1ced8c33bfef70264da0b8cbf25d93f8e7942a7ae3fb1d278fdbe93bc21e8e8c"
+    },
+    "docs/data/next-pedestrian-campaign/stress-reference-audit": {
+      "files": 29,
+      "checksums_sha256": "3f5e7725e752cb0572997e4ee33b2e89f95f735bfe975c7eaee129ad00bb72d1"
+    },
+    "validation/output/reference-sampling/study-001": {
+      "files": 45,
+      "checksums_sha256": "fceaae73e2f768682346db58a5cccf3f8a4413602d62390f76e6bb6616979810"
+    },
+    "validation/output/reference-sampling/analysis-001": {
+      "files": 5,
+      "checksums_sha256": "626d40073d85e0d7db8641c733794c65bdcf843e69daad3c7da0b3b93b9dbc4c"
+    }
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "a6a7c7c67c3a2fb4b61d31176915350fa1d16e9e0fdde03abeae38ce80127be9",
+    "tests/native/reference_sampling_candidate.h": "16b6dce6f43c4590d4b0f7bc594f9fcb898de9cdee5c8d8c28bffa9d9e8ce5ab",
+    "tests/native/reference_sampling_probe.cpp": "1db7bf22a438fd2cf130faece9e11b70485d6a35ba9f9e20398b00abfd68d902",
+    "validation/investigate_reference_sampling.py": "fc8c3e0cfd20e969b7a2b572ed8fa9ea8889aec89177bd26a068044ed5131fcc",
+    "validation/analyse_reference_sampling.py": "d80bd740ac3bbb9d72bb3fa1a4f2bd86fe23dff968392a26d3475d29a5a5a121",
+    "validation/tests/test_reference_sampling_investigation.py": "9d3c09fc0a2a7b113e142a5d96c378684d95f6e9d84875cd5f444b2b839986e4",
+    "validation/TURBULENCE_REFERENCE_SAMPLING_PROTOCOL.md": "0f910d481f214be0d79eb37b3fb7db647d5072b0a548876f19aa1a24973941fc",
+    "validation/TURBULENCE_REFERENCE_SAMPLING_RESULTS.md": "96b2f97c55f6bf3d477a2fd62fd8cdc2179bc86f62161f10e37a084ffd94de59"
+  },
+  "tests": {
+    "passed": 176,
+    "skipped": 8,
+    "failed": 0,
+    "warnings_as_errors": true
+  },
+  "prior_build_input_mismatches": [
+    "CMakeLists.txt"
+  ],
+  "production_numerical_sources_match_original": true,
+  "same_compiler_and_arithmetic_build_header": true,
+  "helper_sha256": "e6fcdee86e42c0120a5cc6b90efb89bfa0120e0960cbf82dedadf64489330ab8",
+  "original_python_native_sha256": "7b46a2afb0561de7f345bc74a2b43b2dc49b012d505527d694081eb4e1e1b921",
+  "original_build_identity_sha256": "531fc9437391360b528cc907c0302007c76b5be4e6eac16e4ce942864ccf2a36",
+  "helper_build_identity_sha256": "fb74b5c6958a751711b149c1caad955ebaaff3be27870bee902114e4dcc3e1f9",
+  "maximum_independent_constitutive_scaled_error": 1.4901161193847656e-08,
+  "maximum_archive_sampled_stress_error": 0.0,
+  "maximum_archive_sampled_velocity_error": 0.0
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "surrey-background-protocol-v1",
+  "source": "docs/data/next-pedestrian-campaign/stress-reference-audit/surrey-numeric-exports/Urban_roughness.csv.gz",
+  "source_sha256": "5df976850e88312267ab9617d6c600960884d425cea5f6c4dbc60d3373f75717",
+  "original_mat_sha256": "15b141cf81e0ec79f0b87d550f5330e2c07c359335f610a595eaa17781401f5e",
+  "paper_sha256": "60e5cbe8b1758549da3be7252f58674b5077525360889a6449020bfbc8b30a4d",
+  "paper_url": "https://openresearch.surrey.ac.uk/esploro/outputs/journalArticle/Tall-Building-Clusters-in-Urban-Canopies/991008866202346",
+  "dataset_url": "https://doi.org/10.17605/OSF.IO/5X7WV",
+  "nominal_reference_speed_m_s": 2.0,
+  "coordinate_offset_mm": 735.0,
+  "roughness_length_scale_mm": 70.0,
+  "stations": [-10, 1, 2, 3, 5, 6, 7, 8, 9, 15, 20],
+  "suburban_heights_mm": [40, 60, 90, 120, 180, 240, 300, 420, 660, 700, 750],
+  "urban_heights_mm": [90, 120, 180, 240, 360, 420, 600, 700, 750],
+  "developed_stations": [7, 8, 9, 15, 20],
+  "published_parameters": {
+    "suburban": {"u_star_over_Uref": 0.064, "displacement_m": 0.0, "z0_m": 0.0019},
+    "urban": {"u_star_over_Uref": 0.086, "displacement_m": 0.049, "z0_m": 0.0052}
+  },
+  "von_karman": 0.4,
+  "log_anchor_height_m": 0.24,
+  "domain": {"horizontal_extent_m": 0.32, "horizontal_spacing_m": 0.04, "fine_top_m": 1.0, "top_m": 16.0, "upper_growth": 1.2},
+  "vertical_spacings_m": [0.01, 0.005],
+  "solver": {"tolerance": 2e-7, "max_iterations": 1000, "raise_on_failure": true},
+  "turbulence": {"mixing_length": "height", "covariance_model": "legacy"},
+  "guards": {"profile_pipeline_absolute_m_s": 2e-6, "maximum_interior_divergence_s_inv": 1e-5},
+  "physical_acceptance_thresholds": null,
+  "scope": "Local profile and conditional turbulence diagnostic; no resolved roughness transition, cluster flow, measured-energy forcing or pedestrian qualification"
+}

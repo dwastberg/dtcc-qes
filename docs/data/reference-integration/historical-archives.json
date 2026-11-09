@@ -1,0 +1,68 @@
+[
+  {
+    "path": "docs/data/surrey-background/baseline-evidence.tar.gz",
+    "sha256": "85e2a182cecf08ef8ba04499601ac7e50e8aed6814e110d9ae9ff763006abf2e",
+    "bytes": 1645246,
+    "git_revision": "54ccb39"
+  },
+  {
+    "path": "docs/data/surrey-background/setup-attempt-evidence.tar.gz",
+    "sha256": "cbfe4affa7f46bcdc315273729a2d8447b42845143d98cb13a3396f54174f981",
+    "bytes": 32163,
+    "git_revision": "54ccb39"
+  },
+  {
+    "path": "docs/data/surrey-background/verification-sources.tar.gz",
+    "sha256": "27ea17deb294c8bffe0a35d79b423c6a04085be102b7a751a9ac3f12b146afbc",
+    "bytes": 20219,
+    "git_revision": "54ccb39"
+  },
+  {
+    "path": "docs/data/surrey-transition/analysis-evidence.tar.gz",
+    "sha256": "1fdbaa370754bbe390914dbe9165bb0ac4307f2aa3e40b04549c9b4ac754cdb0",
+    "bytes": 896918,
+    "git_revision": "54ccb39"
+  },
+  {
+    "path": "docs/data/surrey-transition/campaign-evidence.tar.gz",
+    "sha256": "6fff323f05743046a1d04c2039530d0c3070253369d99ca0cb33f552c41269aa",
+    "bytes": 19449200,
+    "git_revision": "54ccb39"
+  },
+  {
+    "path": "docs/data/surrey-transition/earlier-analyses.tar.gz",
+    "sha256": "ad3e51c217d5ea6e99e124b5d1722f06e3262170b688db21be2a4ba917072de0",
+    "bytes": 1785254,
+    "git_revision": "54ccb39"
+  },
+  {
+    "path": "docs/data/surrey-transition/preparation-evidence.tar.gz",
+    "sha256": "2b821d4c83103eced339b21319846d3bb5018734f10dc13590f43e6c4c68d7c0",
+    "bytes": 149743,
+    "git_revision": "54ccb39"
+  },
+  {
+    "path": "docs/data/surrey-transition/verification-sources.tar.gz",
+    "sha256": "f0b46986aa1a9542ff113b49b119aa345f391e197ff0943b809cf1c0d1bb122a",
+    "bytes": 19158,
+    "git_revision": "54ccb39"
+  },
+  {
+    "path": "docs/data/reference-sampling/analysis-evidence.tar.gz",
+    "sha256": "c3250ab57d22e82ee93aa4e153e85b3e6f7134c09a2694e54e0b2a596b4a845a",
+    "bytes": 211846,
+    "git_revision": "54ccb39"
+  },
+  {
+    "path": "docs/data/reference-sampling/study-evidence.tar.gz",
+    "sha256": "8da0d16a0c45d66f124bd889e7bc6e7371decbb4e05e88c91eaa13244175069a",
+    "bytes": 9757696,
+    "git_revision": "54ccb39"
+  },
+  {
+    "path": "docs/data/reference-sampling/verification-sources.tar.gz",
+    "sha256": "cf7ad4b1c8a0e9dca90b3aa9b24b5f05b1feb640035703cbd9be4a7833407bf9",
+    "bytes": 23493,
+    "git_revision": "54ccb39"
+  }
+]

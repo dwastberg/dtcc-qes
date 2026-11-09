@@ -1,0 +1,29 @@
+{
+  "schema": "surrey-transition-protocol-v1",
+  "background_protocol": "validation/specifications/surrey_background_v1.json",
+  "geometry": {"length_m": 0.07, "width_m": 0.14, "height_m": 0.07, "streamwise_pitch_m": 0.14, "lateral_pitch_m": 0.21, "edge_padding_m": 0.07},
+  "domain": {"xmin_m": -0.84, "xmax_m": 2.24, "half_width_m": 0.56, "fine_top_m": 0.84, "top_m": 16.0, "upper_growth": 1.2},
+  "spacings_m": [0.0175, 0.00875],
+  "footprints": {"min_detail": 0.0001, "exposed_faces": true},
+  "parameterizations": {"rooftop": 1, "upwind_cavity": 2, "street_canyon": 1, "wake": 2, "high_rise": 0, "sidewall": 1, "wall_roughness": 0.001},
+  "turbulence": {"mixing_length": "height", "covariance_model": "legacy"},
+  "solver": {"precision": "float64", "tolerance": 1e-10, "max_iterations": 24000, "max_solve_seconds": 120.0, "checkpoint_interval": 250},
+  "worker_deadline_seconds": 180,
+  "threads": {"openmp": 4, "openblas": 1},
+  "guards": {"maximum_solid_volume_relative_error": 0.0001, "maximum_cell_flux_divergence_over_Uref": 0.001, "last_checkpoint_velocity_change_over_Uref": 0.001},
+  "matrix": [
+    {"name": "empty-coarse", "layout": "empty", "spacing_m": 0.0175},
+    {"name": "street-coarse", "layout": "street", "spacing_m": 0.0175},
+    {"name": "block-coarse", "layout": "block", "spacing_m": 0.0175},
+    {"name": "street-wide", "layout": "street", "spacing_m": 0.0175, "half_width_m": 0.98},
+    {"name": "street-long", "layout": "street", "spacing_m": 0.0175, "xmin_m": -1.12, "xmax_m": 2.80},
+    {"name": "street-tunnel-height", "layout": "street", "spacing_m": 0.0175, "top_m": 1.5, "turbulence": false},
+    {"name": "street-projection", "layout": "street", "spacing_m": 0.0175, "projection_only": true},
+    {"name": "empty-fine", "layout": "empty", "spacing_m": 0.00875},
+    {"name": "street-fine", "layout": "street", "spacing_m": 0.00875},
+    {"name": "block-fine", "layout": "block", "spacing_m": 0.00875}
+  ],
+  "geometry_status": "Regular Urban array without tall cluster; street-centred phase inferred from paper Figure 2; alternate phase tested, exact laboratory roughness-only phase unconfirmed",
+  "upstream_status": "Measured Suburban horizontal mean profile imposed; small staggered elements and spires represented by the inlet and scalar ground roughness, not explicitly reconstructed",
+  "physical_acceptance_thresholds": null
+}

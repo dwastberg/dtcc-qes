@@ -1,0 +1,222 @@
+{
+  "date": "2026-11-09",
+  "new_aij_launches": 0,
+  "stress": {
+    "mean_fields": 18,
+    "arms": [
+      "legacy",
+      "spectral_only",
+      "bounded_consistent"
+    ],
+    "computed_source_instances": 6412,
+    "invalid_sources": {
+      "legacy": 8,
+      "spectral_only": 3,
+      "bounded_consistent": 0
+    },
+    "spectral_bound_violations": {
+      "legacy": 180,
+      "spectral_only": 0,
+      "bounded_consistent": 0
+    },
+    "maximum_native_scaled_error": 1.0831559394693467e-07,
+    "source_validity_disagreements": 0,
+    "measured_D_diagonal_variance_and_k_score_changes": {
+      "D-reference-legacy": {
+        "legacy": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        },
+        "spectral_only": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        },
+        "bounded_consistent": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        }
+      },
+      "D-reference-candidate": {
+        "legacy": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        },
+        "spectral_only": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        },
+        "bounded_consistent": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        }
+      },
+      "D-offset_x-legacy": {
+        "legacy": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        },
+        "spectral_only": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        },
+        "bounded_consistent": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        }
+      },
+      "D-offset_x-candidate": {
+        "legacy": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        },
+        "spectral_only": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        },
+        "bounded_consistent": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        }
+      },
+      "D-offset_y-legacy": {
+        "legacy": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        },
+        "spectral_only": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        },
+        "bounded_consistent": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        }
+      },
+      "D-offset_y-candidate": {
+        "legacy": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        },
+        "spectral_only": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        },
+        "bounded_consistent": {
+          "k": 0.0,
+          "xx": 0.0,
+          "yy": 0.0,
+          "zz": 0.0
+        }
+      }
+    },
+    "E60": {
+      "legacy": {
+        "stress": [
+          1.0011190176010132,
+          0.7407285906374454,
+          -0.06253800680860877,
+          1.0150793828070164,
+          -0.030722456285730004,
+          0.4916065540164709
+        ],
+        "valid": false,
+        "covered": true,
+        "invalid_source_weight": 0.125,
+        "interpolant_valid": true
+      },
+      "spectral_only": {
+        "stress": [
+          0.7344687134027481,
+          0.368049506098032,
+          -0.04784182505682111,
+          0.9663539566099644,
+          -0.025424241786822677,
+          0.24910221807658672
+        ],
+        "valid": true,
+        "covered": true,
+        "invalid_source_weight": 0.0,
+        "interpolant_valid": true
+      },
+      "bounded_consistent": {
+        "stress": [
+          0.8391781449317932,
+          0.34292643144726753,
+          -0.04588857805356383,
+          0.9720264114439487,
+          -0.02472006413154304,
+          0.2721739914268255
+        ],
+        "valid": true,
+        "covered": true,
+        "invalid_source_weight": 0.0,
+        "interpolant_valid": true
+      }
+    },
+    "no_native_model_composition": true
+  },
+  "reference": {
+    "tables": 11,
+    "traces": 13,
+    "time_samples": 645136,
+    "wake_heights_mm": {
+      "SemiUrban": [
+        60
+      ],
+      "Urban": [
+        120
+      ]
+    },
+    "qualified": false,
+    "qualified_reference_ids": [],
+    "input_hashes": {
+      "surrey-urban.mat": "15b141cf81e0ec79f0b87d550f5330e2c07c359335f610a595eaa17781401f5e",
+      "surrey-semiurban.mat": "5c3c043f131fd1e071e1566110a53fc47485c1b4c7e51e7d70fb7ed09d08f301",
+      "surrey-timetrace.mat": "a162f0a151b3865b3ee6d0f9d65a05fab5bc77151bb9927586eef8bba9904ef3",
+      "surrey-readme.pdf": "71e7b3a1fc97d756a4db1e948655a0767d75e851d5766a22b5db46493cbcfbfb"
+    },
+    "reader_package": "mat-io",
+    "reader_version": "1.0.2",
+    "unresolved": [
+      "Near-ground plus two elevated wake component levels",
+      "Suburban three-variance incoming profile",
+      "LDA weighting/resampling and trace-to-summary acquisition mapping",
+      "Explicit geometry/roughness/origin reconstruction"
+    ]
+  },
+  "next_action": "Obtain and qualify the missing component/height reference data and measurement-reduction documentation before new physical closure or AIJ pilot"
+}
