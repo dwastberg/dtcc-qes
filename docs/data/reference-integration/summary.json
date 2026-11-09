@@ -16507,5 +16507,38 @@
     "records": 4783,
     "differences": []
   },
-  "all_premerge_gates_passed": true
+  "all_premerge_gates_passed": true,
+  "merged_main_verification": {
+    "integration_commit": "9b97ecc530f9d4876724161a22a77157d9165706",
+    "native_identity": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed",
+    "all_declared_code_hashes_match": true,
+    "all_native_build_inputs_match": true,
+    "compact_research_checksums_match": true,
+    "source_worktree": "/private/tmp/dtcc-qes-ready-integration",
+    "post_merge_runtime": {
+      "passed": true,
+      "package": "/private/tmp/dtcc-qes-reference-integration/build/reference-integration/installed-release-wheel",
+      "module": "/private/tmp/dtcc-qes-reference-integration/build/reference-integration/installed-release-wheel/dtcc_qes/_qes.cpython-313-darwin.so",
+      "policy_revision": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed",
+      "adaptive_accepted": true,
+      "actual_threads": 4,
+      "checks": [
+        "owned_output",
+        "sampling",
+        "adaptive_vs_legacy_status",
+        "derived_qualification",
+        "nested_timings",
+        "history_bounds",
+        "float64",
+        "two_turbulence_methods",
+        "zero_work_error",
+        "canonical_footprints_with_partition_hole"
+      ]
+    },
+    "runtime_log": {
+      "path": "merged-main-smoke.log.gz",
+      "sha256": "7d453d47b323d7415248156c7ac7f2cbc6c30115d878b4f59d90c5e1ce6329eb"
+    }
+  },
+  "integration_complete": true
 }

@@ -184,5 +184,13 @@ The rebuilt installed release wheel passes the complete warning-strict suite:
 from 2,100 includes the five impact-auditor rejection tests added during review.
 Its 429-case arrays match the compiled candidate exactly after rebuilding.
 Production source after identity promotion passes all 61 native checks again
-and the qualified runtime smoke check. Premerge gates are complete. Merged-main
-source and installed-wheel verification will be recorded after fast-forward.
+and the qualified runtime smoke check. The selected stack was fast-forwarded into local `main` at `9b97ecc`.
+Post-merge checks verify every declared changed-code hash, every native policy
+build input and the compact research checksums against the qualified candidate.
+Running main's runtime smoke tool against the rebuilt, installed release wheel
+passes with the exact qualified identity and adaptive acceptance enabled. The
+[merged-main verification](data/reference-integration/merged-main-verification.json)
+records the source commit and actual imported module. The subsequent audit
+commit changes documentation/evidence only. The research checkout, its unrelated
+files and the user's original installed package are preserved. No remote push
+was requested or performed.
