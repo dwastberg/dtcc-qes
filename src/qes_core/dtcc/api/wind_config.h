@@ -1,4 +1,5 @@
 #pragma once
+#include "reference_sampling.h"
 
 #include <cstdint>
 #include <cstddef>
@@ -63,6 +64,7 @@ struct TurbulenceData {
   std::vector<float> stress, tke, co_eps, mixing_length;
   std::vector<std::uint8_t> state; // 0 uncomputed; 1 computed; 2 computed and capped.
   std::vector<std::uint8_t> stress_valid;
+  ReferenceSampling reference_sampling;
   float friction_velocity = 0, reference_speed = 0, reference_height = 0;
   float roughness_length = 0, displacement_height = 0, upper_bound = 0;
   std::size_t computed_cells = 0, capped_cells = 0, invalid_stress_cells = 0;

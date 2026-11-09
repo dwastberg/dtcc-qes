@@ -78,7 +78,7 @@ def test_turbulence_arrays_masks_metadata_and_ownership(method, precision):
     scalars = ("friction_velocity", "reference_speed", "reference_height", "roughness_length",
                "displacement_height", "upper_bound", "computed_cells", "capped_cells",
                "invalid_stress_cells", "rotation_fallback_columns")
-    assert set(turb) == set((*arrays_names, *scalars))
+    assert set(turb) == set((*arrays_names, *scalars, "reference_sampling"))
     shape = (grid.nz, grid.ny, grid.nx)
     for name in arrays_names:
         array = turb[name]
@@ -187,6 +187,7 @@ def test_turbulence_margin_does_not_suggest_collapsed_cell_centres():
     layers = np.array([16777211, 1], dtype=np.float64)
     runner = _qes.WindRunner()
     runner.prepare(grid, model, **arrays, dz_layers=layers)
+    model.roughness_length = 100000
     with pytest.raises(ValueError, match="float32 cell-centre progress limit"):
         runner.prepare(grid, model, **arrays, dz_layers=layers, turbulence=turbulence_settings())
     # The proposed first tail layer would pass the face check but fail the

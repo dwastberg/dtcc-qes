@@ -34,7 +34,7 @@ bool turbulence_margin(const std::vector<float> &faces, double reference)
 {
   // Physical nz+1 faces start at zero. QES has one additional ground ghost:
   // physical[nz-3] is ghosted domain.z_face[nz-2].
-  return faces.size() >= 4 && faces[faces.size()-4] >= reference && faces.back() >= 15;
+  return faces.size() >= 4 && reference >= .5f*faces[1] && faces[faces.size()-4] >= reference && faces.back() >= 15;
 }
 
 TurbulenceExtension turbulence_extension(const std::vector<float> &faces, double reference,
@@ -49,6 +49,8 @@ TurbulenceExtension turbulence_extension(const std::vector<float> &faces, double
     throw std::invalid_argument("Turbulence reference height must be positive and finite");
   if (!std::isfinite(thickness) || thickness<=0)
     throw std::invalid_argument("Turbulence tail thickness must be positive and finite in float32");
+  if (reference < .5f*faces[1])
+    throw std::invalid_argument("Turbulence reference height zRef is below the first physical cell centre; refine the first layer");
   TurbulenceExtension out{faces,0,{}};
   while (!turbulence_margin(out.faces,reference)) {
     const auto layers=out.faces.size()-1;

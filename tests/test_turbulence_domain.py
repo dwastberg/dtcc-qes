@@ -155,7 +155,7 @@ def test_python_and_native_reference_margin_agree(layers, offset):
 
 def test_face_check_rejects_collapsed_centres_in_extension():
     with pytest.raises(ValueError, match="cell-centre progress limit"):
-        _city.check_turbulence_faces(effective_faces([16777211,1]), 10)
+        _city.check_turbulence_faces(effective_faces([16777211,1]), 10_000_000)
 
 
 def test_no_buildings_uses_roughness():

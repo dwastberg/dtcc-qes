@@ -39,6 +39,7 @@
 #include <functional>
 
 #include "qes/Domain.h"
+#include "dtcc/api/reference_sampling.h"
 
 #include "WINDSGeneralData.h"
 #include "TURBWall.h"
@@ -71,6 +72,7 @@ public:
   std::function<void(int,float,float)> production_observer; // cell, native viscosity, uncapped energy
   std::function<void(int,double,double)> orientation_observer; // cell, actual cosine, sine
 
+  const dtcc_qes::ReferenceSampling &getReferenceSampling() const noexcept { return referenceSampling; }
   float getReferenceHeight() const noexcept { return zRef; }
   float getReferenceSpeed() const noexcept { return uRef; }
   float getFrictionVelocity() const noexcept { return uStar; }
@@ -235,6 +237,7 @@ private:
 
   // Mean trubulence quantities
   float z0d = 0, d0d = 0;
+  dtcc_qes::ReferenceSampling referenceSampling;
   float zRef = 0, uRef = 0, uStar = 0;
   float bldgH_mean = 0, bldgH_max = 0;
   float terrainH_max = 0;

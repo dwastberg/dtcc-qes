@@ -921,7 +921,8 @@ void bridge_margin()
   grid.nz = 2;
   grid.dz_layers = {16777211,1};
   runner.prepare(grid, {}, bridge_building(false), messages);
-  rejects([&] { runner.prepare(grid, {}, bridge_building(false), {true,0}, messages); },
+  ModelSettings large_reference; large_reference.roughness_length = 100000;
+  rejects([&] { runner.prepare(grid, large_reference, bridge_building(false), {true,0}, messages); },
           "float32 cell-centre progress limit");
 }
 

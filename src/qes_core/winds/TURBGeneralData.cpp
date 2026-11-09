@@ -323,26 +323,20 @@ void TURBGeneralData::frictionVelocity()
             << " m has no sampleable layer below domain top " << domain.z_face.back() << " m";
     throw qes::InputError(message.str());
   }
-  const int k = static_cast<int>(reference_index);
-  float nVal = 0.0, uSum = 0.0;
-  for (int j = 0; j < domain.ny() - 1; j++) {
-    for (int i = 0; i < domain.nx() - 1; i++) {
-      // int cellID = i + j * (nx - 1) + k * (nx - 1) * (ny - 1);
-      // int faceID = i + j * (nx) + k * (nx) * (ny);
-      long cellID = domain.cell(i, j, k);
-      long faceID = domain.face(i, j, k);
-      if (m_WGD->icellflag[cellID] != 0 && m_WGD->icellflag[cellID] != 2) {
-        /*uSum += sqrt(pow(0.5 * (m_WGD->u[faceID] + m_WGD->u[faceID + 1]), 2)
-                     + pow(0.5 * (m_WGD->v[faceID] + m_WGD->v[faceID + nx]), 2)
-                     + pow(0.5 * (m_WGD->w[faceID] + m_WGD->w[faceID + nx * ny]), 2));*/
-        uSum += sqrt(pow(0.5 * (m_WGD->u[domain.face(i, j, k)] + m_WGD->u[domain.face(i + 1, j, k)]), 2)
-                     + pow(0.5 * (m_WGD->v[domain.face(i, j, k)] + m_WGD->v[domain.face(i, j + 1, k)]), 2)
-                     + pow(0.5 * (m_WGD->w[domain.face(i, j, k)] + m_WGD->w[domain.face(i, j, k + 1)]), 2));
-        nVal++;
-      }
-    }
-  }
-  uRef = uSum / nVal;
+  // The ground ghost is excluded. Interpolate vectors before taking magnitude,
+  // and retain a double accumulator independent of horizontal population size.
+  referenceSampling = dtcc_qes::sample_reference(domain.z, zRef,
+    std::size_t(domain.nx()-1)*(domain.ny()-1), [&](int k, std::size_t column) {
+      const int i = column % (domain.nx()-1), j = column / (domain.nx()-1);
+      const auto cell = domain.cell(i,j,k), face = domain.face(i,j,k);
+      const bool fluid = m_WGD->icellflag[cell] != 0 && m_WGD->icellflag[cell] != 2;
+      // Preserve the existing native face-pair addition before widening.
+      return std::make_pair(fluid, std::array<double,3>{
+        .5*(m_WGD->u[face]+m_WGD->u[face+1]),
+        .5*(m_WGD->v[face]+m_WGD->v[face+domain.nx()]),
+        .5*(m_WGD->w[face]+m_WGD->w[face+domain.nx()*domain.ny()])});
+    }, 1);
+  uRef = static_cast<float>(referenceSampling.mean_speed);
 
   uStar = 0.4 * uRef / log((zRef - d0d) / z0d);
   qes::log::info() << "[QES-TURB]\t Mean reference velocity at zRef = " << zRef << " m ==> uRef = " << uRef << " m/s" << std::endl;

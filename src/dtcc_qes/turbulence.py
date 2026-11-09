@@ -9,7 +9,7 @@ import numpy as np
 from ._validation import versioned_mapping
 from ._statistics import _STRESS_RELATIVE_TOLERANCE, _velocity_magnitude
 
-NUMERICS_VERSION = "dtcc-qes-turbulence-v1"
+NUMERICS_VERSION = "dtcc-qes-turbulence-v2"
 
 
 @dataclass(frozen=True)
@@ -54,7 +54,8 @@ def _turbulence_metadata(spec, native, domain_top, velocity, has_buildings):
     upper,friction = np.float32(native["upper_bound"]),np.float32(native["friction_velocity"])
     bound = float(upper*friction*friction)  # Match QES's float32 operation order.
     computed = native["state"] > 0
-    fixes = ["orthogonal_stress_rotation", "nearest_fluid_column_direction_fallback"]
+    fixes = ["orthogonal_stress_rotation", "nearest_fluid_column_direction_fallback",
+             "declared_height_vector_reference", "float64_reference_mean"]
     if spec.qes_method == 1:
         fixes += ["bounded_exposed_voxel_face_distances", "minimum_distance_preservation",
                   "physical_3H_to_3.6H_transition"]
@@ -70,6 +71,9 @@ def _turbulence_metadata(spec, native, domain_top, velocity, has_buildings):
         reference=dict(height=native["reference_height"],speed=native["reference_speed"],
             friction_velocity=native["friction_velocity"],roughness_length=native["roughness_length"],
             displacement_height=native["displacement_height"],
+            sampling=dict(method="cell_centre_vector_linear", accumulation="float64", scalar_export="float32",
+                support_policy="all positive-weight source cells fluid; nonfinite fluid velocities and empty support rejected",
+                **native["reference_sampling"]),
             basis="3 × mean building height" if has_buildings else "100 × roughness_length"),
         cap=dict(value=bound,computed_cells=native["computed_cells"],capped_cells=native["capped_cells"],
             policy="Positive bound reached by TKE or any absolute stress component; zero bound in calm flow is uncapped"),

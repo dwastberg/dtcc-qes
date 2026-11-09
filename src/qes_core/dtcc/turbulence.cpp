@@ -90,6 +90,8 @@ void check_turbulence_margin(const ModelInputs &inputs, const WINDSGeneralData &
   const float reference = turbulence_reference(std::move(heights), inputs.turbulence.site_z0).reference_height;
   const std::vector<float> physical(faces.begin()+1,faces.end());
   const auto index = std::lower_bound(faces.begin(), faces.end(), reference) - faces.begin();
+  if (reference < wind.domain.z[1])
+    throw std::invalid_argument("Turbulence reference height zRef is below the first physical cell centre; refine the first layer");
   if (turbulence_margin(physical,reference)) return;
 
   std::ostringstream message;
@@ -130,6 +132,9 @@ TurbulenceData turbulence_fields(const TURBGeneralData &turb, const GridConfig &
   result.friction_velocity = turb.getFrictionVelocity();
   result.reference_speed = turb.getReferenceSpeed();
   result.reference_height = turb.getReferenceHeight();
+  result.reference_sampling = turb.getReferenceSampling();
+  --result.reference_sampling.lower;
+  --result.reference_sampling.upper; // Export physical zero-based cell indices.
   result.roughness_length = turb.getRoughnessLength();
   result.displacement_height = turb.getDisplacementHeight();
   result.upper_bound = turb.getUpperBound();

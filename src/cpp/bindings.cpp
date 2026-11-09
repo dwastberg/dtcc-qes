@@ -198,6 +198,14 @@ nb::dict python_result(const WindData &data)
     fields["friction_velocity"] = t.friction_velocity;
     fields["reference_speed"] = t.reference_speed;
     fields["reference_height"] = t.reference_height;
+    const auto &sampling = t.reference_sampling;
+    nb::dict support;
+    support["lower_index"] = sampling.lower; support["upper_index"] = sampling.upper;
+    support["lower_height"] = sampling.lower_height; support["upper_height"] = sampling.upper_height;
+    support["lower_weight"] = 1-sampling.upper_weight; support["upper_weight"] = sampling.upper_weight;
+    support["valid_columns"] = sampling.valid_columns; support["excluded_columns"] = sampling.excluded_columns;
+    support["mean_speed_float64"] = sampling.mean_speed;
+    fields["reference_sampling"] = support;
     fields["roughness_length"] = t.roughness_length;
     fields["displacement_height"] = t.displacement_height;
     fields["upper_bound"] = t.upper_bound;

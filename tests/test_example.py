@@ -80,7 +80,7 @@ def test_wind_comfort_example():
     assert "QES-Turb" in gem["source"]
     for result in (nen,london):
         assert len(result.metadata["runs"]["directions"]) == 12
-        assert all(row["qualification"]["turbulence"]["numerics_version"] == "dtcc-qes-turbulence-v1"
+        assert all(row["qualification"]["turbulence"]["numerics_version"] == "dtcc-qes-turbulence-v2"
                    for row in result.metadata["runs"]["directions"])
     assert gem["peak_factor"] == 3 and gem["gust_ratio"] == 1.85
     assert "user-selected" in gem["peak_factor_basis"]

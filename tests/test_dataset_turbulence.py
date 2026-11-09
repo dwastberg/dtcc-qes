@@ -25,9 +25,9 @@ def test_turbulence_schema_matches_spec_and_binds_identity(payload):
     else:
         args=QESWindArgs(**request(turbulence=payload))
         assert args.turbulence==spec.to_dict()
-        assert args.model_dump(mode="json")["turbulence_numerics_version"]=="dtcc-qes-turbulence-v1"
+        assert args.model_dump(mode="json")["turbulence_numerics_version"]=="dtcc-qes-turbulence-v2"
         with pytest.raises(ValueError,match="numerics changed"):
-            QESWindArgs(**request(turbulence=payload,turbulence_numerics_version="old"))
+            QESWindArgs(**request(turbulence=payload,turbulence_numerics_version="dtcc-qes-turbulence-v1"))
 
 
 @pytest.mark.parametrize("axis,sampling",[("x","nearest"),("y","nearest"),("z","nearest"),("z","linear")])
