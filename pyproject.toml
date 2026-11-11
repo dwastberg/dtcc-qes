@@ -14,6 +14,8 @@ classifiers = ["Development Status :: 4 - Beta"]
 dependencies = [
     "dtcc-core",
     "numpy>=2.5.4",
+    "shapely>=2.0,<3",
+    "pyproj>=3.7,<4",
 ]
 
 [tool.scikit-build]
@@ -23,7 +25,7 @@ build-dir = "build/{wheel_tag}"
 # Root anchors keep names such as LICENSE from matching ignored build trees.
 # Negated cache includes let the corresponding exclusions take effect.
 sdist.include = [
-    "/src/**", "/tests/**", "/tools/**", "/examples/**", "/demo/**", "/docs/**", "/CMakeLists.txt",
+    "/src/**", "/tests/**", "/tools/**", "/research/unified_v2/**", "/examples/**", "/demo/**", "/docs/**", "/CMakeLists.txt",
     "/README.md", "/DYNAMIC_VERTICAL_GRID.md", "/SOLVER_CONTROL_REFACTOR.md", "/WIND_PROFILES.md", "/LICENSE", "/NOTICE",
     "/validation/aij/*.py", "/validation/tests/*.py", "/validation/*.py", "/validation/*.md", "/validation/specifications/*",
     "!**/__pycache__/**", "!**/*.pyc",

@@ -3,14 +3,7 @@ import numpy as np
 import shapely
 
 
-def bounded_passage(solid,index,spacing):
-    """A finite width requires solid cells at both ends of the same row/column."""
-    if solid[index]:return dict(width=0.,cells=0,bounded=False,solid=True)
-    lo=hi=index
-    while lo>0 and not solid[lo-1]:lo-=1
-    while hi<len(solid)-1 and not solid[hi+1]:hi+=1
-    bounded=lo>0 and hi<len(solid)-1
-    return dict(width=(hi-lo+1)*spacing if bounded else None,cells=hi-lo+1,bounded=bounded,solid=False)
+from dtcc_qes.geometry import bounded_passage
 
 
 def summarize(occupancy,buildings,points):

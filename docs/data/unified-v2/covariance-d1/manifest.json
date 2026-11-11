@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "budget_worker_seconds": 900,
+  "new_wind_solves": 0,
+  "git": [
+    "a833c4d2da87e92ba8d44d31997f36fafe7e653e",
+    "4eb119d398f39b870d67dba2058614123e9200f4"
+  ],
+  "compiler": "Apple clang version 17.0.0 (clang-1700.4.4.1)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "compile_command": [
+    "c++",
+    "-std=c++17",
+    "-O2",
+    "-I/Users/dagwastberg/repos/dtcc/dtcc-qes/src/qes_core/dtcc/api",
+    "/Users/dagwastberg/repos/dtcc/dtcc-qes/tests/native/stress_replay_probe.cpp",
+    "-o",
+    "/private/tmp/dtcc-qes-unified-v2/docs/data/unified-v2/covariance-d1/stress_replay_probe"
+  ],
+  "python": "3.13.11 (main, Dec  5 2025, 21:16:49) [Clang 21.1.4 ]",
+  "platform": "macOS-15.7.1-arm64-arm-64bit-Mach-O",
+  "native_package_sha256": "7ad8ede36caba58483bf5ed7b225707df06e2e437f9848b68d35d5f7999aeae6",
+  "threads": {
+    "OMP_NUM_THREADS": "4",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "inputs": {
+    "docs/data/directed-improvements/raw/A-reference/trace.npz": "3685ef0675ea91f40a5e56db90494774cd632ce9228bdc0d86d3672c01ebd219",
+    "docs/data/directed-improvements/raw/B-horizontal/trace.npz": "94095526609b329f745119db1fa0b83502f91e453a003a05b94491e5938dfc7b",
+    "docs/data/directed-improvements/raw/B-reference/trace.npz": "6417f4e4d084d2a29739bfbe7d7a507befe579d37c2e8940ddc2dd3e0c5f67cc",
+    "docs/data/directed-improvements/raw/D-offset_x/trace.npz": "8456ed66919f7e08a8d655b5d8dc50756ca3a2dac6e91cffb07c86fb59789160",
+    "docs/data/directed-improvements/raw/D-reference/trace.npz": "7d188b78463f92d19eb35ecb9dbf0393e5115be9a0caf33376b9e126818f8513"
+  },
+  "sources": {
+    "tools/verify_covariance_v2.py": "3bf2e4d65af73f614ae32128f7636f4854533fc14edba7dc522ee47723415cb9",
+    "tests/native/stress_replay_probe.cpp": "0e2d4964fba4e5333f3021cfc991c1cca77c66ac1083447a202ce14aed17ca81",
+    "src/qes_core/dtcc/api/covariance_model.h": "1928f884637cec9444e4745f430b6b915f3d7bd59ae300973b03fb1759a6fb31",
+    "src/qes_core/dtcc/api/stress_validity.h": "7575689dd0b4abd3d39a8cde4bfcf8ff548559d6f4fc622d3233ebfca5a62820",
+    "validation/covariance_ablations.py": "5cf6395ddfaebb25f6c394ca0def7567ba3126b1f3454832915399393759bcb4"
+  }
+}

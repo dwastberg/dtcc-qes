@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "wheel_sha256": "6a55f29371890eb2c9b4280cf8e722253061c091ff2934107801fbb67f2dad09",
+  "epoch_order": [
+    [
+      0,
+      "baseline"
+    ],
+    [
+      0,
+      "candidate"
+    ],
+    [
+      1,
+      "candidate"
+    ],
+    [
+      1,
+      "baseline"
+    ],
+    [
+      2,
+      "baseline"
+    ],
+    [
+      2,
+      "candidate"
+    ],
+    [
+      3,
+      "candidate"
+    ],
+    [
+      3,
+      "baseline"
+    ],
+    [
+      4,
+      "baseline"
+    ],
+    [
+      4,
+      "candidate"
+    ]
+  ],
+  "results": {
+    "baseline": {
+      "raw": [
+        {
+          "seconds": [
+            0.008025499992072582,
+            0.004276500083506107,
+            0.00486208382062614,
+            0.004612250020727515
+          ],
+          "arrays": {
+            "velocity": "7f126314615b9d0bbc625f5de28742d983c4bc2d139632123000f7137968b4d4",
+            "cell_flags": "04437ee7c17fa4f80fe4730b4321d537c8c75dfc68f966e083802fe58ddae2a1"
+          },
+          "array_bytes": 384000,
+          "peak_rss_bytes": 276316160,
+          "package_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/baseline/dtcc_qes/wind.py",
+          "native_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/baseline/dtcc_qes/_qes.cpython-314-darwin.so",
+          "policy_revision": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed"
+        },
+        {
+          "seconds": [
+            0.007879459066316485,
+            0.0048970000352710485,
+            0.004746333928778768,
+            0.0044859161134809256
+          ],
+          "arrays": {
+            "velocity": "7f126314615b9d0bbc625f5de28742d983c4bc2d139632123000f7137968b4d4",
+            "cell_flags": "04437ee7c17fa4f80fe4730b4321d537c8c75dfc68f966e083802fe58ddae2a1"
+          },
+          "array_bytes": 384000,
+          "peak_rss_bytes": 267075584,
+          "package_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/baseline/dtcc_qes/wind.py",
+          "native_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/baseline/dtcc_qes/_qes.cpython-314-darwin.so",
+          "policy_revision": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed"
+        },
+        {
+          "seconds": [
+            0.007137959124520421,
+            0.0053445829544216394,
+            0.004937957972288132,
+            0.005080499919131398
+          ],
+          "arrays": {
+            "velocity": "7f126314615b9d0bbc625f5de28742d983c4bc2d139632123000f7137968b4d4",
+            "cell_flags": "04437ee7c17fa4f80fe4730b4321d537c8c75dfc68f966e083802fe58ddae2a1"
+          },
+          "array_bytes": 384000,
+          "peak_rss_bytes": 268058624,
+          "package_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/baseline/dtcc_qes/wind.py",
+          "native_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/baseline/dtcc_qes/_qes.cpython-314-darwin.so",
+          "policy_revision": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed"
+        },
+        {
+          "seconds": [
+            0.007070749998092651,
+            0.004974500043317676,
+            0.004895917139947414,
+            0.004830582998692989
+          ],
+          "arrays": {
+            "velocity": "7f126314615b9d0bbc625f5de28742d983c4bc2d139632123000f7137968b4d4",
+            "cell_flags": "04437ee7c17fa4f80fe4730b4321d537c8c75dfc68f966e083802fe58ddae2a1"
+          },
+          "array_bytes": 384000,
+          "peak_rss_bytes": 271138816,
+          "package_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/baseline/dtcc_qes/wind.py",
+          "native_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/baseline/dtcc_qes/_qes.cpython-314-darwin.so",
+          "policy_revision": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed"
+        },
+        {
+          "seconds": [
+            0.00707166688516736,
+            0.005154541926458478,
+            0.004974584095180035,
+            0.004758541937917471
+          ],
+          "arrays": {
+            "velocity": "7f126314615b9d0bbc625f5de28742d983c4bc2d139632123000f7137968b4d4",
+            "cell_flags": "04437ee7c17fa4f80fe4730b4321d537c8c75dfc68f966e083802fe58ddae2a1"
+          },
+          "array_bytes": 384000,
+          "peak_rss_bytes": 270008320,
+          "package_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/baseline/dtcc_qes/wind.py",
+          "native_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/baseline/dtcc_qes/_qes.cpython-314-darwin.so",
+          "policy_revision": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed"
+        }
+      ],
+      "median_seconds": 0.004956229007802904,
+      "p95_seconds": 0.00788676111260429
+    },
+    "candidate": {
+      "raw": [
+        {
+          "seconds": [
+            0.008081582840532064,
+            0.004115334013476968,
+            0.003814249997958541,
+            0.004624165827408433
+          ],
+          "arrays": {
+            "velocity": "7f126314615b9d0bbc625f5de28742d983c4bc2d139632123000f7137968b4d4",
+            "cell_flags": "04437ee7c17fa4f80fe4730b4321d537c8c75dfc68f966e083802fe58ddae2a1"
+          },
+          "array_bytes": 384000,
+          "peak_rss_bytes": 286228480,
+          "package_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/candidate/dtcc_qes/wind.py",
+          "native_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/candidate/dtcc_qes/_qes.cpython-314-darwin.so",
+          "policy_revision": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed"
+        },
+        {
+          "seconds": [
+            0.007233208045363426,
+            0.0043782920110970736,
+            0.004837166052311659,
+            0.004894166020676494
+          ],
+          "arrays": {
+            "velocity": "7f126314615b9d0bbc625f5de28742d983c4bc2d139632123000f7137968b4d4",
+            "cell_flags": "04437ee7c17fa4f80fe4730b4321d537c8c75dfc68f966e083802fe58ddae2a1"
+          },
+          "array_bytes": 384000,
+          "peak_rss_bytes": 282279936,
+          "package_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/candidate/dtcc_qes/wind.py",
+          "native_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/candidate/dtcc_qes/_qes.cpython-314-darwin.so",
+          "policy_revision": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed"
+        },
+        {
+          "seconds": [
+            0.006987249944359064,
+            0.005047667073085904,
+            0.004890792071819305,
+            0.004998666001483798
+          ],
+          "arrays": {
+            "velocity": "7f126314615b9d0bbc625f5de28742d983c4bc2d139632123000f7137968b4d4",
+            "cell_flags": "04437ee7c17fa4f80fe4730b4321d537c8c75dfc68f966e083802fe58ddae2a1"
+          },
+          "array_bytes": 384000,
+          "peak_rss_bytes": 283967488,
+          "package_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/candidate/dtcc_qes/wind.py",
+          "native_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/candidate/dtcc_qes/_qes.cpython-314-darwin.so",
+          "policy_revision": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed"
+        },
+        {
+          "seconds": [
+            0.0071081670466810465,
+            0.004508000100031495,
+            0.005375124979764223,
+            0.005169959040358663
+          ],
+          "arrays": {
+            "velocity": "7f126314615b9d0bbc625f5de28742d983c4bc2d139632123000f7137968b4d4",
+            "cell_flags": "04437ee7c17fa4f80fe4730b4321d537c8c75dfc68f966e083802fe58ddae2a1"
+          },
+          "array_bytes": 384000,
+          "peak_rss_bytes": 284524544,
+          "package_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/candidate/dtcc_qes/wind.py",
+          "native_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/candidate/dtcc_qes/_qes.cpython-314-darwin.so",
+          "policy_revision": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed"
+        },
+        {
+          "seconds": [
+            0.0075456248596310616,
+            0.005065250210464001,
+            0.006994625087827444,
+            0.00568220904096961
+          ],
+          "arrays": {
+            "velocity": "7f126314615b9d0bbc625f5de28742d983c4bc2d139632123000f7137968b4d4",
+            "cell_flags": "04437ee7c17fa4f80fe4730b4321d537c8c75dfc68f966e083802fe58ddae2a1"
+          },
+          "array_bytes": 384000,
+          "peak_rss_bytes": 282066944,
+          "package_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/candidate/dtcc_qes/wind.py",
+          "native_path": "/var/folders/ts/dx8l9lsd7y97ywf_3zzrg8br0000gn/T/qes-v2-wheel-vqdlfzer/candidate/dtcc_qes/_qes.cpython-314-darwin.so",
+          "policy_revision": "04c8ce764b2014e3f671bede5b69f6e8782006f446b0470571911024733fa9ed"
+        }
+      ],
+      "median_seconds": 0.005056458641774952,
+      "p95_seconds": 0.007572422758676112
+    }
+  },
+  "median_difference_seconds": 0.00010022963397204876,
+  "median_ratio": 1.0202229626222379,
+  "regression_threshold_exceeded": false,
+  "feature_off_arrays_exact": true,
+  "native_binary_shared": true,
+  "installed_wheel_smoke": "passed"
+}

@@ -38,6 +38,29 @@ def _velocity_magnitude(velocity):
         return np.hypot.reduce(np.asarray(velocity,dtype=np.float64),axis=-1)
 
 
+def _physical_k(stress, coverage, *, validity=None):
+    """Half the current covariance trace (m²/s²), NaN outside usable coverage.
+
+    Reclassify mutable raw tensors unless a current classification is supplied.
+    Tolerance-accepted negative energy is roundoff and clamps to zero. Scratch
+    beyond classification and output is bounded by the shared tensor chunk size.
+    No mean direction is needed, so calm zero tensors remain valid.
+    """
+    raw, covered = np.asarray(stress), np.asarray(coverage, dtype=bool)
+    if raw.shape != (*covered.shape, 6):
+        raise ValueError("Stress and coverage must have matching cell shapes")
+    valid, _ = _stress_validity(raw) if validity is None else validity
+    result = np.full(covered.shape, np.nan, dtype=np.float64)
+    flat = raw.reshape(-1, 6)
+    for start in range(0, len(flat), _STRESS_CHUNK_SIZE):
+        stop = start + _STRESS_CHUNK_SIZE
+        usable = covered.reshape(-1)[start:stop] & valid.reshape(-1)[start:stop]
+        values = np.asarray(flat[start:stop], dtype=np.float64)
+        energy = 0.5 * (values[:, 0] + values[:, 3] + values[:, 5])
+        result.reshape(-1)[start:stop][usable] = np.maximum(energy[usable], 0)
+    return result
+
+
 def _streamwise_std(stress, velocity, covered, *, validity=None):
     """Reclassify current tensors, then project only covered, directed cells."""
     raw,velocity,covered = np.asarray(stress),np.asarray(velocity),np.asarray(covered,dtype=bool)

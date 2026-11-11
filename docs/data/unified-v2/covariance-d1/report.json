@@ -1,0 +1,366 @@
+{
+  "schema_version": 1,
+  "manifest_sha256": "38736f3b5f7362938586601d7029a6ceba1444cc1628fe959d4a60fc1f48fb21",
+  "rows": [
+    {
+      "name": "A-reference",
+      "source_rows": 1388,
+      "computed": 1388,
+      "unsupported": 0,
+      "native_maximum_scaled_error": 1.3513379534198036e-07,
+      "stages": {
+        "legacy": {
+          "valid": 1216,
+          "invalid_computed": 172,
+          "recovered": 0,
+          "lost": 0
+        },
+        "coupled_only": {
+          "valid": 1388,
+          "invalid_computed": 0,
+          "recovered": 172,
+          "lost": 0
+        },
+        "final_limit_only": {
+          "valid": 1277,
+          "invalid_computed": 111,
+          "recovered": 61,
+          "lost": 0
+        },
+        "combined_spectral": {
+          "valid": 1388,
+          "invalid_computed": 0,
+          "recovered": 172,
+          "lost": 0
+        },
+        "combined_component": {
+          "valid": 1388,
+          "invalid_computed": 0,
+          "recovered": 172,
+          "lost": 0
+        }
+      },
+      "queries": {
+        "requested": 181,
+        "recovered": 41,
+        "lost": 0,
+        "valid_before": 140,
+        "valid_after": 181
+      },
+      "physical_k_spectral_minus_component": {
+        "count": 1388,
+        "minimum": -5.373785734176636,
+        "median": 0.0,
+        "maximum": 0.0
+      },
+      "query_physical_k_spectral_minus_component": {
+        "count": 181,
+        "minimum": -2.465353026986122,
+        "median": 0.0,
+        "maximum": 0.0
+      },
+      "component_rotation_energy_difference": {
+        "count": 1388,
+        "minimum": -5.309044241905212,
+        "median": 0.0,
+        "maximum": 5.9633296728134155
+      },
+      "spectral_rotation_energy_difference": {
+        "count": 1388,
+        "minimum": -7.152557373046875e-07,
+        "median": 0.0,
+        "maximum": 9.5367431640625e-07
+      }
+    },
+    {
+      "name": "B-horizontal",
+      "source_rows": 1612,
+      "computed": 1612,
+      "unsupported": 0,
+      "native_maximum_scaled_error": 1.2349798719075986e-07,
+      "stages": {
+        "legacy": {
+          "valid": 1484,
+          "invalid_computed": 128,
+          "recovered": 0,
+          "lost": 0
+        },
+        "coupled_only": {
+          "valid": 1612,
+          "invalid_computed": 0,
+          "recovered": 128,
+          "lost": 0
+        },
+        "final_limit_only": {
+          "valid": 1514,
+          "invalid_computed": 98,
+          "recovered": 30,
+          "lost": 0
+        },
+        "combined_spectral": {
+          "valid": 1612,
+          "invalid_computed": 0,
+          "recovered": 128,
+          "lost": 0
+        },
+        "combined_component": {
+          "valid": 1612,
+          "invalid_computed": 0,
+          "recovered": 128,
+          "lost": 0
+        }
+      },
+      "queries": {
+        "requested": 223,
+        "recovered": 38,
+        "lost": 0,
+        "valid_before": 185,
+        "valid_after": 223
+      },
+      "physical_k_spectral_minus_component": {
+        "count": 1612,
+        "minimum": -5.978124618530273,
+        "median": 0.0,
+        "maximum": 0.0
+      },
+      "query_physical_k_spectral_minus_component": {
+        "count": 223,
+        "minimum": -1.0323329269886017,
+        "median": 0.0,
+        "maximum": 0.0
+      },
+      "component_rotation_energy_difference": {
+        "count": 1612,
+        "minimum": -5.8687626123428345,
+        "median": 0.0,
+        "maximum": 5.816590905189514
+      },
+      "spectral_rotation_energy_difference": {
+        "count": 1612,
+        "minimum": -1.1920928955078125e-06,
+        "median": 0.0,
+        "maximum": 9.5367431640625e-07
+      }
+    },
+    {
+      "name": "B-reference",
+      "source_rows": 1544,
+      "computed": 1544,
+      "unsupported": 0,
+      "native_maximum_scaled_error": 1.2170330660921316e-07,
+      "stages": {
+        "legacy": {
+          "valid": 1426,
+          "invalid_computed": 118,
+          "recovered": 0,
+          "lost": 0
+        },
+        "coupled_only": {
+          "valid": 1544,
+          "invalid_computed": 0,
+          "recovered": 118,
+          "lost": 0
+        },
+        "final_limit_only": {
+          "valid": 1462,
+          "invalid_computed": 82,
+          "recovered": 36,
+          "lost": 0
+        },
+        "combined_spectral": {
+          "valid": 1544,
+          "invalid_computed": 0,
+          "recovered": 118,
+          "lost": 0
+        },
+        "combined_component": {
+          "valid": 1544,
+          "invalid_computed": 0,
+          "recovered": 118,
+          "lost": 0
+        }
+      },
+      "queries": {
+        "requested": 223,
+        "recovered": 28,
+        "lost": 0,
+        "valid_before": 195,
+        "valid_after": 223
+      },
+      "physical_k_spectral_minus_component": {
+        "count": 1544,
+        "minimum": -4.241542100906372,
+        "median": 0.0,
+        "maximum": 0.0
+      },
+      "query_physical_k_spectral_minus_component": {
+        "count": 223,
+        "minimum": -1.1089956164360046,
+        "median": 0.0,
+        "maximum": 0.0
+      },
+      "component_rotation_energy_difference": {
+        "count": 1544,
+        "minimum": -4.236951947212219,
+        "median": 0.0,
+        "maximum": 5.815710783004761
+      },
+      "spectral_rotation_energy_difference": {
+        "count": 1544,
+        "minimum": -9.5367431640625e-07,
+        "median": 0.0,
+        "maximum": 9.5367431640625e-07
+      }
+    },
+    {
+      "name": "D-offset_x",
+      "source_rows": 162,
+      "computed": 162,
+      "unsupported": 0,
+      "native_maximum_scaled_error": 5.97152099990339e-08,
+      "stages": {
+        "legacy": {
+          "valid": 162,
+          "invalid_computed": 0,
+          "recovered": 0,
+          "lost": 0
+        },
+        "coupled_only": {
+          "valid": 162,
+          "invalid_computed": 0,
+          "recovered": 0,
+          "lost": 0
+        },
+        "final_limit_only": {
+          "valid": 162,
+          "invalid_computed": 0,
+          "recovered": 0,
+          "lost": 0
+        },
+        "combined_spectral": {
+          "valid": 162,
+          "invalid_computed": 0,
+          "recovered": 0,
+          "lost": 0
+        },
+        "combined_component": {
+          "valid": 162,
+          "invalid_computed": 0,
+          "recovered": 0,
+          "lost": 0
+        }
+      },
+      "queries": {
+        "requested": 93,
+        "recovered": 0,
+        "lost": 0,
+        "valid_before": 93,
+        "valid_after": 93
+      },
+      "physical_k_spectral_minus_component": {
+        "count": 162,
+        "minimum": 0.0,
+        "median": 0.0,
+        "maximum": 0.0
+      },
+      "query_physical_k_spectral_minus_component": {
+        "count": 93,
+        "minimum": 0.0,
+        "median": 0.0,
+        "maximum": 0.0
+      },
+      "component_rotation_energy_difference": {
+        "count": 162,
+        "minimum": -5.960464477539063e-08,
+        "median": 0.0,
+        "maximum": 5.960464477539063e-08
+      },
+      "spectral_rotation_energy_difference": {
+        "count": 162,
+        "minimum": -5.960464477539063e-08,
+        "median": 0.0,
+        "maximum": 5.960464477539063e-08
+      }
+    },
+    {
+      "name": "D-reference",
+      "source_rows": 86,
+      "computed": 86,
+      "unsupported": 0,
+      "native_maximum_scaled_error": 7.415851974168497e-09,
+      "stages": {
+        "legacy": {
+          "valid": 86,
+          "invalid_computed": 0,
+          "recovered": 0,
+          "lost": 0
+        },
+        "coupled_only": {
+          "valid": 86,
+          "invalid_computed": 0,
+          "recovered": 0,
+          "lost": 0
+        },
+        "final_limit_only": {
+          "valid": 86,
+          "invalid_computed": 0,
+          "recovered": 0,
+          "lost": 0
+        },
+        "combined_spectral": {
+          "valid": 86,
+          "invalid_computed": 0,
+          "recovered": 0,
+          "lost": 0
+        },
+        "combined_component": {
+          "valid": 86,
+          "invalid_computed": 0,
+          "recovered": 0,
+          "lost": 0
+        }
+      },
+      "queries": {
+        "requested": 93,
+        "recovered": 0,
+        "lost": 0,
+        "valid_before": 93,
+        "valid_after": 93
+      },
+      "physical_k_spectral_minus_component": {
+        "count": 86,
+        "minimum": -0.8439610004425049,
+        "median": 0.0,
+        "maximum": 0.0
+      },
+      "query_physical_k_spectral_minus_component": {
+        "count": 93,
+        "minimum": -0.7683994174003601,
+        "median": 0.0,
+        "maximum": 0.0
+      },
+      "component_rotation_energy_difference": {
+        "count": 86,
+        "minimum": -0.2408233880996704,
+        "median": 0.0,
+        "maximum": 0.7027944326400757
+      },
+      "spectral_rotation_energy_difference": {
+        "count": 86,
+        "minimum": -2.384185791015625e-07,
+        "median": 0.0,
+        "maximum": 1.1920928955078125e-07
+      }
+    }
+  ],
+  "gates": {
+    "all_computed_psd": true,
+    "no_valid_query_lost": true,
+    "native_oracle_agreement": true
+  },
+  "elapsed_seconds": 1.2159441669937223,
+  "peak_rss_bytes": 250789888,
+  "native_probe_sha256": "02cc4881576ebd708a7344ce5de23d89f4e68a2390d34516964180977a0941f4",
+  "new_wind_solves": 0,
+  "interpretation": "Uniform spectral bounding is rotation covariant. Component bounding depends on the frame; its smaller component norm generally leaves more energy than the spectral norm. Neither uniform scaling repairs a materially indefinite input. Native and independent float64 oracle must agree."
+}

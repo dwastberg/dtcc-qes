@@ -1,0 +1,80 @@
+[
+  {
+    "configuration": "coarse4-0-0",
+    "index_zyx": [
+      2,
+      50,
+      50
+    ],
+    "coarse_bounds_xy_m": [
+      -46.0,
+      -50.0,
+      -42.0,
+      -46.0
+    ],
+    "fine_fluid_patch": [
+      [
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        false,
+        false,
+        false
+      ]
+    ],
+    "components": 2,
+    "nearest_observation_id": 50,
+    "distance_to_nearest_observation_m": 3.3541019662496847,
+    "height_faces_m": [
+      1.5,
+      2.5
+    ]
+  },
+  {
+    "configuration": "fallback-coarse2-0-0",
+    "index_zyx": [
+      2,
+      135,
+      104
+    ],
+    "coarse_bounds_xy_m": [
+      -38.0,
+      20.0,
+      -36.0,
+      22.0
+    ],
+    "fine_fluid_patch": [
+      [
+        true,
+        false
+      ],
+      [
+        false,
+        true
+      ]
+    ],
+    "components": 2,
+    "nearest_observation_id": 27,
+    "distance_to_nearest_observation_m": 5.385164807134504,
+    "height_faces_m": [
+      1.5,
+      2.5
+    ]
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "raw_seconds": [
+    0.41050854208879173,
+    0.41425345791503787,
+    0.4071049578487873
+  ],
+  "median_seconds": 0.41050854208879173,
+  "p95_seconds": 0.4138789663324133,
+  "peak_traced_bytes": 19040769,
+  "self_peak_rss_bytes": 317620224,
+  "cells": 1000000,
+  "input_bytes": 1000000,
+  "output_bytes": 4000000,
+  "queue_bytes": 8000000
+}

@@ -665,6 +665,8 @@ source = { editable = "." }
 dependencies = [
     { name = "dtcc-core" },
     { name = "numpy" },
+    { name = "pyproj" },
+    { name = "shapely" },
 ]
 
 [package.dev-dependencies]
@@ -687,6 +689,8 @@ validate = [
 requires-dist = [
     { name = "dtcc-core", git = "https://github.com/dtcc-platform/dtcc-core.git?branch=dev%2Fqes-updates" },
     { name = "numpy", specifier = ">=2.5.4" },
+    { name = "pyproj", specifier = ">=3.7,<4" },
+    { name = "shapely", specifier = ">=2.0,<3" },
 ]
 
 [package.metadata.requires-dev]

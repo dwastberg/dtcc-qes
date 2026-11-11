@@ -280,3 +280,27 @@ The preview reports `exclusions` in native check order and
 inflow. It makes no acceptance claim. Runtime stores every final exclusion in
 `result.solver["record"]["exclusions"]`; qualification reads that record.
 See [native requalification](docs/solver-control-requalification.md).
+
+Physical turbulent kinetic energy is available as `result.physical_k` and
+`result.sample_points(points, "linear").physical_k` (m²/s²). It is half the
+final covariance trace on computed, currently valid fluid cells, with NaN for
+unusable values. Calm zero covariance is valid. This differs from
+`result.turbulence.tke`, QES internal energy before anisotropy scaling. Use
+`result.to_dtcc(include_physical_k=True)` to include it in a DTCC export.
+
+`result.quality_report(sample=probe).summary()` combines recorded solver,
+divergence, turbulence and optional sampling evidence. Use `probe =
+result.sample_points(points, "linear", diagnostics=True)` to include support
+reasons. `report.to_dict()` produces strict JSON with explicit unavailable
+reasons; the immutable report neither scans fields nor establishes physical
+validation.
+
+Geometry checks are opt-in: `wind.check_geometry(city, result, points=points,
+routes=route_pairs, heights=(1.5,))`. Coordinates are local metres; point and
+route IDs follow input order. On a `GridPreview`, physical evidence is
+available while raster evidence reports `solver_mask_not_prepared`. On a
+result, the check compares canonical geometry with the actual solver mask,
+reporting false connections, lost spaces, closed passages and resolution
+warnings. Unsupported terrain, roof-crossing layers and mask disagreement
+remain explicitly unavailable. Limits produce `budget_limited`, never a pass.
+The check does not change geometry or certify pedestrian accessibility.

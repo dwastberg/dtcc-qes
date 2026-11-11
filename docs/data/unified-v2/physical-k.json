@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "physical_k": {
+    "raw_seconds": [
+      0.7700274589005858,
+      0.7354192920029163,
+      0.7134872500319034,
+      0.7087727498728782,
+      0.6805238749366254
+    ],
+    "median_seconds": 0.7134872500319034,
+    "p95_seconds": 0.7631058255210519,
+    "peak_traced_bytes": 57882592,
+    "self_peak_rss_bytes": 608272384,
+    "scratch_bytes": 33882592
+  },
+  "input_bytes": 75000000,
+  "output_bytes": 24000000,
+  "sources": {
+    "src/dtcc_qes/_statistics.py": "036823983d494db18ff2a85db5b5e6ce5bb83c58f6588f381bf80cbba51ef32d",
+    "src/dtcc_qes/result.py": "3637d65f4fbd18f54d46c1b8ed07f0cbfd7d5c40163209960fc10aa368330c07"
+  }
+}

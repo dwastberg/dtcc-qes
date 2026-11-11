@@ -545,3 +545,7 @@ def _preflight_eligibility(prepared,geometry,profile,solver,turbulence):
         solver._native(prepared.origin,geometry.crs),**prepared.arrays,
         dz_layers=prepared.dz_layers,turbulence=_native_turbulence(turbulence)))
     return view
+
+
+# Imported lazily by callers; no geometry work is done by run/preview_grid.
+from .geometry import check_geometry

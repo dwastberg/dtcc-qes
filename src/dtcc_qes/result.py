@@ -11,7 +11,7 @@ from dtcc_core.model import Bounds, Field, Transform, VolumeGrid
 from . import _qes
 
 
-from ._statistics import _stress_validity, _velocity_magnitude, _streamwise_std, _turbulence_intensity
+from ._statistics import _stress_validity, _velocity_magnitude, _streamwise_std, _turbulence_intensity, _physical_k
 
 
 def _qualification(metadata, diagnostics):
@@ -98,6 +98,20 @@ class ConvergenceError(RuntimeError):
 
 class _SampleStatistics:
     """Derived values recheck mutable tensors and retain contributor validity."""
+
+    @property
+    def physical_k(self):
+        """Half the final covariance trace in m²/s²; unusable samples are NaN.
+
+        Retains source-contributor invalidity, rechecks edited tensors, and
+        accepts calm zero. Tolerance-accepted negative energy clamps to zero.
+        """
+        if self.stress is None:
+            raise ValueError("Sample has no turbulence; run with turbulence=Turbulence()")
+        contributors = self._stress_contributors_valid
+        if contributors is None:
+            contributors = self.stress_valid if self.stress_valid is not None else True
+        return _physical_k(self.stress, self.valid & contributors)
 
     @property
     def streamwise_std(self):
@@ -252,6 +266,14 @@ class WindResult:
         """
         return _qualification(self.metadata, self.diagnostics)
 
+    def quality_report(self, sample=None):
+        """Immutable scalar evidence, optionally including existing sample support.
+
+        No full-field access or resampling. See :class:`quality.QualityReport`.
+        """
+        from .quality import quality_report
+        return quality_report(self, sample=sample)
+
     @property
     def speed(self):
         """Magnitude of mean velocity in float64, in m/s."""
@@ -284,6 +306,18 @@ class WindResult:
             raise ValueError("Result has no turbulence; run with turbulence=Turbulence()")
         return _streamwise_std(self.turbulence.stress,self.velocity,
                                self.turbulence.computed & ~self.solid_mask)
+
+    @property
+    def physical_k(self):
+        """Half the final covariance trace in m²/s² on computed valid fluid.
+
+        Distinct from QES internal ``turbulence.tke`` before anisotropy scaling.
+        Rechecks mutable tensors; unavailable/invalid cells are NaN. Calm zero
+        is valid; tolerance-accepted negative energy clamps to zero.
+        """
+        if self.turbulence is None:
+            raise ValueError("Result has no turbulence; run with turbulence=Turbulence()")
+        return _physical_k(self.turbulence.stress, self.turbulence.computed & ~self.solid_mask)
 
     @property
     def turbulence_intensity(self):
@@ -607,7 +641,7 @@ class WindResult:
         return WindPointSample(requested, sampled, velocity, valid, method, frame, self.origin, self.crs,
                                stress, stress_valid, _stress_contributors_valid=contributors,support=support)
 
-    def to_dtcc(self, *, include_speedup=False):
+    def to_dtcc(self, *, include_speedup=False, include_physical_k=False):
         """Return independent cell fields in DTCC's y, x, z-fastest order.
 
         This matches VolumeGrid.coordinates()'s current meshgrid ``xy`` order.
@@ -618,10 +652,14 @@ class WindResult:
         are NaN. Invalid raw tensors are retained; their derived statistics and
         statistics with undefined mean direction are NaN. Field descriptions
         carry the model provenance and unvalidated-gust screening limitation.
+        ``include_physical_k`` adds half the final covariance trace on computed,
+        currently valid fluid cells, including calm zero (m²/s²).
         """
         if not self.vertical_uniform:
             raise ValueError("Nonuniform vertical layers cannot be represented by a uniform VolumeGrid; "
                              "use result.sample(height, method='linear') or the native arrays and z_faces")
+        if include_physical_k and self.turbulence is None:
+            raise ValueError("Result has no turbulence; run with turbulence=Turbulence()")
         nz, ny, nx, _ = self.velocity.shape
         transform = Transform(srs=self.crs or "")
         transform.set_translation(*self.origin)
@@ -676,6 +714,11 @@ class WindResult:
                  "-32 * eps(float32) * max(abs(eigenvalues)); finite zero valid; uncomputed 0; "
                  "independent of capping and mean direction"),
             )
+            if include_physical_k:
+                exports += (("physical_k", "m^2/s^2", 1,
+                    _physical_k(fields.stress, computed & ~self.solid_mask, validity=validity),
+                    "Half the final covariance trace; computed, currently valid fluid cells only; "
+                    "unusable NaN; calm zero valid; roundoff-sized negative energy clamped to zero"),)
             for name,unit,dim,values,description in exports:
                 ordered = (values.transpose(1,2,0,3).reshape(-1,dim).copy() if dim > 1 else
                            values.transpose(1,2,0).reshape(-1).copy())

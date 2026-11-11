@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/private/tmp/dtcc-qes-unified-v2/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests",
+    "-q",
+    "--disable-warnings"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 92.58615824999288,
+  "summary": "1924 passed, 50 skipped, 4 warnings in 91.82s (0:01:31)"
+}
