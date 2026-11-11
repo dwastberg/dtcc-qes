@@ -52,6 +52,13 @@
  */
 void PolyBuilding::polygonWake(WINDSGeneralData *WGD, int building_id)
 {
+  WakePreamble wake;
+  prepareWake(WGD, wake);
+  applyWake(WGD, building_id, wake);
+}
+
+void PolyBuilding::prepareWake(WINDSGeneralData *WGD, WakePreamble &wake)
+{
   auto [nx, ny, nz] = WGD->domain.getDomainCellNum();
   const float dx = WGD->domain.dx(), dy = WGD->domain.dy();
   float dxy = WGD->domain.dxy();
@@ -62,35 +69,15 @@ void PolyBuilding::polygonWake(WINDSGeneralData *WGD, int building_id)
   Lr_node.resize(polygonVertices.size(), 0.0);// Length of wake for each node
   perpendicular_flag.resize(polygonVertices.size(), 0);
   upwind_rel_dir.resize(polygonVertices.size(), 0.0);// Upwind reletive direction for each face
-  float z_build;// z value of each building point from its base height
   float yc, xc;
-  float Lr_local, Lr_local_u, Lr_local_v, Lr_local_w;// Local length of the wake for each velocity component
-  float x_wall, x_wall_u, x_wall_v, x_wall_w;
-  float y_norm, canyon_factor;
-  int x_id_min;
+  float x_wall;
 
   float Lr_ave;// Average length of Lr
   float total_seg_length;// Length of each edge
   int index_previous, index_next;// Indices of previous and next nodes
   int stop_id = polygonVertices.size()-2;
-  int kk(1);
   const float tol = 0.01 * M_PI / 180.0;
-  float farwake_exp = 1.5;
-  float farwake_factor = 3.0;
-  float epsilon = 10e-10;
-  int u_wake_flag, v_wake_flag, w_wake_flag;
-  int i_u, j_u, i_v, j_v, i_w, j_w;// i and j indices for x, y and z directions
-  float xp, yp;
-  float xu, yu, xv, yv, xw, yw;
-  float dn_u(0.0), dn_v(0.0), dn_w(0.0);// Length of cavity zone
-  float farwake_vel;
-  std::vector<double> u_temp, v_temp;
-  // u_temp.resize(WGD->nx * WGD->ny, 0.0);
-  // v_temp.resize(WGD->nx * WGD->ny, 0.0);
-  std::vector<double> u0_modified, v0_modified;
-  std::vector<int> u0_mod_id, v0_mod_id;
   float R_scale, R_cx, vd, hd, shell_height;
-  int k_bottom(0), k_top(0);
   int tall_flag = 0;
   float z_s(0.0);// Saddle point height
   float x_sep(0.0);// In-canyon separation-point location
@@ -98,7 +85,7 @@ void PolyBuilding::polygonWake(WINDSGeneralData *WGD, int building_id)
 
 
   long index_building_face = WGD->domain.face(i_building_cent, j_building_cent, k_end);
-  long icell_face, icell_cent;
+  long icell_cent;
   u0_h = WGD->u0[index_building_face];// u velocity at the height of building at the centroid
   v0_h = WGD->v0[index_building_face];// v velocity at the height of building at the centroid
 
@@ -348,6 +335,51 @@ void PolyBuilding::polygonWake(WINDSGeneralData *WGD, int building_id)
 
   Lr = total_seg_length!=0 ? Lr_ave / total_seg_length : 0;
   if (!std::isfinite(Lr)) Lr=0;
+
+  wake.Lr_node = std::move(Lr_node);
+  wake.perpendicular_flag = std::move(perpendicular_flag);
+  wake.wake_height = wake_height;
+  wake.tall_flag = tall_flag;
+  wake.z_s = z_s;
+  wake.x_sep = x_sep;
+  wake.k_s = k_s;
+  wake.stop_id = stop_id;
+}
+
+void PolyBuilding::applyWake(WINDSGeneralData *WGD, int building_id, const WakePreamble &wake)
+{
+  auto [nx, ny, nz] = WGD->domain.getDomainCellNum();
+  const float dx = WGD->domain.dx(), dy = WGD->domain.dy();
+  float dxy = WGD->domain.dxy();
+
+  const std::vector<float> &Lr_node = wake.Lr_node;
+  const std::vector<int> &perpendicular_flag = wake.perpendicular_flag;
+  const float wake_height = wake.wake_height;// effective top of the wake
+  const int tall_flag = wake.tall_flag;
+  const float z_s = wake.z_s;// Saddle point height
+  const float x_sep = wake.x_sep;// In-canyon separation-point location
+  const int k_s = wake.k_s;// Index of the saddle point in vetical dir
+  const int stop_id = wake.stop_id;
+  float z_build;// z value of each building point from its base height
+  float yc, xc;
+  float Lr_local, Lr_local_u, Lr_local_v, Lr_local_w;// Local length of the wake for each velocity component
+  float x_wall, x_wall_u, x_wall_v, x_wall_w;
+  float y_norm, canyon_factor;
+  int x_id_min;
+  int kk(1);
+  float farwake_exp = 1.5;
+  float farwake_factor = 3.0;
+  float epsilon = 10e-10;
+  int u_wake_flag, v_wake_flag, w_wake_flag;
+  int i_u, j_u, i_v, j_v, i_w, j_w;// i and j indices for x, y and z directions
+  float xp, yp;
+  float xu, yu, xv, yv, xw, yw;
+  float dn_u(0.0), dn_v(0.0), dn_w(0.0);// Length of cavity zone
+  float farwake_vel;
+  std::vector<double> u0_modified, v0_modified;
+  std::vector<int> u0_mod_id, v0_mod_id;
+  int k_bottom(0), k_top(0);
+  long icell_face, icell_cent;
 
   for (auto k = 1; k <= k_start; k++) {
     k_bottom = k;

@@ -243,6 +243,14 @@ def compare_ordering_migration(baseline_serial, baseline_openmp, candidate_seria
 BLOCKS = [(20, 20, 12, 30, 18), (44, 20, 10, 12, 9), (44, 40, 16, 10, 24),
           (70, 18, 8, 34, 12), (24, 62, 40, 8, 15), (80, 60, 10, 10, 30)]
 NATIVE_BLOCKS = [(14, 12, 10, 16, 10), (32, 12, 8, 8, 6), (32, 26, 12, 8, 14)]
+# Clockwise outer rings, counter-clockwise holes; (rings, heights, base heights).
+WAKE_GEOMETRIES = {
+    "slab_gap": ([[(30, 20), (30, 60), (36, 60), (36, 20)], [(44, 20), (44, 60), (50, 60), (50, 20)]], [12, 12], [0, 0]),
+    "tall_short": ([[(30, 20), (30, 60), (40, 60), (40, 20)], [(46, 20), (46, 60), (52, 60), (52, 20)]], [20, 10], [0, 0]),
+    "courtyard": ([[(30, 20), (30, 44), (54, 44), (54, 20)], [(38, 28), (46, 28), (46, 36), (38, 36)]], [12], [0]),
+    "l_shape": ([[(30, 20), (30, 50), (40, 50), (40, 30), (54, 30), (54, 20)]], [14], [0]),
+}
+WAKE_GEOMETRY_PARTS = {"courtyard": [0, 10]}  # building offsets where a building has several rings
 
 
 def make_city(blocks):
@@ -399,6 +407,23 @@ def native_runs():
         for step, direction in enumerate((270.0, 45.0, 33.0, 300.0, 33.0, 225.0, 45.0)):
             yield f"native/reuse/r{rooftop}/{step}", native_solve(runner, 5.0, direction)
         yield f"native/reuse/r{rooftop}/float64", native_solve(runner, 5.0, 33.0, precision="float64")
+    # Wake geometry: gaps, rings and concave footprints, with and without exposed faces.
+    for geometry, (rings, heights, bases) in WAKE_GEOMETRIES.items():
+        vertices, offsets = [], [0]
+        for ring in rings:
+            vertices += list(ring) + [ring[0]]
+            offsets.append(len(vertices))
+        building_offsets = WAKE_GEOMETRY_PARTS.get(geometry, offsets)
+        shapes = dict(vertices=np.asarray(vertices, np.float64), offsets=np.asarray(building_offsets, np.int64),
+                      heights=np.asarray(heights, np.float64), base_heights=np.asarray(bases, np.float64),
+                      ids=np.arange(len(heights), dtype=np.int64))
+        for exposed, wake, canyon in itertools.product((False, True), (1, 2), (0, 1)):
+            model = native_model(exposed_faces=exposed, wake_flag=wake, street_canyon_flag=canyon)
+            extra = dict(ring_offsets=np.asarray(offsets, np.int64)) if exposed or len(rings) > len(heights) else {}
+            for direction in (270.0, 27.0):
+                runner = _qes.WindRunner()
+                runner.prepare(grid, model, **shapes, **extra)
+                yield f"native/geometry/{geometry}/e{int(exposed)}w{wake}s{canyon}/{direction:g}", native_solve(runner, 5.0, direction)
     turbulence = _qes.TurbulenceSettings()
     turbulence.enabled = True
     for method in (0, 1):

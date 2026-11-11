@@ -172,6 +172,28 @@ public:
    */
   void polygonWake(WINDSGeneralData *WGD, int building_id) override;
 
+  /** Wake geometry that the cavity and far-wake loop reads; set by prepareWake. */
+  struct WakePreamble
+  {
+    std::vector<float> Lr_node; /**< wake length at each node */
+    std::vector<int> perpendicular_flag; /**< faces perpendicular to the wind */
+    float wake_height = 0; /**< effective top of the wake */
+    int tall_flag = 0; /**< high-rise cavity shape */
+    float z_s = 0, x_sep = 0; /**< saddle-point height and in-canyon separation (high-rise only) */
+    int k_s = 0; /**< saddle-point layer (high-rise only) */
+    int stop_id = 0; /**< last face of the legacy single-ring loop */
+  };
+
+  /**
+   * Geometry preamble of polygonWake: reads the roof-level wind at the centroid
+   * (u0_h, v0_h, upwind_dir), the wind-frame vertices and extents, the effective
+   * width and length, the cavity length Lr and the wake height. Writes no field.
+   */
+  void prepareWake(WINDSGeneralData *WGD, WakePreamble &wake);
+
+  /** Cavity and far-wake loop of polygonWake, after prepareWake. */
+  void applyWake(WINDSGeneralData *WGD, int building_id, const WakePreamble &wake);
+
 
   /**
    * Applies the street canyon parameterization to the qualified space between buildings defined as polygons.
