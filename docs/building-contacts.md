@@ -196,7 +196,10 @@ wall shared below a neighbor's roof can become exposed above it.
 Upwind cavity and wake test staggered samples; sidewall tests its originating
 upwind corner and its velocity samples, restoring eligibility at each level.
 Wake and canyon searches skip source-footprint cells before reaching fluid and
-stop at a solid neighbor. Canyon searches cannot reuse a stale downstream face.
+stop at a solid neighbor. The cavity is fitted to the gap in front of a
+downstream wall (a separated neighbor, or the far side of a courtyard) with or
+without exposed faces: the wake search records the gap before it stops.
+Canyon searches cannot reuse a stale downstream face.
 Rooftop support must belong to the source footprint for holed solids and in
 exposure mode. Collinear shared topology nodes remain in mask membership but do
 not split canonical parameterization faces, with exposure either on or off.

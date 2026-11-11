@@ -441,7 +441,12 @@ void PolyBuilding::applyWake(WINDSGeneralData *WGD, int building_id, const WakeP
               const auto initial=WGD->icellflag_initial[icell_cent];
               const bool solid=initial==0 || initial==2 || initial==7;
               if (x_id_min<0 && containsXY((i+.5)*dx,(j+.5)*dy)) continue;
-              if (solid) break;
+              if (solid) {
+                // A separated downstream neighbour: fit the cavity to the gap,
+                // as the strict-footprint branch below does.
+                if (x_id_min > 0) canyon_factor = xc / Lr;
+                break;
+              }
             }
             if (WGD->icellflag[icell_cent] != 0 && WGD->icellflag[icell_cent] != 2 && x_id_min < 0) {
               x_id_min = x_id;

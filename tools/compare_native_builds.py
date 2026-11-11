@@ -246,6 +246,7 @@ NATIVE_BLOCKS = [(14, 12, 10, 16, 10), (32, 12, 8, 8, 6), (32, 26, 12, 8, 14)]
 # Clockwise outer rings, counter-clockwise holes; (rings, heights, base heights).
 WAKE_GEOMETRIES = {
     "slab_gap": ([[(30, 20), (30, 60), (36, 60), (36, 20)], [(44, 20), (44, 60), (50, 60), (50, 20)]], [12, 12], [0, 0]),
+    "shared_wall": ([[(30, 20), (30, 60), (40, 60), (40, 20)], [(40, 20), (40, 60), (50, 60), (50, 20)]], [12, 18], [0, 0]),
     "tall_short": ([[(30, 20), (30, 60), (40, 60), (40, 20)], [(46, 20), (46, 60), (52, 60), (52, 20)]], [20, 10], [0, 0]),
     "courtyard": ([[(30, 20), (30, 44), (54, 44), (54, 20)], [(38, 28), (46, 28), (46, 36), (38, 36)]], [12], [0]),
     "l_shape": ([[(30, 20), (30, 50), (40, 50), (40, 30), (54, 30), (54, 20)]], [14], [0]),
@@ -407,7 +408,7 @@ def native_runs():
         for step, direction in enumerate((270.0, 45.0, 33.0, 300.0, 33.0, 225.0, 45.0)):
             yield f"native/reuse/r{rooftop}/{step}", native_solve(runner, 5.0, direction)
         yield f"native/reuse/r{rooftop}/float64", native_solve(runner, 5.0, 33.0, precision="float64")
-    # Wake geometry: gaps, rings and concave footprints, with and without exposed faces.
+    # Wake geometry: gaps, shared walls, rings and concave footprints, with and without exposed faces.
     for geometry, (rings, heights, bases) in WAKE_GEOMETRIES.items():
         vertices, offsets = [], [0]
         for ring in rings:
