@@ -91,6 +91,19 @@ int main()
   require(!building->isFace(4) && !building->isFace(9),"Jump or closing sentinel treated as a face");
   require(building->previousFace(5)==8 && building->nextFace(8)==5,"Hole neighbors crossed rings");
   require(!building->containsXY(14,14) && building->containsXY(10,10),"Hole membership is wrong");
+  // The reference point samples the incident wind and anchors the wind-aligned
+  // frame, so it must be in the footprint; this block's vertex mean is the courtyard.
+  require(building->containsXY(building->building_cent_x,building->building_cent_y),
+          "Courtyard reference point outside footprint");
+  BuildingArrays ell{{},{0},{},{},{}};
+  append(ell,{8,8,8,20,12,20,12,12,20,12,20,8,8,8},10);
+  ModelInputs ell_input(grid,model,ell);
+  WINDSGeneralData ell_data(make_domain(ell_input),ell_input.buildings,ell_input.parameterizations,.1);
+  const auto *ell_building=ell_data.allBuildingsV[0];
+  require(ell_building->containsXY(ell_building->building_cent_x,ell_building->building_cent_y),
+          "L-shape reference point outside footprint");
+  // Footprints whose vertex mean is inside keep it bit-for-bit.
+  require(low->building_cent_x==14.f && low->building_cent_y==14.f,"Convex reference point left the vertex mean");
   require(ring_data.icellflag_initial[ring_data.domain.cell(14,14,3)]==1,"Courtyard rasterized solid");
   require(building->faceExposed(&ring_data,5,14,12,3),"Courtyard wall not exposed");
   for (bool exposed: {false,true}) {

@@ -40,11 +40,50 @@
  */
 
 #include "PolyBuilding.h"
+#include <algorithm>
 #include <limits>
+#include <utility>
 
 // These take care of the circular reference
 #include "WINDSGeneralData.h"
 
+namespace {
+// A point strictly inside the footprint (outer ring minus holes) for any simple
+// polygon, concave or not. Cuts the footprint with a horizontal line halfway
+// between the two vertex y-values that bracket yHint, so the line passes through
+// no vertex, and returns the midpoint of the widest interior span.
+std::pair<double, double> scanlineInteriorPoint(const std::vector<polyVert> &v,
+                                                const std::vector<std::size_t> &rings,
+                                                double xHint, double yHint)
+{
+  std::vector<double> ys;
+  ys.reserve(v.size());
+  for (const auto &p : v) ys.push_back(p.y_poly);
+  std::sort(ys.begin(), ys.end());
+  ys.erase(std::unique(ys.begin(), ys.end()), ys.end());
+  if (ys.size() < 2) return {xHint, yHint};// zero-area footprint
+  const auto hi = std::clamp(std::upper_bound(ys.begin(), ys.end(), yHint),
+                             ys.begin() + 1, ys.end() - 1);
+  const double y = 0.5 * (*(hi - 1) + *hi);
+
+  std::vector<double> xs;// crossings of every ring, even-odd
+  for (std::size_t r = 1; r < rings.size(); ++r)
+    for (std::size_t e = rings[r - 1]; e + 1 < rings[r]; ++e) {
+      const double ax = v[e].x_poly, ay = v[e].y_poly;
+      const double bx = v[e + 1].x_poly, by = v[e + 1].y_poly;
+      if ((ay < y) != (by < y))
+        xs.push_back(ax + (y - ay) / (by - ay) * (bx - ax));
+    }
+  std::sort(xs.begin(), xs.end());
+  double bestWidth = -1.0, bestX = xHint;// [x0,x1], [x2,x3], ... are inside
+  for (std::size_t k = 0; k + 1 < xs.size(); k += 2)
+    if (xs[k + 1] - xs[k] > bestWidth) {
+      bestWidth = xs[k + 1] - xs[k];
+      bestX = 0.5 * (xs[k] + xs[k + 1]);
+    }
+  return {bestX, y};
+}
+}// namespace
 
 
 
@@ -92,6 +131,15 @@ void PolyBuilding::setPolyBuilding(WINDSGeneralData *WGD)
   }
   building_cent_x /= outerEnd - 1;
   building_cent_y /= outerEnd - 1;
+  // The reference point samples the incident wind and anchors the wind-aligned
+  // frame of the wake/canyon parameterizations, so it must lie in the footprint.
+  // The vertex mean is kept unchanged when it does (always, for convex rings);
+  // concave footprints and courtyard holes fall back to an interior point.
+  if (!containsXY(building_cent_x, building_cent_y)) {
+    const auto inside = scanlineInteriorPoint(polygonVertices, ringOffsets, building_cent_x, building_cent_y);
+    building_cent_x = inside.first;
+    building_cent_y = inside.second;
+  }
 
   i_building_cent = std::round(building_cent_x / WGD->domain.dx()) - 1;// Index of building centroid in x-direction
   j_building_cent = std::round(building_cent_y / WGD->domain.dy()) - 1;// Index of building centroid in y-direction
