@@ -172,6 +172,7 @@ def reports(records, models, convergence) -> dict:
                     s = comparison.scores()
                     scalars[f"wake {wake} {case} {quantity}"] = {k: s[k] for k in ("hit_rate", "r", "fb", "mae")}
     out["scalar speeds at 2 m"] = scalars
+    out["windy tail"] = windy_tail(records)
     # Cases A and B at 1 m with the cavity variants.
     variants = {}
     for wake in WAKES:
@@ -216,6 +217,50 @@ def reports(records, models, convergence) -> dict:
                 initialization_seconds=float(np.mean([r["timings"]["native"]["initialization_seconds"] for r in e])),
                 wall_seconds=float(np.mean([r["wall_seconds"] for r in e])), runs=len(e))
     out["Case E cost per direction (2 m)"] = cost
+    return out
+
+
+def _pairs(records, case, quantity):
+    """Simulated and measured values of one comparison, flattened; vector K is paired with the scalar target."""
+    if case in ("A", "B"):
+        target = compare.ab_scalar(records, case, "K_scalar_wake" if "K_scalar_wake" in
+                                   records[case, "-", AB_LABEL]["probes"] else "K_scalar_inflow")
+        if quantity == "K":
+            values = records[case, "-", AB_LABEL]["probes"]["K"]
+            simulated = np.array([np.nan if v is None else v for v in values], dtype=np.float64)
+            return np.where(np.isfinite(target.measured.ravel()), simulated, np.nan), target.measured.ravel()
+        c = compare.ab_scalar(records, case, quantity)
+    elif case == "D":
+        c = next(x for x in compare.case_d(records, (quantity,)) if x.name == f"D-thermistor-{quantity}")
+    else:
+        c = next(x for x in compare.case_e_comparisons(records, (quantity,)) if x.state == case.split()[1])
+    return c.simulated.ravel(), c.measured.ravel()
+
+
+def windy_tail(records) -> dict:
+    """Comfort and safety classes depend on the windiest points: the ratio of mean simulated to mean
+    measured speed less one, per measured-K class and over the top decile, and the share of the top
+    decile more than 20 % too slow. Vector K is compared with the same scalar measurements."""
+    out = {}
+    models = (("wake 2 vector", 2, "K"), ("wake 2 + inflow k", 2, "K_scalar_inflow"),
+              ("wake 3 vector", 3, "K"), ("wake 3 scalar (5.5 u*²)", 3, "K_scalar_wake_rule"))
+    for case in ("A", "B", "D", "E before", "E after"):
+        for name, wake, quantity in models:
+            try:
+                s, m = _pairs(_at(records[wake], 2.0), case, quantity)
+            except (KeyError, StopIteration, AttributeError):
+                continue
+            ok = np.isfinite(s) & np.isfinite(m)
+            s, m = s[ok], m[ok]
+            row = {}
+            for low, high in ((0.0, 0.3), (0.3, 0.6), (0.6, np.inf)):
+                sel = (m >= low) & (m < high)
+                if sel.any():
+                    row[f"K {low:g}-{high:g}"] = float(s[sel].mean() / m[sel].mean() - 1)
+            top = m >= np.percentile(m, 90)
+            row.update(top_decile=float(s[top].mean() / m[top].mean() - 1),
+                       top_decile_over_20pct_slow=float(np.mean(s[top] < 0.8 * m[top])))
+            out[f"{case}: {name}"] = row
     return out
 
 

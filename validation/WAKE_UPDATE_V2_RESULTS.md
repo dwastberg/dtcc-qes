@@ -74,6 +74,28 @@ As in the investigation (0.69 / 0.52 against 0.73 / 0.59): the spreading wake co
 - The scalar speed is a median 1.1 (A), 1.3 (B), 1.5 (D) and 1.2 (E) times the vector speed, and 2.6–4 times at the 90th percentile (the stillest points). It is the speed that matches the omnidirectional measurements, and it restores the level the lower vector speed loses.
 - QES-Turb's own k, recomputed on the smoother field, does not benefit: its scalar speed correlates less well in D and E after. Its k against the split-fibre k (q / R / FB): A 0.013 / 0.35 / −1.21 (`wake=2`: 0.104 / 0.18 / −1.01), B 0.011 / 0.05 / −1.01 (0.026 / 0.10 / −0.71), D 0° 0.00 / −0.12 / +1.27 (0.030 / 0.09 / +1.16). The wake turbulence k_w, not QES-Turb, carries the scalar speed.
 
+### The windiest points (comfort and safety)
+
+Comfort and safety classes depend on the windiest points, not the pooled scores. Mean simulated over mean measured speed, less one, per class of measured K and over the windiest tenth of the probe-directions, and the share of that tenth that is more than 20 % too slow (`windy tail` in the summary). All rows are compared with the same scalar measurements; the two `wake=2` rows are its vector speed and that speed with the tunnel inflow k.
+
+| Case | Model | K < 0.3 | 0.3–0.6 | ≥ 0.6 | Windiest 10 % | of which > 20 % too slow |
+|---|---|---|---|---|---|---|
+| D | `wake=2` vector | −0.13 | −0.39 | −0.37 | −0.42 | 80 % |
+| D | `wake=2` + inflow k | +0.14 | −0.26 | −0.33 | −0.38 | 80 % |
+| D | `wake=3` scalar | +0.05 | −0.25 | −0.38 | −0.43 | 90 % |
+| E before | `wake=2` vector | +0.82 | +0.44 | +0.17 | +0.28 | 4 % |
+| E before | `wake=3` scalar | +0.68 | +0.23 | +0.00 | +0.06 | 13 % |
+| E after | `wake=2` vector | +0.62 | +0.17 | −0.11 | −0.11 | 27 % |
+| E after | `wake=2` + inflow k | +1.04 | +0.35 | −0.03 | −0.05 | 21 % |
+| E after | `wake=3` vector | +0.03 | −0.21 | −0.39 | −0.39 | 76 % |
+| E after | `wake=3` scalar | +0.57 | +0.05 | −0.22 | −0.25 | 64 % |
+
+In A and B the windiest tenth is 11–14 % too slow with every model except the `wake=3` vector (19–20 %).
+
+- The pooled gains of `wake=3` come mostly from sheltered, slow points, where `wake=2` is far too fast.
+- At the windiest points `wake=3` is no better, and in Case E after (the new high-rise) clearly worse: the scalar speed is 25 % too slow there, against 11 % for the `wake=2` vector, with 64 % of those points more than 20 % too slow against 27 %. In Case D every model is about 40 % too slow at its windiest points (the tower effect is not modelled, `MOMENTUM_PLAN.md`); `wake=3` does not help.
+- So `wake=3` with the scalar speed would make comfort and safety assessments less conservative exactly where they matter. This is the main obstacle to making it the comfort default.
+
 ### Cases A and B at 1 m with the cavity variants
 
 | Variant | A q / R | B q / R | Reattachment at 2 m (H): A, B |
