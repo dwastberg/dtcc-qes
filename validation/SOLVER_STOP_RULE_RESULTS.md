@@ -164,3 +164,19 @@ The former default ran 1,000 sweeps; the baseline's fixed work is 2,000. At the 
 - The combined feature baseline, non-adaptive and adaptive, matches the `main` capture.
 
 Python suites: `pytest -W error` 2,016 passed, 50 skipped; validation tests 159 passed.
+
+## 9. P7: the user-facing gain (2026-11-12)
+
+**Setup.** A 16-direction Case E comfort series ("after", 2 m, 1.8 M cells, measured inflow, turbulence on) on one `PreparedWindModel`, with the former default `Solver(stop="multiplier_change")` against the new `Solver()`. Three fresh-process repetitions of each ran in alternating order on an idle M4 Pro with its default OpenMP team (14 cores), using `validation/run_stop_rule_comfort_timing.py`. Evidence: `docs/data/solver-stop-rule/p7-comfort-timing.json`. Medians:
+
+| | Former default | New default | Gain |
+|---|---|---|---|
+| Sweeps (16 directions) | 16,000 (1,000 each, `iteration_limit`) | 2,750 (150–175 each, `velocity_estimate`) | 5.8× |
+| Sweep time | 11.2 s | 2.0 s | 5.5× |
+| Other per-direction work (turbulence, output) | 4.2 s | 4.0 s | |
+| All 16 directions | 15.3 s (0.96 s each) | 6.1 s (0.38 s each) | 2.5× |
+| Including the one-time preparation (4.0 s) | 19.4 s | 10.1 s | 1.9× |
+
+- **Cost of the estimate:** 0.735 ms per sweep against 0.698 ms, about 5 % (the plan predicted 8 %).
+- **Same answer:** at the 79 probes the two series agree within p95 1.4e-4 and max 1.7e-4 in K in every direction. Sweeps are identical across repetitions.
+- **Where the time goes now:** sweeps are no longer the main cost of a direction. Turbulence and output (0.25 s per direction) and city preparation (4.0 s, once) are 80 % of the new series; they are the next targets (`FABEL_DESIGN_AND_ALGORITHM_REVIEW.md`).
