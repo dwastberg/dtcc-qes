@@ -218,6 +218,8 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
     controller->check("mutex_wait");
   }
   const double tolerance = solver_tolerance(options);
+  solver_relaxation(options, control && control->mode=="adaptive");
+  if (controller && options.relaxation != 0) controller->record.method = sor_method_id(options.relaxation);
   struct SolveScope {
     Impl &state;
     bool success = false;
@@ -382,7 +384,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
       return workspace.diagnostics();
     };
     const double allocation_started = now();
-    const float relaxation=controller && controller->adaptive_enabled()?1.90f:1.78f;
+    const float relaxation=solver_relaxation(options,controller && controller->adaptive_enabled());
     if (options.precision == "float64") {
       state.solver.reset();
       if (!state.precision_solver || state.tolerance != tolerance || state.relaxation!=relaxation) {

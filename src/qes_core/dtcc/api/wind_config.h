@@ -42,6 +42,9 @@ struct SolverOptions {
   double tolerance = 1e-5;
   int max_iterations = 500;
   std::string precision = "float32";
+  // SOR relaxation for legacy and bounded solves. Zero keeps each mode's frozen
+  // choice (1.78; 1.90 when adaptive); adaptive control rejects any other value.
+  double relaxation = 0;
 };
 
 struct BuildingArrays {

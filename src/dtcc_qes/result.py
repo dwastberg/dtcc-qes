@@ -24,7 +24,8 @@ def _qualification(metadata, diagnostics):
         "legacy_tolerance" if diagnostics.converged else "iteration_limit")
     assessment = ("not_requested" if mode != "adaptive" else record["accuracy_status"])
     reason = record.get("assessment_reason") if record is not None else None
-    solver_view = dict(mode=mode, method=record["method"] if record is not None else _qes.legacy_method_id,
+    method = record["method"] if record is not None else _qes._sor_method_id(spec.get("relaxation") or 0)
+    solver_view = dict(mode=mode, method=method,
         execution=termination if termination in ("iteration_limit", "time_limit") else "completed",
         termination_reason=termination, legacy_converged=diagnostics.converged,
         assessment=assessment, assessment_scope=record.get("assessment_scope") if record is not None else None,

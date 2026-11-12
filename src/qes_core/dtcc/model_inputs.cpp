@@ -126,6 +126,19 @@ float qes_tolerance(const SolverOptions &options)
   return tolerance;
 }
 
+float solver_relaxation(const SolverOptions &options, bool adaptive)
+{
+  if (options.relaxation == 0) return adaptive ? 1.90f : 1.78f;
+  if (adaptive)
+    throw std::invalid_argument("Adaptive pedestrian control uses its qualified relaxation; omit relaxation");
+  if (!(options.relaxation > 0 && options.relaxation < 2))
+    throw std::invalid_argument("Solver relaxation must be zero (mode default) or finite and between zero and two");
+  const float relaxation = float(options.relaxation);
+  if (!(relaxation > 0 && relaxation < 2))
+    throw std::invalid_argument("Solver relaxation must remain between zero and two in float32");
+  return relaxation;
+}
+
 double solver_tolerance(const SolverOptions &options)
 {
   if (options.precision == "float32") return qes_tolerance(options);

@@ -81,6 +81,7 @@ class _SolverPayload(TypedDict):
     checkpoint_interval: NotRequired[int]
     residual_interval: NotRequired[int]
     raise_on_failure: NotRequired[bool]
+    relaxation: NotRequired[float | None]
 
 
 class _TurbulencePayload(TypedDict):

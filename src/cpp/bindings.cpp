@@ -259,6 +259,7 @@ NB_MODULE(_qes, m)
   m.attr("build_type") = DTCC_QES_BUILD_TYPE;
   m.attr("legacy_method_id") = legacy_method_id;
   m.attr("pedestrian_method_id") = pedestrian_method_id;
+  m.def("_sor_method_id", &sor_method_id, "relaxation"_a);
   m.def("_core_grid_shape", &dtcc_qes::core_grid_shape);
   m.def("_resource_usage", &resource_record);
   m.def("_reset_resource_peaks", &reset_resource_peaks);
@@ -290,7 +291,8 @@ NB_MODULE(_qes, m)
   nb::class_<SolverOptions>(m, "SolverOptions")
     .def(nb::init<>()).def_rw("tolerance", &SolverOptions::tolerance)
     .def_rw("max_iterations", &SolverOptions::max_iterations)
-    .def_rw("precision", &SolverOptions::precision);
+    .def_rw("precision", &SolverOptions::precision)
+    .def_rw("relaxation", &SolverOptions::relaxation);
   nb::class_<TurbulenceSettings>(m, "TurbulenceSettings")
     .def(nb::init<>()).def_rw("enabled", &TurbulenceSettings::enabled)
     .def_rw("mixing_length_method", &TurbulenceSettings::mixing_length_method);

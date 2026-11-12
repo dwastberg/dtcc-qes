@@ -2,12 +2,28 @@
 #include <optional>
 #include <string>
 #include <cstddef>
+#include <cstdio>
+#include <cstdlib>
 namespace dtcc_qes {
 // Versioned empirical numerical assessment of two pedestrian planes/receptors.
 // These values do not qualify the full volume, turbulence or physical models.
 inline constexpr const char *pedestrian_policy_id = "pedestrian-v1";
 inline constexpr const char *pedestrian_method_id = "s5c-rb-sor-float-omega-v1-omega-1.90";
 inline constexpr const char *legacy_method_id = "s5c-rb-sor-float-omega-v1-omega-1.78";
+// Method label of an explicitly requested relaxation (zero: the legacy label).
+// The executed value is the float narrowing, printed with the fewest digits
+// (at least two decimals) that read back exactly, so 1.78 and 1.90 keep the
+// frozen labels above.
+inline std::string sor_method_id(double relaxation) {
+  if (relaxation == 0) return legacy_method_id;
+  const float omega = float(relaxation);
+  char digits[48];
+  for (int places = 2; places <= 9; ++places) {
+    std::snprintf(digits, sizeof digits, "%.*f", places, double(omega));
+    if (std::strtof(digits, nullptr) == omega) break;
+  }
+  return std::string("s5c-rb-sor-float-omega-v1-omega-") + digits;
+}
 inline constexpr double policy_safety_factor = 8;
 inline constexpr int policy_minimum_iterations = 150;
 inline constexpr double policy_maximum_ratio = .8;

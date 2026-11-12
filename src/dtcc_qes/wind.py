@@ -703,6 +703,8 @@ def _native_solver(solver):
     options=_qes.SolverOptions()
     options.tolerance,options.max_iterations=solver.tolerance,solver.max_iterations
     options.precision=solver.precision
+    if solver.relaxation is not None:
+        options.relaxation=solver.relaxation
     return options
 
 

@@ -25,6 +25,8 @@ struct ModelInputs {
 };
 float qes_tolerance(const SolverOptions &);
 double solver_tolerance(const SolverOptions &);
+// Zero selects the frozen mode default; adaptive control accepts only zero.
+float solver_relaxation(const SolverOptions &, bool adaptive);
 std::vector<float> vertical_faces(const GridConfig &);
 qes::Domain make_domain(const ModelInputs &);
 }
