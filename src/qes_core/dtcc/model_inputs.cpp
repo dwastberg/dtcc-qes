@@ -139,6 +139,20 @@ float solver_relaxation(const SolverOptions &options, bool adaptive)
   return relaxation;
 }
 
+void validate_stop_rule(const SolverOptions &options, bool adaptive, double reference_speed)
+{
+  const auto &stop = options.stop_rule;
+  if (stop != "multiplier_change" && stop != "velocity" && stop != "fixed")
+    throw std::invalid_argument("Solver stop rule must be 'multiplier_change', 'velocity' or 'fixed'");
+  if (stop == "multiplier_change") return;
+  if (adaptive)
+    throw std::invalid_argument("Adaptive pedestrian control uses its qualified fixed sweeps; omit the stop rule");
+  if (!std::isfinite(options.velocity_tolerance) || options.velocity_tolerance <= 0)
+    throw std::invalid_argument("Velocity stop tolerance must be finite and positive");
+  if (stop == "velocity" && !(reference_speed > 0))
+    throw std::invalid_argument("The velocity stop rule needs a positive reference speed; calm wind has none");
+}
+
 double solver_tolerance(const SolverOptions &options)
 {
   if (options.precision == "float32") return qes_tolerance(options);

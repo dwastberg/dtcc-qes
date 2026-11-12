@@ -146,3 +146,88 @@ def test_bounded_record_reports_custom_method():
     result = _public(wind.Solver(max_solve_seconds=10, monitor=monitor, max_iterations=4, relaxation=1.85))
     assert result.solver["record"]["method"] == "s5c-rb-sor-float-omega-v1-omega-1.85"
     assert result.qualification["solver"]["method"] == "s5c-rb-sor-float-omega-v1-omega-1.85"
+
+
+# --- Native stop rules (stage 1, P1b) ---------------------------------------
+
+def _stop_options(iterations, stop, tolerance=1e-3, precision="float32"):
+    options = _legacy_options(iterations, precision)
+    options.stop_rule, options.velocity_tolerance = stop, tolerance
+    return options
+
+
+def _bounded_control():
+    return wind.Solver(max_solve_seconds=10, monitor=wind.MonitorSpec((0, 100, 0, 80), history_limit=4))._native((0, 0, 0), None)
+
+
+def test_native_stop_rule_defaults():
+    options = _qes.SolverOptions()
+    assert options.stop_rule == "multiplier_change" and options.velocity_tolerance == 1e-3
+
+
+def test_default_rule_reports_no_estimate():
+    result = prepare(configuration()).solve(_qes.WindCondition(), _legacy_options(30))
+    assert "stop_estimate" not in result
+
+
+@pytest.mark.parametrize("precision", ["float32", "float64"])
+def test_velocity_rule_stops_on_its_estimate(precision):
+    result = prepare(configuration()).solve(_qes.WindCondition(), _stop_options(5000, "velocity", precision=precision))
+    estimate, diagnostics = result["stop_estimate"], result["diagnostics"]
+    assert estimate["rule"] == "velocity" and estimate["termination"] == "velocity_estimate"
+    assert diagnostics["converged"] and diagnostics["iterations"] < 5000
+    assert estimate["iterations"][-1] == diagnostics["iterations"] == 25 * estimate["checks"]
+    assert estimate["estimate"][-1] <= 1e-3 and estimate["estimate"][-2] <= 1e-3
+    assert estimate["reference_speed"] == 5.0 and estimate["interval"] == 25 and estimate["tolerance"] == 1e-3
+    assert estimate["contraction"][0] is None and estimate["estimate"][0] is None
+    assert estimate["safety_factor"] == 2 and estimate["contraction_limit"] == 0.99 and estimate["floor_factor"] == 4
+    json.dumps(estimate, allow_nan=False)
+
+
+def test_fixed_rule_runs_its_work_without_changing_the_iterate():
+    runner = prepare(configuration())
+    reference_options = _legacy_options(100)
+    reference_options.tolerance = 1.2e-7
+    reference = runner.solve(_qes.WindCondition(), reference_options)
+    fixed = runner.solve(_qes.WindCondition(), _stop_options(100, "fixed"))
+    np.testing.assert_array_equal(fixed["velocity"], reference["velocity"])
+    estimate = fixed["stop_estimate"]
+    assert fixed["diagnostics"]["iterations"] == 100 and estimate["termination"] == "fixed_work"
+    assert estimate["iterations"] == [25, 50, 75, 100]
+
+
+def test_bounded_control_records_the_stop_reason():
+    runner = prepare(configuration())
+    velocity = runner.solve(_qes.WindCondition(), _stop_options(5000, "velocity"), control=_bounded_control())
+    assert velocity["control"]["termination_reason"] == "velocity_estimate"
+    assert velocity["diagnostics"]["iterations"] < 5000
+    fixed = runner.solve(_qes.WindCondition(), _stop_options(60, "fixed"), control=_bounded_control())
+    assert fixed["control"]["termination_reason"] == "fixed_work" and fixed["diagnostics"]["iterations"] == 60
+
+
+def test_calm_wind_rejects_the_velocity_rule_and_fixes_work_without_estimate():
+    runner = prepare(configuration())
+    calm = _qes.WindCondition()
+    calm.speed = 0
+    with pytest.raises(ValueError, match="calm"):
+        runner.solve(calm, _stop_options(50, "velocity"))
+    fixed = runner.solve(calm, _stop_options(50, "fixed"))
+    assert fixed["diagnostics"]["iterations"] == 50 and "stop_estimate" not in fixed
+
+
+@pytest.mark.parametrize("stop,tolerance", [("invented", 1e-3), ("velocity", 0.0), ("velocity", float("nan")),
+                                            ("fixed", -1.0)])
+def test_native_invalid_stop_settings_rejected(stop, tolerance):
+    runner = prepare(configuration())
+    with pytest.raises(ValueError, match="[Ss]top|tolerance"):
+        runner.solve(_qes.WindCondition(), _stop_options(10, stop, tolerance))
+    assert runner.solve(_qes.WindCondition(), _legacy_options(2))["diagnostics"]["iterations"] == 2
+
+
+@pytest.mark.parametrize("stop", ["velocity", "fixed"])
+def test_native_adaptive_control_rejects_stop_rules(stop):
+    runner = prepare(configuration())
+    control = replace(pedestrian_solver(), max_iterations=2)._native((0, 0, 0), None)
+    with pytest.raises(ValueError, match="stop"):
+        runner.solve(_qes.WindCondition(), _stop_options(2, stop), control=control)
+

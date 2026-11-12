@@ -21,6 +21,34 @@ namespace {
 double progress_now() {
   return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
+const char *termination_name(solver::Termination termination) {
+  switch (termination) {
+    case solver::Termination::VelocityEstimate: return "velocity_estimate";
+    case solver::Termination::PrecisionFloor: return "precision_floor";
+    case solver::Termination::FixedBudget: return "fixed_work";
+    case solver::Termination::IterationLimit: return "iteration_limit";
+    case solver::Termination::LegacyTolerance: return "legacy_tolerance";
+    case solver::Termination::None: break;
+  }
+  return "incomplete"; // A bounded deadline; the control record holds the reason.
+}
+StopEstimateData stop_estimate_data(const solver::EstimateReport &report, const std::string &rule,
+                                    solver::Termination termination) {
+  StopEstimateData out;
+  out.rule = rule; out.termination = termination_name(termination);
+  out.tolerance = report.options.tolerance; out.reference_speed = report.options.reference_speed;
+  out.safety_factor = solver::estimate_safety_factor;
+  out.contraction_limit = solver::estimate_contraction_limit;
+  out.floor_factor = solver::estimate_floor_factor;
+  out.interval = report.options.interval; out.checks = report.checks;
+  out.history_truncated = report.history_truncated;
+  for (const auto &check : report.history) {
+    out.iterations.push_back(check.iteration); out.change.push_back(check.change);
+    out.contraction.push_back(check.contraction); out.estimate.push_back(check.estimate);
+    out.floor.push_back(check.floor);
+  }
+  return out;
+}
 }
 class WindRunner::ProgressScope {
 public:
@@ -219,7 +247,14 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
   }
   const double tolerance = solver_tolerance(options);
   solver_relaxation(options, control && control->mode=="adaptive");
+  validate_stop_rule(options, control && control->mode=="adaptive", condition.speed);
   if (controller && options.relaxation != 0) controller->record.method = sor_method_id(options.relaxation);
+  // Adaptive requests are validated to "multiplier_change"; their fixed sweeps are chosen below.
+  solver::EstimateOptions estimate;
+  if (options.stop_rule != "multiplier_change" && condition.speed > 0) {
+    estimate.enabled = true; estimate.reference_speed = condition.speed;
+    estimate.tolerance = options.velocity_tolerance;
+  }
   struct SolveScope {
     Impl &state;
     bool success = false;
@@ -327,8 +362,10 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
       progress_phase("rhs");
       phase_started = now();
       if (controller) controller->check("before_rhs");
-      workspace.begin(solver::ConditionInputs(data),options.max_iterations,
-        controller && controller->adaptive_enabled()?solver::StopRule::FixedSweeps:solver::StopRule::LegacyTolerance, &completed_sweeps_);
+      const auto rule = controller && controller->adaptive_enabled() ? solver::StopRule::FixedSweeps
+        : options.stop_rule == "velocity" ? solver::StopRule::VelocityEstimate
+        : options.stop_rule == "fixed" ? solver::StopRule::FixedSweeps : solver::StopRule::LegacyTolerance;
+      workspace.begin(solver::ConditionInputs(data),options.max_iterations,rule,&completed_sweeps_,estimate);
 
       timings.rhs_seconds = now()-phase_started;
       progress_phase("projection");
@@ -356,6 +393,8 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
       progress_phase("finalization");
       workspace.finalize(solver::FaceDestination(data),
                          solver::CenteredDestination{result.velocity,result.cell_flags},&mass);
+      if (const auto report = workspace.estimate_report())
+        result.stop_estimate = stop_estimate_data(*report,options.stop_rule,workspace.termination());
       stage_progress("projection");
       state.refresh_memory();
       timings.finalization_seconds = now()-phase_started;
@@ -447,7 +486,12 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
   result.iterations = diagnostics.iterations;
   result.max_lagrange_multiplier_change = diagnostics.max_lagrange_multiplier_change;
   result.tolerance = diagnostics.tolerance;
-  result.converged = diagnostics.converged;
+  // The velocity rule converges on its estimate (or at the rounding floor); the
+  // native diagnostics keep the multiplier-change meaning for control records.
+  result.converged = options.stop_rule == "velocity"
+    ? result.stop_estimate && (result.stop_estimate->termination == "velocity_estimate"
+                               || result.stop_estimate->termination == "precision_floor")
+    : diagnostics.converged;
   result.precision = options.precision;
   timings.postprocessing_seconds = now()-phase_started;
   if (controller) {

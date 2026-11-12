@@ -45,6 +45,24 @@ struct SolverOptions {
   // SOR relaxation for legacy and bounded solves. Zero keeps each mode's frozen
   // choice (1.78; 1.90 when adaptive); adaptive control rejects any other value.
   double relaxation = 0;
+  // "multiplier_change" (the legacy tolerance), "velocity" (stop when the
+  // remaining-velocity-error estimate is at most velocity_tolerance, a fraction
+  // of the reference speed) or "fixed" (exactly max_iterations sweeps, with the
+  // estimate recorded). Adaptive control accepts only "multiplier_change".
+  std::string stop_rule = "multiplier_change";
+  double velocity_tolerance = 1e-3;
+};
+
+// Remaining-velocity-error estimate of a "velocity" or "fixed" solve. Values
+// are relative to reference_speed; non-finite entries mean "not yet available".
+struct StopEstimateData {
+  std::string rule, termination;
+  double tolerance = 0, reference_speed = 0;
+  double safety_factor = 0, contraction_limit = 0, floor_factor = 0;
+  int interval = 0, checks = 0;
+  bool history_truncated = false;
+  std::vector<int> iterations;
+  std::vector<double> change, contraction, estimate, floor;
 };
 
 struct BuildingArrays {
@@ -90,6 +108,7 @@ struct WindData {
   std::optional<ControlRecord> control;
   std::optional<CanyonData> experiment;
   std::optional<ReadOnlyTraceData> trace;
+  std::optional<StopEstimateData> stop_estimate; // Only "velocity" and "fixed" solves.
   ControlTimings timings; // Always measured, including legacy solves.
 };
 }

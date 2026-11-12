@@ -100,16 +100,37 @@ template<class Real> SolverState<Real>::SolverState(const PoissonOperator &op,
   resources_.set_bytes(workspace_bytes());
 }
 
+EstimateCheck estimate_step(int iteration, double change, std::optional<double> previous,
+                            std::optional<double> two_back, double floor) {
+  EstimateCheck out{iteration,change,std::numeric_limits<double>::quiet_NaN(),
+                    std::numeric_limits<double>::infinity(),floor};
+  if (change == 0) { out.estimate = 0; if (previous && two_back) out.contraction = 0; return out; }
+  if (!previous || !two_back) return out;
+  // A zero earlier change makes its ratio infinite (or undefined); both clip to the limit.
+  const double latest = change / *previous, earlier = *previous / *two_back;
+  out.contraction = std::isnan(earlier) ? latest : std::max(latest,earlier);
+  const double r = std::isfinite(out.contraction) ? std::min(out.contraction,estimate_contraction_limit)
+                                                   : estimate_contraction_limit;
+  out.estimate = estimate_safety_factor*change*r/(1-r);
+  return out;
+}
+
 template<class Real> void SolverState<Real>::begin(ConditionInputs input, int sweeps, StopRule rule,
-                                                  std::atomic<int> *completed_sweeps) {
+                                                  std::atomic<int> *completed_sweeps, EstimateOptions estimate) {
   completed_sweeps_=completed_sweeps;
   if (completed_sweeps_) completed_sweeps_->store(0,std::memory_order_relaxed);
   phase_ = Phase::Failed;
   fields_.reset();
   last_trend_.reset(); collect_residual_ = false;
   ++condition_epoch_;
-  if (sweeps < 1 || (rule != StopRule::LegacyTolerance && rule != StopRule::FixedSweeps))
+  if (sweeps < 1 || (rule != StopRule::LegacyTolerance && rule != StopRule::FixedSweeps
+                     && rule != StopRule::VelocityEstimate))
     throw qes::InputError("A positive total sweep limit and valid stop rule are required");
+  if (rule == StopRule::VelocityEstimate && !estimate.enabled)
+    throw qes::InputError("The velocity stop rule requires an enabled estimate");
+  if (estimate.enabled && (!std::isfinite(estimate.reference_speed) || estimate.reference_speed <= 0
+      || !std::isfinite(estimate.tolerance) || estimate.tolerance <= 0 || estimate.interval < 1))
+    throw qes::InputError("The velocity estimate requires a positive reference speed and tolerance and a positive interval");
   if (input.domain.getDomainCellNum() != domain.getDomainCellNum() || input.domain.dx() != domain.dx()
       || input.domain.dy() != domain.dy() || input.domain.dz_array != domain.dz_array)
     throw qes::InputError("Solver and wind-field domains differ");
@@ -122,6 +143,16 @@ template<class Real> void SolverState<Real>::begin(ConditionInputs input, int sw
   std::fill(R.begin(),R.end(),Real(0));
   std::fill(lambda.begin(),lambda.end(),Real(0));
   iterations_ = 0; last_change_ = 0; total_sweeps_ = sweeps; stop_rule_ = rule;
+  // The snapshot starts as the zero initial iterate.
+  estimate_ = estimate;
+  if (estimate_.enabled) snapshot_.assign(lambda.size(),Real(0));
+  else std::vector<Real>().swap(snapshot_);
+  history_.clear(); history_truncated_ = false;
+  checks_ = passes_ = floor_passes_ = 0; recent_[0] = recent_[1] = 0;
+  estimate_stop_ = Termination::None;
+  minimum_spacing_ = std::min(double(domain.dx()),double(domain.dy()));
+  for (int k = 1; k < domain.nz()-2; ++k) minimum_spacing_ = std::min(minimum_spacing_,double(domain.dz_array[k]));
+  resources_.set_bytes(workspace_bytes());
   fields_.emplace(KernelFields{input.u0,input.v0,input.w0,input.icellflag});
   try { build_rhs(); phase_ = Phase::Active; }
   catch (...) { fields_.reset(); throw; }
@@ -139,8 +170,52 @@ template<class Real> SolveDiagnostics SolverState<Real>::diagnostics() const {
 template<class Real> Termination SolverState<Real>::termination() const {
   require_iterate();
   if (stop_rule_ == StopRule::LegacyTolerance && diagnostics().converged) return Termination::LegacyTolerance;
+  if (estimate_stop_ != Termination::None) return estimate_stop_;
   if (iterations_ == total_sweeps_) return stop_rule_ == StopRule::FixedSweeps ? Termination::FixedBudget : Termination::IterationLimit;
   return Termination::None;
+}
+template<class Real> std::optional<EstimateReport> SolverState<Real>::estimate_report() const {
+  if (!estimate_.enabled) return std::nullopt;
+  return EstimateReport{estimate_,history_,history_truncated_,checks_};
+}
+// The faces and expressions of corrected_face, applied to the block change of
+// the multipliers. Max reductions are exact, so teams cannot change the result.
+template<class Real> void SolverState<Real>::check_estimate() {
+  const auto &d = domain;
+  const double dx = d.dx(), dy = d.dy();
+  double change = 0, magnitude = 0;
+#pragma omp parallel for reduction(max : change, magnitude) if(order_ == SweepOrder::RedBlack)
+  for (int k = 1; k < d.nz()-2; ++k)
+    for (int j = 1; j < d.ny()-1; ++j) for (int i = 1; i < d.nx()-1; ++i) {
+      if (solid(i,j,k)) continue;
+      const auto c = d.cell(i,j,k);
+      const auto a = operator_.stencil(c,k);
+      const auto block = [&](std::size_t n) { return double(lambda[n])-double(snapshot_[n]); };
+      const double here = block(c);
+      magnitude = std::max(magnitude,std::abs(double(lambda[c])));
+      if (!solid(i-1,j,k)) change = std::max(change,std::abs(.5*double(a.f)*dx*(here-block(d.cellAdd(c,-1,0,0)))));
+      if (!solid(i,j-1,k)) change = std::max(change,std::abs(.5*double(a.h)*dy*(here-block(d.cellAdd(c,0,-1,0)))));
+      if (!solid(i,j,k-1)) change = std::max(change,std::abs(.5*double(a.n)*double(d.dz_array[k])
+                                                            *(here-block(d.cellAdd(c,0,0,-1)))));
+    }
+  const double scale = estimate_.reference_speed;
+  const double relative = change/scale;
+  const double floor = estimate_floor_factor*double(std::numeric_limits<Real>::epsilon())*magnitude/(minimum_spacing_*scale);
+  if (!std::isfinite(relative) || !std::isfinite(floor))
+    throw qes::RuntimeError("Non-finite velocity-change estimate");
+  const auto check = estimate_step(iterations_,relative,
+      checks_ >= 1 ? std::optional<double>(recent_[0]) : std::nullopt,
+      checks_ >= 2 ? std::optional<double>(recent_[1]) : std::nullopt,floor);
+  recent_[1] = recent_[0]; recent_[0] = relative; ++checks_;
+  passes_ = check.estimate <= estimate_.tolerance ? passes_+1 : 0;
+  floor_passes_ = relative <= floor ? floor_passes_+1 : 0;
+  if (history_.size() < estimate_history_limit) history_.push_back(check);
+  else history_truncated_ = true;
+  if (stop_rule_ == StopRule::VelocityEstimate && checks_ >= estimate_minimum_checks) {
+    if (passes_ >= estimate_required_passes) estimate_stop_ = Termination::VelocityEstimate;
+    else if (floor_passes_ >= estimate_required_passes) estimate_stop_ = Termination::PrecisionFloor;
+  }
+  std::copy(lambda.begin(),lambda.end(),snapshot_.begin());
 }
 template<class Real> WorkReport SolverState<Real>::advance(int sweeps, bool collect_residual_trend) {
   require_iterate();
@@ -154,6 +229,7 @@ template<class Real> WorkReport SolverState<Real>::advance(int sweeps, bool coll
     for (int i = 0; i < work && termination() == Termination::None; ++i) {
       last_change_ = order_ == SweepOrder::RedBlack ? sweep_red_black() : sweep_lexicographic();
       ++iterations_;
+      if (estimate_.enabled && iterations_ % estimate_.interval == 0) check_estimate();
       if (completed_sweeps_) completed_sweeps_->store(iterations_,std::memory_order_relaxed);
     }
   } catch (...) { phase_ = Phase::Failed; fields_.reset(); throw; }
@@ -264,7 +340,7 @@ template<class Real> void SolverState<Real>::finalize(FaceDestination out, std::
   } catch (...) { phase_ = Phase::Failed; fields_.reset(); throw; }
 }
 template<class Real> std::size_t SolverState<Real>::workspace_bytes() const {
-  return (R.capacity()+lambda.capacity()+factors_.capacity())*sizeof(Real);
+  return (R.capacity()+lambda.capacity()+factors_.capacity()+snapshot_.capacity())*sizeof(Real);
 }
 template<class Real> StudyState<Real> SolverState<Real>::copy_state_for_study() const {
   require_iterate();
