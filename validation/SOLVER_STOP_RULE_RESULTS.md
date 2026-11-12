@@ -180,3 +180,16 @@ Python suites: `pytest -W error` 2,016 passed, 50 skipped; validation tests 159 
 - **Cost of the estimate:** 0.735 ms per sweep against 0.698 ms, about 5 % (the plan predicted 8 %).
 - **Same answer:** at the 79 probes the two series agree within p95 1.4e-4 and max 1.7e-4 in K in every direction. Sweeps are identical across repetitions.
 - **Where the time goes now:** sweeps are no longer the main cost of a direction. Turbulence and output (0.25 s per direction) and city preparation (4.0 s, once) are 80 % of the new series; they are the next targets (`FABEL_DESIGN_AND_ALGORITHM_REVIEW.md`).
+
+## 10. Merged into main (2026-11-12)
+
+Merged as version 0.1.0b2 (`3c80254`, `MAIN_INTEGRATION_PLAN.md` part A). The merged tree is the branch tree that was qualified (same tree hash). Post-merge check on `main` (`docs/data/solver-stop-rule/merged-main-verification.json`):
+
+| Check | Result |
+|---|---|
+| Release build | identity `1319a43d…` supported |
+| Native CTest | OpenMP 62/62, serial 59/59 |
+| `pytest -W error` | 2,016 passed, 50 skipped |
+| Validation tests | 160 passed |
+| Artifacts | sdist and wheel built from it pass `check_artifacts.py` |
+| Wheel runtime smoke (4-thread team) | passes; adaptive run accepted |

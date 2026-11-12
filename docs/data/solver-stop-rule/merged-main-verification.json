@@ -1,0 +1,37 @@
+{
+  "merge_commit": "3c80254956786b3a8becad5363ba1a221af7a977",
+  "branch_tree_equals_merge_tree": true,
+  "version": "0.1.0b2",
+  "native_identity": "1319a43d89ce2abf951c3eae48d8047457049e31c28a9938e10b4722fbcf4bf6",
+  "build_supported": true,
+  "ctest": {
+    "openmp": "100% tests passed, 0 tests failed out of 62",
+    "serial": "100% tests passed, 0 tests failed out of 59"
+  },
+  "pytest_W_error": "2016 passed, 50 skipped in 83.66s (0:01:23)",
+  "validation_tests": "160 passed, 27 skipped, 4 warnings in 48.72s",
+  "artifacts": [
+    "Artifact check passed: dtcc_qes-0.1.0b2.tar.gz",
+    "Artifact check passed: dtcc_qes-0.1.0b2-cp314-cp314-macosx_15_0_arm64.whl"
+  ],
+  "post_merge_runtime": {
+    "passed": true,
+    "package": "build/post-merge/wheel-install/dtcc_qes",
+    "module": "build/post-merge/wheel-install/dtcc_qes/_qes.cpython-314-darwin.so",
+    "policy_revision": "1319a43d89ce2abf951c3eae48d8047457049e31c28a9938e10b4722fbcf4bf6",
+    "adaptive_accepted": true,
+    "actual_threads": 4,
+    "checks": [
+      "owned_output",
+      "sampling",
+      "adaptive_vs_legacy_status",
+      "derived_qualification",
+      "nested_timings",
+      "history_bounds",
+      "float64",
+      "two_turbulence_methods",
+      "zero_work_error",
+      "canonical_footprints_with_partition_hole"
+    ]
+  }
+}
