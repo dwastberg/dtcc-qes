@@ -4,7 +4,7 @@
 - **Implements:** suggestion S2 of `FABEL_DESIGN_AND_ALGORITHM_REVIEW.md`. This is not stage S2 of the solver-control refactor (`docs/solver-control-s2.md`).
 - **Also closes:** R14 in `validation/DTCC_REQUESTS.md` (a stop rule at fine grids), and F02's H2a–H2c in `CLAUDE_WIND_EXPERIMENTS.md` (the best ω).
 - **Goal:** a stop rule that bounds the remaining velocity error, as a fraction of the reference speed, together with a better default ω. With these, `Solver()` stops early on coarse grids and keeps going on fine ones.
-- **Status:** D1–D5 accepted as recommended (2026-11-12). P1a–P1c implemented on branch `feat/solver-stop-rule` (worktree `/private/tmp/dtcc-qes-solver-stop-rule`, from `main` at `d968aa7`), independent of `feat/wake-update-v2`. Gate G1 passed at P1 (section 7). P2 and P3 (study E1) done: results in `validation/SOLVER_STOP_RULE_RESULTS.md`. P4, the choice of ω and τ, is next.
+- **Status:** D1–D5 accepted as recommended (2026-11-12). P1a–P1c implemented on branch `feat/solver-stop-rule` (worktree `/private/tmp/dtcc-qes-solver-stop-rule`, from `main` at `d968aa7`), independent of `feat/wake-update-v2`. Gate G1 passed at P1 (section 7). P2 and P3 (study E1) done: results in `validation/SOLVER_STOP_RULE_RESULTS.md`. P4 done (D6–D10, `0877136`): `relaxation="grid"`, κ = 6 and passes from the fourth check are in the opt-in rule, native identity `1319a43d…`. G1 passed again for that identity; P5 is next.
 
 ## 1. Findings that shape the plan
 
@@ -123,7 +123,7 @@ D1–D5 were accepted as recommended on 2026-11-12, and D6–D10 (the P4 choices
 | D4 | What iteration cap once the rule is the default? | **20,000.** The rule stops far earlier at 2 m. At 0.5 m the campaign needed 16,000 at ω = 1.78. A cap keeps a failing case finite, and the result then reports that it did not converge. |
 | D5 | One default ω or a grid-dependent one? | **One constant**, if it is within 20 % of the best ω's sweep count at 2 m, 1 m and on the 0.5 m subset. Otherwise a fitted ω(N) for N cells per side, decided in P4. |
 | D6 | Default τ (P4, R1, accepted 2026-11-12) | **1e-3.** E1: 30× below the F02 probe maximum, at least 4× inside G2 at every ω; τ = 3e-3 saves only 10–15 % of the sweeps. |
-| D7 | Default ω (P4, R2, accepted 2026-11-12) | **Grid-dependent**, since no constant is within 20 % of the best at both 2 m and 1 m (D5). A fit ω(N) on the cell count across the shorter horizontal side, fixed after the ω ∈ {1.98, 1.99} runs at 1 m; fallback a constant 1.95. |
+| D7 | Default ω (P4, R2, accepted 2026-11-12) | **Grid-dependent:** ω = clip(2 − 16/N, 1.78, 1.98), rounded to 0.001, for N physical cells across the shorter horizontal side (`Solver(relaxation="grid")`). No constant is within 20 % of the best at both 2 m and 1 m (D5); ω 1.98 and 1.99 at 1 m confirmed 1.97 as the 1 m optimum (results, section 6). |
 | D8 | Floor factor κ (P4, R3, accepted 2026-11-12) | **6.** Native change to the opt-in rule. |
 | D9 | Earliest stop (P4, R4, accepted 2026-11-12) | **Passes count from the fourth check** (earliest stop at 125 sweeps). Native change to the opt-in rule. |
 | D10 | `precision_floor` (P4, R5, accepted 2026-11-12) | **A converged outcome**, documented as "the arithmetic cannot certify a smaller error". |
@@ -178,7 +178,7 @@ D1–D5 were accepted as recommended on 2026-11-12, and D6–D10 (the P4 choices
 
 | Gate | Requirement |
 |---|---|
-| G1 Defaults unchanged | `tools/compare_native_builds.py` matches exactly on the non-adaptive subset, and all 24 frozen S7 workers match exactly, at P1 and at P5. **Passed at P1 (2026-11-12)** for candidate `883d758`, identity `6b62eb8a…`. Against `d968aa7`, 429 cases (4,783 records) are bitwise identical for OpenMP at 1, 2, 4 and 8 threads and for serial, with backend parity required. All 24 S7 workers match on isolated packages that carry the new identity. Evidence: `docs/data/solver-stop-rule/g1-*`. |
+| G1 Defaults unchanged | `tools/compare_native_builds.py` matches exactly on the non-adaptive subset, and all 24 frozen S7 workers match exactly, at P1 and at P5. **Passed at P1 (2026-11-12)** for candidate `883d758`, identity `6b62eb8a…`, and **again after P4** for `0877136`, identity `1319a43d…` (same counts; the evidence files hold the later run). Against `d968aa7`, 429 cases (4,783 records) are bitwise identical for OpenMP at 1, 2, 4 and 8 threads and for serial, with backend parity required. All 24 S7 workers match on isolated packages that carry the new identity. Evidence: `docs/data/solver-stop-rule/g1-*`. |
 | G2 Safe stop | At the chosen τ and ω, every E1 run stops with probe p95 \|ΔK\| ≤ 0.0025 and max ≤ 0.01, which is half of F02's targets. On the full-field subset, the actual maximum error over the plane is ≤ e_n at the stop sweep. **Passed in E1** for τ ≤ 5e-3 at every ω; whole-volume error 0.11–0.52 of e at every estimate stop. |
 | G3 Speed at 2 m | The median stop sweep on Cases D and E at 2 m is ≤ 1/2.5 of today's default work (1,000 sweeps), that is ≤ 400. **Passed in E1** for ω ≥ 1.90 (median 200 sweeps at ω 1.93–1.95). |
 | G4 Fine grids finish | At 1 m and on the 0.5 m subset, every run stops through `velocity_estimate` or `precision_floor` before 20,000 sweeps. **Passed at 1 m in E1** (latest stop 5,450); 0.5 m not run. |
