@@ -191,7 +191,8 @@ def test_completed_work_deadline_turbulence_warning_and_wind_basis(
 
     monkeypatch.setattr(_qes, "WindRunner", DeadlineRunner)
     solver = wind.Solver(
-        max_iterations=8, max_solve_seconds=60, monitor=wind.MonitorSpec((0, 80, 0, 60))
+        max_iterations=8, max_solve_seconds=60, monitor=wind.MonitorSpec((0, 80, 0, 60)),
+        stop="multiplier_change",
     )
     result = wind.run(
         city, **condition, **grid, solver=solver, turbulence=wind.Turbulence()

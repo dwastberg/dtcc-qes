@@ -24,7 +24,8 @@ def inject_clock(monkeypatch,steps):
 
 
 def solver(**changes):
-    return wind.Solver(**(dict(max_iterations=8,tolerance=float(np.finfo(np.float32).eps),
+    # The multiplier rule: these deadlines are defined by its sweeps and convergence.
+    return wind.Solver(**(dict(stop="multiplier_change",max_iterations=8,tolerance=float(np.finfo(np.float32).eps),
         max_solve_seconds=1,monitor=wind.MonitorSpec((0,80,0,60)))|changes))
 
 
@@ -44,7 +45,7 @@ def test_zero_whole_sweeps_always_raise_without_a_field(monkeypatch,turbulence):
 def test_mid_solve_deadline_returns_exact_completed_sweeps(completed,zeros,turbulence,monkeypatch,caplog):
     city,condition,grid,_=city_case(ONE_BUILDING)
     options=solver()
-    reference=wind.run(city,**condition,**grid,solver=wind.Solver(tolerance=options.tolerance,
+    reference=wind.run(city,**condition,**grid,solver=wind.Solver(stop="multiplier_change",tolerance=options.tolerance,
         max_iterations=completed),turbulence=turbulence)
     caplog.clear()
     # 20 clock reads precede the first sweep, then four per whole sweep.

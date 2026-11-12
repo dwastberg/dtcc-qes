@@ -120,6 +120,26 @@ nb::dict python_result(const WindData &data)
   diagnostics["top_band_cell_count"] = div.top_band_cells;
   result["diagnostics"] = diagnostics;
   result["building_count"] = data.building_count;
+  if (data.relaxation) result["relaxation"] = *data.relaxation;
+  if (data.stop_estimate) {
+    const auto &s = *data.stop_estimate;
+    // JSON-safe: values not yet available (NaN/inf) become None.
+    const auto values = [](const std::vector<double> &x) {
+      nb::list out;
+      for (double v : x) out.append(std::isfinite(v) ? nb::cast(v) : nb::none());
+      return out;
+    };
+    nb::dict out;
+    out["rule"] = s.rule; out["termination"] = s.termination;
+    out["tolerance"] = s.tolerance; out["reference_speed"] = s.reference_speed;
+    out["safety_factor"] = s.safety_factor; out["contraction_limit"] = s.contraction_limit;
+    out["floor_factor"] = s.floor_factor; out["first_counted_check"] = s.first_counted_check;
+    out["interval"] = s.interval; out["checks"] = s.checks; out["history_truncated"] = s.history_truncated;
+    out["iterations"] = nb::cast(s.iterations);
+    out["change"] = values(s.change); out["contraction"] = values(s.contraction);
+    out["estimate"] = values(s.estimate); out["floor"] = values(s.floor);
+    result["stop_estimate"] = out;
+  }
   if (data.experiment) {
     const auto &e = *data.experiment;
     nb::dict out;
@@ -259,6 +279,8 @@ NB_MODULE(_qes, m)
   m.attr("build_type") = DTCC_QES_BUILD_TYPE;
   m.attr("legacy_method_id") = legacy_method_id;
   m.attr("pedestrian_method_id") = pedestrian_method_id;
+  m.def("_sor_method_id", &sor_method_id, "relaxation"_a);
+  m.def("_grid_relaxation", &grid_relaxation, "short_side_cells"_a);
   m.def("_core_grid_shape", &dtcc_qes::core_grid_shape);
   m.def("_resource_usage", &resource_record);
   m.def("_reset_resource_peaks", &reset_resource_peaks);
@@ -290,7 +312,11 @@ NB_MODULE(_qes, m)
   nb::class_<SolverOptions>(m, "SolverOptions")
     .def(nb::init<>()).def_rw("tolerance", &SolverOptions::tolerance)
     .def_rw("max_iterations", &SolverOptions::max_iterations)
-    .def_rw("precision", &SolverOptions::precision);
+    .def_rw("precision", &SolverOptions::precision)
+    .def_rw("relaxation", &SolverOptions::relaxation)
+    .def_rw("grid_relaxation", &SolverOptions::grid_relaxation)
+    .def_rw("stop_rule", &SolverOptions::stop_rule)
+    .def_rw("velocity_tolerance", &SolverOptions::velocity_tolerance);
   nb::class_<TurbulenceSettings>(m, "TurbulenceSettings")
     .def(nb::init<>()).def_rw("enabled", &TurbulenceSettings::enabled)
     .def_rw("mixing_length_method", &TurbulenceSettings::mixing_length_method);

@@ -121,7 +121,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dtcc_core.model import City
 from dtcc_qes import wind
 def run(i):
-    control=wind.Solver(max_solve_seconds=1e-12 if i==0 else 5, monitor=wind.MonitorSpec((0,24,0,20)))
+    control=wind.Solver(max_solve_seconds=1e-12 if i==0 else 5, monitor=wind.MonitorSpec((0,24,0,20)), stop="multiplier_change")
     try:
         r=wind.run(City(), bounds=(0,0,0,24,20,12), solver=control, speed=5, direction=270)
         assert r.solver["record"]['accuracy_status']=='not_assessed'

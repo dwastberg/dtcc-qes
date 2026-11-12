@@ -12,7 +12,7 @@ LEGACY_METHOD = _qes.legacy_method_id
 
 @pytest.fixture
 def result():
-    return wind.run(City(), speed=5, direction=270, bounds=(0,0,0,24,24,24))
+    return wind.run(City(), speed=5, direction=270, bounds=(0,0,0,24,24,24), solver=wind.Solver(stop="multiplier_change"))
 
 
 @pytest.mark.parametrize("mode,status,termination,converged,assessment", [
