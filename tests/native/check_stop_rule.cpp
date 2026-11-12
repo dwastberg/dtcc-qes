@@ -205,7 +205,8 @@ static void precision_floor() {
   const auto work = state.advance(40000);
   require(work.termination == Termination::PrecisionFloor, "float32 did not stop at its rounding floor");
   require(work.completed_sweeps < 40000, "Floor stop before the cap");
-  const auto &last = state.estimate_report()->history.back();
+  const auto report = state.estimate_report();  // returned by value: keep it alive
+  const auto &last = report->history.back();
   require(last.change <= last.floor, "Floor stop below its floor");
 }
 
