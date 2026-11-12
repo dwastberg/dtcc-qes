@@ -130,3 +130,37 @@ Candidate `f99661e`, native identity `1319a43d89ce2abf951c3eae48d8047457049e31c2
 - sdist, wheel from the sdist, `check_artifacts.py`, and the wheel runtime smoke with a 4-thread team: adaptive run accepted, identity supported. With the machine's default team the smoke's adaptive run is correctly unaccepted (`unqualified_thread_team`).
 
 The identity is promoted in `pedestrian_qualification.h`. The rebuilt extension reports it as supported: `pytest -W error` 2,008 passed, 50 skipped; validation tests 158 passed.
+
+## 8. P6: the default switch and gate G6 (2026-11-12)
+
+`wind.Solver()` now means `stop="velocity"`, `velocity_tolerance=1e-3`, `relaxation="grid"`, `max_iterations=20000` for legacy and bounded solves (commit `06b2e7d`). It is declared in section 6a of `SOLVER_STOP_RULE.md`, which was written before G6 ran. `Solver(stop="multiplier_change")` is the former default exactly, and stored specs without `stop` keep it.
+
+**Gate G6: passed.** The AIJ 2 m baseline of Cases A, B, D and E (37 runs, turbulence on; campaign `stop_rule_g6`) was run with the new default and at the baseline's fixed work (2,000 multiplier sweeps). Over 15 pooled comparisons, the largest change in q, FAC2, R, ρ or FB is **0.0053**, against the limit of 0.01. Evidence: `docs/data/solver-stop-rule/g6-scores.json`.
+
+| Comparison | n | Largest \|Δ\| | Where |
+|---|---|---|---|
+| A: \|U\|, U, k | 144–186 | ≤ 0.0003 | |
+| A: W | 186 | 0.0053 | FB −1.061 → −1.066 |
+| B: \|U\|, U, k | 196–224 | ≤ 0.0003 | |
+| B: W | 224 | 0.0022 | FB 1.172 → 1.170 |
+| D: split fibre, thermistor K | 33, 198 | ≤ 0.0001 | |
+| D: thermistor K_scalar | 196 | 0.0051 | q 0.265 → 0.260 (one probe) |
+| E before/after, K and K_scalar | 1,271–1,280 | ≤ 0.0008 | |
+
+All 37 default runs stop on the estimate:
+
+| Cases | Sweeps |
+|---|---|
+| D and E | 150–250 |
+| A | 325 |
+| B | 425 |
+
+The former default ran 1,000 sweeps; the baseline's fixed work is 2,000. At the stop, the maximum divergence is 0.8–2.4e-3 s⁻¹, against 1.5–4.8e-5 after 2,000 multiplier sweeps. This is the declared divergence difference: the rule bounds velocity error, which the scores show is what matters here.
+
+**Verification tools after the switch.** With the new defaults installed, the native qualification checks still match exactly. The tools pin the multiplier rule, version-tolerantly:
+
+- `compare_native_builds.py` against `d968aa7` with `06b2e7d` as candidate is bitwise identical: 429 cases, OpenMP at 1, 2, 4 and 8 threads and serial, backend parity.
+- All 24 frozen S7 workers match on the qualified builds with the stage 2 Python.
+- The combined feature baseline, non-adaptive and adaptive, matches the `main` capture.
+
+Python suites: `pytest -W error` 2,016 passed, 50 skipped; validation tests 159 passed.

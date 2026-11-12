@@ -4,7 +4,7 @@
 - **Implements:** suggestion S2 of `FABEL_DESIGN_AND_ALGORITHM_REVIEW.md`. This is not stage S2 of the solver-control refactor (`docs/solver-control-s2.md`).
 - **Also closes:** R14 in `validation/DTCC_REQUESTS.md` (a stop rule at fine grids), and F02's H2a–H2c in `CLAUDE_WIND_EXPERIMENTS.md` (the best ω).
 - **Goal:** a stop rule that bounds the remaining velocity error, as a fraction of the reference speed, together with a better default ω. With these, `Solver()` stops early on coarse grids and keeps going on fine ones.
-- **Status:** D1–D5 accepted as recommended (2026-11-12). P1a–P1c implemented on branch `feat/solver-stop-rule` (worktree `/private/tmp/dtcc-qes-solver-stop-rule`, from `main` at `d968aa7`), independent of `feat/wake-update-v2`. Gate G1 passed at P1 (section 7). P2 and P3 (study E1) done: results in `validation/SOLVER_STOP_RULE_RESULTS.md`. P4 done (D6–D10, `0877136`): `relaxation="grid"`, κ = 6 and passes from the fourth check are in the opt-in rule, native identity `1319a43d…`. G1 passed again for that identity. P5 done: `1319a43d…` re-qualified and promoted (results, section 7). P6 is next.
+- **Status:** D1–D5 accepted as recommended (2026-11-12). P1a–P1c implemented on branch `feat/solver-stop-rule` (worktree `/private/tmp/dtcc-qes-solver-stop-rule`, from `main` at `d968aa7`), independent of `feat/wake-update-v2`. Gate G1 passed at P1 (section 7). P2 and P3 (study E1) done: results in `validation/SOLVER_STOP_RULE_RESULTS.md`. P4 done (D6–D10, `0877136`): `relaxation="grid"`, κ = 6 and passes from the fourth check are in the opt-in rule, native identity `1319a43d…`. G1 passed again for that identity. P5 done: `1319a43d…` re-qualified and promoted (results, section 7). P6 done: the velocity rule is the default (`06b2e7d`), and G6 passed (worst pooled-score change 0.0053; results, section 8). P7 (the 16-direction comfort timing) is next.
 
 ## 1. Findings that shape the plan
 
@@ -204,7 +204,7 @@ An intentional numerical change of the default solver (`docs/solver-control-requ
 | G3 Speed at 2 m | The median stop sweep on Cases D and E at 2 m is ≤ 1/2.5 of today's default work (1,000 sweeps), that is ≤ 400. **Passed in E1** for ω ≥ 1.90 (median 200 sweeps at ω 1.93–1.95). |
 | G4 Fine grids finish | At 1 m and on the 0.5 m subset, every run stops through `velocity_estimate` or `precision_floor` before 20,000 sweeps. **Passed at 1 m in E1** (latest stop 5,450); 0.5 m not run. |
 | G5 Same answer | The converged probe values agree across the ω values within 1e-4 in K (H2c). **Passed in E1** (≤ 2.9e-5). |
-| G6 Scores unchanged (stage 2) | The AIJ baseline (Cases A, B, D, E at 2 m) with the new default `Solver()`, against the fixed-work records: every pooled score within 0.01. |
+| G6 Scores unchanged (stage 2) | The AIJ baseline (Cases A, B, D, E at 2 m) with the new default `Solver()`, against the fixed-work records: every pooled score within 0.01. **Passed (2026-11-12):** worst change 0.0053 over 15 pooled comparisons of Cases A, B, D and E. |
 
 ## 8. Tests
 
