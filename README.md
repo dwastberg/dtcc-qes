@@ -144,10 +144,15 @@ dataset interface uses the defaults.
 
 ## Solver
 
-`Solver()` uses tolerance `1e-4`, at most 1,000 iterations and float32 arithmetic.
-These shared direct/dataset defaults passed the predeclared two-city
-[accuracy/latency study](docs/data/feature-merge/phase5.json). Multiplier-change
-convergence is not a mass residual, grid-independence or physical certificate.
+`Solver()` stops when the estimated remaining face-velocity error is at most
+`1e-3` of the reference speed, with a grid-dependent SOR factor
+(`relaxation="grid"`), at most 20,000 sweeps and float32 arithmetic. On the AIJ
+cases this takes 150–250 sweeps at 2 m and 325–475 at 1 m
+([study and gates](SOLVER_STOP_RULE.md)). `Solver(stop="multiplier_change")` is
+the former default exactly: tolerance `1e-4` on the multiplier change, at most
+1,000 sweeps, factor 1.78. Stored solver specs without `stop` keep that meaning.
+The velocity estimate is numerical evidence, not a mass residual,
+grid-independence or physical certificate.
 
 ```python
 monitor = wind.MonitorSpec((0, 24, 0, 24))

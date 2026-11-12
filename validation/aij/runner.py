@@ -23,7 +23,7 @@ import shapely
 
 from . import ROOT, CASE_A_XLS, CASE_B_XLS, CASE_D_XLS, CASE_E_XLS, case_ab, case_d, case_e, cityutil, grids, inflow, \
     sampling, tables
-from .runspec import FINE_TOP, LATER_FIELDS, MAX_ASPECT, RunSpec
+from .runspec import FINE_TOP, MAX_ASPECT, RunSpec
 
 RECORD_SCHEMA = "aij-run-v2"
 REPO = ROOT.parent
@@ -118,9 +118,9 @@ def inputs(spec: RunSpec) -> dict:
                                  growth=grids.GROWTH if spec.vertical == "stretched" else None,
                                  max_dz=MAX_ASPECT * layer)
     solver = dict(tolerance=spec.tolerance, max_iterations=spec.max_iterations, precision=spec.precision)
-    # Stop-rule options (SOLVER_STOP_RULE.md) only when set, so default runs build the same Solver.
-    solver.update({name: getattr(spec, name) for name in ("relaxation", "stop", "velocity_tolerance")
-                   if getattr(spec, name) != LATER_FIELDS[name]})
+    # The stop rule is always explicit: wind.Solver() defaults to the velocity rule since
+    # SOLVER_STOP_RULE.md stage 2, and a RunSpec at its defaults means the multiplier rule.
+    solver.update({name: getattr(spec, name) for name in ("relaxation", "stop", "velocity_tolerance")})
     if spec.monitor:
         xy = probes.xyz[:, :2]
         region = (float(xy[:, 0].min() - 10), float(xy[:, 0].max() + 10),

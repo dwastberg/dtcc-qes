@@ -92,3 +92,22 @@ def test_candidate_campaign_uses_grid_relaxation():
     assert specs[0].name.endswith("wgrid-velocity1e-03")
     assert RunSpec.from_dict(json.loads(json.dumps(specs[0].to_dict()))) == specs[0]
     assert runner.inputs(campaigns.case_d(0.0, resolution=8.0, relaxation="grid"))["run"]["solver"].relaxation == "grid"
+
+
+def test_default_runspec_keeps_the_multiplier_rule():
+    from dtcc_qes import wind
+    spec = campaigns.fixed_work(campaigns.case_d(0.0, resolution=2.0))
+    solver = runner.inputs(spec)["run"]["solver"]
+    assert (solver.stop, solver.relaxation, solver.max_iterations) == ("multiplier_change", None, 2000)
+    # The candidate settings are exactly the stage 2 defaults of wind.Solver().
+    default = wind.Solver()
+    assert {name: getattr(default, name) for name in stop_rule.CANDIDATE} == stop_rule.CANDIDATE
+
+
+def test_g6_campaign_pairs_each_baseline_run_with_the_default():
+    specs = campaigns.campaign("stop_rule_g6")
+    fixed = [s for s in specs if s.stop == "multiplier_change"]
+    default = [s for s in specs if s.stop == "velocity"]
+    assert len(fixed) == len(default) == 35 + 2 and {s.case for s in fixed} == {"A", "B", "D", "E"}
+    assert all(s.resolution == 2.0 for s in specs) and len({s.key for s in specs}) == len(specs)
+    assert [replace(s, **{k: getattr(f, k) for k in stop_rule.CANDIDATE}) for s, f in zip(default, fixed)] == fixed

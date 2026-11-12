@@ -118,6 +118,8 @@ def campaign(name: str) -> list[RunSpec]:
     if name.startswith("stop_rule_"):
         # SOLVER_STOP_RULE.md, study E1: the whole matrix, or its 2 m or 1 m part.
         from . import stop_rule
+        if name == "stop_rule_g6":
+            return stop_rule.g6_campaign()
         if name == "stop_rule_candidate":
             return [stop_rule.candidate_run(base) for base in stop_rule.bases()]
         resolutions = {"stop_rule_study": (2.0, 1.0), "stop_rule_2m": (2.0,), "stop_rule_1m": (1.0,)}

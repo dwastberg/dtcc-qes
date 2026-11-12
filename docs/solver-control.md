@@ -4,29 +4,45 @@ The current API uses `wind.Solver`. See the [user guide and migration table](../
 
 | Requested configuration | Mode | Assessment | Method |
 | --- | --- | --- | --- |
-| `Solver()` | legacy | not_requested | 1.78 |
-| Budget and monitor | bounded | not_requested | 1.78 |
+| `Solver()` | legacy | not_requested | 2 − 16/N (`"grid"`) |
+| `Solver(stop="multiplier_change")` (former default) | legacy | not_requested | 1.78 |
+| Budget and monitor | bounded | not_requested | 2 − 16/N (`"grid"`) |
 | Budget, monitor and `policy="pedestrian-v1"`, eligible | adaptive | accepted/unaccepted | 1.90 |
 | Adaptive request excluded from scope | adaptive | not_assessed | 1.78 |
 | Legacy or bounded with `relaxation=ω` | legacy/bounded | not_requested | ω |
 
-Defaults are tolerance `1e-4`, iteration limit 1,000, float32. The
-[two-city selection study](data/feature-merge/phase5.json) checks pedestrian
-vector errors against converged and further-tightened float64 references.
-Choose explicit settings when reproducing older work. With the default
-`stop="multiplier_change"`, convergence measures multiplier change; it does not
-certify a residual or physical accuracy.
+Legacy and bounded defaults are `stop="velocity"`, `velocity_tolerance=1e-3`,
+`relaxation="grid"`, iteration limit 20,000, float32 (SOLVER_STOP_RULE.md,
+stage 2). Settings left out follow the rule: `"multiplier_change"` and
+`"fixed"` use 1.78 and 1,000 sweeps, so `Solver(stop="multiplier_change")`
+reproduces the former default (tolerance `1e-4`, 1,000 sweeps, 1.78) exactly.
+`to_dict` omits the rule options at those former values and `from_dict` reads
+missing ones as them, so stored specs keep their meaning. Choose explicit
+settings when reproducing older work.
 
-## Stop rules (opt-in)
+Differences from the former default:
+
+- **Accuracy.** On AIJ Cases D and E the default stops within 1.9e-4 in K of a
+  float64 reference at every probe (at 1 m, 1,000 multiplier sweeps left p95
+  errors of 0.006–0.013).
+- **Work.** 150–250 sweeps at 2 m and 325–475 at 1 m, against 1,000. A field
+  already exact (no buildings) needs at least 125 sweeps instead of one,
+  since the first stop is at the fifth check.
+- **Divergence.** The rule bounds velocity error, not divergence: the maximum
+  divergence at its stop can exceed that after 1,000 multiplier sweeps.
+- **Calm wind** has no velocity scale; a `"velocity"` solve of it ends on the
+  multiplier rule and records `result.solver["calm_stop"]`.
+
+## Stop rules
 
 Legacy and bounded solves accept three stop rules; the pedestrian-v1 policy
-rejects all but the default, and `relaxation` with it
-([plan and evidence](../SOLVER_STOP_RULE.md)).
+uses the multiplier rule with its own sweeps and rejects the others, and
+`relaxation` ([plan and evidence](../SOLVER_STOP_RULE.md)).
 
 | `stop` | Ends when | `termination_reason` |
 | --- | --- | --- |
-| `"multiplier_change"` (default) | largest multiplier change ≤ `tolerance` | `legacy_tolerance` |
-| `"velocity"` | estimated remaining face-velocity error ≤ `velocity_tolerance` (default `1e-3`) × the reference speed at two consecutive checks, or the change reaches the rounding floor | `velocity_estimate`, `precision_floor` |
+| `"multiplier_change"` | largest multiplier change ≤ `tolerance` | `legacy_tolerance` |
+| `"velocity"` (default) | estimated remaining face-velocity error ≤ `velocity_tolerance` (default `1e-3`) × the reference speed at two consecutive checks, or the change reaches the rounding floor | `velocity_estimate`, `precision_floor` |
 | `"fixed"` | exactly `max_iterations` sweeps | `fixed_work` |
 
 `max_iterations` caps every rule (`iteration_limit`). Every 25 sweeps the

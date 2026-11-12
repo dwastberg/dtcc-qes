@@ -82,7 +82,9 @@ def run(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformP
     ``solver=Solver(...)`` owns tolerance, iterations, precision and failure
     behavior. A budget plus MonitorSpec selects bounded native execution;
     policy="pedestrian-v1" additionally requests adaptive numerical assessment.
-    Solver() retains the legacy tolerance/iteration stop. The cooperative budget
+    Solver() stops on the estimated remaining velocity error (1e-3 of the
+    reference speed, grid-dependent relaxation, at most 20,000 sweeps);
+    Solver(stop="multiplier_change") is the former default. The cooperative budget
     covers mutex wait, initialization and monitoring, with preparation and final
     output/turbulence outside the solve budget. A zero-sweep deadline always
     raises BudgetExhaustedError. Completed-work failures return the available
@@ -350,6 +352,8 @@ def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
                 "building wakes follow each roof-level direction, including where lower layers turn.",
                 profile_record["max_turning_deg"])
         native_solver = _native_solver(solver)
+        if _calm_stop(solver, profile_record):
+            native_solver.stop_rule = "multiplier_change"
         eligibility = _preflight_eligibility(prepared,geometry,profile,solver,turbulence_spec)
         if eligibility["exclusions"]:
             if solver.raise_on_failure:
@@ -450,6 +454,8 @@ def _result_from_native(native, diagnostics, geometry, prepared, solver, *,
         metadata["solver"]["stop_estimate"] = native["stop_estimate"]
     if "relaxation" in native:
         metadata["solver"]["relaxation"] = native["relaxation"]
+    if _calm_stop(solver, prepared.domain["profile"]):
+        metadata["solver"]["calm_stop"] = "multiplier_change"
     metadata["timings"] = _timing_report(record,native.get("timings"))
     if turbulence_spec is not None:
         fields = native["turbulence"]
@@ -704,15 +710,20 @@ def _timing_report(record,native_timings=None):
             native="native totals contain phase timers; do not add parent totals and children"))
 
 
+def _calm_stop(solver, profile_record):
+    """A calm condition has no velocity scale; its zero field ends on the multiplier rule."""
+    return solver.stop == "velocity" and not profile_record["reference"]["speed"] > 0
+
+
 def _native_solver(solver):
     options=_qes.SolverOptions()
-    options.tolerance,options.max_iterations=solver.tolerance,solver.max_iterations
+    options.tolerance,options.max_iterations=solver.tolerance,int(solver.max_iterations)
     options.precision=solver.precision
     if solver.relaxation == "grid":
         options.grid_relaxation=True
     elif solver.relaxation is not None:
         options.relaxation=solver.relaxation
-    options.stop_rule,options.velocity_tolerance=solver.stop,solver.velocity_tolerance
+    options.stop_rule,options.velocity_tolerance=str(solver.stop),solver.velocity_tolerance
     return options
 
 

@@ -240,3 +240,49 @@ def full_field(spec, reference_budget, budget, tolerances=TOLERANCES, omegas=FUL
                     reference_estimate=reference.solver["stop_estimate"]["estimate"][-1], rows=rows)
     finally:
         model.close()
+
+
+# Gate G6 (stage 2): the AIJ 2 m baseline of Cases A, B, D and E with the new default
+# Solver() against the fixed-work records. Fixed before the runs: every pooled score
+# below differs by at most G6_LIMIT.
+G6_SCORES = ("hit_rate", "fac2", "r", "spearman", "fb")
+G6_LIMIT = 0.01
+
+
+def g6_fixed():
+    from .campaigns import ab_baseline, baseline
+    return baseline(2.0) + ab_baseline(2.0)
+
+
+def g6_campaign():
+    fixed = g6_fixed()
+    return fixed + [candidate_run(spec) for spec in fixed]
+
+
+def _comparisons(records):
+    from . import compare
+    out = {c.name: c for c in compare.case_d(records) + compare.case_e_comparisons(records)}
+    for case in ("A", "B"):
+        out.update({c.name: c for c in compare.isolated(records, case)})
+    return out
+
+
+def analyse_g6(output):
+    """Pooled scores of the fixed-work and default runs, their differences, and the gate."""
+    from . import compare
+    fixed = compare.load_records(output, g6_fixed())
+    default = compare.load_records(output, [candidate_run(spec) for spec in g6_fixed()])
+    before, after = _comparisons(fixed), _comparisons(default)
+    rows, worst = [], 0.0
+    for name in sorted(before):
+        a, b = before[name].scores(), after[name].scores()
+        delta = {k: (b[k] - a[k]) for k in G6_SCORES if a.get(k) is not None and b.get(k) is not None}
+        worst = max([worst] + [abs(v) for v in delta.values()])
+        rows.append(dict(name=name, count=a.get("count"), fixed={k: a.get(k) for k in G6_SCORES},
+                         default={k: b.get(k) for k in G6_SCORES}, delta=delta))
+    sweeps = sorted(r["diagnostics"]["iterations"] for r in default.values())
+    stops = sorted({r["stop_estimate"]["termination"] for r in default.values()})
+    return dict(runs=dict(fixed=len(fixed), default=len(default)), sweeps=dict(min=sweeps[0], max=sweeps[-1],
+                median=sweeps[len(sweeps) // 2]) if sweeps else None, terminations=stops,
+                limit=G6_LIMIT, worst=worst, passed=bool(rows) and worst <= G6_LIMIT
+                and len(fixed) == len(default) == len(g6_fixed()), comparisons=rows)

@@ -174,6 +174,27 @@ D1–D5 were accepted as recommended on 2026-11-12, and D6–D10 (the P4 choices
 | M4 | The float32 floor of c, and κ | the tail of the long runs |
 | M5 | Converged probe values across ω (H2c) | end of each run |
 
+## 6a. Stage 2 declaration (P4 → P6, written 2026-11-12 before gate G6 ran)
+
+An intentional numerical change of the default solver (`docs/solver-control-requalification.md`, last paragraph).
+
+- **Change.** `wind.Solver()` (legacy and bounded modes, the direct API and the dataset default) moves from the multiplier rule (tolerance 1e-4, 1,000 sweeps, ω = 1.78) to `stop="velocity"`, `velocity_tolerance=1e-3`, `relaxation="grid"`, `max_iterations=20000`. This is a Python-only change: the native identity `1319a43d…` and its qualification are untouched.
+- **Affected.** Every legacy or bounded solve that does not choose a stop rule: its sweeps, field, diagnostics and `converged` meaning (now the velocity estimate).
+- **Unaffected.**
+  - pedestrian-v1 adaptive solves, which keep their qualified rule and sweeps.
+  - Solves that set `stop`.
+  - Stored solver specs without `stop`, which keep the multiplier rule.
+  - Calm conditions, which keep the multiplier rule.
+  - The frozen verification tools (`compare_native_builds.py`, `feature_merge_baseline.py`, the S7 worker), which pin the multiplier rule.
+- **Independent correctness criteria.**
+  - G2: probe error ≤ half of F02 against float64 (E1, and the 14 candidate runs: ≤ 1.9e-4).
+  - G5: converged values agree.
+  - G6: on the AIJ 2 m baseline (Cases A, B, D, E: 37 runs) the default against the fixed-work records changes no pooled q, FAC2, R, ρ or FB by more than 0.01. The comparisons are `compare.case_d`, `case_e_comparisons` and `isolated`.
+- **Expected impact.**
+  - 4–7× fewer sweeps at 2 m. At 1 m, 2–3× fewer, and converged where the former default was not (p95 0.006–0.013).
+  - Maximum divergence at the stop may exceed that after 1,000 sweeps.
+  - A field with no buildings needs 125 sweeps instead of one.
+
 ## 7. Gates
 
 | Gate | Requirement |

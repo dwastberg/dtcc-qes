@@ -27,8 +27,8 @@ def _legacy_options(iterations, precision="float32", relaxation=None):
 
 # --- Python specification -------------------------------------------------
 
-def test_default_solver_spec_omits_relaxation():
-    assert "relaxation" not in wind.Solver().to_dict()
+def test_legacy_solver_spec_omits_relaxation():
+    assert "relaxation" not in wind.Solver(stop="multiplier_change").to_dict()
 
 
 def test_relaxation_round_trips_and_old_payloads_load():
@@ -36,7 +36,7 @@ def test_relaxation_round_trips_and_old_payloads_load():
     payload = json.loads(json.dumps(solver.to_dict()))
     assert payload["relaxation"] == 1.9
     assert wind.Solver.from_dict(payload) == solver
-    old = wind.Solver().to_dict()
+    old = wind.Solver(stop="multiplier_change").to_dict()
     assert wind.Solver.from_dict(old).relaxation is None
 
 
@@ -56,7 +56,9 @@ def test_dataset_payload_accepts_relaxation():
     from fixtures.datasets import request
     args = QESWindArgs(**request(solver=wind.Solver(relaxation=1.85).to_dict()))
     assert args.solver["relaxation"] == 1.85
-    assert "relaxation" not in QESWindArgs(**request()).solver
+    assert QESWindArgs(**request()).solver["relaxation"] == "grid"
+    legacy = QESWindArgs(**request(solver=wind.Solver(stop="multiplier_change").to_dict())).solver
+    assert "relaxation" not in legacy and "stop" not in legacy
 
 
 def test_relaxation_allowed_for_bounded_solver():
@@ -130,9 +132,9 @@ def _public(solver):
 
 
 def test_public_relaxation_reaches_native_and_is_reported():
-    default = _public(wind.Solver(max_iterations=8))
-    same = _public(wind.Solver(max_iterations=8, relaxation=1.78))
-    custom = _public(wind.Solver(max_iterations=8, relaxation=1.85))
+    default = _public(wind.Solver(stop="multiplier_change", max_iterations=8))
+    same = _public(wind.Solver(stop="multiplier_change", max_iterations=8, relaxation=1.78))
+    custom = _public(wind.Solver(stop="multiplier_change", max_iterations=8, relaxation=1.85))
     np.testing.assert_array_equal(same.velocity, default.velocity)
     assert not np.array_equal(custom.velocity, default.velocity)
     assert default.qualification["solver"]["method"] == _qes.legacy_method_id
@@ -235,8 +237,8 @@ def test_native_adaptive_control_rejects_stop_rules(stop):
 
 # --- Public stop rules (stage 1, P1c) ---------------------------------------
 
-def test_default_solver_spec_omits_stop_fields():
-    payload = wind.Solver().to_dict()
+def test_legacy_solver_spec_omits_stop_fields():
+    payload = wind.Solver(stop="multiplier_change").to_dict()
     assert "stop" not in payload and "velocity_tolerance" not in payload
 
 
@@ -298,8 +300,8 @@ def test_public_fixed_rule_is_not_a_convergence_failure(caplog):
     assert "did not converge" not in caplog.text
 
 
-def test_public_default_rule_keeps_its_records():
-    result = _public(wind.Solver(max_iterations=8))
+def test_public_multiplier_rule_keeps_its_records():
+    result = _public(wind.Solver(stop="multiplier_change", max_iterations=8))
     assert "stop_estimate" not in result.solver
     assert "stop_rule" not in result.qualification["solver"]
     assert result.qualification["solver"]["termination_reason"] == "iteration_limit"
@@ -345,4 +347,90 @@ def test_public_grid_relaxation_resolves_from_the_domain():
     explicit = wind.run(city, **condition, **grid, solver=wind.Solver(max_iterations=8, relaxation=float(omega)))
     np.testing.assert_array_equal(result.velocity, explicit.velocity)
     assert "relaxation" not in explicit.solver
-    assert "relaxation" not in wind.run(city, **condition, **grid, solver=wind.Solver(max_iterations=8)).solver
+    legacy = wind.Solver(stop="multiplier_change", max_iterations=8)
+    assert "relaxation" not in wind.run(city, **condition, **grid, solver=legacy).solver
+
+
+# --- Stage 2 defaults (P6; decisions D4, D6, D7) ------------------------------
+
+# The payload every Solver() wrote before stage 2; it must keep its meaning.
+LEGACY_PAYLOAD = dict(schema_version=1, tolerance=1e-4, max_iterations=1000, precision="float32",
+                      max_solve_seconds=None, monitor=None, policy=None, checkpoint_interval=25,
+                      residual_interval=0, raise_on_failure=False)
+
+
+def test_default_solver_uses_the_velocity_rule():
+    solver = wind.Solver()
+    assert (solver.stop, solver.relaxation, solver.velocity_tolerance, solver.max_iterations) == (
+        "velocity", "grid", 1e-3, 20000)
+    assert solver == wind.Solver(stop="velocity", relaxation="grid", velocity_tolerance=1e-3, max_iterations=20000)
+    payload = solver.to_dict()
+    assert (payload["stop"], payload["relaxation"], payload["max_iterations"]) == ("velocity", "grid", 20000)
+    assert wind.Solver.from_dict(json.loads(json.dumps(payload))) == solver
+
+
+def test_explicit_multiplier_rule_is_the_former_default():
+    legacy = wind.Solver(stop="multiplier_change")
+    assert (legacy.relaxation, legacy.max_iterations) == (None, 1000)
+    assert legacy.to_dict() == LEGACY_PAYLOAD
+    assert wind.Solver(stop="fixed").max_iterations == 1000 and wind.Solver(stop="fixed").relaxation is None
+
+
+def test_payloads_without_stop_keep_the_multiplier_rule():
+    assert wind.Solver.from_dict(LEGACY_PAYLOAD) == wind.Solver(stop="multiplier_change")
+    partial = dict(schema_version=1, precision="float64")
+    assert wind.Solver.from_dict(partial) == wind.Solver(stop="multiplier_change", precision="float64")
+
+
+def test_explicit_choices_are_kept():
+    solver = wind.Solver(max_iterations=500, relaxation=1.85)
+    assert (solver.stop, solver.relaxation, solver.max_iterations) == ("velocity", 1.85, 500)
+    assert wind.Solver(stop="velocity", relaxation=None).relaxation is None
+
+
+def test_policy_and_bounded_defaults():
+    adaptive = pedestrian_solver()
+    assert (adaptive.stop, adaptive.relaxation) == ("multiplier_change", None)
+    assert "stop" not in adaptive.to_dict()
+    bounded = wind.Solver(max_solve_seconds=5, monitor=wind.MonitorSpec((0, 10, 0, 10)))
+    assert (bounded.mode, bounded.stop, bounded.relaxation, bounded.max_iterations) == (
+        "bounded", "velocity", "grid", 20000)
+
+
+def test_public_default_run_stops_on_its_estimate():
+    city, condition, grid, _ = city_case(ONE_BUILDING)
+    result = wind.run(city, **condition, **grid)
+    estimate = result.solver["stop_estimate"]
+    assert estimate["termination"] in ("velocity_estimate", "precision_floor")
+    assert result.diagnostics.converged and result.diagnostics.iterations < 20000
+    assert result.solver["relaxation"] == _qes._grid_relaxation(min(result.velocity.shape[1:3]))
+    assert result.qualification["solver"]["termination_reason"] == estimate["termination"]
+    legacy = wind.run(city, **condition, **grid, solver=wind.Solver(stop="multiplier_change"))
+    assert "stop_estimate" not in legacy.solver and "relaxation" not in legacy.solver
+    assert legacy.qualification["solver"]["method"] == _qes.legacy_method_id
+
+
+def test_calm_wind_uses_the_multiplier_rule_under_the_default():
+    city, condition, grid, _ = city_case(ONE_BUILDING)
+    result = wind.run(city, **grid, speed=0, direction=270)
+    assert result.solver["calm_stop"] == "multiplier_change" and "stop_estimate" not in result.solver
+    assert np.all(result.velocity == 0)
+    assert "calm_stop" not in wind.run(city, **condition, **grid).solver
+
+
+def test_replace_resolves_left_out_settings_for_the_new_mode():
+    monitor = wind.MonitorSpec((0, 10, 0, 10), history_limit=8)
+    adaptive = replace(wind.Solver(max_iterations=2000, tolerance=1e-5), max_solve_seconds=5, monitor=monitor,
+                       policy="pedestrian-v1")
+    assert (adaptive.stop, adaptive.relaxation, adaptive.max_iterations) == ("multiplier_change", None, 2000)
+    legacy = replace(wind.Solver(), stop="multiplier_change")
+    assert (legacy.relaxation, legacy.max_iterations) == (None, 1000)
+    assert legacy == wind.Solver(stop="multiplier_change")
+    explicit = replace(wind.Solver(stop="velocity", relaxation="grid"), stop="fixed")
+    assert explicit.relaxation == "grid" and explicit.max_iterations == 1000
+    with pytest.raises(ValueError, match="stop"):
+        replace(wind.Solver(stop="velocity"), max_solve_seconds=5, monitor=monitor, policy="pedestrian-v1")
+    # Resolved defaults behave as plain values.
+    solver = wind.Solver()
+    assert type(json.loads(json.dumps(solver.to_dict()))["max_iterations"]) is int
+    assert repr(solver).count("'velocity'") == 1 and solver.max_iterations + 0 == 20000

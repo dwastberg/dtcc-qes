@@ -89,6 +89,18 @@ def profile(wind, kind):
     return wind.MeasuredProfile(heights, [2, 6, 5, 3, 2], direction=270, reference_height=10, below="log")
 
 
+def legacy_solver(wind, **settings):
+    """``wind.Solver`` on the multiplier rule, the default before SOLVER_STOP_RULE.md stage 2.
+
+    These cases were frozen with that rule. Packages before the stop rules have
+    no ``stop`` option and use it anyway; the pedestrian-v1 policy resolves it.
+    """
+    import dataclasses
+    if "stop" in {f.name for f in dataclasses.fields(wind.Solver)} and settings.get("policy") is None:
+        settings.setdefault("stop", "multiplier_change")
+    return wind.Solver(**settings)
+
+
 def execute(wind, city, row, api):
     p = profile(wind, row["profile"])
     adaptive = row["mode"] == "adaptive"
@@ -117,7 +129,7 @@ def execute(wind, city, row, api):
             settings.update(max_solve_seconds=60., monitor=monitor)
         if adaptive:
             settings["policy"] = "pedestrian-v1"
-        options["solver"] = wind.Solver(**settings)
+        options["solver"] = legacy_solver(wind, **settings)
         if turbulence is not None:
             options["turbulence"] = turbulence
     if p is None:
@@ -181,7 +193,7 @@ def capture(api, output, select):
     for kind in (() if select == "adaptive" else ("field", "linear", "auto")):
         args = dict(bounds=[0,0,60,60], horizontal_padding=6., vertical_clearance=6.)
         if api == "new":
-            args["solver"] = wind.Solver(tolerance=1e-4,max_iterations=1000).to_dict()
+            args["solver"] = legacy_solver(wind, tolerance=1e-4, max_iterations=1000).to_dict()
         if kind != "field":
             args.update(product="slice", slice_sampling="linear", slice_height=1.5, slice_resolution=12)
         if kind == "auto":
