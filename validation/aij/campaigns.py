@@ -115,6 +115,13 @@ def campaign(name: str) -> list[RunSpec]:
         return fine_subset(FINE_RESOLUTION)
     if name == "sensitivity":
         return [spec for _, specs in sensitivity_variants() for spec in specs]
+    if name.startswith("stop_rule_"):
+        # SOLVER_STOP_RULE.md, study E1: the whole matrix, its 2 m part, or its 1 m and 0.5 m part.
+        from . import stop_rule
+        resolutions = {"stop_rule_study": (2.0, 1.0, 0.5), "stop_rule_2m": (2.0,), "stop_rule_fine": (1.0, 0.5)}
+        if name not in resolutions:
+            raise ValueError(f"Unknown campaign {name!r}")
+        return stop_rule.campaign(resolutions[name])
     if name == "tuning_screen":
         return [spec for _, config in tuning_candidates({}) for spec in tuned(config)]
     raise ValueError(f"Unknown campaign {name!r}")
