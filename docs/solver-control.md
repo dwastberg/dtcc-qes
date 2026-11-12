@@ -8,12 +8,39 @@ The current API uses `wind.Solver`. See the [user guide and migration table](../
 | Budget and monitor | bounded | not_requested | 1.78 |
 | Budget, monitor and `policy="pedestrian-v1"`, eligible | adaptive | accepted/unaccepted | 1.90 |
 | Adaptive request excluded from scope | adaptive | not_assessed | 1.78 |
+| Legacy or bounded with `relaxation=ω` | legacy/bounded | not_requested | ω |
 
 Defaults are tolerance `1e-4`, iteration limit 1,000, float32. The
 [two-city selection study](data/feature-merge/phase5.json) checks pedestrian
 vector errors against converged and further-tightened float64 references.
-Choose explicit settings when reproducing older work. Convergence measures
-multiplier change; it does not certify a residual or physical accuracy.
+Choose explicit settings when reproducing older work. With the default
+`stop="multiplier_change"`, convergence measures multiplier change; it does not
+certify a residual or physical accuracy.
+
+## Stop rules (opt-in)
+
+Legacy and bounded solves accept three stop rules; the pedestrian-v1 policy
+rejects all but the default, and `relaxation` with it
+([plan and evidence](../SOLVER_STOP_RULE.md)).
+
+| `stop` | Ends when | `termination_reason` |
+| --- | --- | --- |
+| `"multiplier_change"` (default) | largest multiplier change ≤ `tolerance` | `legacy_tolerance` |
+| `"velocity"` | estimated remaining face-velocity error ≤ `velocity_tolerance` (default `1e-3`) × the reference speed at two consecutive checks, or the change reaches the rounding floor | `velocity_estimate`, `precision_floor` |
+| `"fixed"` | exactly `max_iterations` sweeps | `fixed_work` |
+
+`max_iterations` caps every rule (`iteration_limit`). Every 25 sweeps the
+`"velocity"` and `"fixed"` rules measure c, the largest change of the corrected
+face velocities over the block relative to the reference speed. With r the
+larger of the last two block ratios, clipped at 0.99, they estimate the
+remaining error as 2·c·r/(1−r). The history is in
+`result.solver["stop_estimate"]` (values not yet available are None). For
+`"velocity"`, `result.diagnostics.converged` reports the estimate;
+`qualification["solver"]["legacy_converged"]` keeps the multiplier meaning.
+`"fixed"` reaching its work is not a convergence failure. `"velocity"` needs a
+positive reference speed; calm `"fixed"` solves record no estimate. The
+estimate bounds the corrected faces over the whole fluid volume; it is
+numerical evidence only, not physical accuracy.
 
 ## Outcomes and failure policy
 

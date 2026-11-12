@@ -102,8 +102,14 @@ class Solver:
     preparation and output/turbulence calculation have separate timing scopes.
 
     ``relaxation`` sets the SOR factor of legacy and bounded solves; None keeps
-    1.78. The pedestrian-v1 policy fixes its own factor and rejects it. Options
-    at their defaults are omitted from ``to_dict`` so stored specs stay stable.
+    1.78. ``stop`` chooses how they end: ``"multiplier_change"`` (the legacy
+    ``tolerance`` on the Lagrange multiplier change), ``"velocity"`` (when the
+    estimated remaining face-velocity error is at most ``velocity_tolerance``
+    times the reference speed) or ``"fixed"`` (exactly ``max_iterations`` sweeps,
+    recording the same estimate). ``max_iterations`` caps every rule. The
+    pedestrian-v1 policy fixes its own factor and sweeps and rejects all three.
+    Options at their defaults are omitted from ``to_dict`` so stored specs stay
+    stable.
     """
     tolerance: float = 1e-4
     max_iterations: int = 1000
@@ -115,9 +121,11 @@ class Solver:
     residual_interval: int = 0
     raise_on_failure: bool = False
     relaxation: float | None = None
+    stop: Literal["multiplier_change", "velocity", "fixed"] = "multiplier_change"
+    velocity_tolerance: float = 1e-3
 
     # Later fields and their defaults; to_dict omits them while at the default.
-    _OPTIONAL_DEFAULTS = dict(relaxation=None)
+    _OPTIONAL_DEFAULTS = dict(relaxation=None, stop="multiplier_change", velocity_tolerance=1e-3)
 
     def __post_init__(self):
         import numpy as np
@@ -127,9 +135,15 @@ class Solver:
             relaxation = _number(self.relaxation, "relaxation", positive=True)
             if not relaxation < 2 or not 0 < np.float32(relaxation) < 2:
                 raise ValueError("relaxation must be between zero and two")
-            if self.policy is not None:
-                raise ValueError("relaxation is fixed by the pedestrian-v1 policy; omit it")
             object.__setattr__(self, "relaxation", relaxation)
+        if not isinstance(self.stop, str) or self.stop not in ("multiplier_change", "velocity", "fixed"):
+            raise ValueError("stop must be 'multiplier_change', 'velocity' or 'fixed'")
+        object.__setattr__(self, "velocity_tolerance",
+                           _number(self.velocity_tolerance, "velocity_tolerance", positive=True))
+        if self.policy is not None:
+            changed = [name for name, default in self._OPTIONAL_DEFAULTS.items() if getattr(self, name) != default]
+            if changed:
+                raise ValueError(f"{', '.join(changed)} is fixed by the pedestrian-v1 policy; omit it")
         tolerance = _number(self.tolerance, "tolerance", positive=True)
         limits = np.finfo(self.precision)
         if not float(limits.eps) <= tolerance <= float(limits.max):

@@ -377,8 +377,9 @@ def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
     failure = None
     if adaptive and not record["accepted"]:
         failure = UnacceptedResultError(diagnostics, record)
-    elif not adaptive and not diagnostics.converged:
-        failure = ConvergenceError(diagnostics, record)
+    elif not adaptive and solver.stop != "fixed" and not diagnostics.converged:
+        # Fixed work is the requested outcome; a bounded deadline still warns below.
+        failure = ConvergenceError(diagnostics, record, native.get("stop_estimate"))
     if failure is not None:
         if solver.raise_on_failure:
             raise failure
@@ -445,6 +446,8 @@ def _result_from_native(native, diagnostics, geometry, prepared, solver, *,
         environment=dict(precision=solver.precision, backend=_qes.cpu_backend,
             sweep_order=_qes.cpu_sweep_order, native_build=dict(metadata["versions"]["native_build"]),
             source_revision=_qes.qes_revision, shape=list(native["cell_flags"].shape)))
+    if "stop_estimate" in native:
+        metadata["solver"]["stop_estimate"] = native["stop_estimate"]
     metadata["timings"] = _timing_report(record,native.get("timings"))
     if turbulence_spec is not None:
         fields = native["turbulence"]
@@ -705,6 +708,7 @@ def _native_solver(solver):
     options.precision=solver.precision
     if solver.relaxation is not None:
         options.relaxation=solver.relaxation
+    options.stop_rule,options.velocity_tolerance=solver.stop,solver.velocity_tolerance
     return options
 
 

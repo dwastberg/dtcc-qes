@@ -161,7 +161,12 @@ adaptive = wind.Solver(max_solve_seconds=5, policy="pedestrian-v1",
 
 A budget plus monitor selects bounded mode; adding `pedestrian-v1` requests
 adaptive assessment. Eligible adaptive runs use method 1.90; other runs use
-1.78. Adaptive qualification requires the supported native build, inflow,
+1.78. Legacy and bounded runs can opt into another SOR factor
+(`relaxation=1.9`) and into a stop rule on the estimated remaining velocity
+error (`stop="velocity"`, `velocity_tolerance=1e-3` of the reference speed) or
+on fixed work (`stop="fixed"`); see
+[stop rules](docs/solver-control.md#stop-rules-opt-in). These options are not
+yet defaults. Adaptive qualification requires the supported native build, inflow,
 precision, grid, geometry, monitor and thread team. `raise_on_failure=True`
 raises for legacy/bounded non-convergence or adaptive unaccepted/not-assessed
 output; known exclusions raise before native preparation. Zero completed

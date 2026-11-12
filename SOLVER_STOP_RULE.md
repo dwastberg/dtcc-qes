@@ -4,7 +4,7 @@
 - **Implements:** suggestion S2 of `FABEL_DESIGN_AND_ALGORITHM_REVIEW.md`. This is not stage S2 of the solver-control refactor (`docs/solver-control-s2.md`).
 - **Also closes:** R14 in `validation/DTCC_REQUESTS.md` (a stop rule at fine grids), and F02's H2a–H2c in `CLAUDE_WIND_EXPERIMENTS.md` (the best ω).
 - **Goal:** a stop rule that bounds the remaining velocity error, as a fraction of the reference speed, together with a better default ω. With these, `Solver()` stops early on coarse grids and keeps going on fine ones.
-- **Status:** D1–D5 accepted as recommended (2026-11-12). P1 in progress on branch `feat/solver-stop-rule` (worktree `/private/tmp/dtcc-qes-solver-stop-rule`, from `main` at `d968aa7`), independent of `feat/wake-update-v2`.
+- **Status:** D1–D5 accepted as recommended (2026-11-12). P1a–P1c implemented on branch `feat/solver-stop-rule` (worktree `/private/tmp/dtcc-qes-solver-stop-rule`, from `main` at `d968aa7`), independent of `feat/wake-update-v2`. Gate G1 is next.
 
 ## 1. Findings that shape the plan
 
@@ -63,10 +63,15 @@ The rule checks every m = 25 sweeps. At check n:
 
 - **Block change:** D = λ_n − λ_{n−m}. λ_{n−m} is a snapshot taken at the previous check.
 - **Velocity change:** c_n = max over fluid faces of |δu_f| / U_ref. δu_f uses the same expression as `corrected_face` (`cpu_float32.cpp:229-241`), applied to D instead of λ; for u, ½ · a.f · dx · (D_i − D_{i−1}). Wall faces have a zero coefficient, so they drop out without a separate mask.
-- **Contraction per block:** r_n = √(c_n / c_{n−2m}), the geometric mean of the last two block ratios, clipped to at most r_max = 0.99.
-- **Remaining error:** e_n = c_n · r_n / (1 − r_n). This is the change still to come if the decay continues at rate r_n.
+- **Contraction per block:** r_n = max(c_n / c_{n−1}, c_{n−1} / c_{n−2}), the larger of the last two block ratios, clipped to at most r_max = 0.99.
+- **Remaining error:** e_n = S · c_n · r_n / (1 − r_n), with safety factor S = 2. Without S, this is the change still to come if the decay continues at rate r_n.
+- **Why the larger ratio and S (measured in P1b, `tests/native/check_stop_rule.cpp`).** The plan first used √(c_n / c_{n−2}) without S. On a 64 × 48 × 24 grid with three buildings, measured against a double-precision reference:
+  - At ω = 1.78 the contraction rises through the early transient (0.04, 0.15, 0.27, 0.42) before it settles at 0.39. The two-block mean lagged behind: the rule stopped at sweep 100 with e = 5.2e-4, while the actual error was 1.4e-3, which is 2.7× more and above τ = 1e-3.
+  - At ω = 1.90, which is above the optimum on that small grid, the decay oscillates (block ratios 0.05–0.11) and the mean underestimated by up to 1.7×.
+  - Once the decay is geometric, the estimate without S is exact (actual / e = 0.97–1.00), so it has no margin.
+  - With the larger ratio and S = 2, every stop for τ ∈ {1e-3, 1e-4, 1e-5} at both ω has actual / e between 0.3 and 0.7, and the actual error is 8–86× below τ. ω = 1.90 stops at sweep 100, 125 and 150; ω = 1.78 at 175, 225 and 300.
 - **Stop** when e_n ≤ τ at two consecutive checks, and no earlier than the third check (75 sweeps). The termination reason is `velocity_estimate`.
-- **Rounding floor:** also stop when c_n ≤ c_floor, with termination reason `precision_floor`. c_floor = κ · ε · max |λ| / (h_min · U_ref), where ε is the machine epsilon of the arithmetic, h_min the smallest spacing, and κ = 4 until E1 calibrates it.
+- **Rounding floor:** also stop when c_n ≤ c_floor at two consecutive checks, with termination reason `precision_floor`. c_floor = κ · ε · max |λ| / (h_min · U_ref), where ε is the machine epsilon of the arithmetic, h_min the smallest spacing, and κ = 4 until E1 calibrates it.
   - Without this term, a float32 run that has reached rounding level has r ≈ 1, gets e ≈ 99 c, and may never stop.
   - The measured λ stall (about 1e-4 m²/s) corresponds to roughly 3e-5 m/s at 2 m, or about 1e-5 U_ref.
 
@@ -81,8 +86,7 @@ Notes:
 
 | File | Change |
 |---|---|
-| `solver/solver.h`, `solver.cpp` | Add `StopRule::VelocityEstimate` and `Termination::VelocityEstimate` / `PrecisionFloor`. `begin()` takes an `EstimateOptions{enabled, scale, tolerance, interval}`. The snapshot and the check live in the `advance()` loop and run only when the estimate is enabled. `SolveDiagnostics` gains the estimate fields and a bounded check history: (sweep, c, r, e), at most 2,000 entries. |
-| `cpu_float32.cpp`, `cpu_float64.cpp` | A block-change pass shaped like `corrected_face` (threaded with OpenMP, max reduction). The sweep kernels are untouched. |
+| `solver/solver.h`, `solver.cpp` | Add `StopRule::VelocityEstimate` and `Termination::VelocityEstimate` / `PrecisionFloor`. `begin()` takes an `EstimateOptions{enabled, reference_speed, tolerance, interval}`. The snapshot and the check live in the `advance()` loop and run only when the estimate is enabled. `estimate_report()` returns the check history: (sweep, c, r, e, floor), at most 2,000 entries. The block-change pass is one generic template (OpenMP, exact max reduction); the sweep kernels in `cpu_float32.cpp` and `cpu_float64.cpp` are untouched. `SolveDiagnostics::converged` keeps its multiplier-change meaning, so the control record's `legacy_tolerance_satisfied` stays correct. |
 | `dtcc/api/wind_config.h` | `SolverOptions` gains `relaxation = 0` (0 means today's choice: 1.78, or 1.90 when adaptive), `stop_rule`, `velocity_tolerance`, and `record_estimate`. |
 | `dtcc/wind_runner.cpp:354, 412` | Choose the rule and ω from the options. Pass `condition.speed` as the scale. Reject the new options when adaptive is enabled. |
 | `dtcc/solver_control.cpp` | Bounded mode ends on the new termination values in the same way as `LegacyTolerance`, and records the reason. |
@@ -104,7 +108,7 @@ Notes:
 - **Adaptive mode** (`policy="pedestrian-v1"`) raises `ValueError` if any of the three fields is not at its default.
 - **`to_dict` omits the new keys while they hold their defaults**, and old payloads load unchanged. The stored solver specs of the frozen workers therefore stay identical.
 - **Diagnostics.** The new keys appear on the result (`result.solver`, `result.qualification`) only for `stop` values other than `"multiplier_change"`. Absent, not None, as the wake fields do for codes 0–2.
-- **`converged`.** For `stop="velocity"` it means e ≤ τ or the precision floor was reached. The record keeps which of the two it was.
+- **`converged`.** For `stop="velocity"`, `result.diagnostics.converged` means e ≤ τ or the precision floor was reached; `stop_estimate["termination"]` says which. `qualification["solver"]["legacy_converged"]` and the control record's `legacy_tolerance_satisfied` keep the multiplier-change meaning for every rule. For `stop="fixed"`, completing the work is not a convergence failure (no `ConvergenceError`, no warning). The qualification view gains `stop_rule` only for the two new rules.
 - **Docs.** Update the mode table in `docs/solver-control.md`, and the sentence there that says convergence measures the multiplier change.
 
 ## 4. Decisions

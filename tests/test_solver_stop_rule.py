@@ -231,3 +231,82 @@ def test_native_adaptive_control_rejects_stop_rules(stop):
     with pytest.raises(ValueError, match="stop"):
         runner.solve(_qes.WindCondition(), _stop_options(2, stop), control=control)
 
+
+# --- Public stop rules (stage 1, P1c) ---------------------------------------
+
+def test_default_solver_spec_omits_stop_fields():
+    payload = wind.Solver().to_dict()
+    assert "stop" not in payload and "velocity_tolerance" not in payload
+
+
+def test_stop_fields_round_trip():
+    solver = wind.Solver(stop="velocity", velocity_tolerance=3e-4, relaxation=1.9)
+    payload = json.loads(json.dumps(solver.to_dict()))
+    assert payload["stop"] == "velocity" and payload["velocity_tolerance"] == 3e-4
+    assert wind.Solver.from_dict(payload) == solver
+    assert "velocity_tolerance" not in wind.Solver(stop="fixed").to_dict()
+
+
+@pytest.mark.parametrize("change", [dict(stop="invented"), dict(stop=None), dict(velocity_tolerance=0),
+                                    dict(velocity_tolerance=float("nan")), dict(velocity_tolerance=True)])
+def test_invalid_stop_fields_rejected(change):
+    with pytest.raises(ValueError, match="stop|velocity_tolerance"):
+        wind.Solver(**change)
+
+
+@pytest.mark.parametrize("change", [dict(stop="velocity"), dict(stop="fixed"), dict(velocity_tolerance=1e-4)])
+def test_stop_fields_rejected_for_adaptive_policy(change):
+    with pytest.raises(ValueError, match="stop|velocity_tolerance"):
+        replace(pedestrian_solver(), **change)
+
+
+def test_dataset_payload_accepts_stop_fields():
+    from dtcc_qes.datasets import QESWindArgs
+    from fixtures.datasets import request
+    args = QESWindArgs(**request(solver=wind.Solver(stop="velocity", velocity_tolerance=1e-4).to_dict()))
+    assert args.solver["stop"] == "velocity" and args.solver["velocity_tolerance"] == 1e-4
+
+
+def test_public_velocity_rule_reports_its_estimate(caplog):
+    result = _public(wind.Solver(stop="velocity", max_iterations=5000))
+    estimate = result.solver["stop_estimate"]
+    assert result.diagnostics.converged and result.diagnostics.iterations < 5000
+    assert estimate["termination"] == "velocity_estimate" and estimate["tolerance"] == 1e-3
+    solver = result.qualification["solver"]
+    assert solver["termination_reason"] == "velocity_estimate" and solver["execution"] == "completed"
+    assert solver["stop_rule"] == "velocity"
+    assert "did not converge" not in caplog.text
+    json.dumps(result.metadata, allow_nan=False)
+
+
+def test_public_velocity_rule_at_its_cap_is_unconverged():
+    solver = wind.Solver(stop="velocity", velocity_tolerance=1e-9, max_iterations=30)
+    result = _public(solver)
+    assert not result.diagnostics.converged
+    assert result.qualification["solver"]["termination_reason"] == "iteration_limit"
+    with pytest.raises(wind.ConvergenceError, match="remaining-velocity estimate"):
+        _public(replace(solver, raise_on_failure=True))
+
+
+def test_public_fixed_rule_is_not_a_convergence_failure(caplog):
+    result = _public(wind.Solver(stop="fixed", max_iterations=60, raise_on_failure=True))
+    assert result.diagnostics.iterations == 60
+    assert result.qualification["solver"]["termination_reason"] == "fixed_work"
+    assert result.qualification["solver"]["execution"] == "completed"
+    assert len(result.solver["stop_estimate"]["iterations"]) == 2
+    assert "did not converge" not in caplog.text
+
+
+def test_public_default_rule_keeps_its_records():
+    result = _public(wind.Solver(max_iterations=8))
+    assert "stop_estimate" not in result.solver
+    assert "stop_rule" not in result.qualification["solver"]
+    assert result.qualification["solver"]["termination_reason"] == "iteration_limit"
+
+
+def test_bounded_public_velocity_rule():
+    monitor = wind.MonitorSpec((0, 60, 0, 60))
+    result = _public(wind.Solver(max_solve_seconds=10, monitor=monitor, stop="velocity", max_iterations=5000))
+    assert result.solver["record"]["termination_reason"] == "velocity_estimate"
+    assert result.qualification["solver"]["termination_reason"] == "velocity_estimate"
+    assert result.diagnostics.converged
