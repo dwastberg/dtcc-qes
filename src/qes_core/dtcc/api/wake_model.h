@@ -12,5 +12,6 @@ struct SpreadingWakeModel
   static constexpr double reach_cut = 0.05; // end of the reach: centreline Fy Fz below this
   static constexpr double taper_start = 0.10; // start of the end taper: centreline Fy Fz below this
   static constexpr double skip = 1e-4; // faces where T Fy is below this are not written
+  static constexpr double layer_cut = 6.0; // a column's layers end at z > z_c + 6 sigma(x), where Fz < 1e-9
 };
 }

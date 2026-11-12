@@ -54,7 +54,7 @@ def test_fields_exist_for_code_three_only():
     assert not np.any(result.cell_flags == 5)  # no far-wake flag
     wake = result.metadata["wake"]
     assert wake["constants"] == dict(spread=0.2, edge_offset=0.22, edge_length=0.9, turbulence=0.08,
-                                     reach_cut=0.05, taper_start=0.1, skip=1e-4)
+                                     reach_cut=0.05, taper_start=0.1, skip=1e-4, layer_cut=6.0)
     assert result.metadata["model"]["wake_flag"] == 3
     json.dumps(result.metadata, allow_nan=False)
     names = [field.name for field in result.to_dtcc().fields]

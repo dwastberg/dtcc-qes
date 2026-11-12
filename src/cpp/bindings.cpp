@@ -262,7 +262,7 @@ NB_MODULE(_qes, m)
     nb::dict wake;
     wake["spread"] = W::spread; wake["edge_offset"] = W::bubble; wake["edge_length"] = W::bubble_length;
     wake["turbulence"] = W::turbulence; wake["reach_cut"] = W::reach_cut; wake["taper_start"] = W::taper_start;
-    wake["skip"] = W::skip;
+    wake["skip"] = W::skip; wake["layer_cut"] = W::layer_cut;
     m.attr("spreading_wake_constants") = wake;
   }
   m.attr("cpu_sweep_order") = dtcc_qes::cpu_sweep_order();

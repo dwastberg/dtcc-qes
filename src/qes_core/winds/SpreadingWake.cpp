@@ -93,6 +93,9 @@ double SpreadingWake::vertical(double z, double sigma) const
 {
   static const double r2 = std::sqrt(2.0);
   const double a = std::max(base_ - (base_ > 0 ? bubble_ : 0.0), 0.0), b = top_ + bubble_;
+  // On the ground (a = 0) the image terms erf(z) and erf(-z) cancel exactly,
+  // which halves the cost of the hottest expression (W1d).
+  if (a == 0) return 0.5 * (std::erf((b + z) / (r2 * sigma)) + std::erf((b - z) / (r2 * sigma)));
   return 0.5 * (std::erf((z - a) / (r2 * sigma)) - std::erf((z - b) / (r2 * sigma))
                 + std::erf((-z - a) / (r2 * sigma)) - std::erf((-z - b) / (r2 * sigma)));
 }
@@ -127,7 +130,9 @@ float SpreadingWake::point(int component, int i, int j, int k) const
   double sigma = 0;
   const double g = component == 0 ? column(i * dx, (j + 0.5) * dy, sigma) : column((i + 0.5) * dx, j * dy, sigma);
   if (g < SpreadingWakeModel::skip) return 0.0f;
-  return float(std::min(g * vertical(domain_.z[k], sigma), 1.0));
+  const double z = domain_.z[k];
+  if (z > top_ + bubble_ + SpreadingWakeModel::layer_cut * sigma) return 0.0f;
+  return float(std::min(g * vertical(z, sigma), 1.0));
 }
 
 void SpreadingWake::accumulate(double roof_speed2, std::vector<float> &deficit_u, std::vector<float> &deficit_v,
@@ -142,15 +147,19 @@ void SpreadingWake::accumulate(double roof_speed2, std::vector<float> &deficit_u
       const double gu = column(i * dx, (j + 0.5) * dy, sigma_u);
       const double gv = column((i + 0.5) * dx, j * dy, sigma_v);
       if (gu < SpreadingWakeModel::skip && gv < SpreadingWakeModel::skip) continue;
+      // Each column ends where Fz has fallen below 1e-9: z > z_c + 6 sigma(x).
+      const double top_u = gu >= SpreadingWakeModel::skip ? top_ + bubble_ + SpreadingWakeModel::layer_cut * sigma_u : -1;
+      const double top_v = gv >= SpreadingWakeModel::skip ? top_ + bubble_ + SpreadingWakeModel::layer_cut * sigma_v : -1;
       for (int k = 1; k <= k1_; k++) {
-        const long f = domain_.face(i, j, k);
         const double z = domain_.z[k];
-        if (gu >= SpreadingWakeModel::skip) {
+        if (z > top_u && z > top_v) break;
+        const long f = domain_.face(i, j, k);
+        if (z <= top_u) {
           const double g = std::min(gu * vertical(z, sigma_u), 1.0);
           deficit_u[f] = std::max(deficit_u[f], float(g));
           roof_speed2_u[f] = std::max(roof_speed2_u[f], float(roof_speed2 * g));
         }
-        if (gv >= SpreadingWakeModel::skip)
+        if (z <= top_v)
           deficit_v[f] = std::max(deficit_v[f], float(std::min(gv * vertical(z, sigma_v), 1.0)));
       }
     }
