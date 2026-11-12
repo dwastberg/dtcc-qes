@@ -117,3 +117,16 @@ The 1 m optimum is 1.97. Above it the decay oscillates and the estimate becomes 
 - Every solve stops on its estimate and reports converged. The worst probe error is 1.9e-4: 50× inside G2 and 100× below the F02 maximum.
 - Against today's `Solver()` (1,000 sweeps at 1.78): 4–6.7× less work at 2 m. At 1 m, 2.1–3.1× less work, and converged where today's default leaves p95 errors of 0.006–0.013.
 - Evidence: `docs/data/solver-stop-rule/e1-candidate.json`.
+
+## 7. P5: stage 1 re-qualified (2026-11-12)
+
+Candidate `f99661e`, native identity `1319a43d89ce2abf951c3eae48d8047457049e31c28a9938e10b4722fbcf4bf6`, by every stage of `docs/solver-control-requalification.md` (evidence `docs/data/solver-stop-rule/requalification*.json`):
+
+- Fresh Release builds: CTest OpenMP 62/62, serial 59/59, ASan/UBSan 59/59. Native symbol checks pass, and serial and OpenMP identities are equal. The first sanitizer build found a heap-use-after-free in a test (`check_stop_rule.cpp` bound a reference into a returned temporary), fixed in `f99661e`. The product code was unaffected.
+- `compare_native_builds.py` against `d968aa7`, with the declared identity pair: 429 cases and 4,783 records identical for OpenMP at 1, 2, 4 and 8 threads and serial, thread teams and backends, with no differences.
+- The isolated copy with the new identity keeps it and reports build support. All 24 frozen S7 workers match exactly.
+- The combined feature baseline, non-adaptive and adaptive, matches.
+- `pytest -W error`: 2,042 passed, 16 skipped, on both isolated packages.
+- sdist, wheel from the sdist, `check_artifacts.py`, and the wheel runtime smoke with a 4-thread team: adaptive run accepted, identity supported. With the machine's default team the smoke's adaptive run is correctly unaccepted (`unqualified_thread_team`).
+
+The identity is promoted in `pedestrian_qualification.h`. The rebuilt extension reports it as supported: `pytest -W error` 2,008 passed, 50 skipped; validation tests 158 passed.

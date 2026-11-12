@@ -1,0 +1,187 @@
+{
+ "candidate_commit": "f99661ea32b91f7ef12d8502c9e7bf33529fd769",
+ "lock_sha256": "0397035cfe6861c79c8977be4bd08faa4e8a2bfb0ad1929b016a6933771298a8",
+ "stages": [
+  "tree",
+  "native",
+  "compare",
+  "prune",
+  "isolate",
+  "s7",
+  "combined",
+  "pytest",
+  "artifacts"
+ ],
+ "native": {
+  "openmp": {
+   "ctest": [
+    "100% tests passed, 0 tests failed out of 62",
+    "",
+    "Total Test time (real) =   4.24 sec"
+   ],
+   "identity": "1319a43d89ce2abf951c3eae48d8047457049e31c28a9938e10b4722fbcf4bf6"
+  },
+  "serial": {
+   "ctest": [
+    "100% tests passed, 0 tests failed out of 59",
+    "",
+    "Total Test time (real) =   3.53 sec"
+   ],
+   "identity": "1319a43d89ce2abf951c3eae48d8047457049e31c28a9938e10b4722fbcf4bf6"
+  },
+  "sanitizers": {
+   "ctest": [
+    "100% tests passed, 0 tests failed out of 59",
+    "",
+    "Total Test time (real) =  15.83 sec"
+   ],
+   "identity": "1319a43d89ce2abf951c3eae48d8047457049e31c28a9938e10b4722fbcf4bf6"
+  }
+ },
+ "new_identity": "1319a43d89ce2abf951c3eae48d8047457049e31c28a9938e10b4722fbcf4bf6",
+ "compare": {
+  "exit": 0,
+  "differences": [],
+  "comparisons": [
+   {
+    "kind": "revision",
+    "backend": "openmp",
+    "threads": 1,
+    "cases": 429,
+    "records": 4783
+   },
+   {
+    "kind": "revision",
+    "backend": "openmp",
+    "threads": 2,
+    "cases": 429,
+    "records": 4783
+   },
+   {
+    "kind": "revision",
+    "backend": "openmp",
+    "threads": 4,
+    "cases": 429,
+    "records": 4783
+   },
+   {
+    "kind": "revision",
+    "backend": "openmp",
+    "threads": 8,
+    "cases": 429,
+    "records": 4783
+   },
+   {
+    "kind": "team",
+    "backend": null,
+    "threads": [
+     1,
+     2
+    ],
+    "cases": null,
+    "records": 4783
+   },
+   {
+    "kind": "team",
+    "backend": null,
+    "threads": [
+     1,
+     4
+    ],
+    "cases": null,
+    "records": 4783
+   },
+   {
+    "kind": "team",
+    "backend": null,
+    "threads": [
+     1,
+     8
+    ],
+    "cases": null,
+    "records": 4783
+   },
+   {
+    "kind": "revision",
+    "backend": "serial",
+    "threads": 1,
+    "cases": 429,
+    "records": 4783
+   },
+   {
+    "kind": "backend",
+    "backend": null,
+    "threads": 1,
+    "cases": null,
+    "records": 4783
+   },
+   {
+    "kind": "backend",
+    "backend": null,
+    "threads": 2,
+    "cases": null,
+    "records": 4783
+   },
+   {
+    "kind": "backend",
+    "backend": null,
+    "threads": 4,
+    "cases": null,
+    "records": 4783
+   },
+   {
+    "kind": "backend",
+    "backend": null,
+    "threads": 8,
+    "cases": null,
+    "records": 4783
+   }
+  ]
+ },
+ "isolated": {
+  "openmp": "True 1319a43d89ce2abf951c3eae48d8047457049e31c28a9938e10b4722fbcf4bf6",
+  "serial": "True 1319a43d89ce2abf951c3eae48d8047457049e31c28a9938e10b4722fbcf4bf6"
+ },
+ "s7": {
+  "exit": 0,
+  "passed": true,
+  "workers": 24,
+  "differences": []
+ },
+ "combined": {
+  "non-adaptive": {
+   "exit": 0,
+   "report": "{\n  \"passed\": true,\n  \"differences\": []\n}"
+  },
+  "adaptive": {
+   "exit": 0,
+   "report": "{\n  \"passed\": true,\n  \"differences\": []\n}"
+  }
+ },
+ "pytest": {
+  "openmp": {
+   "exit": 0,
+   "tail": [
+    "..........................................                               [100%]",
+    "2042 passed, 16 skipped in 85.46s (0:01:25)"
+   ]
+  },
+  "serial": {
+   "exit": 0,
+   "tail": [
+    "..........................................                               [100%]",
+    "2042 passed, 16 skipped in 102.48s (0:01:42)"
+   ]
+  }
+ },
+ "artifacts": {
+  "sdist": "dtcc_qes-0.1.0b1.tar.gz",
+  "sdist_bytes": 1428543017,
+  "wheel": "dtcc_qes-0.1.0b1-cp314-cp314-macosx_15_0_arm64.whl",
+  "wheel_sha256": "f0e9844ff0e23f4a576a3f0826d0149b24e930abe314d5c83ea97d73c8d05cc6",
+  "smoke": "forming, walls: 1 strict, 0 warning, 0 \nfallback)\n[19:09:37] [dtcc-qes] [info] Wind grid 24 x 24 x 32, 2 buildings: 2 iterations, \nconverged=False, max_divergence=12.999729871749878 s^-1\n[19:09:37] [dtcc-qes] [warning] Wind solve did not converge after 2 iterations: \nmaximum Lagrange multiplier change 9.76713 > tolerance 0.0001\n[19:09:37] [dtcc-qes] [info] Wind grid 12 x 12 x 16, 0 buildings: 1 iterations, \nconverged=True, max_divergence=0.0 s^-1\n[19:09:37] [dtcc-qes] [info] Wind grid 12 x 12 x 16, 0 buildings: 1 iterations, \nconverged=True, max_divergence=0.0 s^-1\n[19:09:37] [dtcc-qes] [info] Wind grid 12 x 12 x 16, 0 buildings: 1 iterations, \nconverged=True, max_divergence=0.0 s^-1\n{\"passed\": true, \"package\": \"build/requal/wheel-install/dtcc_qes\", \"module\": \"build/requal/wheel-install/dtcc_qes/_qes.cpython-314-darwin.so\", \"policy_revision\": \"1319a43d89ce2abf951c3eae48d8047457049e31c28a9938e10b4722fbcf4bf6\", \"adaptive_accepted\": true, \"actual_threads\": 4, \"checks\": [\"owned_output\", \"sampling\", \"adaptive_vs_legacy_status\", \"derived_qualification\", \"nested_timings\", \"history_bounds\", \"float64\", \"two_turbulence_methods\", \"zero_work_error\", \"canonical_footprints_with_partition_hole\"]}",
+  "smoke_exit_default_team": 1,
+  "smoke_default_team": "unqualified_thread_team: adaptive run unaccepted with the machine's default team",
+  "smoke_4threads_exit": 0
+ }
+}
