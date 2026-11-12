@@ -256,3 +256,15 @@ canopy/wake research implementations. The private canyon contract is now
 The runner's scoped cleanup owns failure cleanup; its write-only phase enum and
 redundant catch-all cleanup were removed. Public progress remains independently
 synchronized. See `docs/CODE_REVIEW_2026_11.md` for scope and verification.
+
+### Wake update v2 (WAKE_UPDATE_V2.md)
+
+- **W1a.** `polygonWake` is split into `prepareWake` (the geometry preamble)
+  and `applyWake` (the cavity and far-wake loop). Bitwise identical.
+- **W1b.** With exposed faces, the first wake search records the gap
+  (`canyon_factor`) before it stops at a solid neighbor, as the strict branch
+  does. Changes exposed-face results in gaps; see the commit and the plan.
+- **W1c.** `winds/SpreadingWake.h/.cpp` is new and **not derived from QES**: the
+  spreading far wake and wake turbulence of wake code 3, with its shelter and
+  application in `WINDSGeneralData::applySpreadingWake` and the code-3 branch
+  of `applyWake`. Codes 0-2 stay bitwise identical.

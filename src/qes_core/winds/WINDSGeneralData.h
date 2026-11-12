@@ -35,6 +35,7 @@
 #include <map>
 #include <set>
 #include <array>
+#include <cstdint>
 #include "dtcc/api/canyon_types.h"
 #include <functional>
 #include <vector>
@@ -181,6 +182,14 @@ public:
   float max_velmag{}; /**< In polygonWake */
 
   std::unique_ptr<Wall> wall; /**< :document this: */
+
+  // Spreading far wake, wake code 3 (SpreadingWake.h). Appended to keep the
+  // offsets of the members above. Sized only for code 3, otherwise empty.
+  std::vector<float> wakeDeficitU, wakeDeficitV; /**< D = max_b G_b on u and v faces */
+  std::vector<float> wakeRoofSpeed2U; /**< max_b U_H,b^2 G_b on u faces (m^2/s^2); k_w = 0.08 times this */
+  std::vector<std::uint8_t> wakeCavity; /**< faces a cavity wrote: bit 0 u, bit 1 v */
+  /** Wake code 3: shelter, spreading far wake and cavities, then the deficit on non-cavity faces. */
+  void applySpreadingWake(const std::function<void(const char *,int)> &building_observer);
 
 protected:
 

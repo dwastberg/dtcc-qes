@@ -40,6 +40,7 @@
 #include <algorithm>
 
 #include "Building.h"
+#include "SpreadingWake.h"
 
 using namespace std;
 
@@ -191,8 +192,18 @@ public:
    */
   void prepareWake(WINDSGeneralData *WGD, WakePreamble &wake);
 
-  /** Cavity and far-wake loop of polygonWake, after prepareWake. */
-  void applyWake(WINDSGeneralData *WGD, int building_id, const WakePreamble &wake);
+  /**
+   * Cavity and far-wake loop of polygonWake, after prepareWake. With
+   * spreading=true (wake code 3) it writes the cavity only, records the faces
+   * it wrote in WGD->wakeCavity, and sets no far-wake value, w0 or flag.
+   */
+  void applyWake(WINDSGeneralData *WGD, int building_id, const WakePreamble &wake, bool spreading = false);
+
+  /**
+   * The footprint in the wind frame of the last prepareWake, for SpreadingWake.
+   * The top is the physical roof (base + H), not the cavity's wake height.
+   */
+  SpreadingWakeFootprint spreadingWakeFootprint() const;
 
 
   /**

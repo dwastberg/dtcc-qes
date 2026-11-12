@@ -33,7 +33,7 @@ struct BuildingParameterizations
   int rooftopFlag = 1; /**< 0 none, 1 log profile, 2 vortex */
   int upwindCavityFlag = 2; /**< 0 none, 1 Rockle, 2 MVP, 3 HMVP */
   int streetCanyonFlag = 1; /**< 0 none, 1 Roeckle with Fackrel, 2 modified */
-  int wakeFlag = 2; /**< 0 none, 1 Rockle, 2 modified Rockle */
+  int wakeFlag = 2; /**< 0 none, 1 Rockle, 2 modified Rockle, 3 modified Rockle cavity with the spreading far wake */
   int highRiseFlag = 0; /**< 0 off, 1 on */
   int sidewallFlag = 1; /**< 0 off, 1 on */
 

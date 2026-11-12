@@ -346,7 +346,26 @@ void PolyBuilding::prepareWake(WINDSGeneralData *WGD, WakePreamble &wake)
   wake.stop_id = stop_id;
 }
 
-void PolyBuilding::applyWake(WINDSGeneralData *WGD, int building_id, const WakePreamble &wake)
+SpreadingWakeFootprint PolyBuilding::spreadingWakeFootprint() const
+{
+  SpreadingWakeFootprint footprint;
+  footprint.xi = &xi;
+  footprint.yi = &yi;
+  footprint.face.resize(polygonVertices.size(), 0);
+  for (std::size_t id = 0; id + 1 < polygonVertices.size(); id++) footprint.face[id] = isFace(id);
+  footprint.x1 = x1; footprint.x2 = x2; footprint.y1 = y1; footprint.y2 = y2;
+  footprint.area = polygon_area;
+  footprint.width = width_eff;
+  footprint.height = H;
+  footprint.base = base_height;
+  footprint.top = height_eff;
+  footprint.direction = upwind_dir;
+  footprint.centre_x = building_cent_x;
+  footprint.centre_y = building_cent_y;
+  return footprint;
+}
+
+void PolyBuilding::applyWake(WINDSGeneralData *WGD, int building_id, const WakePreamble &wake, bool spreading)
 {
   auto [nx, ny, nz] = WGD->domain.getDomainCellNum();
   const float dx = WGD->domain.dx(), dy = WGD->domain.dy();
@@ -529,7 +548,7 @@ void PolyBuilding::applyWake(WINDSGeneralData *WGD, int building_id, const WakeP
                   // Far wake zone
                   if (xu > dn_u) {
                     farwake_vel = WGD->u0[icell_face] * (1.0 - pow((dn_u / (xu + WGD->wake_factor * dn_u)), farwake_exp));
-                    if (canyon_factor == 1.0) {
+                    if (canyon_factor == 1.0 && !spreading) {
                       u0_modified.push_back(farwake_vel);
                       u0_mod_id.push_back(icell_face);
                       WGD->w0[icell_face] = 0.0;
@@ -537,6 +556,7 @@ void PolyBuilding::applyWake(WINDSGeneralData *WGD, int building_id, const WakeP
                   }
                   // Cavity zone
                   else {
+                    if (spreading) WGD->wakeCavity[icell_face] |= 1;
                     WGD->u0[icell_face] = -u0_h * MIN_S(pow((1.0 - xu / (WGD->cavity_factor * dn_u)), 2.0), 1.0)
                                           * MIN_S(sqrt(1.0 - abs(yu / y_norm)), 1.0);
                     if (tall_flag == 1 && xu <= (dn_u / 2) && z_build >= z_s) {
@@ -589,7 +609,7 @@ void PolyBuilding::applyWake(WINDSGeneralData *WGD, int building_id, const WakeP
                   // Far wake zone
                   if (xv > dn_v) {
                     farwake_vel = WGD->v0[icell_face] * (1.0 - pow((dn_v / (xv + WGD->wake_factor * dn_v)), farwake_exp));
-                    if (canyon_factor == 1) {
+                    if (canyon_factor == 1 && !spreading) {
                       v0_modified.push_back(farwake_vel);
                       v0_mod_id.push_back(icell_face);
 
@@ -598,6 +618,7 @@ void PolyBuilding::applyWake(WINDSGeneralData *WGD, int building_id, const WakeP
                   }
                   // Cavity zone
                   else {
+                    if (spreading) WGD->wakeCavity[icell_face] |= 2;
                     WGD->v0[icell_face] = -v0_h * MIN_S(pow((1.0 - xv / (WGD->cavity_factor * dn_v)), 2.0), 1.0)
                                           * MIN_S(sqrt(1.0 - abs(yv / y_norm)), 1.0);
                     if (tall_flag == 1 && xv <= (dn_v / 2) && z_build >= z_s) {
@@ -648,7 +669,7 @@ void PolyBuilding::applyWake(WINDSGeneralData *WGD, int building_id, const WakeP
                 if (dn_w > 0.0 && w_wake_flag == 1 && yw <= yi[id] && yw >= yi[id + 1]
                     && WGD->icellflag[icell_cent] != 0 && WGD->icellflag[icell_cent] != 2) {
                   if (xw > dn_w) {
-                    if (canyon_factor == 1) {
+                    if (canyon_factor == 1 && !spreading) {
                       if ((WGD->icellflag[icell_cent] != 7) && (WGD->icellflag[icell_cent] != 8)) {
                         WGD->icellflag[icell_cent] = 5;
                       }

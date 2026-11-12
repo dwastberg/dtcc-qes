@@ -180,7 +180,7 @@ ModelInputs::ModelInputs(const GridConfig &grid, const ModelSettings &model, con
   flag(model.upwind_cavity_flag, 3, "upwind cavity flag");
   flag(model.street_canyon_flag, 1, "street canyon flag");
   flag(model.street_intersection_flag, 1, "street intersection flag");
-  flag(model.wake_flag, 2, "wake flag");
+  flag(model.wake_flag, 3, "wake flag");
   flag(model.high_rise_flag, 1, "high rise flag");
   flag(model.sidewall_flag, 1, "sidewall flag");
   // street_intersection_flag is validated but, as in QES, has no model.

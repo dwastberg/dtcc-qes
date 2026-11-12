@@ -9,6 +9,7 @@
 #include "turbulence.h"
 #include "winds/TURBGeneralData.h"
 #include "winds/WINDSGeneralData.h"
+#include "winds/SpreadingWake.h"
 #include "read_only_trace.h"
 #include <stdexcept>
 #include <chrono>
@@ -18,6 +19,27 @@
 
 namespace dtcc_qes {
 namespace {
+// Wake code 3 face fields at physical cell centres, in velocity's (z,y,x) order.
+WakeFields wake_fields(const WINDSGeneralData &data)
+{
+  const auto &d = data.domain;
+  const int nx = d.nx() - 1, ny = d.ny() - 1, nz = d.nz() - 2;
+  WakeFields out;
+  out.deficit.resize(std::size_t(nx) * ny * nz);
+  out.tke.resize(out.deficit.size());
+  const float scale = float(0.5 * SpreadingWakeModel::turbulence);
+  for (int k = 1; k <= nz; ++k)
+    for (int j = 0; j < ny; ++j)
+      for (int i = 0; i < nx; ++i) {
+        const auto c = (std::size_t(k - 1) * ny + j) * nx + i;
+        const long f = d.face(i, j, k);
+        out.deficit[c] = 0.25f * (data.wakeDeficitU[f] + data.wakeDeficitU[d.face(i + 1, j, k)]
+                                  + data.wakeDeficitV[f] + data.wakeDeficitV[d.face(i, j + 1, k)]);
+        out.tke[c] = scale * (data.wakeRoofSpeed2U[f] + data.wakeRoofSpeed2U[d.face(i + 1, j, k)]);
+      }
+  return out;
+}
+
 double progress_now() {
   return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
@@ -291,6 +313,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
   },trace_recorder?std::function<void(const char *,int)>{[&](const char *name,int building) {
     trace_recorder->frame(name,building);
   }}:std::function<void(const char *,int)>{});
+  if (!data.wakeDeficitU.empty()) result.wake = wake_fields(data);
   if(experiment) {
     auto& out=*result.experiment;
     out.canyon_model=data.research_canyon_model;

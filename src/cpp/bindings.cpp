@@ -184,6 +184,12 @@ nb::dict python_result(const WindData &data)
     }
     trace["frames"]=frames;result["trace"]=trace;
   }
+  if (data.wake) {
+    // Wake code 3 only; the keys are absent for the other codes.
+    const auto shape = nb::make_tuple(data.nz, data.ny, data.nx);
+    result["wake_deficit"] = owned_array(data.wake->deficit, shape, "float32");
+    result["wake_tke"] = owned_array(data.wake->tke, shape, "float32");
+  }
   result["turbulence"] = nb::none();
   if (data.turbulence) {
     const auto &t = *data.turbulence;

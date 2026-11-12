@@ -40,6 +40,7 @@
 #include "LayerProfile.h"
 #include "PolyBuilding.h"
 
+#include <algorithm>
 #include <chrono>
 #include <utility>
 #include "util/QESException.h"
@@ -350,7 +351,11 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
   //   Far-Wake and Cavity Parameterizations     ///
   //////////////////////////////////////////////////
   if (stage) stage("cavity");
-  if (parameterizations.wakeFlag > 0) {
+  wakeDeficitU.clear(); wakeDeficitV.clear(); wakeRoofSpeed2U.clear(); wakeCavity.clear();
+  if (parameterizations.wakeFlag == 3) {
+    qes::log::info() << "[QES-WINDS]\t Applying spreading wake parameterization...\n";
+    applySpreadingWake(building_observer);
+  } else if (parameterizations.wakeFlag > 0) {
     qes::log::info() << "[QES-WINDS]\t Applying wake behind building parameterization...\n";
     for (size_t i = 0; i < allBuildingsV.size(); i++) {
       allBuildingsV[building_id[i]]->polygonWake(this, building_id[i]);
@@ -416,6 +421,63 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
 
   std::chrono::duration<float> elapsed_param = finish_param - start_param;
   qes::log::info() << "\t\t elapsed time: " << elapsed_param.count() << " s\n";
+}
+
+void WINDSGeneralData::applySpreadingWake(const std::function<void(const char *,int)> &building_observer)
+{
+  // WAKE_UPDATE_V2.md, section 3.1: (1) every building's geometry from the
+  // roof-level wind after the upwind cavity, (2) its shelter from every wake at
+  // its roof point, (3) one pass that accumulates the deficit D and U_H^2 G,
+  // (4) the cavities with the sheltered roof speed, (5) the deficit applied to
+  // every interior face that no cavity wrote. Steps 2 and 3 combine buildings
+  // by maximum, so the result does not depend on their order or on threads.
+  const auto faces = std::size_t(domain.numFaceCentered());
+  wakeDeficitU.assign(faces, 0.0f);
+  wakeDeficitV.assign(faces, 0.0f);
+  wakeRoofSpeed2U.assign(faces, 0.0f);
+  wakeCavity.assign(faces, 0);
+  const auto count = allBuildingsV.size();
+  std::vector<PolyBuilding *> buildings(count);
+  std::vector<SpreadingWake> wakes;
+  wakes.reserve(count);
+  std::vector<double> roof_u(count), roof_v(count);
+  for (std::size_t n = 0; n < count; n++) {
+    buildings[n] = dynamic_cast<PolyBuilding *>(allBuildingsV[building_id[n]]);
+    if (!buildings[n]) throw qes::RuntimeError("The spreading wake requires polygon buildings");
+    PolyBuilding::WakePreamble preamble;
+    buildings[n]->prepareWake(this, preamble);
+    wakes.emplace_back(buildings[n]->spreadingWakeFootprint(), domain);
+    roof_u[n] = buildings[n]->u0_h;
+    roof_v[n] = buildings[n]->v0_h;
+  }
+  std::vector<float> shelter(count, 1.0f);
+  for (std::size_t n = 0; n < count; n++) {
+    const int i = buildings[n]->i_building_cent, j = buildings[n]->j_building_cent, k = buildings[n]->k_end;
+    float deficit = 0.0f;
+    for (const auto &wake : wakes)
+      deficit = std::max({ deficit, wake.point(0, i, j, k), wake.point(1, i, j, k) });
+    shelter[n] = 1.0f - deficit;
+  }
+  for (std::size_t n = 0; n < count; n++) {
+    const double u = roof_u[n] * shelter[n], v = roof_v[n] * shelter[n];
+    wakes[n].accumulate(u * u + v * v, wakeDeficitU, wakeDeficitV, wakeRoofSpeed2U);
+  }
+  for (std::size_t n = 0; n < count; n++) {
+    PolyBuilding::WakePreamble preamble;
+    buildings[n]->prepareWake(this, preamble);
+    buildings[n]->u0_h *= shelter[n];
+    buildings[n]->v0_h *= shelter[n];
+    buildings[n]->applyWake(this, building_id[n], preamble, true);
+    if (building_observer) building_observer("wake", building_id[n]);
+  }
+  auto [nx, ny, nz] = domain.getDomainCellNum();
+  for (int k = 1; k < nz - 1; k++)
+    for (int j = 1; j < ny - 1; j++)
+      for (int i = 1; i < nx - 1; i++) {
+        const long f = domain.face(i, j, k);
+        if (!(wakeCavity[f] & 1)) u0[f] *= 1.0f - wakeDeficitU[f];
+        if (!(wakeCavity[f] & 2)) v0[f] *= 1.0f - wakeDeficitV[f];
+      }
 }
 
 void WINDSGeneralData::resetICellFlag()
