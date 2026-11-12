@@ -24,7 +24,8 @@ def test_city_dataset_cli_emits_current_request_fields(monkeypatch):
     assert runpy.run_path(str(example))["main"]() is result
     request,=requests
     assert request.speed == 3.5 and request.direction == 225
-    assert request.solver["precision"] == "float64" and request.solver["max_iterations"] == 1000
+    assert request.solver["precision"] == "float64" and request.solver["max_iterations"] == 20000
+    assert request.solver["stop"] == "velocity" and request.solver["relaxation"] == "grid"
 
 
 def test_self_contained_example():

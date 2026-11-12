@@ -69,7 +69,7 @@ def test_limits_checked_before_native_allocation(monkeypatch):
 
 def test_nonconvergence_warns_by_default(caplog):
     city, condition, grid, _ = city_case(ONE_BUILDING)
-    result = wind.run(city, **condition, **grid, solver=wind.Solver(max_iterations=1))
+    result = wind.run(city, **condition, **grid, solver=wind.Solver(stop="multiplier_change", max_iterations=1))
     assert not result.diagnostics.converged and result.diagnostics.iterations == 1
     assert result.velocity.shape == result.cell_flags.shape + (3,)
     assert np.isfinite(result.velocity).all()
@@ -83,7 +83,7 @@ def test_nonconvergence_warns_by_default(caplog):
 def test_nonconvergence_can_explicitly_raise():
     city, condition, grid, _ = city_case(ONE_BUILDING)
     with pytest.raises(wind.ConvergenceError, match="maximum Lagrange multiplier change") as caught:
-        wind.run(city, **condition, **grid, solver=wind.Solver(max_iterations=1, raise_on_failure=True))
+        wind.run(city, **condition, **grid, solver=wind.Solver(stop="multiplier_change", max_iterations=1, raise_on_failure=True))
     assert not caught.value.diagnostics.converged
 
 
@@ -110,7 +110,7 @@ def test_retained_convergence_exception_does_not_retain_native_domain(monkeypatc
     monkeypatch.setattr(_qes, "WindRunner", TrackedRunner)
     city, condition, grid, _ = city_case(ONE_BUILDING)
     with pytest.raises(wind.ConvergenceError) as retained:
-        wind.run(city, **condition, **grid, solver=wind.Solver(max_iterations=1, raise_on_failure=True))
+        wind.run(city, **condition, **grid, solver=wind.Solver(stop="multiplier_change", max_iterations=1, raise_on_failure=True))
     assert retained.value.diagnostics.iterations == 1
     assert not active
 
@@ -183,7 +183,7 @@ for repeat in range(3):
     else:
         raise AssertionError('Missing height validation')
     city.buildings[0].measured_height = 8
-    result = wind.run(city, **condition, **grid, solver=wind.Solver(max_iterations=1))
+    result = wind.run(city, **condition, **grid, solver=wind.Solver(stop="multiplier_change", max_iterations=1))
     assert not result.diagnostics.converged
 assert wind.run(city, **condition, **grid).diagnostics.converged
 """

@@ -118,6 +118,9 @@ def inputs(spec: RunSpec) -> dict:
                                  growth=grids.GROWTH if spec.vertical == "stretched" else None,
                                  max_dz=MAX_ASPECT * layer)
     solver = dict(tolerance=spec.tolerance, max_iterations=spec.max_iterations, precision=spec.precision)
+    # The stop rule is always explicit: wind.Solver() defaults to the velocity rule since
+    # SOLVER_STOP_RULE.md stage 2, and a RunSpec at its defaults means the multiplier rule.
+    solver.update({name: getattr(spec, name) for name in ("relaxation", "stop", "velocity_tolerance")})
     if spec.monitor:
         xy = probes.xyz[:, :2]
         region = (float(xy[:, 0].min() - 10), float(xy[:, 0].max() + 10),
@@ -264,6 +267,8 @@ def run(spec: RunSpec, *, geometry_diagnostics=False) -> tuple[dict, dict]:
         record['geometry_support']=summarize_result(result,cityutil.footprints(args['city']),probes.xyz)
     if spec.monitor:
         record["history"] = _history(result.solver["record"], uref)
+    if "stop_estimate" in result.solver:
+        record["stop_estimate"] = result.solver["stop_estimate"]
     plane = result.sample(grids.PROBE_HEIGHT, "nearest")
     arrays = dict(x=plane.x.astype(np.float64) + result.origin[0], y=plane.y.astype(np.float64) + result.origin[1],
                   velocity=plane.velocity.astype(np.float32), valid=plane.valid, reference_speed=np.float64(uref),

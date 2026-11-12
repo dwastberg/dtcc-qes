@@ -39,13 +39,14 @@ def example_city():
 
 
 def directional_results(city, directions):
-    """One bounded solve per rotated profile; turbulence remains screening."""
+    """Prepare once, then solve each rotated profile; turbulence is screening."""
     profile = wind.LogProfile(REFERENCE_SPEED, 270)
     solver = wind.Solver(max_solve_seconds=10, monitor=wind.MonitorSpec((0,80,0,60)),
                          raise_on_failure=True)
-    return [wind.run(city, profile.with_direction(float(direction)), resolution=2.,
+    with wind.prepare(city, profile, resolution=2.,
         bounds=(0,0,0,80,60,40), vertical_grid=wind.VerticalGrid.from_faces(FACES),
-        turbulence=wind.Turbulence(), solver=solver) for direction in directions]
+        turbulence=wind.Turbulence(), solver=solver) as model:
+        return [model.run(profile.with_direction(float(direction))) for direction in directions]
 
 
 def synthetic_climate(years=1, seed=1):

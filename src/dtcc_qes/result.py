@@ -18,18 +18,29 @@ def _qualification(metadata, diagnostics):
     """Fresh public views of existing evidence; never a second live record."""
     solver = metadata.get("solver") or {}
     spec, record = solver.get("spec", {}), solver.get("record")
+    stop = solver.get("stop_estimate")
     mode = "adaptive" if spec.get("policy") is not None else (
         "bounded" if spec.get("max_solve_seconds") is not None else "legacy")
     termination = record["termination_reason"] if record is not None else (
+        stop["termination"] if stop is not None else
         "legacy_tolerance" if diagnostics.converged else "iteration_limit")
+    # The velocity rule's converged flag reports its estimate; legacy_converged
+    # keeps the multiplier-change meaning for every rule.
+    change = diagnostics.max_lagrange_multiplier_change
+    legacy_converged = diagnostics.converged if stop is None else bool(
+        diagnostics.iterations > 0 and np.isfinite(change) and change <= diagnostics.tolerance)
     assessment = ("not_requested" if mode != "adaptive" else record["accuracy_status"])
     reason = record.get("assessment_reason") if record is not None else None
-    solver_view = dict(mode=mode, method=record["method"] if record is not None else _qes.legacy_method_id,
+    relaxation = solver.get("relaxation") if spec.get("relaxation") == "grid" else spec.get("relaxation")
+    method = record["method"] if record is not None else _qes._sor_method_id(relaxation or 0)
+    solver_view = dict(mode=mode, method=method,
         execution=termination if termination in ("iteration_limit", "time_limit") else "completed",
-        termination_reason=termination, legacy_converged=diagnostics.converged,
+        termination_reason=termination, legacy_converged=legacy_converged,
         assessment=assessment, assessment_scope=record.get("assessment_scope") if record is not None else None,
         assessment_reason=reason, exclusions=record.get("exclusions",[]) if record is not None else [],
         pending_runtime_checks=[])
+    if stop is not None:
+        solver_view["stop_rule"] = stop["rule"]
     profile, turbulence = metadata.get("profile") or {}, metadata.get("turbulence")
     grid = metadata.get("domain", {}).get("vertical_grid", {})
     return deepcopy(dict(solver=solver_view,
@@ -124,6 +135,10 @@ def _scalar_speed(velocity, deficit, tke, inflow):
 class SolveDiagnostics:
     """Convergence uses multiplier change; divergence metrics are in s^-1.
 
+    With ``Solver(stop="velocity")``, ``converged`` instead means the estimated
+    remaining velocity error reached its tolerance or the rounding floor
+    (``result.solver["stop_estimate"]``); ``qualification["solver"]
+    ["legacy_converged"]`` keeps the multiplier-change meaning.
     Divergence excludes prescribed lateral cells and the highest physical layer.
     The last solved band has an uncorrected upper face and is reported separately.
     Metrics are None when no fluid cells were assessed in the respective region.
@@ -141,12 +156,18 @@ class SolveDiagnostics:
 
 
 class ConvergenceError(RuntimeError):
-    def __init__(self, diagnostics, record=None):
+    def __init__(self, diagnostics, record=None, stop_estimate=None):
         self.diagnostics = diagnostics
         self.record = record
-        super().__init__(f"Wind solve did not converge after {diagnostics.iterations} iterations: "
-                         f"maximum Lagrange multiplier change {diagnostics.max_lagrange_multiplier_change:g} "
-                         f"> tolerance {diagnostics.tolerance:g}"
+        self.stop_estimate = stop_estimate
+        if stop_estimate is not None and stop_estimate["rule"] == "velocity":
+            last = stop_estimate["estimate"][-1] if stop_estimate["estimate"] else None
+            reason = (f"remaining-velocity estimate {'unavailable' if last is None else format(last, 'g')} "
+                      f"> tolerance {stop_estimate['tolerance']:g} of the reference speed")
+        else:
+            reason = (f"maximum Lagrange multiplier change {diagnostics.max_lagrange_multiplier_change:g} "
+                      f"> tolerance {diagnostics.tolerance:g}")
+        super().__init__(f"Wind solve did not converge after {diagnostics.iterations} iterations: {reason}"
                          + (f" (termination: {record['termination_reason']})" if record else ""))
 
 

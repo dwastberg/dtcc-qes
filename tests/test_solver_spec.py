@@ -55,9 +55,10 @@ def test_solver_schema_matches_dataset_and_rejects_unknown_or_old_payloads():
     with pytest.raises(ValueError):
         QESWindArgs(bounds=[0,0,24,24], solver=dict(wind.Solver().to_dict(), unknown=True))
     args = QESWindArgs(bounds=[0,0,24,24], solver={"schema_version":1,"max_iterations":2})
-    assert args.solver == wind.Solver(max_iterations=2).to_dict()
+    # A payload without a stop rule keeps the multiplier rule it meant when written.
+    assert args.solver == wind.Solver(stop="multiplier_change", max_iterations=2).to_dict()
     default = QESWindArgs(bounds=[0,0,24,24]).wind_options()["solver"]
-    assert (default.tolerance, default.max_iterations) == (1e-4,1000)
+    assert default == wind.Solver() and (default.tolerance, default.max_iterations) == (1e-4,20000)
 
 
 def test_input_known_exclusions_raise_before_preparation(monkeypatch):
@@ -101,7 +102,8 @@ def test_raw_native_record_is_unchanged_and_environment_exists_in_every_mode(mon
             snapshots.append(deepcopy(result.get("control")))
             return result
     monkeypatch.setattr(_qes,"WindRunner",ObservedRunner)
-    for solver in (wind.Solver(), wind.Solver(max_solve_seconds=60,monitor=MONITOR)):
+    for solver in (wind.Solver(stop="multiplier_change"),
+                   wind.Solver(max_solve_seconds=60,monitor=MONITOR,stop="multiplier_change")):
         result = wind.run(City(), bounds=(0,0,0,24,24,24), solver=solver, speed=5, direction=270)
         assert result.solver["record"] == snapshots[-1]
         assert set(result.solver) == {"spec","record","environment"}

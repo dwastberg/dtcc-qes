@@ -307,6 +307,18 @@ def store(out, name, value):
         out[name] = np.asarray(value)
 
 
+def legacy_solver(wind, **settings):
+    """``wind.Solver`` on the multiplier rule, the default before SOLVER_STOP_RULE.md stage 2.
+
+    These cases were frozen with that rule. Packages before the stop rules have
+    no ``stop`` option and use it anyway.
+    """
+    import dataclasses
+    if "stop" in {f.name for f in dataclasses.fields(wind.Solver)}:
+        settings.setdefault("stop", "multiplier_change")
+    return wind.Solver(**settings)
+
+
 def public_runs():
     from dtcc_qes import wind
     from dtcc_qes.turbulence import Turbulence
@@ -323,8 +335,8 @@ def public_runs():
         "one_building_turbulence": (small, 5.0, 270.0, dict(bounds=(0, 0, 0, 80, 60, 40), turbulence=wind.Turbulence())),
         "calm": (city, 0.0, 90.0, common),
         "roughness_reference": (city, 6.0, 135.0, {**common, "profile": wind.LogProfile(6.,135.,reference_height=25.,roughness_length=.5)}),
-        "float64": (city, 5.0, 33.0, {**common, "solver": wind.Solver(precision="float64")}),
-        "nonconverged": (city, 7.0, 120.0, {**common, "solver": wind.Solver(max_iterations=40)}),
+        "float64": (city, 5.0, 33.0, {**common, "solver": legacy_solver(wind, precision="float64")}),
+        "nonconverged": (city, 7.0, 120.0, {**common, "solver": legacy_solver(wind, max_iterations=40)}),
         "turbulence_height": (city, 5.0, 200.0, {**common, "turbulence": Turbulence("height")}),
         "turbulence_wall": (city, 5.0, 200.0, {**common, "turbulence": Turbulence("wall_distance")}),
         "automatic_grid": (city, 5.0, 300.0, {**common, "vertical_grid": VerticalGrid.auto()}),
@@ -333,17 +345,18 @@ def public_runs():
         "stretched_turbulence": (city, 4.0, 10.0,
                                  {**tall, "vertical_grid": VerticalGrid.from_faces(stretched), "turbulence": wind.Turbulence()}),
         "stretched_float64": (city, 4.0, 10.0,
-                              {**tall, "vertical_grid": VerticalGrid.from_faces(stretched), "solver": wind.Solver(precision="float64")}),
+                              {**tall, "vertical_grid": VerticalGrid.from_faces(stretched), "solver": legacy_solver(wind, precision="float64")}),
         "long_float32": (small, 5.0, 33.0, dict(bounds=(0, 0, 0, 80, 60, 40),
-                                              solver=wind.Solver(max_iterations=2000, tolerance=float(np.finfo(np.float32).eps)))),
+                                              solver=legacy_solver(wind, max_iterations=2000, tolerance=float(np.finfo(np.float32).eps)))),
         "long_float64": (small, 5.0, 33.0, dict(bounds=(0, 0, 0, 80, 60, 40),
-                                              solver=wind.Solver(max_iterations=2000, tolerance=1e-12, precision="float64"))),
+                                              solver=legacy_solver(wind, max_iterations=2000, tolerance=1e-12, precision="float64"))),
         "fine": (city, 5.0, 45.0, {**common, "resolution": 1.0, "bounds": (0, 0, 0, 110, 90, 40)}),
     }
     for direction in (0.0, 90.0, 180.0, 270.0, 33.0, 247.5):
         runs[f"direction_{direction:g}"] = (city, 5.0, direction, common)
     for name, (c, speed, direction, options) in runs.items():
         inflow = {} if options.get("profile") is not None else dict(speed=speed,direction=direction)
+        options = {"solver": legacy_solver(wind), **options}
         r = wind.run(c, **options, **inflow)
         result = {k: getattr(r, k) for k in ("velocity", "x", "y", "z", "cell_flags", "z_faces") if getattr(r, k) is not None}
         result["diagnostics"] = dict(r.diagnostics.__dict__)

@@ -23,7 +23,8 @@ MAX_ASPECT = 4.0  # stretched layers grow to at most this multiple of the probe-
 CITIES = ("exact", "qes_ready", "slabs_filled")
 INFLOWS = ("measured", "power_law", "log", "canopy")
 LATER_FIELDS = dict(parameterizations=(), canopy_roughness=None, blending_height=None, ground_roughness=None,
-                    downstream=None)
+                    downstream=None, relaxation=None, stop="multiplier_change", velocity_tolerance=1e-3)
+STOPS = ("multiplier_change", "velocity", "fixed")
 
 
 @dataclass(frozen=True)
@@ -86,6 +87,10 @@ class RunSpec:
     blending_height: float | None = None  # m, where the in-canopy law meets the approach profile
     ground_roughness: float | None = None  # m, replaces the profile's tail z0 (QES-Turb wall model, lower tail)
     downstream: float | None = None  # m, Cases A and B: domain length behind the building
+    # wind.Solver options of SOLVER_STOP_RULE.md: SOR factor (None: 1.78), stop rule and its tolerance.
+    relaxation: float | str | None = None  # a number, "grid" (2 - 16/N, decision D7) or None
+    stop: str = "multiplier_change"
+    velocity_tolerance: float = 1e-3
 
     def __post_init__(self):
         object.__setattr__(self, "parameterizations", parameterization_changes(dict(self.parameterizations)))
@@ -101,6 +106,8 @@ class RunSpec:
             raise ValueError("ground_roughness must be positive and needs a measured or canopy inflow")
         if (self.case in ("A", "B")) != (self.downstream is not None):
             raise ValueError("downstream is required for Cases A and B, and only for them")
+        if self.stop not in STOPS:
+            raise ValueError(f"stop must be one of {STOPS}")
 
     def parameterization_spec(self) -> "wind.Parameterizations":
         return wind.Parameterizations(**dict(self.parameterizations))
@@ -140,6 +147,9 @@ class RunSpec:
         if self.inflow == "canopy":
             parts.append(f"z0u{self.canopy_roughness:.3g}-zb{self.blending_height:.3g}")
         parts += [f"{name}{value:g}" for name, value in self.parameterizations]
+        parts += [None if self.relaxation is None else
+                  f"w{self.relaxation}" if isinstance(self.relaxation, str) else f"w{self.relaxation:g}",
+                  {"multiplier_change": None, "fixed": "fixed"}.get(self.stop, f"velocity{self.velocity_tolerance:.0e}")]
         return "-".join(p for p in parts if p)
 
     @classmethod
