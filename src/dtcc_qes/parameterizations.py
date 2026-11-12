@@ -6,7 +6,7 @@ from ._validation import integer, real, versioned_mapping
 
 # Highest supported code per model; the native bridge enforces the same ranges
 # (model_inputs.cpp). Field names map to the native ``<name>_flag`` settings.
-_FLAG_MAXIMA = dict(rooftop=2, upwind_cavity=3, street_canyon=1, wake=2, high_rise=1, sidewall=1)
+_FLAG_MAXIMA = dict(rooftop=2, upwind_cavity=3, street_canyon=1, wake=3, high_rise=1, sidewall=1)
 
 
 @dataclass(frozen=True)
@@ -15,8 +15,9 @@ class Parameterizations:
 
     Codes follow QES: ``rooftop`` 0 none, 1 log profile, 2 vortex;
     ``upwind_cavity`` 0 none, 1 Röckle, 2 MVP, 3 HMVP; ``street_canyon`` 0 none,
-    1 Röckle with Fackrell; ``wake`` 0 none, 1 Röckle, 2 modified Röckle;
-    ``high_rise`` and ``sidewall`` 0 off, 1 on. ``wall_roughness`` is the wall
+    1 Röckle with Fackrell; ``wake`` 0 none, 1 Röckle, 2 modified Röckle,
+    3 modified Röckle cavity with a spreading far wake and wake turbulence
+    (experimental; see below); ``high_rise`` and ``sidewall`` 0 off, 1 on. ``wall_roughness`` is the wall
     roughness length in metres. Rooftop, street-canyon and sidewall models use
     the wake geometry, so they require ``wake > 0``.
 
@@ -24,6 +25,13 @@ class Parameterizations:
     setting existed, and the only values ``pedestrian-v1`` qualifies: any other
     value makes an adaptive run ``unqualified_model_settings``. QES's street
     intersection model is not implemented, so it is not offered.
+
+    ``wake=3`` keeps the code-2 cavity but replaces its far wake: each
+    building's shadow, widened by its separation bubble, spreads across the
+    wind and in height (width 0.2 x behind the building), shelters the
+    buildings behind it, and adds a wake turbulence 0.08 U_H² G. The result
+    then carries ``result.wake`` (deficit and turbulence) and
+    ``result.scalar_speed()``. It sets no far-wake cell flag (5).
     """
 
     rooftop: int = 1

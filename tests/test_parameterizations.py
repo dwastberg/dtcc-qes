@@ -53,7 +53,7 @@ def test_default_settings_leave_the_solve_unchanged():
 
 
 @pytest.mark.parametrize("changes", [dict(high_rise=1), dict(wall_roughness=0.05), dict(sidewall=0),
-                                     dict(street_canyon=0), dict(upwind_cavity=1), dict(wake=1),
+                                     dict(street_canyon=0), dict(upwind_cavity=1), dict(wake=1), dict(wake=3),
                                      dict(rooftop=0, street_canyon=0, sidewall=0, wake=0, upwind_cavity=0)])
 def test_each_setting_reaches_the_solver_and_is_recorded(changes):
     spec = wind.Parameterizations(**changes)
@@ -70,7 +70,8 @@ def test_non_default_settings_are_outside_pedestrian_policy(monkeypatch):
     options = dict(speed=5, direction=270, bounds=BOUNDS, solver=pedestrian_solver())
     default = wind.preview_grid(tower_city(), **options)
     assert "unqualified_model_settings" not in default.eligibility["exclusions"]
-    for spec in (wind.Parameterizations(high_rise=1), wind.Parameterizations(wall_roughness=0.002)):
+    for spec in (wind.Parameterizations(high_rise=1), wind.Parameterizations(wall_roughness=0.002),
+                 wind.Parameterizations(wake=3)):
         preview = wind.preview_grid(tower_city(), **options, parameterizations=spec)
         assert "unqualified_model_settings" in preview.eligibility["exclusions"]
     monkeypatch.setattr(_qes, "WindRunner", lambda: pytest.fail("allocated native fields"))

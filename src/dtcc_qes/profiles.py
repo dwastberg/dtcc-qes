@@ -16,7 +16,7 @@ from ._log import shifted_log as _shifted_log
 from ._validation import real as _number
 
 __all__ = ["LogProfile", "MeasuredProfile", "PowerLawProfile", "UniformProfile",
-           "evaluate", "profile_from_dict"]
+           "evaluate", "profile_from_dict", "friction_velocity"]
 
 
 def _array(values, name):
@@ -443,3 +443,65 @@ def _pedestrian_sampling(profile, centres, height, record):
     else:
         out["normalization_unavailable_reason"] = "calm_reference"
     return out
+
+
+# Inflow turbulence for the spreading wake's scalar speed (WAKE_UPDATE_V2.md, section 3.4).
+VON_KARMAN = 0.4
+# k = 5.5 u*²: neutral surface-layer sigma_u, sigma_v, sigma_w = 2.4, 1.9, 1.25 u*.
+INFLOW_TKE_PER_USTAR2 = 5.5
+_FIT_HEIGHTS = 32
+
+
+def _fit_log(heights, speeds):
+    """Least-squares U = a ln(1 + z/z0), a and z0 free: z0 by a log-spaced search, then golden section."""
+    z, u = np.asarray(heights, dtype=np.float64), np.asarray(speeds, dtype=np.float64)
+
+    def residual(log_z0):
+        x = np.log1p(z / 10.0 ** log_z0)
+        a = float(x @ u / (x @ x))
+        return float(np.sqrt(np.mean((a * x - u) ** 2))), a
+
+    grid = np.linspace(-8.0, np.log10(z.max()), 401)
+    i = int(np.argmin([residual(g)[0] for g in grid]))
+    lo, hi = grid[max(i - 1, 0)], grid[min(i + 1, len(grid) - 1)]
+    ratio = (np.sqrt(5.0) - 1) / 2
+    for _ in range(80):
+        a, b = hi - ratio * (hi - lo), lo + ratio * (hi - lo)
+        if residual(a)[0] < residual(b)[0]:
+            hi = b
+        else:
+            lo = a
+    best = (lo + hi) / 2
+    return residual(best)[1], float(10.0 ** best)
+
+
+def friction_velocity(profile, top, *, bottom=1.0):
+    """Friction velocity of an inflow profile, for the inflow k = 5.5 u*² of the wake's scalar speed.
+
+    A ``UniformProfile`` has no shear and uses its declared roughness:
+    u* = κ U_ref / ln(1 + z_ref / z0). Every other family is fitted: u* = κ a,
+    with a the slope of a least-squares fit U(z) = a ln(1 + z/z0) (a and z0
+    free) to the horizontal speed at 32 log-spaced heights from ``bottom`` to
+    ``top`` (the model domain top). The declared roughness is not used. For a
+    ``LogProfile`` the fit returns κ U_ref / ln(1 + z_ref/z0). κ = 0.4.
+
+    Returns a dict with ``friction_velocity`` (m/s), ``source`` ("profile fit"
+    or "declared roughness"), ``window`` ((bottom, top) in metres, or None) and
+    ``roughness_length`` (fitted or declared z0, m).
+    """
+    if type(profile) not in PROFILE_TYPES:
+        raise TypeError("Expected an immutable wind profile")
+    bottom, top = _number(bottom, "bottom", positive=True), _number(top, "top", positive=True)
+    if isinstance(profile, UniformProfile):
+        ustar = VON_KARMAN * abs(profile.speed) / math.log1p(profile.reference_height / profile.roughness_length)
+        return dict(friction_velocity=ustar, source="declared roughness", window=None,
+                    roughness_length=profile.roughness_length)
+    if not top > bottom:
+        raise ValueError("The fit window needs top > bottom")
+    heights = np.geomspace(bottom, top, _FIT_HEIGHTS)
+    speeds = np.hypot(*evaluate(profile, heights))
+    if not np.any(speeds > 0):
+        return dict(friction_velocity=0.0, source="profile fit", window=(bottom, top), roughness_length=None)
+    slope, roughness = _fit_log(heights, speeds)
+    return dict(friction_velocity=VON_KARMAN * slope, source="profile fit", window=(bottom, top),
+                roughness_length=roughness)

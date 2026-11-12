@@ -67,6 +67,60 @@ class TurbulenceFields:
 
 
 @dataclass(frozen=True)
+class WakeFields:
+    """Spreading-wake fields of wake code 3, float32 on (z, y, x) physical cells.
+
+    ``deficit`` is D = max over buildings of the far-wake shape G, in [0, 1]:
+    the fraction of the background horizontal wind each building's far wake
+    removes (averaged from the four horizontal faces of each cell; cavities keep
+    their own values). ``tke`` is the wake turbulence k_w = 0.08 max_b U_H,b² G_b
+    in m²/s², with U_H,b the sheltered roof-level speed of building b (averaged
+    from the two u faces). Both are defined on every cell, including solid ones.
+    """
+    deficit: np.ndarray
+    tke: np.ndarray
+
+
+def _inflow_tke(metadata, heights, inflow_tke):
+    """Inflow TKE in m²/s² at ``heights`` (metres above flat ground), float64.
+
+    None selects the run's default (metadata["wake"]["inflow_tke"]["value"],
+    5.5 u*²). A number is constant; a callable maps heights to values; a pair
+    (heights, values) is interpolated linearly in log height and held constant
+    beyond its ends.
+    """
+    z = np.asarray(heights, dtype=np.float64)
+    if inflow_tke is None:
+        value = ((metadata.get("wake") or {}).get("inflow_tke") or {}).get("value")
+        if value is None:
+            raise ValueError("Result has no default inflow TKE; pass inflow_tke")
+        values = np.full(z.shape, float(value))
+    elif callable(inflow_tke):
+        values = np.broadcast_to(np.asarray(inflow_tke(z), dtype=np.float64), z.shape).copy()
+    elif isinstance(inflow_tke, Real) and not isinstance(inflow_tke, (bool, np.bool_)):
+        values = np.full(z.shape, float(inflow_tke))
+    else:
+        try:
+            table_z, table_k = (np.asarray(a, dtype=np.float64) for a in inflow_tke)
+        except (TypeError, ValueError) as error:
+            raise ValueError("inflow_tke must be None, a number, a callable or a (heights, values) pair") from error
+        if (table_z.ndim != 1 or table_z.shape != table_k.shape or not len(table_z)
+                or not np.isfinite(table_z).all() or np.any(table_z <= 0) or np.any(np.diff(table_z) <= 0)):
+            raise ValueError("inflow_tke heights must be finite, positive and increasing, one value each")
+        values = np.interp(np.log(np.maximum(z, 1e-12)), np.log(table_z), table_k)
+    if not np.isfinite(values).all() or np.any(values < 0):
+        raise ValueError("inflow_tke must be finite and nonnegative")
+    return values
+
+
+def _scalar_speed(velocity, deficit, tke, inflow):
+    """sqrt(|u|² + 2 k) with k = k_inflow (1 - D)² + k_w, in float64."""
+    k = inflow * (1.0 - deficit) ** 2 + tke
+    with np.errstate(invalid="ignore", over="ignore"):
+        return np.sqrt(np.sum(np.square(velocity), axis=-1) + 2.0 * k)
+
+
+@dataclass(frozen=True)
 class SolveDiagnostics:
     """Convergence uses multiplier change; divergence metrics are in s^-1.
 
@@ -141,6 +195,8 @@ class WindSample(_SampleStatistics):
     Optional stress is float64 (y,x,6) in xx,xy,xz,yy,yz,zz order.
     stress_valid is a sampling-time snapshot; statistics recheck current
     tensors and retain evidence of invalid contributing cells.
+    With wake code 3, ``wake_deficit``, ``wake_tke`` and ``scalar_speed``
+    (sqrt(|u|² + 2k), m/s) are sampled with the same contributors and weights.
     """
     velocity: np.ndarray
     valid: np.ndarray
@@ -157,6 +213,10 @@ class WindSample(_SampleStatistics):
     # and their public validity snapshot. Rechecking an interpolant alone can
     # conceal a materially indefinite contributor.
     _stress_contributors_valid: np.ndarray | None = field(default=None,repr=False,compare=False,kw_only=True)
+    # Wake code 3 only, float64 on the sample's (y, x) points; NaN where invalid.
+    wake_deficit: np.ndarray | None = field(default=None, kw_only=True)
+    wake_tke: np.ndarray | None = field(default=None, kw_only=True)
+    scalar_speed: np.ndarray | None = field(default=None, kw_only=True)
 
     @property
     def speed(self):
@@ -207,7 +267,8 @@ class WindPointSample(_SampleStatistics):
     is a separate (n,) bool mask. Coordinates retain geometric support even
     when contributing cells are solid or have nonfinite velocity.
     Optional float64 ``stress`` is (n,6), ordered xx,xy,xz,yy,yz,zz in m²/s².
-    Its validity and derived statistics follow the rules of ``WindSample``.
+    Its validity and derived statistics follow the rules of ``WindSample``,
+    as do the wake code 3 fields ``wake_deficit``, ``wake_tke`` and ``scalar_speed``.
     All arrays are editable and independent of the input points and result.
     """
     points: np.ndarray
@@ -222,6 +283,10 @@ class WindPointSample(_SampleStatistics):
     stress_valid: np.ndarray | None = None
     _stress_contributors_valid: np.ndarray | None = field(default=None, repr=False, compare=False, kw_only=True)
     support: SamplingSupport | None = field(default=None, kw_only=True)
+    # Wake code 3 only, float64 (n,); NaN where invalid.
+    wake_deficit: np.ndarray | None = field(default=None, kw_only=True)
+    wake_tke: np.ndarray | None = field(default=None, kw_only=True)
+    scalar_speed: np.ndarray | None = field(default=None, kw_only=True)
 
     @property
     def speed(self):
@@ -238,6 +303,7 @@ class WindResult:
     Axes are physical cell centres, without ghost layers. ``solid_mask`` marks
     QES classifications 0 (building) and 2 (terrain), excluding wake/cavity
     classifications, which describe air. Arrays and metadata remain editable.
+    ``wake`` holds the spreading-wake fields of wake code 3, else None.
     """
     velocity: np.ndarray
     x: np.ndarray
@@ -251,6 +317,7 @@ class WindResult:
     metadata: dict
     z_faces: np.ndarray | None = None
     turbulence: TurbulenceFields | None = None
+    wake: WakeFields | None = None
 
     @property
     def solver(self):
@@ -278,6 +345,25 @@ class WindResult:
     def speed(self):
         """Magnitude of mean velocity in float64, in m/s."""
         return _velocity_magnitude(self.velocity)
+
+    def scalar_speed(self, inflow_tke=None):
+        """Scalar speed sqrt(|u|² + 2k) in float64 m/s on (z, y, x); NaN in solid cells.
+
+        Requires wake code 3. k = k_inflow(z) (1 - D)² + k_w: the inflow
+        turbulence, reduced inside far wakes, plus the wake turbulence. By default
+        k_inflow = 5.5 u*², with u* fitted to the inflow profile
+        (``metadata["wake"]["inflow_tke"]``). ``inflow_tke`` overrides it: a
+        number (m²/s²), a callable of height, or a (heights, values) pair
+        interpolated in log height. This is what an omnidirectional (scalar)
+        anemometer reads, not the mean vector's magnitude.
+        """
+        if self.wake is None:
+            raise ValueError("Result has no wake fields; run with Parameterizations(wake=3)")
+        inflow = _inflow_tke(self.metadata, np.asarray(self.z, dtype=np.float64), inflow_tke)[:, None, None]
+        speed = _scalar_speed(self.velocity.astype(np.float64), self.wake.deficit.astype(np.float64),
+                              self.wake.tke.astype(np.float64), inflow)
+        speed[self.solid_mask] = np.nan
+        return speed
 
     @property
     def reference_speed(self):
@@ -343,7 +429,7 @@ class WindResult:
     def solid_mask(self):
         return (self.cell_flags == 0) | (self.cell_flags == 2)
 
-    def sample(self, height, method="nearest") -> WindSample:
+    def sample(self, height, method="nearest", *, inflow_tke=None) -> WindSample:
         """Sample a horizontal plane at a height above flat ground.
 
         Nearest selects one centre (lower index on ties), clipping to endpoint
@@ -356,7 +442,11 @@ class WindResult:
         Optional stresses use the same contributors. Uncomputed stresses are
         NaN; invalid computed tensors remain available and disqualify derived
         statistics even when their interpolated tensor is positive semidefinite.
+        With wake code 3 the deficit, wake turbulence and scalar speed are
+        sampled too; ``inflow_tke`` is as for :meth:`scalar_speed`.
         """
+        if inflow_tke is not None and self.wake is None:
+            raise ValueError("inflow_tke requires wake fields; run with Parameterizations(wake=3)")
         if not isinstance(method, str) or method not in ("nearest", "linear"):
             raise ValueError("method must be 'nearest' or 'linear'")
         if isinstance(height, (bool, np.bool_)) or not isinstance(height, Real):
@@ -441,12 +531,30 @@ class WindResult:
                         stress += weight*(other-stress)
                 stress[~covered] = np.nan
             stress_valid = contributors & _stress_validity(stress)[0]
+        wake = {}
+        if self.wake is not None:
+            if self.wake.deficit.shape != shape or self.wake.tke.shape != shape:
+                raise ValueError("Wake fields must match the result's coordinate axes")
+            deficit = np.full(plane_shape, np.nan)
+            tke = np.full(plane_shape, np.nan)
+            if indices is not None:
+                lo, hi = indices
+                deficit = self.wake.deficit[lo].astype(np.float64)
+                tke = self.wake.tke[lo].astype(np.float64)
+                if hi != lo:
+                    deficit += weight * (self.wake.deficit[hi].astype(np.float64) - deficit)
+                    tke += weight * (self.wake.tke[hi].astype(np.float64) - tke)
+                deficit[~valid] = np.nan
+                tke[~valid] = np.nan
+            inflow = _inflow_tke(self.metadata, np.full(plane_shape, requested), inflow_tke)
+            wake = dict(wake_deficit=deficit, wake_tke=tke,
+                        scalar_speed=_scalar_speed(velocity, deficit, tke, inflow))
         return WindSample(velocity, valid, np.array(self.x, copy=True), np.array(self.y, copy=True),
                           requested, sampled, method, self.origin, self.crs,stress,stress_valid,
-                          _stress_contributors_valid=contributors)
+                          _stress_contributors_valid=contributors, **wake)
 
     def sample_points(self, points, method="nearest", *, frame="local", diagnostics=False,
-                      include_contributors=False) -> WindPointSample:
+                      include_contributors=False, inflow_tke=None) -> WindPointSample:
         """Sample finite probe coordinates supplied as an (n,3) numeric array.
 
         Coordinates are local metres by default: z is height above flat ground.
@@ -473,7 +581,12 @@ class WindResult:
         can coexist. ``include_contributors=True`` additionally records the
         positive-weight cells, coordinates and masks, and requires diagnostics.
         These options never change interpolation, values or validity policy.
+        With wake code 3 the deficit, wake turbulence and scalar speed are
+        sampled with the same weights; ``inflow_tke`` is as for
+        :meth:`scalar_speed`, evaluated at the points' heights above ground.
         """
+        if inflow_tke is not None and self.wake is None:
+            raise ValueError("inflow_tke requires wake fields; run with Parameterizations(wake=3)")
         if not isinstance(diagnostics,bool) or not isinstance(include_contributors,bool):
             raise ValueError("diagnostics and include_contributors must be booleans")
         if include_contributors and not diagnostics:
@@ -581,6 +694,12 @@ class WindResult:
             stress = np.zeros((len(requested), 6), dtype=np.float64)
             covered = supported.copy()
             contributors = supported.copy()
+        wake_fields = self.wake
+        if wake_fields is not None:
+            if wake_fields.deficit.shape != shape or wake_fields.tke.shape != shape:
+                raise ValueError("Wake fields must match the result's coordinate axes")
+            deficit = np.zeros(len(requested), dtype=np.float64)
+            tke = np.zeros(len(requested), dtype=np.float64)
         for slot,corner in enumerate(product((0, 1), repeat=3)):
             active = supported.copy()
             weight = np.ones(len(requested), dtype=np.float64)
@@ -607,6 +726,9 @@ class WindResult:
                     details['weights'][rows,slot]=weight[rows];details['solid'][rows,slot]=solid
             with np.errstate(invalid="ignore", over="ignore"):
                 velocity[rows] += weight[rows, None] * values
+            if wake_fields is not None:
+                deficit[rows] += weight[rows] * wake_fields.deficit[index]
+                tke[rows] += weight[rows] * wake_fields.tke[index]
             if fields is not None:
                 values = np.asarray(fields.stress[index], dtype=np.float64)
                 covered[rows] &= fields.computed[index]
@@ -622,6 +744,13 @@ class WindResult:
                     stress[rows] += weight[rows, None] * values
         valid &= np.isfinite(velocity).all(axis=-1)
         velocity[~valid] = np.nan
+        wake = {}
+        if wake_fields is not None:
+            deficit[~valid] = np.nan
+            tke[~valid] = np.nan
+            ground = requested[:, 2] - (float(self.origin[2]) if frame == "global" else 0.0)
+            inflow = _inflow_tke(self.metadata, np.maximum(ground, 0.0), inflow_tke)
+            wake = dict(wake_deficit=deficit, wake_tke=tke, scalar_speed=_scalar_speed(velocity, deficit, tke, inflow))
         if fields is not None:
             stress[~covered] = np.nan
             interpolant_valid = _stress_validity(stress)[0]
@@ -639,7 +768,7 @@ class WindResult:
                 None if fields is None else interpolant_valid.copy(),
                 tuple(tuple(name for name,mask in reasons.items() if mask[i]) for i in range(len(requested))),details)
         return WindPointSample(requested, sampled, velocity, valid, method, frame, self.origin, self.crs,
-                               stress, stress_valid, _stress_contributors_valid=contributors,support=support)
+                               stress, stress_valid, _stress_contributors_valid=contributors,support=support, **wake)
 
     def to_dtcc(self, *, include_speedup=False, include_physical_k=False):
         """Return independent cell fields in DTCC's y, x, z-fastest order.
@@ -680,6 +809,15 @@ class WindResult:
         if include_speedup:
             grid.add_field(Field(name="speedup", unit="1", values=self.speedup.transpose(1, 2, 0).reshape(-1).copy(),
                                  association="cell", description="Mean speed / declared profile reference; undefined for calm reference"))
+        if self.wake is not None:
+            grid.add_field(Field(name="wake_deficit", unit="1", association="cell",
+                                 values=self.wake.deficit.transpose(1, 2, 0).reshape(-1).copy(),
+                                 description="Spreading-wake deficit D (wake code 3): fraction of the background "
+                                             "horizontal wind removed by far wakes; cell order y, x, z fastest"))
+            grid.add_field(Field(name="wake_tke", unit="m^2/s^2", association="cell",
+                                 values=self.wake.tke.transpose(1, 2, 0).reshape(-1).copy(),
+                                 description="Wake turbulence k_w = 0.08 max_b U_H,b^2 G_b (wake code 3); "
+                                             "cell order y, x, z fastest"))
         if self.turbulence is not None:
             fields = self.turbulence
             computed = fields.computed

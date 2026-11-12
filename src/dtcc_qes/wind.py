@@ -14,7 +14,8 @@ from dtcc_core.model import Bounds
 
 from . import __version__, _qes
 from ._city import extract_city, near_contacts, number, prepare_domain
-from .result import SamplingSupport, ConvergenceError, SolveDiagnostics, TurbulenceFields, WindPointSample, WindResult, WindSample
+from .result import (SamplingSupport, ConvergenceError, SolveDiagnostics, TurbulenceFields, WakeFields,
+                     WindPointSample, WindResult, WindSample)
 from .turbulence import Turbulence, _resolve_turbulence, _turbulence_metadata
 from .vertical_grid import GridPreview, VerticalGrid
 from .footprints import Footprints
@@ -23,10 +24,11 @@ from ._validation import integer
 from .solver_control import (Solver, MonitorSpec, Receptor, MassRegion, BudgetExhaustedError,
                              NumericalFailureError, UnacceptedResultError)
 from .profiles import (LogProfile, MeasuredProfile, PowerLawProfile, UniformProfile,
-                       PROFILE_TYPES, profile_from_dict, evaluate, _profile_record)
+                       PROFILE_TYPES, profile_from_dict, evaluate, _profile_record,
+                       friction_velocity, INFLOW_TKE_PER_USTAR2, VON_KARMAN)
 
 __all__ = ["run", "preview_grid", "WindResult", "WindSample", "WindPointSample", "SamplingSupport", "GridPreview",
-           "SolveDiagnostics", "ConvergenceError", "VerticalGrid", "Turbulence", "TurbulenceFields",
+           "SolveDiagnostics", "ConvergenceError", "VerticalGrid", "Turbulence", "TurbulenceFields", "WakeFields",
            "Solver", "MonitorSpec", "Receptor", "MassRegion", "BudgetExhaustedError",
            "NumericalFailureError", "UnacceptedResultError",
            "LogProfile", "MeasuredProfile", "PowerLawProfile", "UniformProfile", "profile_from_dict", "evaluate", "Footprints",
@@ -107,7 +109,10 @@ def run(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformP
     models (rooftop, upwind cavity, street canyon, wake, high rise, sidewall)
     and the wall roughness. The defaults are unchanged QES-Winds defaults; any
     other value is outside ``pedestrian-v1`` (``unqualified_model_settings``).
-    The settings are recorded in ``metadata["model"]``.
+    The settings are recorded in ``metadata["model"]``. ``wake=3`` (experimental)
+    adds ``result.wake`` and ``result.scalar_speed()``; its constants and the
+    default inflow turbulence (5.5 u*², u* fitted to the profile up to the
+    domain top) are recorded in ``metadata["wake"]``.
 
     The input uses one shared planar frame in metres (or an unlabelled local
     metre frame). With ``footprints=None``, only single, hole-free LOD0 Surfaces
@@ -278,9 +283,34 @@ def _result_from_native(native, diagnostics, geometry, prepared, solver, *,
                                                     native["velocity"],bool(geometry.heights))
         if profile_record["kind"] != "log":
             metadata["turbulence"]["caveats"] = list(profile_record["caveats"])
+    wake_fields = None
+    if "wake_deficit" in native:
+        wake_fields = WakeFields(deficit=native["wake_deficit"], tke=native["wake_tke"])
+        metadata["wake"] = _wake_metadata(profile_record, native)
     return WindResult(native["velocity"], native["x"], native["y"], native["z"], native["cell_flags"],
                       prepared.origin, geometry.crs, prepared.resolution, diagnostics, metadata,
-                      z_faces=native["z_faces"],turbulence=turbulence_fields)
+                      z_faces=native["z_faces"],turbulence=turbulence_fields, wake=wake_fields)
+
+
+def _wake_metadata(profile_record, native):
+    """Constants of the spreading wake and the default inflow TKE (WAKE_UPDATE_V2.md, 3.1 and 3.4)."""
+    profile = profile_from_dict(profile_record["requested"])
+    top = float(native["z_faces"][-1])
+    try:
+        fit = friction_velocity(profile, top, bottom=1.0)
+    except ValueError:
+        # A measured profile without a lower tail is only defined from its
+        # first table height; every cell centre is inside it.
+        fit = friction_velocity(profile, top, bottom=float(native["z"][0]))
+    ustar = fit["friction_velocity"]
+    return dict(model="spreading-v1", constants=dict(_qes.spreading_wake_constants),
+                fields=dict(deficit="max over buildings of G, the four horizontal faces averaged",
+                            tke="turbulence * max over buildings of U_H^2 G (m^2/s^2), the two u faces averaged"),
+                scalar_speed="sqrt(|u|^2 + 2 k), k = k_inflow (1 - D)^2 + k_w",
+                inflow_tke=dict(value=INFLOW_TKE_PER_USTAR2 * ustar ** 2, per_ustar2=INFLOW_TKE_PER_USTAR2,
+                                friction_velocity=ustar, source=fit["source"], von_karman=VON_KARMAN,
+                                fit_window=None if fit["window"] is None else list(fit["window"]),
+                                roughness_length=fit["roughness_length"]))
 
 
 def preview_grid(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformProfile | None = None, *,
