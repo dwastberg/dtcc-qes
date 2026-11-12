@@ -274,19 +274,30 @@ def assess(speeds, directions, fields, field_directions, reference_speed, criter
 
 
 def assess_results(results, speeds, directions, criterion=NEN8100, *, height=None,
-                   method="linear", peak_factor=None, gust_ratio=1.85, times=None):
+                   method="linear", peak_factor=None, gust_ratio=1.85, times=None, speed="vector"):
     """Assess matching wind results using declared references and owned samples.
 
     No exposure transfer is implicit. Mean-only criteria retain run provenance
     independently of GEM. Supplying a peak factor for a gust criterion enables
     algebraic screening GEM, preserving invalid stress-contributor masks.
+
+    ``speed="vector"`` (the default) assesses the magnitude of the mean velocity.
+    ``speed="scalar"`` assesses the scalar speed sqrt(|u|² + 2k) of the spreading
+    wake (every result needs ``Parameterizations(wake=3)``), with the run's
+    default inflow turbulence. It scales with the reference speed like the mean
+    velocity. It already contains the turbulence, so it is not combined with GEM.
+    Experimental: no comfort criterion is defined on it.
     """
     if not isinstance(criterion, Criterion):
         raise ValueError("criterion must be a comfort.Criterion")
+    if speed not in ("vector", "scalar"):
+        raise ValueError("speed must be 'vector' or 'scalar'")
+    if speed == "scalar" and peak_factor is not None:
+        raise ValueError("The scalar speed already contains the turbulence; GEM applies to the vector speed")
     height = criterion.height if height is None else _number(height, "height", nonnegative=True)
     fields, gems, angles, references, runs, actual = _prepare_results(
         results, height, method, criterion.gust_equivalent and peak_factor is not None,
-        peak_factor, gust_ratio)
+        peak_factor, gust_ratio, speed)
     gem_metadata = None if gems is None else dict(source="dtcc_qes / QES-Turb",
         model="algebraic mixing-length screening", peak_factor=peak_factor, gust_ratio=gust_ratio,
         peak_factor_basis="user-selected screening assumption; no QES calibration",
@@ -296,7 +307,7 @@ def assess_results(results, speeds, directions, criterion=NEN8100, *, height=Non
         gem_metadata=gem_metadata,run_metadata=runs,times=times,height=actual)
 
 
-def _prepare_results(results, height, method, use_gem, peak_factor, gust_ratio):
+def _prepare_results(results, height, method, use_gem, peak_factor, gust_ratio, speed="vector"):
     results = tuple(results)
     if not results:
         raise ValueError("results must be nonempty")
@@ -337,7 +348,12 @@ def _prepare_results(results, height, method, use_gem, peak_factor, gust_ratio):
             raise ValueError("Results must share coordinates, origin, crs, reference height and roughness")
         if method == "nearest" and sample.sampled_height != actual:
             raise ValueError("Nearest samples must share the same actual sampled height")
-        fields.append(np.array(sample.speed,dtype=np.float64,copy=True))
+        if speed == "scalar":
+            if sample.scalar_speed is None:
+                raise ValueError("speed='scalar' needs the spreading wake: run with Parameterizations(wake=3)")
+            fields.append(np.array(sample.scalar_speed,dtype=np.float64,copy=True))
+        else:
+            fields.append(np.array(sample.speed,dtype=np.float64,copy=True))
         if use_gem:
             if result.turbulence is None:
                 raise ValueError("GEM requires turbulence in every result")
@@ -352,7 +368,10 @@ def _prepare_results(results, height, method, use_gem, peak_factor, gust_ratio):
             sampling=dict(method=method,requested_height=height,sampled_height=sample.sampled_height,
                 cells=int(sample.valid.size),valid_cells=int(sample.valid.sum()),
                 valid_stress_contributors=None if contributors is None else int(contributors.sum()))))
-    runs = dict(directions=records,sampling=dict(method=method,requested_height=height,field_height=actual))
+    runs = dict(directions=records,sampling=dict(method=method,requested_height=height,field_height=actual),
+                speed="scalar: sqrt(|u|^2 + 2k), spreading wake" if speed == "scalar" else "vector: |mean velocity|")
+    if speed == "scalar":
+        runs["inflow_tke"] = [deepcopy(result.metadata["wake"]["inflow_tke"]) for result in results]
     return np.stack(fields),np.stack(gems) if use_gem else None,angles,references,runs,actual
 
 
