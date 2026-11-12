@@ -57,6 +57,34 @@ explicit lower/upper tail policies. Coverage includes every final cell centre.
 Turning greater than 45° across layers warns: wakes use roof-level direction.
 See [profile conventions and caveats](docs/wind-profiles.md).
 
+## Repeated wind directions
+
+`wind.prepare` snapshots the city and prepares Python geometry and the native
+model once. Each `model.run` starts a fresh condition on that fixed model and
+returns the same fields and diagnostics as an independent `wind.run` call.
+
+```python
+profile = wind.LogProfile(5, 270)
+with wind.prepare(city, profile, bounds=bounds) as model:
+    samples = [model.run(profile.with_direction(direction)).sample(1.75, method="linear")
+               for direction in (0, 90, 180, 270)]
+    preparation_seconds = model.preparation_timings["total_seconds"]
+```
+
+Pass a profile or both `speed=` and `direction=` to each run. Profiles can
+change speed, direction and shape while retaining the preparation reference
+height and roughness. A per-run `solver=` overrides the preparation default,
+including precision and monitoring. Geometry, grid, cleaning, turbulence and
+building parameterizations stay fixed; call `wind.prepare` again to change
+them. Editing the original city does not update an existing model.
+
+The context manager releases native storage; `model.close()` is also available
+and idempotent. Results and metadata remain independent and usable afterwards.
+Concurrent or reentrant run/close calls on one model raise `RuntimeError`.
+For long direction series, retain sampled planes rather than every 3D result.
+See the [comfort example](examples/wind_comfort.py) and
+[timing and lifecycle details](docs/wind-comfort.md#preparing-a-city-once).
+
 ## Domains and vertical grids
 
 A six-coordinate bounds tuple may end with `None`: the shared planner then
