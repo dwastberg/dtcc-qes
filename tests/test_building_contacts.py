@@ -147,7 +147,7 @@ def test_exposed_faces_fit_the_cavity_to_a_separated_neighbour():
     it on, only its separate exposure rule (initial flags) differs.
     """
     value = city(building("up", box(60, 60, 70, 140), 20), building("down", box(85, 60, 95, 140), 20))
-    options = dict(bounds=(0, 0, 0, 280, 200, 60), resolution=2.5, solver=wind.Solver(max_iterations=300),
+    options = dict(bounds=(0, 0, 0, 280, 200, 60), resolution=2.5, solver=wind.Solver(stop="multiplier_change", max_iterations=300),
                    speed=5, direction=270)
     isolated = wind.Parameterizations(street_canyon=0, sidewall=0)
     strict = wind.run(value, parameterizations=isolated, **options)
