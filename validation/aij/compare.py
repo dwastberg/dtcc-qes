@@ -3,7 +3,9 @@
 A Comparison holds simulated and measured values shaped (point, direction) on
 the same probe ids and direction order, plus the per-point strata. Simulated
 K values are the run records' speed ratios (each normalised by its own inflow
-at the reference height); ``K_scalar`` adds the QES-Turb k: √(|U|² + 2k)/U_ref.
+at the reference height); ``K_scalar`` adds the QES-Turb k: √(|U|² + 2k)/U_ref. With
+wake code 3, ``K_scalar_wake`` uses k = k_in (1 - D)² + k_w instead, with k_in from
+the tunnel inflow table (``K_scalar_wake_rule``: 5.5 u*²); pass it in ``quantities``.
 
 Cases A and B (``isolated``) compare the mean vector itself: its magnitude, its
 streamwise and vertical components and k, all normalised by U_H (AIJ_AB_VALIDATION.md).
@@ -380,6 +382,35 @@ def isolated(records: dict, case: str, simulated: dict | None = None, name: str 
                               measured[quantity][:, None], strata, [None if record is None else record["key"]],
                               dict(w=0.0) if quantity == "k" else {}))
     return out
+
+
+AB_SCALAR_HEIGHT = 2.01  # m: the pedestrian-level probes of Cases A and B
+
+
+def ab_scalar(records: dict, case: str, quantity: str = "K_scalar_wake",
+              max_height: float | None = AB_SCALAR_HEIGHT) -> Comparison | None:
+    """Case A or B: a simulated scalar speed against the split-fibre √(|U|² + 2k)/U_H.
+
+    ``quantity`` names a run-record probe value normalised by U_H (``K_scalar``,
+    ``K_scalar_wake`` or ``K_scalar_wake_rule``). Points above ``max_height`` are
+    left out (NaN); None keeps every measured point.
+    """
+    record = records.get((case, "-", AB_LABEL))
+    if record is None or quantity not in record["probes"]:
+        return None
+    data = tables.load_results_ab(case)
+    if list(record["probes"]["ids"]) != list(data.ids):
+        raise ValueError(f"Probe ids of run {record['key']} differ from the measurements")
+    measured = ab_measured(case)
+    target = np.sqrt(measured["K"] ** 2 + 2 * measured["k"])
+    simulated = _float([np.nan if v is None else v for v in record["probes"][quantity]])
+    if max_height is not None:
+        low = data.xyz[:, 2] <= max_height
+        target, simulated = np.where(low, target, np.nan), np.where(low, simulated, np.nan)
+    strata = {key: classes[:, None] for key, classes in ab_strata(case).items()}
+    return Comparison(f"{case}-scalar-{quantity}", case, "-", tables.AB_INSTRUMENT[case], quantity, (AB_LABEL,),
+                      np.array([data.direction]), data.ids, simulated[:, None], target[:, None], strata,
+                      [record["key"]])
 
 
 def sign_scores(simulated_u, measured_u, mask=None) -> dict:

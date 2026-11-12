@@ -186,6 +186,22 @@ def _isolated_fields(result, case: str, uref: float) -> tuple[dict, dict]:
     return centreline, arrays
 
 
+def _wake_scalar(sample, heights, table, rule_k, uref) -> dict:
+    """Wake code 3 (WAKE_UPDATE_V2.md): the scalar speed √(|U|² + 2k)/U_ref with k = k_in (1 - D)² + k_w.
+
+    ``K_scalar_wake`` takes k_in from the tunnel inflow table, interpolated in log
+    height at the probe; ``K_scalar_wake_rule`` from the run's default, 5.5 u*²
+    with u* fitted to the inflow profile.
+    """
+    deficit, wake_tke = sample["wake_deficit"], sample["wake_tke"]
+    table_k = np.interp(np.log(np.asarray(heights, dtype=np.float64)), np.log(table.heights), table.k)
+    speed2 = sample["speed"] ** 2
+    out = dict(wake_deficit=deficit, wake_tke=wake_tke, k_inflow_table=table_k)
+    for name, inflow in (("K_scalar_wake", table_k), ("K_scalar_wake_rule", rule_k)):
+        out[name] = np.sqrt(speed2 + 2 * (inflow * (1 - deficit) ** 2 + wake_tke)) / uref
+    return out
+
+
 def _peak_rss() -> int:
     rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     return int(rss if platform.system() == "Darwin" else rss * 1024)
@@ -220,6 +236,9 @@ def run(spec: RunSpec, *, geometry_diagnostics=False) -> tuple[dict, dict]:
     if "k" in sample:
         probe.update(k=sample["k"], K_scalar=np.sqrt(sample["speed"] ** 2 + 2 * sample["k"]) / uref,
                      stress=sample['stress'],stress_valid=sample['stress_valid'])
+    if "wake_deficit" in sample:
+        probe.update(_wake_scalar(sample, probes.xyz[:, 2], _tables(spec.case)[0],
+                                  result.metadata["wake"]["inflow_tke"]["value"], uref))
     metadata = result.metadata
     footprints = metadata.get("footprints")
     record = dict(
