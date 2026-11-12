@@ -70,7 +70,8 @@ As in the investigation (0.69 / 0.52 against 0.73 / 0.59): the spreading wake co
 | E before | 0.378 / 0.541 / −0.11 | 0.156 / 0.514 / −0.43 | 0.319 / 0.383 | 0.076 / 0.334 |
 | E after | 0.329 / 0.456 / +0.26 | 0.299 / 0.457 / −0.15 | 0.378 / 0.295 | 0.242 / 0.315 |
 
-- The mean vector improves in A, B and E before and changes its bias sign in D and E after: the spreading wake removes less momentum than the code-2 far wake overall.
+- FB is (measured − simulated) / mean, so a negative FB is too fast. `wake=2` is too fast in every case; `wake=3` removes more momentum, because its wake spreads across the wind and reaches further. At the pedestrian probes the mean K falls by 0.07–0.08 in A, B and D (0.30 → 0.22 in D) and by 0.15 in Case E (0.51 → 0.35); 68 % of the Case E probe-directions drop by more than 0.1, and almost none rises by that much. `wake=3` is then close to the measured level in A, B, D and E before and too slow in E after.
+- The scalar speed is a median 1.1 (A), 1.3 (B), 1.5 (D) and 1.2 (E) times the vector speed, and 2.6–4 times at the 90th percentile (the stillest points). It is the speed that matches the omnidirectional measurements, and it restores the level the lower vector speed loses.
 - QES-Turb's own k, recomputed on the smoother field, does not benefit: its scalar speed correlates less well in D and E after. Its k against the split-fibre k (q / R / FB): A 0.013 / 0.35 / −1.21 (`wake=2`: 0.104 / 0.18 / −1.01), B 0.011 / 0.05 / −1.01 (0.026 / 0.10 / −0.71), D 0° 0.00 / −0.12 / +1.27 (0.030 / 0.09 / +1.16). The wake turbulence k_w, not QES-Turb, carries the scalar speed.
 
 ### Cases A and B at 1 m with the cavity variants

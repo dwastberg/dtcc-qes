@@ -63,6 +63,31 @@ like the mean velocity. No comfort criterion is defined on it.
 The wake turbulence is separate from QES-Turb, which still runs on the final
 field when `turbulence=Turbulence()` is requested.
 
+## What changes for a user, against `wake=2`
+
+Measured on the AIJ cases at the pedestrian probes
+([results](../validation/WAKE_UPDATE_V2_RESULTS.md)):
+
+- **Lower mean speeds behind and between buildings.** The mean K falls by
+  0.07–0.08 for isolated buildings and the Case D blocks and by 0.15 in the
+  Niigata district (Case E), where two thirds of the probes drop by more than
+  0.1. `wake=2` was too fast against the measurements in every case.
+- **No artefacts at the wake edge or between directions.** The step at the end
+  of the code-2 far wake (0.20 in K behind a 20 m block) falls to 0.04; the
+  largest 1° jump at a far-wake point from 0.057 to 0.016. Comfort statistics
+  over many directions see a smoother field. (The ±10° jumps of the upwind
+  cavity and sidewall models remain.)
+- **Comfort.** With the default `speed="vector"`, comfort classes in dense areas
+  improve because the mean vector is slower. The scalar speed is a median
+  1.1–1.5 times the vector speed (2.6–4 times at the stillest points), matches
+  the omnidirectional measurements best and restores the level; use
+  `speed="scalar"` with `wake=3` unless a criterion requires the vector.
+- **Outputs.** `result.wake`, `scalar_speed()`, sampled and exported fields; no
+  far-wake cell flag (5).
+- **Cost and solver.** About +0.2 s and 13 bytes per cell on a 1.8 M-cell,
+  510-building district; up to 50 more iterations to converge at the probes.
+  Adaptive `pedestrian-v1` runs are `unqualified_model_settings`.
+
 ## Limits
 
 - It is an empirical shadow model. Its constants come from Cases A and B; the
