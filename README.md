@@ -302,6 +302,7 @@ its original source identity.
 | Profile JSON v1 | v2; move roughness onto every profile payload |
 | Preview required/placeholder inflow | Omit inflow for grid-only preview; diagnostics explicitly unknown |
 | Numeric top from four dataset coordinates | Shared computed top via six-coordinate bounds ending in None |
+| `Solver()`: multiplier change ≤ 1e-4, 1,000 sweeps, ω 1.78 (before 0.1.0b2) | `Solver()` stops on the velocity estimate (1e-3 of the reference speed, `relaxation="grid"`, ≤ 20,000 sweeps); `Solver(stop="multiplier_change")` is the former behavior exactly, and stored specs without `stop` keep it |
 
 Terrain sampling, cut cells, vegetation, transient conditions, CUDA and
 independent physical comfort/gust qualification remain outside this work.
