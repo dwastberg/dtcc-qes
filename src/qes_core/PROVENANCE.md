@@ -268,3 +268,10 @@ synchronized. See `docs/CODE_REVIEW_2026_11.md` for scope and verification.
   spreading far wake and wake turbulence of wake code 3, with its shelter and
   application in `WINDSGeneralData::applySpreadingWake` and the code-3 branch
   of `applyWake`. Codes 0-2 stay bitwise identical.
+- **Re-qualification.** The branch identity
+  `6e072763067beed0fdced05d906f7be9172fa9f78c85ca72f6eaf3c19e823de3` was
+  re-qualified for the default `wake=2` by the procedure of
+  `docs/solver-control-requalification.md` (evidence in
+  `docs/data/wake-update-v2/`; summary in
+  `validation/WAKE_UPDATE_V2_RESULTS.md`). The only numerical differences from
+  `main` are the declared W1b exposed-face cases.

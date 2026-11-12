@@ -1,7 +1,7 @@
 # Wake update v2: validation results (step W4)
 
 - **Date:** 2026-11-12. Step W4 of [`WAKE_UPDATE_V2.md`](../WAKE_UPDATE_V2.md), section 6.
-- **Build:** branch `feat/wake-update-v2` at `2387533` (native code as of `396f152`, W1d), native policy identity `6e072763067b…` (unqualified, as for any native edit).
+- **Build:** branch `feat/wake-update-v2` at `2387533` (native code as of `396f152`, W1d), native policy identity `6e072763067b…` (unqualified during these runs; re-qualified afterwards for the default `wake=2`, last section).
 - **Runs:** `validation/run_wake_validation.py --jobs 1`: the baseline matrix with turbulence on and the fixed-work solver (Cases D and E at 2 m, 35 runs; Cases A and B at 2 m and 1 m), each with `wake=3` and with the default `wake=2` as the reference; A and B at 1 m with the rooftop vortex and the high-rise model; probe-history runs; `--grid` for A and B at 4 m and 0.5 m. One run at a time on 14 cores, so the wall times are cost evidence. Summary: `validation/output/wake/summary.json`.
 
 ## Outcome
@@ -124,3 +124,19 @@ The gates pass, so the plan's W6 would switch the default. It is not switched, b
 - Switching the default without re-qualifying would make every default adaptive run `unqualified_model_settings`; accepting `wake=3` in the policy without a study would claim a qualification that no evidence supports.
 
 Switching therefore needs a new policy qualification on `wake=3` fields (an S7-style calibration and held-out study), which is outside this plan. That is a decision for the maintainers; until then `wake=3` stays opt-in and the comfort option stays `speed="vector"` by default (D4).
+
+## Native identity re-qualification (default `wake=2`)
+
+The branch's native edits disabled adaptive acceptance until its identity was re-qualified. Done on 2026-11-12 by the procedure of `docs/solver-control-requalification.md`, for candidate `cfd0c1f` (identity `6e072763067beed0fdced05d906f7be9172fa9f78c85ca72f6eaf3c19e823de3`, previously `04c8ce76…` on `main`). Evidence: `docs/data/wake-update-v2/` (`requalification.json`, `native-build-identity.txt`, `s7-workers.json`, `compare-native.json`).
+
+| Stage | Result |
+|---|---|
+| Fresh Release builds, CTest | OpenMP 62/62, serial 59/59, ASan/UBSan 59/59; `check_native_symbols` passes; serial and OpenMP identities equal |
+| `compare_native_builds.py` against `main`, OpenMP at 1, 2, 4 and 8 threads and serial, backend parity required, identity pair declared | 509 cases each; thread teams and backends identical; 22 differing records, all in the declared W1b cases (exposed-face slab gap and courtyard, codes 1 and 2) |
+| Isolated copy with the new identity in the qualification header | identity unchanged, build supported, serial and OpenMP |
+| 24 frozen S7 release workers (`check_policy_compatibility.py --allow-disabled-turbulence-monitor`) | all match exactly |
+| Combined feature baseline against `main`, non-adaptive and adaptive | no differences |
+| `pytest -W error` on both isolated packages, native executables set | 1974 passed, 16 skipped, each |
+| sdist and wheel from the sdist, `check_artifacts.py`, `wheel_runtime_smoke.py` (4 threads) | pass; adaptive run accepted |
+
+The identity was then promoted in `src/qes_core/dtcc/pedestrian_qualification.h`; the rebuilt production extension reports the same identity and build support, and every suite passes. This qualifies the branch with the default `wake=2`; it does not qualify `wake=3` for the adaptive policy.
