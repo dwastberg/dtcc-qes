@@ -45,8 +45,10 @@ struct EstimateCheck {
 };
 inline constexpr double estimate_contraction_limit = 0.99;
 inline constexpr double estimate_safety_factor = 2;
-inline constexpr double estimate_floor_factor = 4;
-inline constexpr int estimate_required_passes = 2, estimate_minimum_checks = 3;
+// Study E1 (validation/SOLVER_STOP_RULE_RESULTS.md): factor 4 delayed floor stops at fast relaxations on
+// 1 m grids; the estimate fell short only at the third and fourth checks, so passes count from the fourth.
+inline constexpr double estimate_floor_factor = 6;
+inline constexpr int estimate_required_passes = 2, estimate_first_counted_check = 4;
 inline constexpr std::size_t estimate_history_limit = 2000;
 struct EstimateReport {
   EstimateOptions options;

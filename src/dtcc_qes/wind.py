@@ -448,6 +448,8 @@ def _result_from_native(native, diagnostics, geometry, prepared, solver, *,
             source_revision=_qes.qes_revision, shape=list(native["cell_flags"].shape)))
     if "stop_estimate" in native:
         metadata["solver"]["stop_estimate"] = native["stop_estimate"]
+    if "relaxation" in native:
+        metadata["solver"]["relaxation"] = native["relaxation"]
     metadata["timings"] = _timing_report(record,native.get("timings"))
     if turbulence_spec is not None:
         fields = native["turbulence"]
@@ -706,7 +708,9 @@ def _native_solver(solver):
     options=_qes.SolverOptions()
     options.tolerance,options.max_iterations=solver.tolerance,solver.max_iterations
     options.precision=solver.precision
-    if solver.relaxation is not None:
+    if solver.relaxation == "grid":
+        options.grid_relaxation=True
+    elif solver.relaxation is not None:
         options.relaxation=solver.relaxation
     options.stop_rule,options.velocity_tolerance=solver.stop,solver.velocity_tolerance
     return options

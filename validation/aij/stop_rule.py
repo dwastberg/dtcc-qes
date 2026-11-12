@@ -21,6 +21,7 @@ from .conventions import D_ANGLES
 from .numerics import MAX_TARGET, P95_TARGET
 
 OMEGAS = (1.78, 1.85, 1.90, 1.93, 1.95, 1.97)
+HIGH_OMEGAS = (1.98, 1.99)  # 1 m only: where the 1 m optimum lies (P4, recommendation R2)
 BUDGETS = {2.0: 4000, 1.0: 12000}  # float32 sweeps per study run (0.5 m was dropped: 142 M cells)
 REFERENCE_RELAXATION = 1.90
 REFERENCE_BUDGETS = {2.0: 8000, 1.0: 16000}  # float64 sweeps per reference
@@ -49,27 +50,64 @@ def reference_run(base):
                    max_iterations=REFERENCE_BUDGETS[base.resolution])
 
 
-def campaign(resolutions=(2.0, 1.0)):
+CANDIDATE = dict(relaxation="grid", stop="velocity", velocity_tolerance=1e-3, max_iterations=20000)  # D6-D9
+
+
+def candidate_run(base):
+    """The stage 2 default candidate: grid relaxation, velocity rule at 1e-3, cap 20,000 (D4, D6-D9)."""
+    return replace(base, **CANDIDATE)
+
+
+def analyse_candidates(output, resolutions=(2.0, 1.0)):
+    """Native stops of the candidate against the float64 references: sweeps, reason, ω, probe errors."""
+    rows = []
+    for base in bases(resolutions):
+        records = load(output, [reference_run(base), candidate_run(base)])
+        reference, run = records.get(reference_run(base).key), records.get(candidate_run(base).key)
+        if reference is None or run is None:
+            continue
+        linear = (np.array(run["probes"]["method"]) == "linear") & (np.array(reference["probes"]["method"]) == "linear")
+        d = np.abs(_values(run["probes"]["K"]) - _values(reference["probes"]["K"]))[linear]
+        estimate = run["stop_estimate"]
+        rows.append(dict(case=base.case, label=base.label, resolution=base.resolution, cells=run["grid"]["cells"],
+                         short_side=min(run["grid"]["shape"][1:]), sweeps=run["diagnostics"]["iterations"],
+                         termination=estimate["termination"], estimate=estimate["estimate"][-1],
+                         converged=run["diagnostics"]["converged"], p95=float(np.percentile(d, 95)),
+                         max=float(d.max()), g2=bool(np.percentile(d, 95) <= G2_P95 and d.max() <= G2_MAX),
+                         sweep_seconds=run["timings"]["native"]["sweeps_seconds"]))
+    return rows
+
+
+def campaign(resolutions=(2.0, 1.0), omegas=OMEGAS):
     specs = []
     for base in bases(resolutions):
         specs.append(reference_run(base))
-        specs += [study_run(base, omega) for omega in OMEGAS]
+        specs += [study_run(base, omega) for omega in omegas]
     return specs
 
 
-def replay(estimate, tolerance, required=2, minimum=3):
+def replay(estimate, tolerance, *, floor_factor=None, first_counted_check=None, required=2):
     """(sweep, reason) at which the native velocity rule stops, from a recorded history; (None, None) if never.
 
     Mirrors SolverState::check_estimate: a check passes when its estimate is at
     most the tolerance (unavailable estimates are None and fail), the floor
-    passes when the change is at most the rounding floor, and either needs
-    ``required`` consecutive passes from the ``minimum``-th check on.
+    passes when the change is at most the rounding floor, and either stops after
+    ``required`` consecutive passes. Passes count from ``first_counted_check``
+    (records made before it was reported: from the first, with no stop before
+    the third). ``floor_factor`` replays another factor by rescaling the
+    recorded floor; both default to the rule the record was made with.
     """
+    recorded_first = estimate.get("first_counted_check")
+    first = first_counted_check or recorded_first or 1
+    minimum = 3 if first_counted_check is None and recorded_first is None else first
+    scale = 1.0 if floor_factor is None else floor_factor / estimate.get("floor_factor", 4)
     passes = floor_passes = 0
     for n, (iteration, value, change, floor) in enumerate(
             zip(estimate["iterations"], estimate["estimate"], estimate["change"], estimate["floor"]), 1):
-        passes = passes + 1 if value is not None and value <= tolerance else 0
-        floor_passes = floor_passes + 1 if change is not None and floor is not None and change <= floor else 0
+        counted = n >= first
+        passes = passes + 1 if counted and value is not None and value <= tolerance else 0
+        floor_passes = (floor_passes + 1 if counted and change is not None and floor is not None
+                        and change <= scale * floor else 0)
         if n >= minimum:
             if passes >= required:
                 return iteration, "velocity_estimate"
@@ -146,7 +184,7 @@ def load(output, specs):
 
 def analyse(output, resolutions=(2.0, 1.0)):
     """Per base and ω: the run metrics, the reference's own convergence and the converged-value spread (M5)."""
-    records = load(output, campaign(resolutions))
+    records = load(output, campaign(resolutions, OMEGAS + HIGH_OMEGAS))
     out = []
     for base in bases(resolutions):
         reference = records.get(reference_run(base).key)
@@ -157,7 +195,7 @@ def analyse(output, resolutions=(2.0, 1.0)):
                    cells=reference["grid"]["cells"], reference=dict(
                        final_change=ref_estimate["change"][-1], final_estimate=ref_estimate["estimate"][-1],
                        sweeps=reference["diagnostics"]["iterations"]), runs={})
-        for omega in OMEGAS:
+        for omega in OMEGAS + HIGH_OMEGAS:
             run = records.get(study_run(base, omega).key)
             if run is None:
                 continue

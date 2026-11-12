@@ -33,7 +33,13 @@ rejects all but the default, and `relaxation` with it
 `"velocity"` and `"fixed"` rules measure c, the largest change of the corrected
 face velocities over the block relative to the reference speed. With r the
 larger of the last two block ratios, clipped at 0.99, they estimate the
-remaining error as 2·c·r/(1−r). The history is in
+remaining error as 2·c·r/(1−r). Passes count from the fourth check, so the
+earliest stop is after 125 sweeps. The rounding floor is
+6·ε·max|λ|/(h_min·U_ref), with ε the machine epsilon of the arithmetic; a
+`precision_floor` stop means that the arithmetic cannot certify a smaller
+error, and counts as converged. Study E1 (Cases D and E at 2 m and 1 m,
+`validation/SOLVER_STOP_RULE_RESULTS.md`) found the actual whole-volume error
+at 0.11–0.52 of the estimate at every estimate stop. The history is in
 `result.solver["stop_estimate"]` (values not yet available are None). For
 `"velocity"`, `result.diagnostics.converged` reports the estimate;
 `qualification["solver"]["legacy_converged"]` keeps the multiplier meaning.

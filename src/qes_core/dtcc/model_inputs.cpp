@@ -126,8 +126,15 @@ float qes_tolerance(const SolverOptions &options)
   return tolerance;
 }
 
-float solver_relaxation(const SolverOptions &options, bool adaptive)
+float solver_relaxation(const SolverOptions &options, bool adaptive, int short_side_cells)
 {
+  if (options.grid_relaxation) {
+    if (adaptive)
+      throw std::invalid_argument("Adaptive pedestrian control uses its qualified relaxation; omit grid relaxation");
+    if (options.relaxation != 0)
+      throw std::invalid_argument("Grid relaxation replaces an explicit relaxation; set relaxation to zero");
+    return grid_relaxation(short_side_cells);
+  }
   if (options.relaxation == 0) return adaptive ? 1.90f : 1.78f;
   if (adaptive)
     throw std::invalid_argument("Adaptive pedestrian control uses its qualified relaxation; omit relaxation");

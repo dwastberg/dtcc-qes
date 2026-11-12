@@ -40,6 +40,7 @@ StopEstimateData stop_estimate_data(const solver::EstimateReport &report, const 
   out.safety_factor = solver::estimate_safety_factor;
   out.contraction_limit = solver::estimate_contraction_limit;
   out.floor_factor = solver::estimate_floor_factor;
+  out.first_counted_check = solver::estimate_first_counted_check;
   out.interval = report.options.interval; out.checks = report.checks;
   out.history_truncated = report.history_truncated;
   for (const auto &check : report.history) {
@@ -246,9 +247,12 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
     controller->check("mutex_wait");
   }
   const double tolerance = solver_tolerance(options);
-  solver_relaxation(options, control && control->mode=="adaptive");
+  const int short_side_cells = std::min(data.domain.nx(), data.domain.ny())-1;
+  const float resolved_relaxation = solver_relaxation(options, control && control->mode=="adaptive", short_side_cells);
   validate_stop_rule(options, control && control->mode=="adaptive", condition.speed);
-  if (controller && options.relaxation != 0) controller->record.method = sor_method_id(options.relaxation);
+  if (controller && (options.relaxation != 0 || options.grid_relaxation))
+    controller->record.method = sor_method_id(resolved_relaxation);
+  if (options.grid_relaxation) result.relaxation = double(resolved_relaxation);
   // Adaptive requests are validated to "multiplier_change"; their fixed sweeps are chosen below.
   solver::EstimateOptions estimate;
   if (options.stop_rule != "multiplier_change" && condition.speed > 0) {
@@ -423,7 +427,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
       return workspace.diagnostics();
     };
     const double allocation_started = now();
-    const float relaxation=solver_relaxation(options,controller && controller->adaptive_enabled());
+    const float relaxation=solver_relaxation(options,controller && controller->adaptive_enabled(),short_side_cells);
     if (options.precision == "float64") {
       state.solver.reset();
       if (!state.precision_solver || state.tolerance != tolerance || state.relaxation!=relaxation) {

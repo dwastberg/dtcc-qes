@@ -70,3 +70,25 @@ def test_offline_replay_matches_the_native_rule(fixed_and_velocity):
     assert velocity["stop_estimate"]["termination"] == "velocity_estimate"
     assert stop == (velocity["diagnostics"]["iterations"], "velocity_estimate")
     assert stop_rule.replay(fixed["stop_estimate"], 1e-30)[1] in ("precision_floor", None)
+
+
+def test_replay_applies_the_rule_of_the_record_or_a_new_one():
+    # Estimates pass from the third check; the old rule (no first_counted_check) stops at the fourth.
+    record = dict(iterations=[25, 50, 75, 100, 125, 150], estimate=[None, None, 1e-4, 1e-4, 1e-4, 1e-4],
+                  change=[1.0] * 6, floor=[1e-6] * 6, floor_factor=4)
+    assert stop_rule.replay(record, 1e-3) == (100, "velocity_estimate")
+    assert stop_rule.replay(dict(record, first_counted_check=4, floor_factor=6), 1e-3) == (125, "velocity_estimate")
+    assert stop_rule.replay(record, 1e-3, first_counted_check=4) == (125, "velocity_estimate")
+    # The floor scales with the factor: a change of 1.25x the recorded (factor 4) floor passes at factor 6.
+    floor = dict(record, estimate=[None] * 6, change=[1.25e-6] * 6)
+    assert stop_rule.replay(floor, 1e-3) == (None, None)
+    assert stop_rule.replay(floor, 1e-3, floor_factor=6, first_counted_check=4) == (125, "precision_floor")
+
+
+def test_candidate_campaign_uses_grid_relaxation():
+    specs = campaigns.campaign("stop_rule_candidate")
+    assert len(specs) == 14 and all(s.relaxation == "grid" and s.stop == "velocity" for s in specs)
+    assert all(s.max_iterations == 20000 and s.velocity_tolerance == 1e-3 for s in specs)
+    assert specs[0].name.endswith("wgrid-velocity1e-03")
+    assert RunSpec.from_dict(json.loads(json.dumps(specs[0].to_dict()))) == specs[0]
+    assert runner.inputs(campaigns.case_d(0.0, resolution=8.0, relaxation="grid"))["run"]["solver"].relaxation == "grid"

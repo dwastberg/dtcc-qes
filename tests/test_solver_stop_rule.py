@@ -180,7 +180,8 @@ def test_velocity_rule_stops_on_its_estimate(precision):
     assert estimate["estimate"][-1] <= 1e-3 and estimate["estimate"][-2] <= 1e-3
     assert estimate["reference_speed"] == 5.0 and estimate["interval"] == 25 and estimate["tolerance"] == 1e-3
     assert estimate["contraction"][0] is None and estimate["estimate"][0] is None
-    assert estimate["safety_factor"] == 2 and estimate["contraction_limit"] == 0.99 and estimate["floor_factor"] == 4
+    assert estimate["safety_factor"] == 2 and estimate["contraction_limit"] == 0.99 and estimate["floor_factor"] == 6
+    assert estimate["first_counted_check"] == 4 and estimate["checks"] >= 5
     json.dumps(estimate, allow_nan=False)
 
 
@@ -310,3 +311,38 @@ def test_bounded_public_velocity_rule():
     assert result.solver["record"]["termination_reason"] == "velocity_estimate"
     assert result.qualification["solver"]["termination_reason"] == "velocity_estimate"
     assert result.diagnostics.converged
+
+
+# --- Grid-dependent relaxation (decision D7) --------------------------------
+
+@pytest.mark.parametrize("cells, omega", [(250, 1.936), (290, 1.945), (500, 1.968), (580, 1.972),
+                                          (64, 1.78), (10, 1.78), (800, 1.98), (5000, 1.98)])
+def test_grid_relaxation_rule(cells, omega):
+    assert _qes._grid_relaxation(cells) == pytest.approx(omega, abs=5e-7)
+
+
+def test_grid_relaxation_spec_and_validation():
+    solver = wind.Solver(relaxation="grid", stop="velocity")
+    assert solver.relaxation == "grid" and solver.to_dict()["relaxation"] == "grid"
+    assert wind.Solver.from_dict(json.loads(json.dumps(solver.to_dict()))) == solver
+    with pytest.raises(ValueError, match="relaxation"):
+        wind.Solver(relaxation="auto")
+    with pytest.raises(ValueError, match="relaxation"):
+        replace(pedestrian_solver(), relaxation="grid")
+    with pytest.raises(ValueError, match="relaxation"):
+        options = _legacy_options(8, relaxation=1.9)
+        options.grid_relaxation = True
+        prepare(configuration()).solve(_qes.WindCondition(), options)
+
+
+def test_public_grid_relaxation_resolves_from_the_domain():
+    city, condition, grid, _ = city_case(ONE_BUILDING)
+    result = wind.run(city, **condition, **grid, solver=wind.Solver(max_iterations=8, relaxation="grid"))
+    cells = min(result.velocity.shape[1:3])
+    omega = result.solver["relaxation"]
+    assert omega == pytest.approx(_qes._grid_relaxation(cells), abs=0)
+    assert result.qualification["solver"]["method"] == _qes._sor_method_id(omega)
+    explicit = wind.run(city, **condition, **grid, solver=wind.Solver(max_iterations=8, relaxation=float(omega)))
+    np.testing.assert_array_equal(result.velocity, explicit.velocity)
+    assert "relaxation" not in explicit.solver
+    assert "relaxation" not in wind.run(city, **condition, **grid, solver=wind.Solver(max_iterations=8)).solver

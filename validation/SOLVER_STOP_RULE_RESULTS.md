@@ -85,3 +85,35 @@ R3 and R4 are native changes to the opt-in rule. They change no default and go i
 - Sweep counts are the cost metric. The estimate's own overhead per check, predicted at about 8 %, and wall times on an idle machine are measured in P7.
 - The full-field comparison uses cell-centred velocities, which the face bound also bounds.
 - The ω(N) fit is an extrapolation outside 250–600 cells across.
+
+## 6. P4 follow-up (2026-11-12): decisions, ω above 1.97, and the candidate defaults
+
+R1–R5 were accepted (decisions D6–D10 in `SOLVER_STOP_RULE.md`).
+
+**ω = 1.98 and 1.99 at 1 m** (14 more runs, 12 min; same references). Medians of the stop sweep over the 7 cases, with the rule of D8 and D9 replayed:
+
+| ω | τ 3e-3 | τ 1e-3 | τ 3e-4 | probe error / e |
+|---|---|---|---|---|
+| 1.95 | 500 | 625 | 750 | up to 1.15 |
+| 1.97 | 300 | **350** | 425 | 0.15–0.82 |
+| 1.98 | 425 | 500 | 525 | 0.09–0.16 |
+| 1.99 | 925 | 1,000 | 1,100 | 0.03–0.08 |
+
+The 1 m optimum is 1.97. Above it the decay oscillates and the estimate becomes conservative (error at most 0.16 e), so stops come late but stay safe. With 2 − ω_opt ≈ 0.06 at N = 250–290 and 0.03 at N = 500–580, the optimum scales as 1/N.
+
+**Rule fitted (D7):** ω = clip(2 − 16/N, 1.78, 1.98) rounded to 0.001, with N the physical cells across the shorter horizontal side. It gives 1.936 (Case E, 2 m), 1.945 (Case D, 2 m), 1.968 (Case E, 1 m) and 1.972 (Case D, 1 m), slightly below each optimum. The upper clip keeps finer grids (N > 800) below their optimum, where the estimate is safe; the lower clip keeps today's 1.78 on small grids. Available as `wind.Solver(relaxation="grid")`, resolved natively and reported in `result.solver["relaxation"]`.
+
+**Native rule changes (D8, D9):** κ = 6; passes count from the fourth check, so the earliest stop is at 125 sweeps. The estimate history reports both (`floor_factor`, `first_counted_check`).
+
+**Candidate defaults, run natively** (`relaxation="grid"`, `stop="velocity"`, τ = 1e-3, cap 20,000; campaign `stop_rule_candidate`, native identity `1319a43d…`), against the float64 references:
+
+| Case | N | ω | Sweeps | Termination | p95 \|ΔK\| | max \|ΔK\| |
+|---|---|---|---|---|---|---|
+| D 0°, 22.5°, 45°, 2 m | 290 | 1.945 | 250 each | velocity_estimate | 0.9–1.3e-4 | 1.2–1.4e-4 |
+| E N, E, S, W, 2 m | 250 | 1.936 | 150–175 | velocity_estimate | 0.8–1.6e-4 | 0.9–1.9e-4 |
+| D 0°, 22.5°, 45°, 1 m | 580 | 1.972 | 475 each | velocity_estimate | 1.2–1.6e-4 | 1.6–1.8e-4 |
+| E N, E, S, W, 1 m | 500 | 1.968 | 325–375 | velocity_estimate | 0.6–1.1e-4 | 0.7–1.3e-4 |
+
+- Every solve stops on its estimate and reports converged. The worst probe error is 1.9e-4: 50× inside G2 and 100× below the F02 maximum.
+- Against today's `Solver()` (1,000 sweeps at 1.78): 4–6.7× less work at 2 m. At 1 m, 2.1–3.1× less work, and converged where today's default leaves p95 errors of 0.006–0.013.
+- Evidence: `docs/data/solver-stop-rule/e1-candidate.json`.

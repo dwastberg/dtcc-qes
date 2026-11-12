@@ -25,8 +25,8 @@ def _tag(resolutions):
     return "-".join(f"r{r:g}" for r in resolutions)
 
 
-def matrix(resolutions, jobs, output):
-    specs = stop_rule.campaign(resolutions)
+def matrix(resolutions, jobs, output, omegas=stop_rule.OMEGAS):
+    specs = stop_rule.campaign(resolutions, omegas)
     failed = execute(specs, output, jobs=jobs, log=lambda line: print(line, flush=True))
     if failed:
         raise SystemExit(f"{len(failed)} study runs failed")
@@ -77,13 +77,15 @@ def main(argv=None):
     parser.add_argument("--resolutions", type=float, nargs="+", default=[2.0, 1.0])
     parser.add_argument("--stage", choices=("all", "matrix", "fullfield", "analyse"), default="all")
     parser.add_argument("--jobs", type=int, default=1)
+    parser.add_argument("--omegas", type=float, nargs="+", default=list(stop_rule.OMEGAS),
+                        help="relaxations of the matrix stage (the references are shared)")
     parser.add_argument("--fullfield-omegas", type=float, nargs="+", default=list(stop_rule.FULL_FIELD_OMEGAS))
     parser.add_argument("--output", type=Path, default=OUTPUT)
     args = parser.parse_args(argv)
     resolutions = tuple(args.resolutions)
     started = time.perf_counter()
     if args.stage in ("all", "matrix"):
-        matrix(resolutions, args.jobs, args.output)
+        matrix(resolutions, args.jobs, args.output, tuple(args.omegas))
     if args.stage in ("all", "fullfield"):
         fullfield(resolutions, tuple(args.fullfield_omegas))
     if args.stage in ("all", "analyse"):

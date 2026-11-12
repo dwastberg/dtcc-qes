@@ -102,7 +102,9 @@ class Solver:
     preparation and output/turbulence calculation have separate timing scopes.
 
     ``relaxation`` sets the SOR factor of legacy and bounded solves; None keeps
-    1.78. ``stop`` chooses how they end: ``"multiplier_change"`` (the legacy
+    1.78, and ``"grid"`` chooses 2 - 16/N for N cells across the shorter
+    horizontal side of the domain, clipped to [1.78, 1.98] (study E1 of
+    SOLVER_STOP_RULE.md; the value used is ``result.solver["relaxation"]``). ``stop`` chooses how they end: ``"multiplier_change"`` (the legacy
     ``tolerance`` on the Lagrange multiplier change), ``"velocity"`` (when the
     estimated remaining face-velocity error is at most ``velocity_tolerance``
     times the reference speed) or ``"fixed"`` (exactly ``max_iterations`` sweeps,
@@ -120,7 +122,7 @@ class Solver:
     checkpoint_interval: int = 25
     residual_interval: int = 0
     raise_on_failure: bool = False
-    relaxation: float | None = None
+    relaxation: float | Literal["grid"] | None = None
     stop: Literal["multiplier_change", "velocity", "fixed"] = "multiplier_change"
     velocity_tolerance: float = 1e-3
 
@@ -131,7 +133,9 @@ class Solver:
         import numpy as np
         if not isinstance(self.precision, str) or self.precision not in ("float32", "float64"):
             raise ValueError("precision must be 'float32' or 'float64'")
-        if self.relaxation is not None:
+        if self.relaxation is not None and not (isinstance(self.relaxation, str) and self.relaxation == "grid"):
+            if isinstance(self.relaxation, str):
+                raise ValueError("relaxation must be a number, 'grid' or None")
             relaxation = _number(self.relaxation, "relaxation", positive=True)
             if not relaxation < 2 or not 0 < np.float32(relaxation) < 2:
                 raise ValueError("relaxation must be between zero and two")

@@ -186,14 +186,14 @@ static void conservative_stop() {
   }
 }
 
-// A huge tolerance stops at the earliest admissible check: two passes from the third check on.
+// A huge tolerance stops at the earliest admissible check: passes count from the fourth check, and two are needed.
 static void earliest_stop() {
   auto data = fixture();
   const PoissonOperator op(*data);
   SolverState<float> state(op,1e-5);
   state.begin(ConditionInputs(*data),1000,StopRule::VelocityEstimate,nullptr,estimate(1e6,10));
   const auto work = state.advance(1000);
-  require(work.termination == Termination::VelocityEstimate && work.diagnostics.iterations == 40, "Earliest stop is the fourth check");
+  require(work.termination == Termination::VelocityEstimate && work.diagnostics.iterations == 50, "Earliest stop is the fifth check");
 }
 
 // float32 reaches rounding before a tolerance it cannot resolve; the floor stops it.

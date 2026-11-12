@@ -1,5 +1,8 @@
 #pragma once
+#include <algorithm>
+#include <cmath>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <cstddef>
 #include <cstdio>
@@ -23,6 +26,17 @@ inline std::string sor_method_id(double relaxation) {
     if (std::strtof(digits, nullptr) == omega) break;
   }
   return std::string("s5c-rb-sor-float-omega-v1-omega-") + digits;
+}
+// Grid-dependent relaxation (SOLVER_STOP_RULE.md, decision D7): 2 - 16/N for N
+// physical cells across the shorter horizontal side, clipped to [1.78, 1.98] and
+// rounded to 0.001. Fitted on study E1, where the fastest velocity-rule stops
+// were at 1.93-1.95 for N = 250-290 and at 1.97 for N = 500-580; the upper clip
+// keeps finer grids below their optimum, where the stop estimate is valid.
+inline constexpr double grid_relaxation_constant = 16, grid_relaxation_min = 1.78, grid_relaxation_max = 1.98;
+inline float grid_relaxation(int short_side_cells) {
+  if (short_side_cells < 1) throw std::invalid_argument("Grid relaxation needs at least one cell across the domain");
+  const double omega = std::clamp(2 - grid_relaxation_constant/short_side_cells, grid_relaxation_min, grid_relaxation_max);
+  return float(std::round(omega*1000)/1000);
 }
 inline constexpr double policy_safety_factor = 8;
 inline constexpr int policy_minimum_iterations = 150;

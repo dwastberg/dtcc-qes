@@ -207,11 +207,12 @@ template<class Real> void SolverState<Real>::check_estimate() {
       checks_ >= 1 ? std::optional<double>(recent_[0]) : std::nullopt,
       checks_ >= 2 ? std::optional<double>(recent_[1]) : std::nullopt,floor);
   recent_[1] = recent_[0]; recent_[0] = relative; ++checks_;
-  passes_ = check.estimate <= estimate_.tolerance ? passes_+1 : 0;
-  floor_passes_ = relative <= floor ? floor_passes_+1 : 0;
+  const bool counted = checks_ >= estimate_first_counted_check;
+  passes_ = counted && check.estimate <= estimate_.tolerance ? passes_+1 : 0;
+  floor_passes_ = counted && relative <= floor ? floor_passes_+1 : 0;
   if (history_.size() < estimate_history_limit) history_.push_back(check);
   else history_truncated_ = true;
-  if (stop_rule_ == StopRule::VelocityEstimate && checks_ >= estimate_minimum_checks) {
+  if (stop_rule_ == StopRule::VelocityEstimate) {
     if (passes_ >= estimate_required_passes) estimate_stop_ = Termination::VelocityEstimate;
     else if (floor_passes_ >= estimate_required_passes) estimate_stop_ = Termination::PrecisionFloor;
   }

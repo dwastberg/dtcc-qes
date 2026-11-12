@@ -31,7 +31,8 @@ def _qualification(metadata, diagnostics):
         diagnostics.iterations > 0 and np.isfinite(change) and change <= diagnostics.tolerance)
     assessment = ("not_requested" if mode != "adaptive" else record["accuracy_status"])
     reason = record.get("assessment_reason") if record is not None else None
-    method = record["method"] if record is not None else _qes._sor_method_id(spec.get("relaxation") or 0)
+    relaxation = solver.get("relaxation") if spec.get("relaxation") == "grid" else spec.get("relaxation")
+    method = record["method"] if record is not None else _qes._sor_method_id(relaxation or 0)
     solver_view = dict(mode=mode, method=method,
         execution=termination if termination in ("iteration_limit", "time_limit") else "completed",
         termination_reason=termination, legacy_converged=legacy_converged,

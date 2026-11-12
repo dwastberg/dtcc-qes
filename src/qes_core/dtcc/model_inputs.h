@@ -26,7 +26,8 @@ struct ModelInputs {
 float qes_tolerance(const SolverOptions &);
 double solver_tolerance(const SolverOptions &);
 // Zero selects the frozen mode default; adaptive control accepts only zero.
-float solver_relaxation(const SolverOptions &, bool adaptive);
+// grid_relaxation resolves the factor from the physical cells across the shorter side.
+float solver_relaxation(const SolverOptions &, bool adaptive, int short_side_cells);
 // "velocity" and "fixed" are legacy/bounded options; "velocity" needs a reference speed.
 void validate_stop_rule(const SolverOptions &, bool adaptive, double reference_speed);
 std::vector<float> vertical_faces(const GridConfig &);

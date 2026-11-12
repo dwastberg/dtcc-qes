@@ -88,7 +88,7 @@ class RunSpec:
     ground_roughness: float | None = None  # m, replaces the profile's tail z0 (QES-Turb wall model, lower tail)
     downstream: float | None = None  # m, Cases A and B: domain length behind the building
     # wind.Solver options of SOLVER_STOP_RULE.md: SOR factor (None: 1.78), stop rule and its tolerance.
-    relaxation: float | None = None
+    relaxation: float | str | None = None  # a number, "grid" (2 - 16/N, decision D7) or None
     stop: str = "multiplier_change"
     velocity_tolerance: float = 1e-3
 
@@ -147,7 +147,8 @@ class RunSpec:
         if self.inflow == "canopy":
             parts.append(f"z0u{self.canopy_roughness:.3g}-zb{self.blending_height:.3g}")
         parts += [f"{name}{value:g}" for name, value in self.parameterizations]
-        parts += [None if self.relaxation is None else f"w{self.relaxation:g}",
+        parts += [None if self.relaxation is None else
+                  f"w{self.relaxation}" if isinstance(self.relaxation, str) else f"w{self.relaxation:g}",
                   {"multiplier_change": None, "fixed": "fixed"}.get(self.stop, f"velocity{self.velocity_tolerance:.0e}")]
         return "-".join(p for p in parts if p)
 

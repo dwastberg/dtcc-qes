@@ -70,8 +70,8 @@ The rule checks every m = 25 sweeps. At check n:
   - At ω = 1.90, which is above the optimum on that small grid, the decay oscillates (block ratios 0.05–0.11) and the mean underestimated by up to 1.7×.
   - Once the decay is geometric, the estimate without S is exact (actual / e = 0.97–1.00), so it has no margin.
   - With the larger ratio and S = 2, every stop for τ ∈ {1e-3, 1e-4, 1e-5} at both ω has actual / e between 0.3 and 0.7, and the actual error is 8–86× below τ. ω = 1.90 stops at sweep 100, 125 and 150; ω = 1.78 at 175, 225 and 300.
-- **Stop** when e_n ≤ τ at two consecutive checks, and no earlier than the third check (75 sweeps). The termination reason is `velocity_estimate`.
-- **Rounding floor:** also stop when c_n ≤ c_floor at two consecutive checks, with termination reason `precision_floor`. c_floor = κ · ε · max |λ| / (h_min · U_ref), where ε is the machine epsilon of the arithmetic, h_min the smallest spacing, and κ = 4 until E1 calibrates it.
+- **Stop** when e_n ≤ τ at two consecutive checks. Passes count from the fourth check, so the earliest stop is the fifth (125 sweeps); P4 decision R4, since E1 found the estimate short only at the third and fourth checks. (P1 counted from the first check, with no stop before the third.) The termination reason is `velocity_estimate`.
+- **Rounding floor:** also stop when c_n ≤ c_floor at two consecutive checks, with termination reason `precision_floor`. c_floor = κ · ε · max |λ| / (h_min · U_ref), where ε is the machine epsilon of the arithmetic, h_min the smallest spacing, and κ = 6 (P4 decision R3; P1 used 4, which E1 found too tight for fast ω at 1 m).
   - Without this term, a float32 run that has reached rounding level has r ≈ 1, gets e ≈ 99 c, and may never stop.
   - The measured λ stall (about 1e-4 m²/s) corresponds to roughly 3e-5 m/s at 2 m, or about 1e-5 U_ref.
 
@@ -113,7 +113,7 @@ Notes:
 
 ## 4. Decisions
 
-All five were accepted as recommended on 2026-11-12.
+D1–D5 were accepted as recommended on 2026-11-12, and D6–D10 (the P4 choices from study E1) later the same day.
 
 | # | Question | Decision |
 |---|---|---|
@@ -122,6 +122,11 @@ All five were accepted as recommended on 2026-11-12.
 | D3 | What velocity scale? | **The profile's reference speed**, the same one K and the controller use. |
 | D4 | What iteration cap once the rule is the default? | **20,000.** The rule stops far earlier at 2 m. At 0.5 m the campaign needed 16,000 at ω = 1.78. A cap keeps a failing case finite, and the result then reports that it did not converge. |
 | D5 | One default ω or a grid-dependent one? | **One constant**, if it is within 20 % of the best ω's sweep count at 2 m, 1 m and on the 0.5 m subset. Otherwise a fitted ω(N) for N cells per side, decided in P4. |
+| D6 | Default τ (P4, R1, accepted 2026-11-12) | **1e-3.** E1: 30× below the F02 probe maximum, at least 4× inside G2 at every ω; τ = 3e-3 saves only 10–15 % of the sweeps. |
+| D7 | Default ω (P4, R2, accepted 2026-11-12) | **Grid-dependent**, since no constant is within 20 % of the best at both 2 m and 1 m (D5). A fit ω(N) on the cell count across the shorter horizontal side, fixed after the ω ∈ {1.98, 1.99} runs at 1 m; fallback a constant 1.95. |
+| D8 | Floor factor κ (P4, R3, accepted 2026-11-12) | **6.** Native change to the opt-in rule. |
+| D9 | Earliest stop (P4, R4, accepted 2026-11-12) | **Passes count from the fourth check** (earliest stop at 125 sweeps). Native change to the opt-in rule. |
+| D10 | `precision_floor` (P4, R5, accepted 2026-11-12) | **A converged outcome**, documented as "the arithmetic cannot certify a smaller error". |
 
 ## 5. Work steps
 
