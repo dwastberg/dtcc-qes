@@ -4,7 +4,7 @@
 - **Implements:** suggestion S2 of `FABEL_DESIGN_AND_ALGORITHM_REVIEW.md`. This is not stage S2 of the solver-control refactor (`docs/solver-control-s2.md`).
 - **Also closes:** R14 in `validation/DTCC_REQUESTS.md` (a stop rule at fine grids), and F02's H2a–H2c in `CLAUDE_WIND_EXPERIMENTS.md` (the best ω).
 - **Goal:** a stop rule that bounds the remaining velocity error, as a fraction of the reference speed, together with a better default ω. With these, `Solver()` stops early on coarse grids and keeps going on fine ones.
-- **Status:** D1–D5 accepted as recommended (2026-11-12). P1a–P1c implemented on branch `feat/solver-stop-rule` (worktree `/private/tmp/dtcc-qes-solver-stop-rule`, from `main` at `d968aa7`), independent of `feat/wake-update-v2`. Gate G1 passed at P1 (section 7). P2 is next.
+- **Status:** D1–D5 accepted as recommended (2026-11-12). P1a–P1c implemented on branch `feat/solver-stop-rule` (worktree `/private/tmp/dtcc-qes-solver-stop-rule`, from `main` at `d968aa7`), independent of `feat/wake-update-v2`. Gate G1 passed at P1 (section 7). P2 and P3 (study E1) done: results in `validation/SOLVER_STOP_RULE_RESULTS.md`. P4, the choice of ω and τ, is next.
 
 ## 1. Findings that shape the plan
 
@@ -145,6 +145,8 @@ All five were accepted as recommended on 2026-11-12.
 
 ## 6. Study E1
 
+> **As run (2026-11-12):** 2 m and 1 m only. Case D at 0.5 m is 142 M cells (about 5 h for its part of the matrix), and the 0.5 m part was dropped by decision; the rule is validated down to 1 m. The full-field subset also ran at ω 1.95 and 1.97. Results and P4 recommendations: `validation/SOLVER_STOP_RULE_RESULTS.md`.
+
 **Runs.**
 - The convergence-campaign matrix: Case D at 0°, 22.5° and 45°, and Case E "after" at N, E, S and W, at 2 m and 1 m.
 - Plus Case D at 0° at 0.5 m.
@@ -172,10 +174,10 @@ All five were accepted as recommended on 2026-11-12.
 | Gate | Requirement |
 |---|---|
 | G1 Defaults unchanged | `tools/compare_native_builds.py` matches exactly on the non-adaptive subset, and all 24 frozen S7 workers match exactly, at P1 and at P5. **Passed at P1 (2026-11-12)** for candidate `883d758`, identity `6b62eb8a…`. Against `d968aa7`, 429 cases (4,783 records) are bitwise identical for OpenMP at 1, 2, 4 and 8 threads and for serial, with backend parity required. All 24 S7 workers match on isolated packages that carry the new identity. Evidence: `docs/data/solver-stop-rule/g1-*`. |
-| G2 Safe stop | At the chosen τ and ω, every E1 run stops with probe p95 \|ΔK\| ≤ 0.0025 and max ≤ 0.01, which is half of F02's targets. On the full-field subset, the actual maximum error over the plane is ≤ e_n at the stop sweep. |
-| G3 Speed at 2 m | The median stop sweep on Cases D and E at 2 m is ≤ 1/2.5 of today's default work (1,000 sweeps), that is ≤ 400. |
-| G4 Fine grids finish | At 1 m and on the 0.5 m subset, every run stops through `velocity_estimate` or `precision_floor` before 20,000 sweeps. |
-| G5 Same answer | The converged probe values agree across the ω values within 1e-4 in K (H2c). |
+| G2 Safe stop | At the chosen τ and ω, every E1 run stops with probe p95 \|ΔK\| ≤ 0.0025 and max ≤ 0.01, which is half of F02's targets. On the full-field subset, the actual maximum error over the plane is ≤ e_n at the stop sweep. **Passed in E1** for τ ≤ 5e-3 at every ω; whole-volume error 0.11–0.52 of e at every estimate stop. |
+| G3 Speed at 2 m | The median stop sweep on Cases D and E at 2 m is ≤ 1/2.5 of today's default work (1,000 sweeps), that is ≤ 400. **Passed in E1** for ω ≥ 1.90 (median 200 sweeps at ω 1.93–1.95). |
+| G4 Fine grids finish | At 1 m and on the 0.5 m subset, every run stops through `velocity_estimate` or `precision_floor` before 20,000 sweeps. **Passed at 1 m in E1** (latest stop 5,450); 0.5 m not run. |
+| G5 Same answer | The converged probe values agree across the ω values within 1e-4 in K (H2c). **Passed in E1** (≤ 2.9e-5). |
 | G6 Scores unchanged (stage 2) | The AIJ baseline (Cases A, B, D, E at 2 m) with the new default `Solver()`, against the fixed-work records: every pooled score within 0.01. |
 
 ## 8. Tests

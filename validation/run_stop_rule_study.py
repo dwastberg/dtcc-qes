@@ -1,7 +1,7 @@
 """Study E1 of SOLVER_STOP_RULE.md: relaxation and the velocity-estimate stop rule.
 
     uv run --group validate python validation/run_stop_rule_study.py --resolutions 2 --jobs 2
-    uv run --group validate python validation/run_stop_rule_study.py --resolutions 1 0.5 --jobs 2
+    uv run --group validate python validation/run_stop_rule_study.py --resolutions 1 --jobs 3
 
 Stages (default: all): ``matrix`` runs the float32 study runs and the float64
 references through the AIJ harness (records in validation/output/runs);
@@ -32,15 +32,17 @@ def matrix(resolutions, jobs, output):
         raise SystemExit(f"{len(failed)} study runs failed")
 
 
-def fullfield(resolutions):
+def fullfield(resolutions, omegas=stop_rule.FULL_FIELD_OMEGAS):
     SUMMARY.mkdir(parents=True, exist_ok=True)
+    suffix = "" if tuple(omegas) == stop_rule.FULL_FIELD_OMEGAS else "-w" + "-".join(f"{w:g}" for w in omegas)
     from aij.campaigns import case_d, case_e
     for resolution in [r for r in resolutions if r in (2.0, 1.0)]:
         subset = [case_d(0.0, resolution=resolution, turbulence=False),
                   case_e("W", resolution=resolution, turbulence=False)]
-        rows = [stop_rule.full_field(base, stop_rule.REFERENCE_BUDGETS[resolution], stop_rule.BUDGETS[resolution])
+        rows = [stop_rule.full_field(base, stop_rule.REFERENCE_BUDGETS[resolution], stop_rule.BUDGETS[resolution],
+                                     omegas=omegas, log=lambda line: print(line, flush=True))
                 for base in subset]
-        path = SUMMARY / f"fullfield-r{resolution:g}.json"
+        path = SUMMARY / f"fullfield-r{resolution:g}{suffix}.json"
         path.write_text(json.dumps(rows, indent=1) + "\n")
         print(f"wrote {path}", flush=True)
 
@@ -72,9 +74,10 @@ def analyse(resolutions, output):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--resolutions", type=float, nargs="+", default=[2.0, 1.0, 0.5])
+    parser.add_argument("--resolutions", type=float, nargs="+", default=[2.0, 1.0])
     parser.add_argument("--stage", choices=("all", "matrix", "fullfield", "analyse"), default="all")
     parser.add_argument("--jobs", type=int, default=1)
+    parser.add_argument("--fullfield-omegas", type=float, nargs="+", default=list(stop_rule.FULL_FIELD_OMEGAS))
     parser.add_argument("--output", type=Path, default=OUTPUT)
     args = parser.parse_args(argv)
     resolutions = tuple(args.resolutions)
@@ -82,7 +85,7 @@ def main(argv=None):
     if args.stage in ("all", "matrix"):
         matrix(resolutions, args.jobs, args.output)
     if args.stage in ("all", "fullfield"):
-        fullfield(resolutions)
+        fullfield(resolutions, tuple(args.fullfield_omegas))
     if args.stage in ("all", "analyse"):
         analyse(resolutions, args.output)
     print(f"done in {time.perf_counter() - started:.0f} s", flush=True)

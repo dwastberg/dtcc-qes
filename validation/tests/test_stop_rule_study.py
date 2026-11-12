@@ -37,15 +37,14 @@ def test_study_matrix():
     specs = campaigns.campaign("stop_rule_study")
     runs = [s for s in specs if s.precision == "float32"]
     references = [s for s in specs if s.precision == "float64"]
-    assert len(runs) == (7 * 2 + 1) * len(stop_rule.OMEGAS) and len(references) == 7 * 2 + 1
+    assert len(runs) == 7 * 2 * len(stop_rule.OMEGAS) and len(references) == 7 * 2
     assert {s.relaxation for s in runs} == set(stop_rule.OMEGAS)
     assert all(s.stop == "fixed" and s.monitor and not s.turbulence for s in runs)
     assert all(s.max_iterations == stop_rule.BUDGETS[s.resolution] for s in runs)
     assert all(s.stop == "fixed" and not s.monitor and s.relaxation == stop_rule.REFERENCE_RELAXATION
                for s in references)
-    assert {s.resolution for s in specs} == {2.0, 1.0, 0.5}
-    assert [s for s in specs if s.resolution == 0.5][0].max_cells == campaigns.FINE_MAX_CELLS
-    assert set(campaigns.campaign("stop_rule_2m")) | set(campaigns.campaign("stop_rule_fine")) == set(specs)
+    assert {s.resolution for s in specs} == {2.0, 1.0}
+    assert set(campaigns.campaign("stop_rule_2m")) | set(campaigns.campaign("stop_rule_1m")) == set(specs)
     assert len({s.key for s in specs}) == len(specs)
 
 

@@ -21,23 +21,20 @@ from .conventions import D_ANGLES
 from .numerics import MAX_TARGET, P95_TARGET
 
 OMEGAS = (1.78, 1.85, 1.90, 1.93, 1.95, 1.97)
-BUDGETS = {2.0: 4000, 1.0: 12000, 0.5: 32000}  # float32 sweeps per study run
+BUDGETS = {2.0: 4000, 1.0: 12000}  # float32 sweeps per study run (0.5 m was dropped: 142 M cells)
 REFERENCE_RELAXATION = 1.90
-REFERENCE_BUDGETS = {2.0: 8000, 1.0: 16000, 0.5: 40000}  # float64 sweeps per reference
+REFERENCE_BUDGETS = {2.0: 8000, 1.0: 16000}  # float64 sweeps per reference
 E_LABELS = ("N", "E", "S", "W")  # Case E "after", as in the convergence campaign
 TOLERANCES = (3e-3, 1e-3, 3e-4, 1e-4, 3e-5)
 G2_P95, G2_MAX = P95_TARGET / 2, MAX_TARGET / 2  # gate G2: half of the F02 probe targets
 FULL_FIELD_OMEGAS = (1.78, 1.90)  # the subset is Case D 0° and Case E "after" W (run_stop_rule_study.py)
 
 
-def bases(resolutions=(2.0, 1.0, 0.5)):
-    """Base specs: Cases D and E at 2 m and 1 m, Case D at 0° at 0.5 m; turbulence off."""
-    from .campaigns import FINE_MAX_CELLS, case_d, case_e
+def bases(resolutions=(2.0, 1.0)):
+    """Base specs: Cases D and E at 2 m and 1 m; turbulence off."""
+    from .campaigns import case_d, case_e
     out = []
     for resolution in resolutions:
-        if resolution == 0.5:
-            out.append(case_d(0.0, resolution=0.5, turbulence=False, max_cells=FINE_MAX_CELLS))
-            continue
         out += [case_d(a, resolution=resolution, turbulence=False) for a in D_ANGLES]
         out += [case_e(label, resolution=resolution, turbulence=False) for label in E_LABELS]
     return out
@@ -52,7 +49,7 @@ def reference_run(base):
                    max_iterations=REFERENCE_BUDGETS[base.resolution])
 
 
-def campaign(resolutions=(2.0, 1.0, 0.5)):
+def campaign(resolutions=(2.0, 1.0)):
     specs = []
     for base in bases(resolutions):
         specs.append(reference_run(base))
@@ -147,7 +144,7 @@ def load(output, specs):
     return rows
 
 
-def analyse(output, resolutions=(2.0, 1.0, 0.5)):
+def analyse(output, resolutions=(2.0, 1.0)):
     """Per base and ω: the run metrics, the reference's own convergence and the converged-value spread (M5)."""
     records = load(output, campaign(resolutions))
     out = []

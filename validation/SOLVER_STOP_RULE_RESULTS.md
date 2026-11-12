@@ -1,0 +1,87 @@
+# Solver stop rule: study E1 results
+
+- **Date:** 2026-11-12. Implements step P3 of `SOLVER_STOP_RULE.md` (section 6). The decisions it feeds are P4.
+- **Build:** branch `feat/solver-stop-rule` at `297fa18` plus the study's harness edits, native identity `6b62eb8a…` (unqualified; G1 passed). M4 Pro, 3 runs at a time, so per-sweep times below are not cost evidence.
+- **Runs:** `validation/run_stop_rule_study.py`.
+  - 84 float32 study runs: Case D at 0°, 22.5°, 45° and Case E "after" at N, E, S, W, at 2 m and 1 m, each at ω ∈ {1.78, 1.85, 1.90, 1.93, 1.95, 1.97}. Turbulence off, measured inflow. `stop="fixed"` with 4,000 (2 m) or 12,000 (1 m) sweeps, probe history and estimate history every 25 sweeps.
+  - 14 float64 references at ω = 1.90, 8,000 or 16,000 sweeps. Their own estimate histories end at a block change of at most 5.7e-14 and an estimate of at most 1.1e-11, so they are converged far below every error reported here.
+  - Full-field subset: Case D 0° and Case E W at 2 m and 1 m, native `stop="velocity"` solves at ω ∈ {1.78, 1.90, 1.95, 1.97} and τ ∈ {3e-3, 1e-3, 3e-4, 1e-4, 3e-5}, compared over the whole volume with an in-process float64 reference.
+- **Wall time:** 2 m stage 230 s; 1 m stage 58 min; the full-field runs at ω 1.95 and 1.97, both resolutions, 7 min.
+- **Not run:** 0.5 m. Case D there is 142 M cells (about 5 h for the planned matrix); decided to skip it on 2026-11-12. The rule is validated down to 1 m only.
+- **Evidence:** `docs/data/solver-stop-rule/e1-*.json` (analysis summaries and full-field rows). Records are in `validation/output/runs/{D,E}` (not in git).
+
+Stop sweeps of any tolerance are replayed offline from the fixed-work histories with the native rule (`aij.stop_rule.replay`). A harness test checks that the replay stops on the same sweep as a native `stop="velocity"` solve. Probe errors are |K − K_ref| over the probes sampled linearly in both runs (78 in D, 79 in E). Estimates and K share one normalisation, the approach-profile speed at the reference height.
+
+## 1. Answers
+
+**1. The rule is safe on the real cases, with one caveat at the first checks.**
+- At every stop the rule makes for τ ≤ 5e-3, the probe errors are within gate G2 (p95 ≤ 0.0025, max ≤ 0.01) by a factor of 3 or more.
+- Over the whole volume, at every native `velocity_estimate` stop of the subset, the actual largest error is 0.11–0.52 of the estimate (38 stops, 2 m and 1 m, four ω). In 32 of them the largest error lies in the pedestrian band (z ≤ 10 m); in the others the band holds at least 0.69 of it.
+- The estimate can be exceeded only at the first one or two checks where it exists (sweeps 75–100): there the contraction is still small (0.12–0.48), from the initial transient. Those checks have e ≥ 2e-3 at 2 m and e ≥ 2e-2 at 1 m, so they matter only for loose tolerances: τ = 1e-2 at 2 m fails G2 (p95 up to 5.0e-3), τ = 5e-3 passes.
+
+**2. τ against the probe targets.** The estimate bounds the worst face anywhere; the probes see far less. At τ = 1e-3 the worst probe error over all 84 runs is 3.1e-4 (2 m) and 6.3e-4 (1 m), 30× below the F02 maximum. At τ = 3e-3 it is 9.5e-4 and 8.8e-4.
+
+**3. Speed.** Today's `Solver()` runs 1,000 sweeps at ω = 1.78 (the λ rule stalls in float32). Sweeps to the stop at τ = 1e-3, median (range) over 7 cases:
+
+| ω | 2 m | 1 m |
+|---|---|---|
+| 1.78 | 725 (700–1,125) | 2,875 (2,725–4,050), all at the rounding floor |
+| 1.85 | 475 (475–725) | 2,050 (1,975–2,925) |
+| 1.90 | 300 (300–475) | 1,475 (1,250–2,125) |
+| 1.93 | 200 (200–325) | 1,075 (925–1,500) |
+| 1.95 | **200 (200–225)** | 625 (600–1,100) |
+| 1.97 | 300 (300–375) | **350 (325–525)** |
+
+- At 2 m the best ω cuts today's work 5× (1,000 → 200 sweeps) at a worst probe error of 2.1e-4.
+- At 1 m today's 1,000 sweeps leave p95 errors of 0.006–0.013 (`AIJ_VALIDATION.md`). The rule at ω = 1.97 stops after 350 sweeps with a worst probe error of 1.4e-4. A correct ω = 1.78 solve needs 2,875.
+- The 2 m gain is as large as the X2 prototype predicted; the parameterization zones did not erode it.
+
+**4. Constants.**
+- **ω depends on the grid.** The best ω is 1.93–1.95 at 2 m (250–300 cells across) and 1.97 at 1 m (500–600 across), and 1.97 is the highest value tested. No single value is within 20 % of the best at both resolutions, so decision D5 calls for a grid-dependent ω. ω = 1.97 is above the optimum at 2 m and the estimate stays safe there.
+- **The floor factor κ = 4 is marginal for fast ω at 1 m.** In the float32 tail, the block change divided by the floor reaches at most 0.99 at 2 m but up to 1.38 at 1 m for ω ≥ 1.95. Two consecutive checks below the floor then come late: Case E W at 1 m, ω = 1.97, τ = 1e-4 stopped only after 5,450 sweeps. Section 3 replays other κ.
+- **What float32 can certify.** The estimate only resolves remaining errors down to about floor·r/(1 − r). Below that, the maximum block change is rounding noise even while the error still falls, and no contraction test separates the two (r ≥ 1 in both). Where the rule then stops on `precision_floor`, the actual whole-volume error at 1 m is 2.3e-4–9.2e-4 for ω ≤ 1.90 and 2.2e-5–8.7e-5 for ω = 1.95–1.97. With ω ≥ 1.95, τ = 1e-3 always stops on the estimate at both resolutions; τ ≤ 3e-4 at 1 m usually ends on the floor.
+
+## 2. Gates
+
+| Gate | Result |
+|---|---|
+| G1 Defaults unchanged | Passed at P1 (`docs/data/solver-stop-rule/g1-*`). |
+| G2 Safe stop | **Passed** for τ ≤ 5e-3 at every ω, both resolutions (worst at τ = 3e-3: max 9.5e-4, p95 8.8e-4). Full-field: actual ≤ 0.52 e at every estimate stop. τ = 1e-2 fails at 2 m. |
+| G3 Speed at 2 m | **Passed** for ω ≥ 1.90 at τ = 1e-3 (medians 300, 200, 200, 300 for 1.90–1.97); fails at ω ≤ 1.85. |
+| G4 Fine grids finish | **Passed at 1 m**: every stop is on the estimate or the floor, the latest at 4,050 sweeps in the matrix and 5,450 in the subset (cap 20,000). Not tested at 0.5 m. |
+| G5 Same answer | **Passed**: the end of every run agrees with float64 to 7.9e-6 (2 m) and 2.9e-5 (1 m) in K at the probes, the float32 floor. |
+| G6 Scores unchanged | Stage 2, after the default switch. |
+
+## 3. Floor factor κ, replayed
+
+The floor scales linearly with κ, so other values are replayed from the same histories (median and latest stop, floor stops, worst probe error):
+
+| | κ = 4 (now) | κ = 6 | κ = 8 |
+|---|---|---|---|
+| 1 m, ω 1.97, τ 3e-4 | 700, latest 1,525, 4/7 floor, 2.1e-5 | 425, latest 675, 4/7, 4.1e-5 | 425, latest 650, 4/7, 5.7e-5 |
+| 1 m, ω 1.97, τ 1e-4 | 850, latest 5,450, 7/7, 1.9e-5 | 425, latest 675, 7/7, 4.1e-5 | 425, latest 650, 7/7, 5.7e-5 |
+| 1 m, ω 1.95, τ 1e-3 | 625, 0/7, 1.5e-4 | 625, 2/7, 1.5e-4 | 625, 2/7, 1.7e-4 |
+| 1 m, ω 1.78, τ 1e-3 | 2,875, 7/7, 6.3e-4 | 2,650, 7/7, 9.8e-4 | 2,500, 7/7, 1.3e-3 |
+| 2 m, every ω, τ 1e-3 | unchanged | unchanged | unchanged |
+
+κ = 6 removes the long tail at fast ω and leaves τ = 1e-3 unchanged; its cost is earlier floor stops at slow ω, which a fast default ω avoids.
+
+## 4. Recommendations for P4
+
+| # | Decision | Recommendation |
+|---|---|---|
+| R1 | Default τ | **1e-3.** 30× below the F02 probe maximum, at least 4× inside G2 at every ω and 13× with ω ≥ 1.95; τ = 3e-3 saves only 10–15 % of the sweeps. It is also the tightest τ that float32 certifies by its estimate at 1 m with a fast ω. |
+| R2 | Default ω | **Grid-dependent (D5).** For example ω = 2 − 13.5/N with N the cell count across the shorter horizontal side, clipped to [1.90, 1.98]: it gives 1.95 at 2 m and 1.975 at 1 m on these domains. This fit rests on two resolutions and on 1.97 being the highest ω tested. Before adopting it, run ω ∈ {1.98, 1.99} at 1 m (14 runs, about 15 min) to find where the 1 m optimum lies. The fallback is a constant 1.95: optimal at 2 m, 1.8× the best at 1 m, still 4.6× faster there than a correct ω = 1.78 solve. |
+| R3 | Floor factor | **κ = 6** (section 3). |
+| R4 | Earliest stop | **Count passes from the fourth check** (instead of the third). It removes every observed underestimate that could stop a solve (they are all at checks 3–4) at the cost of one block for loose tolerances. |
+| R5 | `precision_floor` | **Keep it as a converged outcome**, documented as "float32 cannot certify a smaller error". With a fast ω its actual errors are at most 8.7e-5 at 1 m. Reporting it as a failure would bring back the false alarms of the λ stall. |
+
+R3 and R4 are native changes to the opt-in rule. They change no default and go into the P5 re-qualification together.
+
+## 5. Limits
+
+- Two cases, two resolutions; no 0.5 m and no Cases A and B.
+- Turbulence off: QES-Turb runs on the final field and does not change it, but its cost is not included.
+- Sweep counts are the cost metric. The estimate's own overhead per check, predicted at about 8 %, and wall times on an idle machine are measured in P7.
+- The full-field comparison uses cell-centred velocities, which the face bound also bounds.
+- The ω(N) fit is an extrapolation outside 250–600 cells across.
