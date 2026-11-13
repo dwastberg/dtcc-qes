@@ -10,6 +10,15 @@ import pytest
 from dtcc_qes import comfort
 
 
+def test_screening_peak_factor_is_a_shared_constant():
+    # One documented screening value for automatic use; the helper still needs an explicit factor.
+    assert comfort.SCREENING_PEAK_FACTOR == 3.0 and isinstance(comfort.SCREENING_PEAK_FACTOR, float)
+    assert "SCREENING_PEAK_FACTOR" in comfort.__all__
+    with pytest.raises(TypeError):
+        comfort.gust_equivalent_mean([5.], [1.])
+    assert comfort.gust_equivalent_mean(4., 2., peak_factor=comfort.SCREENING_PEAK_FACTOR) == pytest.approx(10 / 1.85)
+
+
 def test_gem_formula_and_nan_propagation():
     speed = np.array([[0, 5, np.nan], [2, 4, 6]], dtype=np.float32)
     std = np.array([[0, .5, 1], [np.nan, 2, 3]], dtype=np.float32)

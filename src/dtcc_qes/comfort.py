@@ -25,10 +25,23 @@ import numpy as np
 from ._log import shifted_log
 from ._validation import real as _number
 
-__all__ = ["Rule", "Rating", "Criterion", "ComfortResult", "NEN8100", "CITY_OF_LONDON",
+__all__ = ["Rule", "Rating", "Criterion", "ComfortResult", "NEN8100", "CITY_OF_LONDON", "SCREENING_PEAK_FACTOR",
            "assess", "assess_results", "exceedance", "speed_at_exceedance", "log_law_transfer", "gust_equivalent_mean"]
 
 SEASONS = {"winter": (12, 1, 2), "spring": (3, 4, 5), "summer": (6, 7, 8), "autumn": (9, 10, 11)}
+
+# Fixed policy for automatic pedestrian-comfort screening and examples:
+# U_gust = U_mean + g * sigma_streamwise. Use the same g at every location and
+# direction so ordinary users need not estimate a turbulence statistic.
+# 3.0 is a pragmatic screening assumption, not a QES calibration or a value
+# prescribed by City of London (whose separate GEM divisor is 1.85). No gust
+# duration or mean averaging period is established for this algebraic model.
+# Geometry still affects U_mean and sigma_streamwise through the QES solution.
+# Future work: estimate g by location/direction from turbulence timescales and
+# explicit averaging durations; validate against independent pedestrian gust
+# measurements or time-resolved simulations before replacing this constant.
+# Do not equate the QES mixing length with a validated integral length scale.
+SCREENING_PEAK_FACTOR = 3.0
 
 
 class Rule(NamedTuple):
