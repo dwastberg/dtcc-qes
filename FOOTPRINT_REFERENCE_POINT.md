@@ -45,3 +45,18 @@ Every prediction held; every criterion passes. Evidence in `docs/data/footprint-
 | Wheel runtime smoke (4-thread team) | passes; adaptive run accepted |
 
 The identity is promoted in `pedestrian_qualification.h`.
+
+## 3. Merged into main (2026-11-13)
+
+Merged as `3cbe316`, version 0.1.0b4. `main` had moved to `86c9723` during the qualification (wake-comfort plans, docs and validation harness; no product code). The merge equals the qualified tree `fe2dcd3` plus exactly those changes, with no file in common. Post-merge check on `main` (`docs/data/footprint-reference-point/merged-main-verification.json`):
+
+| Check | Result |
+|---|---|
+| Release build | identity `31f6d956…` supported |
+| Native CTest | OpenMP 63/63, serial 60/60 |
+| `pytest -W error` | 2,032 passed |
+| Validation tests | 191 passed, including the new wake-comfort tests, now on the fixed code |
+| Artifacts and evidence audit | pass |
+| Wheel runtime smoke (4-thread team) | passes; adaptive run accepted |
+
+The wake-comfort evidence in `docs/data/wake-comfort/` (`86c9723`) was computed before this fix. It records its native identities and stays valid as a record, but its Case E numbers would move slightly if rerun on 0.1.0b4.

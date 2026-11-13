@@ -1,0 +1,38 @@
+{
+  "merge_commit": "3cbe31601a9306ea547592eb9a7c4ad1bffa8684",
+  "merge_composition": "main moved to 86c9723 during qualification (docs, plans and validation harness only; no src, CMake, pyproject or tests). The merge tree equals the qualified tree fe2dcd3 plus exactly main's delta 7bf2115..86c9723, with no file in common.",
+  "version": "0.1.0b4",
+  "native_identity": "31f6d956fecfa24654a34b7ed43941c38876f38b26d0800ca5868e7b54396f87",
+  "build_supported": true,
+  "ctest": {
+    "openmp": "100% tests passed, 0 tests failed out of 63",
+    "serial": "100% tests passed, 0 tests failed out of 60"
+  },
+  "pytest_W_error": "2032 passed, 50 skipped in 88.94s (0:01:28)",
+  "validation_tests": "191 passed, 5 skipped, 4 warnings in 50.43s",
+  "artifacts": [
+    "Artifact check passed: dtcc_qes-0.1.0b4.tar.gz",
+    "Artifact check passed: dtcc_qes-0.1.0b4-cp314-cp314-macosx_15_0_arm64.whl",
+    "Evidence check passed: /private/tmp/dtcc-qes-main-integration"
+  ],
+  "post_merge_runtime": {
+    "passed": true,
+    "package": "build/post-merge/wheel-install/dtcc_qes",
+    "module": "build/post-merge/wheel-install/dtcc_qes/_qes.cpython-314-darwin.so",
+    "policy_revision": "31f6d956fecfa24654a34b7ed43941c38876f38b26d0800ca5868e7b54396f87",
+    "adaptive_accepted": true,
+    "actual_threads": 4,
+    "checks": [
+      "owned_output",
+      "sampling",
+      "adaptive_vs_legacy_status",
+      "derived_qualification",
+      "nested_timings",
+      "history_bounds",
+      "float64",
+      "two_turbulence_methods",
+      "zero_work_error",
+      "canonical_footprints_with_partition_hole"
+    ]
+  }
+}
