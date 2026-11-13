@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from aij import campaigns, compare, runner
+from aij import CASE_A_XLS, CASE_B_XLS, campaigns, compare, runner
 from aij.conventions import AB_LABEL
 
 import run_wake_validation
@@ -24,6 +24,11 @@ def _probes(record, name):
     return np.array([np.nan if v is None else v for v in record["probes"][name]], dtype=np.float64)
 
 
+# Cases A and B need the external AIJ spreadsheets, as in test_case_ab.py.
+needs_ab = pytest.mark.skipif(not (CASE_A_XLS.is_file() and CASE_B_XLS.is_file()),
+                              reason="External AIJ A/B spreadsheets required; set DTCC_QES_AIJ_DATA")
+
+
 @pytest.fixture(scope="module")
 def solved():
     spec = campaigns.case_ab("B", resolution=4.0, max_iterations=200, tolerance=1.2e-7,
@@ -31,6 +36,7 @@ def solved():
     return spec, *runner.run(spec)
 
 
+@needs_ab
 def test_record_has_the_wake_scalar_speeds(solved):
     spec, record, _ = solved
     K, D, kw = (_probes(record, n) for n in ("K", "wake_deficit", "wake_tke"))
@@ -44,6 +50,7 @@ def test_record_has_the_wake_scalar_speeds(solved):
     assert record["provenance"]["model"]["wake_flag"] == 3
 
 
+@needs_ab
 def test_ab_scalar_comparison(solved):
     spec, record, _ = solved
     records = {("B", "-", AB_LABEL): record}
