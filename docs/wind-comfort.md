@@ -178,9 +178,8 @@ estimates. `comfort.SCREENING_PEAK_FACTOR = 3.0` is the shared constant for
 automatic comfort screening and the example. It is a pragmatic assumption,
 with no claimed QES calibration or validated averaging time. It applies to
 every location and wind direction; local mean speed and turbulence still vary
-with the simulated geometry. The planned comfort Dataset will use this value
-internally, without requiring an ordinary user to select a peak factor.
-The low-level helpers retain explicit factor selection for specialist use.
+with the simulated geometry. The low-level helpers retain explicit factor
+selection for specialist use.
 
 ### Future work: dynamic peak factor
 
