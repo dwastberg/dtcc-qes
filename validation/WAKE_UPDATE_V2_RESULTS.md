@@ -192,3 +192,14 @@ The identity was then promoted in `src/qes_core/dtcc/pedestrian_qualification.h`
 | Wheel runtime smoke (4-thread team) | passes; adaptive run accepted |
 
 The identity is promoted in `pedestrian_qualification.h`. The rebuilt extension reports it as supported: `pytest -W error` 2,032 passed; validation tests 186 passed.
+
+**Merged into main** as version 0.1.0b3 (`baeca7f`). The merged tree is the qualified tree. Post-merge check on `main` (`docs/data/wake-update-v2/merged-main-verification.json`):
+
+| Check | Result |
+|---|---|
+| Release build | identity `bf48ef3f…` supported |
+| Native CTest | OpenMP 63/63, serial 60/60 |
+| `pytest -W error` | 2,032 passed |
+| Validation tests | 186 passed |
+| Artifacts | sdist and wheel pass `check_artifacts.py` |
+| Wheel runtime smoke (4-thread team) | passes; adaptive run accepted |
