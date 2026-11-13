@@ -1,0 +1,334 @@
+{
+ "aij": {
+  "fixed": {
+   "E-after-thermistor-K": {
+    "before": {
+     "hit_rate": 0.29921875,
+     "fac2": 0.71796875,
+     "r": 0.45682530771617197,
+     "spearman": 0.45506218010986105,
+     "fb": -0.14882093281977168
+    },
+    "after": {
+     "hit_rate": 0.29765625,
+     "fac2": 0.71796875,
+     "r": 0.4566321017442866,
+     "spearman": 0.4544595078583183,
+     "fb": -0.1482859105033055
+    }
+   },
+   "E-after-thermistor-K_scalar": {
+    "before": {
+     "hit_rate": 0.24232887490165225,
+     "fac2": 0.6789929189614476,
+     "r": 0.31542073420915956,
+     "spearman": 0.3285997096537859,
+     "fb": -0.3992434782234186
+    },
+    "after": {
+     "hit_rate": 0.24154209284028325,
+     "fac2": 0.6797797010228167,
+     "r": 0.31547446734440976,
+     "spearman": 0.32850127900247333,
+     "fb": -0.3991214263626382
+    }
+   },
+   "E-before-thermistor-K": {
+    "before": {
+     "hit_rate": 0.15625,
+     "fac2": 0.6703125,
+     "r": 0.5137144372698342,
+     "spearman": 0.544185705726956,
+     "fb": -0.4297488700846623
+    },
+    "after": {
+     "hit_rate": 0.15859375,
+     "fac2": 0.6671875,
+     "r": 0.5135462474869036,
+     "spearman": 0.543835918295202,
+     "fb": -0.4292033528035505
+    }
+   },
+   "E-before-thermistor-K_scalar": {
+    "before": {
+     "hit_rate": 0.07601880877742946,
+     "fac2": 0.5078369905956113,
+     "r": 0.33387359395735267,
+     "spearman": 0.35228284891182254,
+     "fb": -0.6533854536577263
+    },
+    "after": {
+     "hit_rate": 0.07523510971786834,
+     "fac2": 0.5094043887147336,
+     "r": 0.3341457259974614,
+     "spearman": 0.3522290989829531,
+     "fb": -0.6531835547921816
+    }
+   },
+   "probe_change": {
+    "count": 2560,
+    "over_0_01": 0.02578125,
+    "over_0_05": 0.003515625,
+    "over_0_1": 0.000390625,
+    "max": 0.11094249899217473,
+    "worst_pooled": 0.0031249999999999334
+   }
+  },
+  "default": {
+   "E-after-thermistor-K": {
+    "before": {
+     "hit_rate": 0.29921875,
+     "fac2": 0.71796875,
+     "r": 0.4568181629534834,
+     "spearman": 0.45503908486427447,
+     "fb": -0.14873552387224742
+    },
+    "after": {
+     "hit_rate": 0.29765625,
+     "fac2": 0.71796875,
+     "r": 0.4566247981017164,
+     "spearman": 0.45445527644974293,
+     "fb": -0.14820048572382005
+    }
+   },
+   "E-after-thermistor-K_scalar": {
+    "before": {
+     "hit_rate": 0.24311565696302123,
+     "fac2": 0.6789929189614476,
+     "r": 0.3153898218449375,
+     "spearman": 0.32854967702124505,
+     "fb": -0.39918409138087996
+    },
+    "after": {
+     "hit_rate": 0.24154209284028325,
+     "fac2": 0.6797797010228167,
+     "r": 0.31544328906857527,
+     "spearman": 0.32846644915523815,
+     "fb": -0.3990621385199075
+    }
+   },
+   "E-before-thermistor-K": {
+    "before": {
+     "hit_rate": 0.15625,
+     "fac2": 0.6703125,
+     "r": 0.5137137258665893,
+     "spearman": 0.5441564006524565,
+     "fb": -0.4296566289990701
+    },
+    "after": {
+     "hit_rate": 0.15859375,
+     "fac2": 0.6671875,
+     "r": 0.5135453810196821,
+     "spearman": 0.5438221910305879,
+     "fb": -0.42911117283097583
+    }
+   },
+   "E-before-thermistor-K_scalar": {
+    "before": {
+     "hit_rate": 0.07601880877742946,
+     "fac2": 0.5086206896551724,
+     "r": 0.3338372916962745,
+     "spearman": 0.352207943695692,
+     "fb": -0.6533208735354267
+    },
+    "after": {
+     "hit_rate": 0.07523510971786834,
+     "fac2": 0.5101880877742947,
+     "r": 0.3341092652551619,
+     "spearman": 0.3521793510931172,
+     "fb": -0.6531190280470935
+    }
+   },
+   "probe_change": {
+    "count": 2560,
+    "over_0_01": 0.02578125,
+    "over_0_05": 0.003515625,
+    "over_0_1": 0.000390625,
+    "max": 0.11094184148541741,
+    "worst_pooled": 0.0031249999999999334
+   }
+  }
+ },
+ "w4_gates": [
+  {
+   "case": "A",
+   "quantity": "|U|/U_H",
+   "resolution": 2.0,
+   "score": "q",
+   "gate": ">= 0.71",
+   "wake3": 0.7365591397849462,
+   "wake2": 0.6827956989247311,
+   "passed": true
+  },
+  {
+   "case": "A",
+   "quantity": "|U|/U_H",
+   "resolution": 1.0,
+   "score": "q",
+   "gate": ">= 0.67",
+   "wake3": 0.7043010752688172,
+   "wake2": 0.6612903225806451,
+   "passed": true
+  },
+  {
+   "case": "A",
+   "quantity": "|U|/U_H",
+   "resolution": 2.0,
+   "score": "R",
+   "gate": ">= 0.9",
+   "wake3": 0.9266512002901963,
+   "wake2": 0.8866287770570426,
+   "passed": true
+  },
+  {
+   "case": "A",
+   "quantity": "|U|/U_H",
+   "resolution": 1.0,
+   "score": "R",
+   "gate": ">= 0.88",
+   "wake3": 0.9140712311815365,
+   "wake2": 0.8641930629018223,
+   "passed": true
+  },
+  {
+   "case": "B",
+   "quantity": "|U|/U_H",
+   "resolution": 2.0,
+   "score": "q",
+   "gate": ">= 0.64",
+   "wake3": 0.6696428571428571,
+   "wake2": 0.5044642857142857,
+   "passed": true
+  },
+  {
+   "case": "B",
+   "quantity": "|U|/U_H",
+   "resolution": 1.0,
+   "score": "q",
+   "gate": ">= 0.62",
+   "wake3": 0.6473214285714286,
+   "wake2": 0.5133928571428571,
+   "passed": true
+  },
+  {
+   "case": "B",
+   "quantity": "|U|/U_H",
+   "resolution": 2.0,
+   "score": "R",
+   "gate": ">= 0.91",
+   "wake3": 0.9363470169153065,
+   "wake2": 0.7436539050155359,
+   "passed": true
+  },
+  {
+   "case": "B",
+   "quantity": "|U|/U_H",
+   "resolution": 1.0,
+   "score": "R",
+   "gate": ">= 0.9",
+   "wake3": 0.9329277592873114,
+   "wake2": 0.7327943810252239,
+   "passed": true
+  },
+  {
+   "case": "A",
+   "quantity": "scalar speed, 2 m probes",
+   "resolution": 2.0,
+   "score": "q",
+   "gate": ">= 0.83",
+   "wake3": 0.8615384615384616,
+   "wake2": 0.7692307692307693,
+   "passed": true
+  },
+  {
+   "case": "B",
+   "quantity": "scalar speed, 2 m probes",
+   "resolution": 2.0,
+   "score": "q",
+   "gate": ">= 0.86",
+   "wake3": 0.8914728682170543,
+   "wake2": 0.5658914728682171,
+   "passed": true
+  },
+  {
+   "case": "D",
+   "quantity": "split fibre, mean vector",
+   "resolution": 2.0,
+   "score": "MAE",
+   "gate": "<= 0.15",
+   "wake3": 0.1378980046852198,
+   "wake2": 0.1704606100030884,
+   "passed": true
+  },
+  {
+   "case": "D",
+   "quantity": "thermistor, scalar",
+   "resolution": 2.0,
+   "score": "q",
+   "gate": ">= 0.38",
+   "wake3": 0.4090909090909091,
+   "wake2": 0.30808080808080807,
+   "passed": true
+  },
+  {
+   "case": "D",
+   "quantity": "thermistor, scalar",
+   "resolution": 2.0,
+   "score": "R",
+   "gate": ">= 0.52",
+   "wake3": 0.5478863647405914,
+   "wake2": 0.42480684190235285,
+   "passed": true
+  },
+  {
+   "case": "E before",
+   "quantity": "thermistor, scalar",
+   "resolution": 2.0,
+   "score": "q",
+   "gate": ">= 0.27",
+   "wake3": 0.30546875,
+   "wake2": 0.1421875,
+   "passed": true
+  },
+  {
+   "case": "E before",
+   "quantity": "thermistor, scalar",
+   "resolution": 2.0,
+   "score": "R",
+   "gate": ">= 0.52",
+   "wake3": 0.5475587585447538,
+   "wake2": 0.5222054912789309,
+   "passed": true
+  },
+  {
+   "case": "E after",
+   "quantity": "thermistor, scalar",
+   "resolution": 2.0,
+   "score": "q",
+   "gate": ">= 0.43",
+   "wake3": 0.4625,
+   "wake2": 0.3171875,
+   "passed": true
+  },
+  {
+   "case": "E after",
+   "quantity": "thermistor, scalar",
+   "resolution": 2.0,
+   "score": "R",
+   "gate": ">= 0.52",
+   "wake3": 0.5540802836463927,
+   "wake2": 0.47206803675620324,
+   "passed": true
+  },
+  {
+   "case": "E change",
+   "quantity": "scalar",
+   "resolution": 2.0,
+   "score": "R",
+   "gate": ">= 0.45",
+   "wake3": 0.4763694723375712,
+   "wake2": 0.43594278661228547,
+   "passed": true
+  }
+ ]
+}

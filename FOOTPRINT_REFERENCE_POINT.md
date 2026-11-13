@@ -3,7 +3,7 @@
 - **Date:** 2026-11-13.
 - **Change:** `PolyBuilding::setPolyBuilding` uses the vertex mean of the outer ring as the building's reference point. That point samples the incident wind and anchors the wind-aligned frame of the wake and canyon parameterizations. For L- and U-shaped footprints and blocks with courtyards, the mean can lie outside the building. When it does, the reference point is now the midpoint of the widest interior span on a horizontal scan line that passes through no vertex. When the mean is inside, which is always the case for convex footprints, it is kept bit for bit.
 - **Origin:** `4eb119d` on `research/pedestrian-wind-campaign`, cherry-picked without changes. It includes a native test (`check_contacts`: a courtyard block and an L-shape).
-- **Status:** declaration written before any measurement (below); results in section 2.
+- **Status:** declaration written before any measurement (section 1); every criterion passed (section 2); identity re-qualified and promoted.
 
 ## 1. Declaration
 
@@ -20,4 +20,28 @@ An intentional numerical change of default results (`docs/solver-control-requali
 
 ## 2. Results
 
-To be filled in after the runs.
+Every prediction held; every criterion passes. Evidence in `docs/data/footprint-reference-point/`.
+
+- **Bitwise comparison** against `main` `7bf2115`: 509 cases, OpenMP at 1, 2, 4 and 8 threads and serial, thread teams and backends identical. 95 records differ from `main`:
+  - 72 in the declared geometries, `l_shape` (48) and `courtyard` (24);
+  - 23 `metadata/versions` records that differ only in `dtcc_qes` 0.1.0b3 → 0.1.0b4 (115 of 115 checked).
+
+  Every other case, including `slab_gap` and its W1b records, is bitwise identical.
+- **AIJ, 2 m baseline** (Cases A, B, D, E, turbulence on; campaign `stop_rule_g6`, the same 74 runs on `main`'s staged package and on the fix):
+  - **A, B and D:** bitwise identical (probe values and the 2 m planes) with both solvers.
+  - **Case E:** every run changes. Of 2,560 probe-directions, 2.58 % move by more than 0.01 in K, 0.35 % by more than 0.05, and 0.04 % (one) by more than 0.1 (max 0.111).
+  - **Pooled scores:** q, FAC2, R, ρ and FB change by at most **0.0031** with the default solver and with fixed work (limit 0.01). Default-solver sweep counts are unchanged.
+- **`wake=3` W4 gates:** all 18 pass. A, B and D values are identical; Case E values move by at most 0.0031.
+- **Re-qualification** (`docs/solver-control-requalification.md`, candidate `df7d285`, identity `31f6d956fecfa24654a34b7ed43941c38876f38b26d0800ca5868e7b54396f87`):
+
+| Check | Result |
+|---|---|
+| Native builds | CTest OpenMP 63/63, serial 60/60, ASan/UBSan 60/60; symbol checks; equal identities |
+| Isolated copy | keeps the identity and reports support |
+| S7 workers | 24/24 match exactly (rectangular footprints, as predicted) |
+| Combined feature baseline | 436/436 arrays identical; metadata only in the identity pair and the version |
+| `pytest -W error` on both isolated packages | 2,066 passed |
+| Artifacts | sdist (21.6 MB) and wheel pass `check_artifacts.py`, including its evidence audit |
+| Wheel runtime smoke (4-thread team) | passes; adaptive run accepted |
+
+The identity is promoted in `pedestrian_qualification.h`.
