@@ -141,3 +141,20 @@ prepared for integration; `main` has not been modified by this task.
 
 Post-merge verification: 337 passed, 5 skipped, 4 dependency warnings in 68.14 s.
 `git diff --check main` passes; archived implementation hashes match the sources.
+
+## Integration and cleanup (2026-11-13)
+
+At the user's request, `main` was fast-forwarded to `c8632b1`, the tested
+feature tip. The integrated implementation hashes match the committed evidence;
+no code changed during integration. The verification remains 337 passed and
+5 skipped on that exact tree.
+
+The completed feature worktree `/private/tmp/dtcc-qes-wake-update-v2` and its
+fully merged branch `feat/wake-update-v2` were removed. This supersedes the
+worktree-retention decision above; the research checkout and its historical
+prototype remain untouched. Before removal, 262 raw validation records and
+build logs were archived with SHA-256 verification in the main checkout:
+`validation/output/wake-update-v2-c8632b1-evidence.tar.gz` (127.7 MiB), with
+`wake-update-v2-c8632b1-evidence.tar.manifest.json` beside it. This local archive
+is ignored by Git; the reviewed result summaries remain committed under
+`docs/data/wake-comfort/`. Dataset symlink targets were preserved.
