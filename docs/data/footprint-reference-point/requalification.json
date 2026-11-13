@@ -1,0 +1,400 @@
+{
+ "candidate_commit": "df7d285f4419f884ade6bca51afb277789aa7166",
+ "lock_sha256": "2b8de50401059a707faa8240177132881088c88bd22ff73cd1422d0b9e48c91b",
+ "stages": [
+  "tree",
+  "native",
+  "compare",
+  "prune",
+  "isolate",
+  "s7",
+  "combined",
+  "pytest",
+  "artifacts"
+ ],
+ "native": {
+  "openmp": {
+   "ctest": [
+    "100% tests passed, 0 tests failed out of 63",
+    "",
+    "Total Test time (real) =   5.68 sec"
+   ],
+   "identity": "31f6d956fecfa24654a34b7ed43941c38876f38b26d0800ca5868e7b54396f87"
+  },
+  "serial": {
+   "ctest": [
+    "100% tests passed, 0 tests failed out of 60",
+    "",
+    "Total Test time (real) =   4.09 sec"
+   ],
+   "identity": "31f6d956fecfa24654a34b7ed43941c38876f38b26d0800ca5868e7b54396f87"
+  },
+  "sanitizers": {
+   "ctest": [
+    "100% tests passed, 0 tests failed out of 60",
+    "",
+    "Total Test time (real) =  16.29 sec"
+   ],
+   "identity": "31f6d956fecfa24654a34b7ed43941c38876f38b26d0800ca5868e7b54396f87"
+  }
+ },
+ "new_identity": "31f6d956fecfa24654a34b7ed43941c38876f38b26d0800ca5868e7b54396f87",
+ "compare": {
+  "exit": 1,
+  "differences": [
+   "differs: native/geometry/courtyard/e0w1s0/27/cell_flags",
+   "differs: native/geometry/courtyard/e0w1s0/27/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e0w1s0/27/velocity",
+   "differs: native/geometry/courtyard/e0w1s1/27/cell_flags",
+   "differs: native/geometry/courtyard/e0w1s1/27/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e0w1s1/27/velocity",
+   "differs: native/geometry/courtyard/e0w2s0/27/cell_flags",
+   "differs: native/geometry/courtyard/e0w2s0/27/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e0w2s0/27/velocity",
+   "differs: native/geometry/courtyard/e0w2s1/27/cell_flags",
+   "differs: native/geometry/courtyard/e0w2s1/27/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e0w2s1/27/velocity",
+   "differs: native/geometry/courtyard/e1w1s0/27/cell_flags",
+   "differs: native/geometry/courtyard/e1w1s0/27/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e1w1s0/27/velocity",
+   "differs: native/geometry/courtyard/e1w1s1/27/cell_flags",
+   "differs: native/geometry/courtyard/e1w1s1/27/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e1w1s1/27/velocity",
+   "differs: native/geometry/courtyard/e1w2s0/27/cell_flags",
+   "differs: native/geometry/courtyard/e1w2s0/27/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e1w2s0/27/velocity",
+   "differs: native/geometry/courtyard/e1w2s1/27/cell_flags",
+   "differs: native/geometry/courtyard/e1w2s1/27/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e1w2s1/27/velocity",
+   "differs: native/geometry/l_shape/e0w1s0/27/cell_flags",
+   "differs: native/geometry/l_shape/e0w1s0/27/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e0w1s0/27/velocity",
+   "differs: native/geometry/l_shape/e0w1s0/270/cell_flags",
+   "differs: native/geometry/l_shape/e0w1s0/270/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e0w1s0/270/velocity",
+   "differs: native/geometry/l_shape/e0w1s1/27/cell_flags",
+   "differs: native/geometry/l_shape/e0w1s1/27/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e0w1s1/27/velocity",
+   "differs: native/geometry/l_shape/e0w1s1/270/cell_flags",
+   "differs: native/geometry/l_shape/e0w1s1/270/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e0w1s1/270/velocity",
+   "differs: native/geometry/l_shape/e0w2s0/27/cell_flags",
+   "differs: native/geometry/l_shape/e0w2s0/27/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e0w2s0/27/velocity",
+   "differs: native/geometry/l_shape/e0w2s0/270/cell_flags",
+   "differs: native/geometry/l_shape/e0w2s0/270/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e0w2s0/270/velocity",
+   "differs: native/geometry/l_shape/e0w2s1/27/cell_flags",
+   "differs: native/geometry/l_shape/e0w2s1/27/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e0w2s1/27/velocity",
+   "differs: native/geometry/l_shape/e0w2s1/270/cell_flags",
+   "differs: native/geometry/l_shape/e0w2s1/270/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e0w2s1/270/velocity",
+   "differs: native/geometry/l_shape/e1w1s0/27/cell_flags",
+   "differs: native/geometry/l_shape/e1w1s0/27/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e1w1s0/27/velocity",
+   "differs: native/geometry/l_shape/e1w1s0/270/cell_flags",
+   "differs: native/geometry/l_shape/e1w1s0/270/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e1w1s0/270/velocity",
+   "differs: native/geometry/l_shape/e1w1s1/27/cell_flags",
+   "differs: native/geometry/l_shape/e1w1s1/27/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e1w1s1/27/velocity",
+   "differs: native/geometry/l_shape/e1w1s1/270/cell_flags",
+   "differs: native/geometry/l_shape/e1w1s1/270/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e1w1s1/270/velocity",
+   "differs: native/geometry/l_shape/e1w2s0/27/cell_flags",
+   "differs: native/geometry/l_shape/e1w2s0/27/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e1w2s0/27/velocity",
+   "differs: native/geometry/l_shape/e1w2s0/270/cell_flags",
+   "differs: native/geometry/l_shape/e1w2s0/270/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e1w2s0/270/velocity",
+   "differs: native/geometry/l_shape/e1w2s1/27/cell_flags",
+   "differs: native/geometry/l_shape/e1w2s1/27/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e1w2s1/27/velocity",
+   "differs: native/geometry/l_shape/e1w2s1/270/cell_flags",
+   "differs: native/geometry/l_shape/e1w2s1/270/diagnostics/scalars",
+   "differs: native/geometry/l_shape/e1w2s1/270/velocity",
+   "differs: public/automatic_grid/metadata/versions/scalars",
+   "differs: public/calm/metadata/versions/scalars",
+   "differs: public/direction_0/metadata/versions/scalars",
+   "differs: public/direction_180/metadata/versions/scalars",
+   "differs: public/direction_247.5/metadata/versions/scalars",
+   "differs: public/direction_270/metadata/versions/scalars",
+   "differs: public/direction_33/metadata/versions/scalars",
+   "differs: public/direction_90/metadata/versions/scalars",
+   "differs: public/fine/metadata/versions/scalars",
+   "differs: public/flat/metadata/versions/scalars",
+   "differs: public/flat_turbulence/metadata/versions/scalars",
+   "differs: public/float64/metadata/versions/scalars",
+   "differs: public/long_float32/metadata/versions/scalars",
+   "differs: public/long_float64/metadata/versions/scalars",
+   "differs: public/nonconverged/metadata/versions/scalars",
+   "differs: public/one_building/metadata/versions/scalars",
+   "differs: public/one_building_turbulence/metadata/versions/scalars",
+   "differs: public/roughness_reference/metadata/versions/scalars",
+   "differs: public/stretched_float64/metadata/versions/scalars",
+   "differs: public/stretched_turbulence/metadata/versions/scalars",
+   "differs: public/turbulence_height/metadata/versions/scalars",
+   "differs: public/turbulence_wall/metadata/versions/scalars",
+   "differs: public/uniform_explicit_grid/metadata/versions/scalars"
+  ],
+  "comparisons": [
+   {
+    "kind": "revision",
+    "backend": "openmp",
+    "threads": 1,
+    "cases": 509,
+    "records": 5503
+   },
+   {
+    "kind": "revision",
+    "backend": "openmp",
+    "threads": 2,
+    "cases": 509,
+    "records": 5503
+   },
+   {
+    "kind": "revision",
+    "backend": "openmp",
+    "threads": 4,
+    "cases": 509,
+    "records": 5503
+   },
+   {
+    "kind": "revision",
+    "backend": "openmp",
+    "threads": 8,
+    "cases": 509,
+    "records": 5503
+   },
+   {
+    "kind": "team",
+    "backend": null,
+    "threads": [
+     1,
+     2
+    ],
+    "cases": null,
+    "records": 5503
+   },
+   {
+    "kind": "team",
+    "backend": null,
+    "threads": [
+     1,
+     4
+    ],
+    "cases": null,
+    "records": 5503
+   },
+   {
+    "kind": "team",
+    "backend": null,
+    "threads": [
+     1,
+     8
+    ],
+    "cases": null,
+    "records": 5503
+   },
+   {
+    "kind": "revision",
+    "backend": "serial",
+    "threads": 1,
+    "cases": 509,
+    "records": 5503
+   },
+   {
+    "kind": "backend",
+    "backend": null,
+    "threads": 1,
+    "cases": null,
+    "records": 5503
+   },
+   {
+    "kind": "backend",
+    "backend": null,
+    "threads": 2,
+    "cases": null,
+    "records": 5503
+   },
+   {
+    "kind": "backend",
+    "backend": null,
+    "threads": 4,
+    "cases": null,
+    "records": 5503
+   },
+   {
+    "kind": "backend",
+    "backend": null,
+    "threads": 8,
+    "cases": null,
+    "records": 5503
+   }
+  ],
+  "classified": {
+   "declared_geometry": [
+    "differs: native/geometry/courtyard/e0w1s0/27/cell_flags",
+    "differs: native/geometry/courtyard/e0w1s0/27/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e0w1s0/27/velocity",
+    "differs: native/geometry/courtyard/e0w1s1/27/cell_flags",
+    "differs: native/geometry/courtyard/e0w1s1/27/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e0w1s1/27/velocity",
+    "differs: native/geometry/courtyard/e0w2s0/27/cell_flags",
+    "differs: native/geometry/courtyard/e0w2s0/27/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e0w2s0/27/velocity",
+    "differs: native/geometry/courtyard/e0w2s1/27/cell_flags",
+    "differs: native/geometry/courtyard/e0w2s1/27/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e0w2s1/27/velocity",
+    "differs: native/geometry/courtyard/e1w1s0/27/cell_flags",
+    "differs: native/geometry/courtyard/e1w1s0/27/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e1w1s0/27/velocity",
+    "differs: native/geometry/courtyard/e1w1s1/27/cell_flags",
+    "differs: native/geometry/courtyard/e1w1s1/27/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e1w1s1/27/velocity",
+    "differs: native/geometry/courtyard/e1w2s0/27/cell_flags",
+    "differs: native/geometry/courtyard/e1w2s0/27/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e1w2s0/27/velocity",
+    "differs: native/geometry/courtyard/e1w2s1/27/cell_flags",
+    "differs: native/geometry/courtyard/e1w2s1/27/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e1w2s1/27/velocity",
+    "differs: native/geometry/l_shape/e0w1s0/27/cell_flags",
+    "differs: native/geometry/l_shape/e0w1s0/27/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e0w1s0/27/velocity",
+    "differs: native/geometry/l_shape/e0w1s0/270/cell_flags",
+    "differs: native/geometry/l_shape/e0w1s0/270/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e0w1s0/270/velocity",
+    "differs: native/geometry/l_shape/e0w1s1/27/cell_flags",
+    "differs: native/geometry/l_shape/e0w1s1/27/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e0w1s1/27/velocity",
+    "differs: native/geometry/l_shape/e0w1s1/270/cell_flags",
+    "differs: native/geometry/l_shape/e0w1s1/270/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e0w1s1/270/velocity",
+    "differs: native/geometry/l_shape/e0w2s0/27/cell_flags",
+    "differs: native/geometry/l_shape/e0w2s0/27/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e0w2s0/27/velocity",
+    "differs: native/geometry/l_shape/e0w2s0/270/cell_flags",
+    "differs: native/geometry/l_shape/e0w2s0/270/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e0w2s0/270/velocity",
+    "differs: native/geometry/l_shape/e0w2s1/27/cell_flags",
+    "differs: native/geometry/l_shape/e0w2s1/27/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e0w2s1/27/velocity",
+    "differs: native/geometry/l_shape/e0w2s1/270/cell_flags",
+    "differs: native/geometry/l_shape/e0w2s1/270/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e0w2s1/270/velocity",
+    "differs: native/geometry/l_shape/e1w1s0/27/cell_flags",
+    "differs: native/geometry/l_shape/e1w1s0/27/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e1w1s0/27/velocity",
+    "differs: native/geometry/l_shape/e1w1s0/270/cell_flags",
+    "differs: native/geometry/l_shape/e1w1s0/270/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e1w1s0/270/velocity",
+    "differs: native/geometry/l_shape/e1w1s1/27/cell_flags",
+    "differs: native/geometry/l_shape/e1w1s1/27/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e1w1s1/27/velocity",
+    "differs: native/geometry/l_shape/e1w1s1/270/cell_flags",
+    "differs: native/geometry/l_shape/e1w1s1/270/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e1w1s1/270/velocity",
+    "differs: native/geometry/l_shape/e1w2s0/27/cell_flags",
+    "differs: native/geometry/l_shape/e1w2s0/27/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e1w2s0/27/velocity",
+    "differs: native/geometry/l_shape/e1w2s0/270/cell_flags",
+    "differs: native/geometry/l_shape/e1w2s0/270/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e1w2s0/270/velocity",
+    "differs: native/geometry/l_shape/e1w2s1/27/cell_flags",
+    "differs: native/geometry/l_shape/e1w2s1/27/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e1w2s1/27/velocity",
+    "differs: native/geometry/l_shape/e1w2s1/270/cell_flags",
+    "differs: native/geometry/l_shape/e1w2s1/270/diagnostics/scalars",
+    "differs: native/geometry/l_shape/e1w2s1/270/velocity"
+   ],
+   "package_version": [
+    "differs: public/automatic_grid/metadata/versions/scalars",
+    "differs: public/calm/metadata/versions/scalars",
+    "differs: public/direction_0/metadata/versions/scalars",
+    "differs: public/direction_180/metadata/versions/scalars",
+    "differs: public/direction_247.5/metadata/versions/scalars",
+    "differs: public/direction_270/metadata/versions/scalars",
+    "differs: public/direction_33/metadata/versions/scalars",
+    "differs: public/direction_90/metadata/versions/scalars",
+    "differs: public/fine/metadata/versions/scalars",
+    "differs: public/flat/metadata/versions/scalars",
+    "differs: public/flat_turbulence/metadata/versions/scalars",
+    "differs: public/float64/metadata/versions/scalars",
+    "differs: public/long_float32/metadata/versions/scalars",
+    "differs: public/long_float64/metadata/versions/scalars",
+    "differs: public/nonconverged/metadata/versions/scalars",
+    "differs: public/one_building/metadata/versions/scalars",
+    "differs: public/one_building_turbulence/metadata/versions/scalars",
+    "differs: public/roughness_reference/metadata/versions/scalars",
+    "differs: public/stretched_float64/metadata/versions/scalars",
+    "differs: public/stretched_turbulence/metadata/versions/scalars",
+    "differs: public/turbulence_height/metadata/versions/scalars",
+    "differs: public/turbulence_wall/metadata/versions/scalars",
+    "differs: public/uniform_explicit_grid/metadata/versions/scalars"
+   ],
+   "package_version_check": "every record differs only in dtcc_qes 0.1.0b3 -> 0.1.0b4, in all 5 runs (115 checked)",
+   "unexplained": []
+  }
+ },
+ "isolated": {
+  "openmp": "True 31f6d956fecfa24654a34b7ed43941c38876f38b26d0800ca5868e7b54396f87",
+  "serial": "True 31f6d956fecfa24654a34b7ed43941c38876f38b26d0800ca5868e7b54396f87"
+ },
+ "s7": {
+  "exit": 0,
+  "passed": true,
+  "workers": 24,
+  "differences": []
+ },
+ "combined": {
+  "non-adaptive": {
+   "exit": 1,
+   "report": "{\n  \"passed\": false,\n  \"differences\": [\n    \"metadata/auto\",\n    \"metadata/calm\",\n    \"metadata/calm-bounded-height\",\n    \"metadata/calm-explicit-double-wall\",\n    \"metadata/canonical-footprints\",\n    \"metadata/dataset-auto\",\n    \"metadata/dataset-field\",\n    \"metadata/dataset-linear\",\n    \"metadata/empty\",\n    \"metadata/empty-turbulence\",\n    \"metadata/jet\",\n    \"metadata/jet-bounded-height\",\n    \"metadata/jet-explicit-double-wall\",\n    \"metadata/log\",\n    \"metadata/log-bounded-height\",\n    \"metadata/log-explicit-double-wall\",\n    \"metadata/power\",\n    \"metadata/power-bounded-height\",\n    \"metadata/power-explicit-double-wall\",\n    \"metadata/scalar\",\n    \"metadata/turbulence-extended\",\n    \"metadata/turning\",\n    \"metadata/turning-bounded-height\",\n    \"metadata/turning-explicit-double-wall\",\n    \"metadata/uniform\",\n    \"metadata/uniform-bounded-height\",\n    \"metadata/uniform-explicit-double-wall\"\n  ]\n}",
+   "classified": {
+    "arrays": "all bitwise identical",
+    "metadata_values": [
+     "/solver/record/policy_revision (declared identity pair)",
+     "/versions/dtcc_qes 0.1.0b3 -> 0.1.0b4 (package version)"
+    ],
+    "unexplained": []
+   }
+  },
+  "adaptive": {
+   "exit": 1,
+   "report": "{\n  \"passed\": false,\n  \"differences\": [\n    \"metadata/adaptive\",\n    \"metadata/adaptive-double\",\n    \"metadata/adaptive-profile\",\n    \"metadata/adaptive-turbulence\"\n  ]\n}",
+   "classified": {
+    "arrays": "all bitwise identical",
+    "metadata_values": [
+     "/solver/record/policy_revision (declared identity pair)",
+     "/versions/dtcc_qes 0.1.0b3 -> 0.1.0b4 (package version)"
+    ],
+    "unexplained": []
+   }
+  }
+ },
+ "pytest": {
+  "openmp": {
+   "exit": 0,
+   "tail": [
+    "..................................................................       [100%]",
+    "2066 passed, 16 skipped in 86.76s (0:01:26)"
+   ]
+  },
+  "serial": {
+   "exit": 0,
+   "tail": [
+    "..................................................................       [100%]",
+    "2066 passed, 16 skipped in 102.35s (0:01:42)"
+   ]
+  }
+ },
+ "artifacts": {
+  "sdist": "dtcc_qes-0.1.0b4.tar.gz",
+  "sdist_bytes": 21571412,
+  "wheel": "dtcc_qes-0.1.0b4-cp314-cp314-macosx_15_0_arm64.whl",
+  "wheel_sha256": "66d740c9a02a6b5cd4a398396a3c86592129f6c9e001fe52b326f539d0a3ddb8",
+  "smoke_exit": 0,
+  "smoke": "{\"passed\": true, \"package\": \"build/requal/wheel-install/dtcc_qes\", \"module\": \"build/requal/wheel-install/dtcc_qes/_qes.cpython-314-darwin.so\", \"policy_revision\": \"31f6d956fecfa24654a34b7ed43941c38876f38b26d0800ca5868e7b54396f87\", \"adaptive_accepted\": true, \"actual_threads\": 4, \"checks\": [\"owned_output\", \"sampling\", \"adaptive_vs_legacy_status\", \"derived_qualification\", \"nested_timings\", \"history_bounds\", \"float64\", \"two_turbulence_methods\", \"zero_work_error\", \"canonical_footprints_with_partition_hole\"]}"
+ }
+}

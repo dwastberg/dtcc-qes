@@ -295,3 +295,17 @@ synchronized. See `docs/CODE_REVIEW_2026_11.md` for scope and verification.
   `docs/data/wake-update-v2/combined-requalification*.json`;
   `MAIN_INTEGRATION_PLAN.md` step B4). The only numerical differences are the
   declared W1b exposed-face cases.
+
+### Building reference point (FOOTPRINT_REFERENCE_POINT.md)
+
+- `PolyBuilding::setPolyBuilding` keeps the vertex mean of the outer ring as
+  the building's reference point when it lies in the footprint (always, for
+  convex rings), and otherwise uses the midpoint of the widest interior span on
+  a vertex-free horizontal scan line. Changes results only for buildings whose
+  vertex mean lies outside (L/U shapes, courtyards).
+- **Re-qualification.** Identity
+  `31f6d956fecfa24654a34b7ed43941c38876f38b26d0800ca5868e7b54396f87` was
+  re-qualified against `main` `7bf2115` by the procedure of
+  `docs/solver-control-requalification.md` (evidence
+  `docs/data/footprint-reference-point/`). The only numerical differences are
+  the declared `courtyard` and `l_shape` cases.
