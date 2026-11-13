@@ -174,8 +174,24 @@ For optional QES-Turb output, `comfort.gust_equivalent_mean` estimates
 `peak_factor` is required: this guideline does not establish a peak factor or
 gust averaging time for this algebraic model. QES mean/stress output has no
 established averaging duration here. These are unvalidated gust screening
-estimates. The example's factor **3.0 is a user-selected screening assumption**;
-it has no claimed QES calibration or validated averaging time.
+estimates. `comfort.SCREENING_PEAK_FACTOR = 3.0` is the shared constant for
+automatic comfort screening and the example. It is a pragmatic assumption,
+with no claimed QES calibration or validated averaging time. It applies to
+every location and wind direction; local mean speed and turbulence still vary
+with the simulated geometry. The planned comfort Dataset will use this value
+internally, without requiring an ordinary user to select a peak factor.
+The low-level helpers retain explicit factor selection for specialist use.
+
+### Future work: dynamic peak factor
+
+Investigate factors varying by location and direction using estimated turbulence
+timescales and explicitly defined gust and observation durations. Historical
+gust observations can help constrain incoming conditions, but do not directly
+determine pedestrian-level factors. A dynamic model must be checked against
+independent measurements or time-resolved simulations before replacing the
+constant; QES mixing length is not automatically an integral turbulence scale.
+
+### Gust-field validity
 
 The helper returns float64 arrays of the same shape as its two inputs. It
 preserves NaN values, including invalid stress and undefined mean directions.
@@ -193,7 +209,7 @@ from dtcc_qes import comfort, wind
 gust_result = wind.run(city, speed=5, direction=270,
     bounds=(0,0,0,80,60,40), turbulence=wind.Turbulence())
 screening = comfort.assess_results([gust_result], [5], [270],
-    comfort.CITY_OF_LONDON, peak_factor=3.0)
+    comfort.CITY_OF_LONDON, peak_factor=comfort.SCREENING_PEAK_FACTOR)
 assert any("screening estimate" in warning for warning in screening.warnings)
 ```
 

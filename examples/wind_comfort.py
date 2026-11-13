@@ -6,8 +6,8 @@ the inflow speed, so each direction is solved once at REFERENCE_SPEED. The
 climate is synthetic (seeded Weibull speeds at the 10 m reference, prevailing
 south-westerlies) so the example reads no files.
 
-London GEM uses QES-Turb standard deviations with peak factor 3.0, a
-user-selected screening assumption with no QES calibration. Mean and gust
+London GEM uses QES-Turb standard deviations with the shared constant peak
+factor 3.0, a screening assumption with no QES calibration. Mean and gust
 averaging times are unspecified. The algebraic gust estimates are not validated
 for pedestrian gusts or planning compliance.
 """
@@ -19,8 +19,8 @@ from dtcc_qes import comfort, wind
 
 REFERENCE_SPEED = 5.0
 PEDESTRIAN_HEIGHT = 1.5
-# User-selected screening factors; the guideline supplies only the 1.85 conversion.
-PEAK_FACTOR = 3.0
+# Fixed screening policy; the guideline supplies only the 1.85 conversion.
+PEAK_FACTOR = comfort.SCREENING_PEAK_FACTOR
 GUST_RATIO = 1.85
 # Explicit layers give a cell centre at 1.5 m with 2 m cells above.
 FACES = np.r_[0.0, 0.5, 1.0, 2.0, np.arange(4.0, 42.0, 2.0)]

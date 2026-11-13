@@ -16,6 +16,10 @@ Native identity `31f6d956fecfa24654a34b7ed43941c38876f38b26d0800ca5868e7b54396f8
     - In Case E, pooled scores change by at most 0.0031, and 0.35 % of probe-directions change by more than 0.05 in K.
     - The `wake=3` gates still pass.
 
+### Added
+
+- **`comfort.SCREENING_PEAK_FACTOR = 3.0`.** One documented peak factor for gust screening, used by the comfort example and the documentation. It is a pragmatic assumption with no QES calibration or validated averaging time. `gust_equivalent_mean` and `assess_results` still take an explicit `peak_factor`. See [docs/wind-comfort.md](docs/wind-comfort.md).
+
 ### Packaging
 
 - **sdist size.** The sdist no longer contains the qualification evidence (`docs/data`, 1.8 GB): 21.6 MB instead of 1.4 GB. The evidence stays in the repository. `tools/check_artifacts.py` audits it on the checkout.
