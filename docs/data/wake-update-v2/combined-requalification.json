@@ -1,0 +1,300 @@
+{
+ "candidate_commit": "640dd5e72bc0fae069834bbd29ef62f7558ca54e",
+ "lock_sha256": "f1b5b47998808f9a83f6cc51d55a9bc2786607dae8e3715af8021d47e46ea8a9",
+ "stages": [
+  "tree",
+  "native",
+  "compare",
+  "prune",
+  "isolate",
+  "s7",
+  "combined",
+  "pytest",
+  "artifacts"
+ ],
+ "native": {
+  "openmp": {
+   "ctest": [
+    "100% tests passed, 0 tests failed out of 63",
+    "",
+    "Total Test time (real) =   4.91 sec"
+   ],
+   "identity": "bf48ef3f660d09c3c57a8198ceeac13e4ce9511383a119ea2a17714c5de22ab7"
+  },
+  "serial": {
+   "ctest": [
+    "100% tests passed, 0 tests failed out of 60",
+    "",
+    "Total Test time (real) =   3.95 sec"
+   ],
+   "identity": "bf48ef3f660d09c3c57a8198ceeac13e4ce9511383a119ea2a17714c5de22ab7"
+  },
+  "sanitizers": {
+   "ctest": [
+    "100% tests passed, 0 tests failed out of 60",
+    "",
+    "Total Test time (real) =  16.43 sec"
+   ],
+   "identity": "bf48ef3f660d09c3c57a8198ceeac13e4ce9511383a119ea2a17714c5de22ab7"
+  }
+ },
+ "new_identity": "bf48ef3f660d09c3c57a8198ceeac13e4ce9511383a119ea2a17714c5de22ab7",
+ "compare": {
+  "exit": 1,
+  "differences": [
+   "differs: native/geometry/courtyard/e1w1s0/27/cell_flags",
+   "differs: native/geometry/courtyard/e1w1s0/27/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e1w1s0/27/velocity",
+   "differs: native/geometry/courtyard/e1w1s0/270/cell_flags",
+   "differs: native/geometry/courtyard/e1w1s0/270/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e1w1s0/270/velocity",
+   "differs: native/geometry/courtyard/e1w1s1/27/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e1w1s1/27/velocity",
+   "differs: native/geometry/courtyard/e1w2s0/27/cell_flags",
+   "differs: native/geometry/courtyard/e1w2s0/27/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e1w2s0/27/velocity",
+   "differs: native/geometry/courtyard/e1w2s0/270/cell_flags",
+   "differs: native/geometry/courtyard/e1w2s0/270/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e1w2s0/270/velocity",
+   "differs: native/geometry/courtyard/e1w2s1/27/diagnostics/scalars",
+   "differs: native/geometry/courtyard/e1w2s1/27/velocity",
+   "differs: native/geometry/slab_gap/e1w1s0/270/cell_flags",
+   "differs: native/geometry/slab_gap/e1w1s0/270/diagnostics/scalars",
+   "differs: native/geometry/slab_gap/e1w1s0/270/velocity",
+   "differs: native/geometry/slab_gap/e1w2s0/270/cell_flags",
+   "differs: native/geometry/slab_gap/e1w2s0/270/diagnostics/scalars",
+   "differs: native/geometry/slab_gap/e1w2s0/270/velocity",
+   "differs: public/automatic_grid/metadata/versions/scalars",
+   "differs: public/calm/metadata/versions/scalars",
+   "differs: public/direction_0/metadata/versions/scalars",
+   "differs: public/direction_180/metadata/versions/scalars",
+   "differs: public/direction_247.5/metadata/versions/scalars",
+   "differs: public/direction_270/metadata/versions/scalars",
+   "differs: public/direction_33/metadata/versions/scalars",
+   "differs: public/direction_90/metadata/versions/scalars",
+   "differs: public/fine/metadata/versions/scalars",
+   "differs: public/flat/metadata/versions/scalars",
+   "differs: public/flat_turbulence/metadata/versions/scalars",
+   "differs: public/float64/metadata/versions/scalars",
+   "differs: public/long_float32/metadata/versions/scalars",
+   "differs: public/long_float64/metadata/versions/scalars",
+   "differs: public/nonconverged/metadata/versions/scalars",
+   "differs: public/one_building/metadata/versions/scalars",
+   "differs: public/one_building_turbulence/metadata/versions/scalars",
+   "differs: public/roughness_reference/metadata/versions/scalars",
+   "differs: public/stretched_float64/metadata/versions/scalars",
+   "differs: public/stretched_turbulence/metadata/versions/scalars",
+   "differs: public/turbulence_height/metadata/versions/scalars",
+   "differs: public/turbulence_wall/metadata/versions/scalars",
+   "differs: public/uniform_explicit_grid/metadata/versions/scalars"
+  ],
+  "comparisons": [
+   {
+    "kind": "revision",
+    "backend": "openmp",
+    "threads": 1,
+    "cases": 509,
+    "records": 5503
+   },
+   {
+    "kind": "revision",
+    "backend": "openmp",
+    "threads": 2,
+    "cases": 509,
+    "records": 5503
+   },
+   {
+    "kind": "revision",
+    "backend": "openmp",
+    "threads": 4,
+    "cases": 509,
+    "records": 5503
+   },
+   {
+    "kind": "revision",
+    "backend": "openmp",
+    "threads": 8,
+    "cases": 509,
+    "records": 5503
+   },
+   {
+    "kind": "team",
+    "backend": null,
+    "threads": [
+     1,
+     2
+    ],
+    "cases": null,
+    "records": 5503
+   },
+   {
+    "kind": "team",
+    "backend": null,
+    "threads": [
+     1,
+     4
+    ],
+    "cases": null,
+    "records": 5503
+   },
+   {
+    "kind": "team",
+    "backend": null,
+    "threads": [
+     1,
+     8
+    ],
+    "cases": null,
+    "records": 5503
+   },
+   {
+    "kind": "revision",
+    "backend": "serial",
+    "threads": 1,
+    "cases": 509,
+    "records": 5503
+   },
+   {
+    "kind": "backend",
+    "backend": null,
+    "threads": 1,
+    "cases": null,
+    "records": 5503
+   },
+   {
+    "kind": "backend",
+    "backend": null,
+    "threads": 2,
+    "cases": null,
+    "records": 5503
+   },
+   {
+    "kind": "backend",
+    "backend": null,
+    "threads": 4,
+    "cases": null,
+    "records": 5503
+   },
+   {
+    "kind": "backend",
+    "backend": null,
+    "threads": 8,
+    "cases": null,
+    "records": 5503
+   }
+  ],
+  "classified": {
+   "w1b_declared": [
+    "differs: native/geometry/courtyard/e1w1s0/27/cell_flags",
+    "differs: native/geometry/courtyard/e1w1s0/27/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e1w1s0/27/velocity",
+    "differs: native/geometry/courtyard/e1w1s0/270/cell_flags",
+    "differs: native/geometry/courtyard/e1w1s0/270/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e1w1s0/270/velocity",
+    "differs: native/geometry/courtyard/e1w1s1/27/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e1w1s1/27/velocity",
+    "differs: native/geometry/courtyard/e1w2s0/27/cell_flags",
+    "differs: native/geometry/courtyard/e1w2s0/27/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e1w2s0/27/velocity",
+    "differs: native/geometry/courtyard/e1w2s0/270/cell_flags",
+    "differs: native/geometry/courtyard/e1w2s0/270/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e1w2s0/270/velocity",
+    "differs: native/geometry/courtyard/e1w2s1/27/diagnostics/scalars",
+    "differs: native/geometry/courtyard/e1w2s1/27/velocity",
+    "differs: native/geometry/slab_gap/e1w1s0/270/cell_flags",
+    "differs: native/geometry/slab_gap/e1w1s0/270/diagnostics/scalars",
+    "differs: native/geometry/slab_gap/e1w1s0/270/velocity",
+    "differs: native/geometry/slab_gap/e1w2s0/270/cell_flags",
+    "differs: native/geometry/slab_gap/e1w2s0/270/diagnostics/scalars",
+    "differs: native/geometry/slab_gap/e1w2s0/270/velocity"
+   ],
+   "package_version": [
+    "differs: public/automatic_grid/metadata/versions/scalars",
+    "differs: public/calm/metadata/versions/scalars",
+    "differs: public/direction_0/metadata/versions/scalars",
+    "differs: public/direction_180/metadata/versions/scalars",
+    "differs: public/direction_247.5/metadata/versions/scalars",
+    "differs: public/direction_270/metadata/versions/scalars",
+    "differs: public/direction_33/metadata/versions/scalars",
+    "differs: public/direction_90/metadata/versions/scalars",
+    "differs: public/fine/metadata/versions/scalars",
+    "differs: public/flat/metadata/versions/scalars",
+    "differs: public/flat_turbulence/metadata/versions/scalars",
+    "differs: public/float64/metadata/versions/scalars",
+    "differs: public/long_float32/metadata/versions/scalars",
+    "differs: public/long_float64/metadata/versions/scalars",
+    "differs: public/nonconverged/metadata/versions/scalars",
+    "differs: public/one_building/metadata/versions/scalars",
+    "differs: public/one_building_turbulence/metadata/versions/scalars",
+    "differs: public/roughness_reference/metadata/versions/scalars",
+    "differs: public/stretched_float64/metadata/versions/scalars",
+    "differs: public/stretched_turbulence/metadata/versions/scalars",
+    "differs: public/turbulence_height/metadata/versions/scalars",
+    "differs: public/turbulence_wall/metadata/versions/scalars",
+    "differs: public/uniform_explicit_grid/metadata/versions/scalars"
+   ],
+   "package_version_check": "every record differs only in dtcc_qes 0.1.0b2 -> 0.1.0b3, in all 5 runs (115 checked)",
+   "unexplained": []
+  }
+ },
+ "isolated": {
+  "openmp": "True bf48ef3f660d09c3c57a8198ceeac13e4ce9511383a119ea2a17714c5de22ab7",
+  "serial": "True bf48ef3f660d09c3c57a8198ceeac13e4ce9511383a119ea2a17714c5de22ab7"
+ },
+ "s7": {
+  "exit": 0,
+  "passed": true,
+  "workers": 24,
+  "differences": []
+ },
+ "combined": {
+  "non-adaptive": {
+   "exit": 1,
+   "report": "{\n  \"passed\": false,\n  \"differences\": [\n    \"metadata/auto\",\n    \"metadata/calm\",\n    \"metadata/calm-bounded-height\",\n    \"metadata/calm-explicit-double-wall\",\n    \"metadata/canonical-footprints\",\n    \"metadata/dataset-auto\",\n    \"metadata/dataset-field\",\n    \"metadata/dataset-linear\",\n    \"metadata/empty\",\n    \"metadata/empty-turbulence\",\n    \"metadata/jet\",\n    \"metadata/jet-bounded-height\",\n    \"metadata/jet-explicit-double-wall\",\n    \"metadata/log\",\n    \"metadata/log-bounded-height\",\n    \"metadata/log-explicit-double-wall\",\n    \"metadata/power\",\n    \"metadata/power-bounded-height\",\n    \"metadata/power-explicit-double-wall\",\n    \"metadata/scalar\",\n    \"metadata/turbulence-extended\",\n    \"metadata/turning\",\n    \"metadata/turning-bounded-height\",\n    \"metadata/turning-explicit-double-wall\",\n    \"metadata/uniform\",\n    \"metadata/uniform-bounded-height\",\n    \"metadata/uniform-explicit-double-wall\"\n  ]\n}",
+   "classified": {
+    "arrays": "all bitwise identical",
+    "metadata_values": [
+     "/solver/record/policy_revision (declared identity pair)",
+     "/versions/dtcc_qes 0.1.0b2 -> 0.1.0b3 (package version)"
+    ],
+    "unexplained": []
+   }
+  },
+  "adaptive": {
+   "exit": 1,
+   "report": "{\n  \"passed\": false,\n  \"differences\": [\n    \"metadata/adaptive\",\n    \"metadata/adaptive-double\",\n    \"metadata/adaptive-profile\",\n    \"metadata/adaptive-turbulence\"\n  ]\n}",
+   "classified": {
+    "arrays": "all bitwise identical",
+    "metadata_values": [
+     "/solver/record/policy_revision (declared identity pair)",
+     "/versions/dtcc_qes 0.1.0b2 -> 0.1.0b3 (package version)"
+    ],
+    "unexplained": []
+   }
+  }
+ },
+ "pytest": {
+  "openmp": {
+   "exit": 0,
+   "tail": [
+    "..................................................................       [100%]",
+    "2066 passed, 16 skipped in 94.81s (0:01:34)"
+   ]
+  },
+  "serial": {
+   "exit": 0,
+   "tail": [
+    "..................................................................       [100%]",
+    "2066 passed, 16 skipped in 108.16s (0:01:48)"
+   ]
+  }
+ },
+ "artifacts": {
+  "sdist": "dtcc_qes-0.1.0b3.tar.gz",
+  "sdist_bytes": 1428709635,
+  "wheel": "dtcc_qes-0.1.0b3-cp314-cp314-macosx_15_0_arm64.whl",
+  "wheel_sha256": "fb995a4f82eda997da7766f03ebc54a6525c3738fe9fb123a040a4fdf1b4bb3c",
+  "smoke_exit": 0,
+  "smoke": "{\"passed\": true, \"package\": \"build/requal/wheel-install/dtcc_qes\", \"module\": \"build/requal/wheel-install/dtcc_qes/_qes.cpython-314-darwin.so\", \"policy_revision\": \"bf48ef3f660d09c3c57a8198ceeac13e4ce9511383a119ea2a17714c5de22ab7\", \"adaptive_accepted\": true, \"actual_threads\": 4, \"checks\": [\"owned_output\", \"sampling\", \"adaptive_vs_legacy_status\", \"derived_qualification\", \"nested_timings\", \"history_bounds\", \"float64\", \"two_turbulence_methods\", \"zero_work_error\", \"canonical_footprints_with_partition_hole\"]}"
+ }
+}

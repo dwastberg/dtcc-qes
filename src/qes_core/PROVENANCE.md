@@ -287,3 +287,11 @@ synchronized. See `docs/CODE_REVIEW_2026_11.md` for scope and verification.
   `docs/data/wake-update-v2/`; summary in
   `validation/WAKE_UPDATE_V2_RESULTS.md`). The only numerical differences from
   `main` are the declared W1b exposed-face cases.
+- **Re-qualification with the stop rule.** After `main` (with the stop rule,
+  `1319a43d…`) was merged into the wake update, the combined identity
+  `bf48ef3f660d09c3c57a8198ceeac13e4ce9511383a119ea2a17714c5de22ab7` was
+  re-qualified against `main` `b374dfb` by the procedure of
+  `docs/solver-control-requalification.md` (evidence
+  `docs/data/wake-update-v2/combined-requalification*.json`;
+  `MAIN_INTEGRATION_PLAN.md` step B4). The only numerical differences are the
+  declared W1b exposed-face cases.
