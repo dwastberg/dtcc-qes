@@ -1,0 +1,446 @@
+{
+  "configuration": {
+    "masks": {
+      "probe_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80
+      ],
+      "frozen_full_spurious_pairs": [
+        {
+          "probe_id": 2,
+          "label": "SE"
+        },
+        {
+          "probe_id": 3,
+          "label": "SE"
+        },
+        {
+          "probe_id": 3,
+          "label": "NW"
+        },
+        {
+          "probe_id": 3,
+          "label": "NNW"
+        },
+        {
+          "probe_id": 4,
+          "label": "SSE"
+        },
+        {
+          "probe_id": 4,
+          "label": "S"
+        },
+        {
+          "probe_id": 5,
+          "label": "SSW"
+        },
+        {
+          "probe_id": 6,
+          "label": "SSW"
+        },
+        {
+          "probe_id": 13,
+          "label": "ESE"
+        },
+        {
+          "probe_id": 14,
+          "label": "WNW"
+        },
+        {
+          "probe_id": 14,
+          "label": "NW"
+        },
+        {
+          "probe_id": 15,
+          "label": "SSE"
+        },
+        {
+          "probe_id": 15,
+          "label": "S"
+        },
+        {
+          "probe_id": 15,
+          "label": "SSW"
+        },
+        {
+          "probe_id": 16,
+          "label": "E"
+        },
+        {
+          "probe_id": 16,
+          "label": "SW"
+        },
+        {
+          "probe_id": 22,
+          "label": "ENE"
+        },
+        {
+          "probe_id": 22,
+          "label": "ESE"
+        },
+        {
+          "probe_id": 23,
+          "label": "E"
+        },
+        {
+          "probe_id": 23,
+          "label": "ESE"
+        },
+        {
+          "probe_id": 23,
+          "label": "W"
+        },
+        {
+          "probe_id": 23,
+          "label": "NW"
+        },
+        {
+          "probe_id": 24,
+          "label": "S"
+        },
+        {
+          "probe_id": 24,
+          "label": "SSW"
+        },
+        {
+          "probe_id": 25,
+          "label": "NE"
+        },
+        {
+          "probe_id": 25,
+          "label": "SSW"
+        },
+        {
+          "probe_id": 25,
+          "label": "SW"
+        },
+        {
+          "probe_id": 25,
+          "label": "WSW"
+        },
+        {
+          "probe_id": 26,
+          "label": "NE"
+        },
+        {
+          "probe_id": 26,
+          "label": "ENE"
+        },
+        {
+          "probe_id": 26,
+          "label": "SSW"
+        },
+        {
+          "probe_id": 26,
+          "label": "WSW"
+        },
+        {
+          "probe_id": 27,
+          "label": "NE"
+        },
+        {
+          "probe_id": 27,
+          "label": "SW"
+        },
+        {
+          "probe_id": 27,
+          "label": "WSW"
+        },
+        {
+          "probe_id": 28,
+          "label": "E"
+        },
+        {
+          "probe_id": 28,
+          "label": "WSW"
+        },
+        {
+          "probe_id": 28,
+          "label": "W"
+        },
+        {
+          "probe_id": 28,
+          "label": "WNW"
+        },
+        {
+          "probe_id": 29,
+          "label": "NNE"
+        },
+        {
+          "probe_id": 29,
+          "label": "W"
+        },
+        {
+          "probe_id": 30,
+          "label": "E"
+        },
+        {
+          "probe_id": 30,
+          "label": "W"
+        },
+        {
+          "probe_id": 30,
+          "label": "WNW"
+        },
+        {
+          "probe_id": 30,
+          "label": "NW"
+        },
+        {
+          "probe_id": 36,
+          "label": "NNE"
+        },
+        {
+          "probe_id": 36,
+          "label": "NE"
+        },
+        {
+          "probe_id": 36,
+          "label": "S"
+        },
+        {
+          "probe_id": 36,
+          "label": "SSW"
+        },
+        {
+          "probe_id": 36,
+          "label": "SW"
+        },
+        {
+          "probe_id": 37,
+          "label": "N"
+        },
+        {
+          "probe_id": 37,
+          "label": "SSE"
+        },
+        {
+          "probe_id": 37,
+          "label": "S"
+        },
+        {
+          "probe_id": 37,
+          "label": "NW"
+        },
+        {
+          "probe_id": 37,
+          "label": "NNW"
+        },
+        {
+          "probe_id": 38,
+          "label": "E"
+        },
+        {
+          "probe_id": 38,
+          "label": "W"
+        },
+        {
+          "probe_id": 38,
+          "label": "WNW"
+        },
+        {
+          "probe_id": 42,
+          "label": "SE"
+        },
+        {
+          "probe_id": 44,
+          "label": "SSW"
+        },
+        {
+          "probe_id": 51,
+          "label": "WNW"
+        },
+        {
+          "probe_id": 52,
+          "label": "WNW"
+        },
+        {
+          "probe_id": 52,
+          "label": "NW"
+        },
+        {
+          "probe_id": 56,
+          "label": "W"
+        },
+        {
+          "probe_id": 56,
+          "label": "WNW"
+        },
+        {
+          "probe_id": 56,
+          "label": "NW"
+        },
+        {
+          "probe_id": 58,
+          "label": "NNE"
+        },
+        {
+          "probe_id": 58,
+          "label": "NE"
+        },
+        {
+          "probe_id": 58,
+          "label": "E"
+        },
+        {
+          "probe_id": 58,
+          "label": "ESE"
+        },
+        {
+          "probe_id": 58,
+          "label": "SSW"
+        },
+        {
+          "probe_id": 58,
+          "label": "SW"
+        },
+        {
+          "probe_id": 58,
+          "label": "WNW"
+        },
+        {
+          "probe_id": 59,
+          "label": "SSW"
+        },
+        {
+          "probe_id": 59,
+          "label": "SW"
+        },
+        {
+          "probe_id": 60,
+          "label": "E"
+        },
+        {
+          "probe_id": 61,
+          "label": "SSW"
+        },
+        {
+          "probe_id": 62,
+          "label": "NNE"
+        },
+        {
+          "probe_id": 62,
+          "label": "NE"
+        },
+        {
+          "probe_id": 62,
+          "label": "ENE"
+        },
+        {
+          "probe_id": 62,
+          "label": "SW"
+        },
+        {
+          "probe_id": 62,
+          "label": "WSW"
+        },
+        {
+          "probe_id": 62,
+          "label": "W"
+        },
+        {
+          "probe_id": 63,
+          "label": "ENE"
+        },
+        {
+          "probe_id": 63,
+          "label": "SW"
+        },
+        {
+          "probe_id": 64,
+          "label": "ENE"
+        },
+        {
+          "probe_id": 71,
+          "label": "NNE"
+        },
+        {
+          "probe_id": 72,
+          "label": "SSE"
+        },
+        {
+          "probe_id": 75,
+          "label": "WNW"
+        }
+      ]
+    }
+  }
+}

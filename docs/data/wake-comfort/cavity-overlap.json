@@ -1,0 +1,68 @@
+{
+  "windy_pairs": 135,
+  "frozen_spurious_pairs": 89,
+  "overlap_count": 15,
+  "overlap_pairs": [
+    [
+      3,
+      "SE"
+    ],
+    [
+      5,
+      "SSW"
+    ],
+    [
+      15,
+      "SSE"
+    ],
+    [
+      24,
+      "S"
+    ],
+    [
+      27,
+      "SW"
+    ],
+    [
+      28,
+      "WSW"
+    ],
+    [
+      29,
+      "W"
+    ],
+    [
+      30,
+      "W"
+    ],
+    [
+      36,
+      "NE"
+    ],
+    [
+      36,
+      "NNE"
+    ],
+    [
+      37,
+      "NW"
+    ],
+    [
+      38,
+      "W"
+    ],
+    [
+      38,
+      "WNW"
+    ],
+    [
+      58,
+      "SSW"
+    ],
+    [
+      62,
+      "NNE"
+    ]
+  ],
+  "manifest_sha256": "803fc57dc6baf565d8f96877f5b86ea5bf6210ff711d235c50d7a9eaae09fb04"
+}

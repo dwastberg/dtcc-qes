@@ -45,8 +45,8 @@ plane = result.sample(1.75, "linear")  # plane.scalar_speed, plane.wake_deficit,
 ```
 
 The scalar speed uses k = k_inflow(z) (1 − D)² + k_w: the inflow turbulence,
-reduced inside far wakes, plus the wake turbulence. It is what an
-omnidirectional (thermistor or hot-sphere) anemometer reads, and it is always at
+reduced inside far wakes, plus the wake turbulence. It approximates the AIJ
+thermistor measurements (F14); it is not a universal sensor response, and is always at
 least the magnitude of the mean vector. By default k_inflow = 5.5 u*² (the
 neutral surface-layer σ_u, σ_v, σ_w = 2.4, 1.9, 1.25 u*), with u* = 0.4 a and a
 the slope of a least-squares fit U = a ln(1 + z/z₀) to the profile speed at 32
@@ -80,8 +80,13 @@ Measured on the AIJ cases at the pedestrian probes
 - **Comfort.** With the default `speed="vector"`, comfort classes in dense areas
   improve because the mean vector is slower. The scalar speed is a median
   1.1–1.5 times the vector speed (2.6–4 times at the stillest points), matches
-  the omnidirectional measurements best and restores the level; use
-  `speed="scalar"` with `wake=3` unless a criterion requires the vector.
+  the AIJ thermistor measurements best and restores the level. It improves
+  overall comfort agreement in the exploratory equal-sector Case E climates,
+  but becomes more optimistic with a dominant wind direction. Near the new
+  tower it misses more safety warnings: 15 of 20 risk probes, against 2 for
+  `wake=2` vector at the highest tested climate level. Keep `wake=2` vector
+  for safety screening until the [comfort plan](../WAKE3_COMFORT_DEFAULT_PLAN.md)
+  passes its safety and independent-data gates.
 - **Outputs.** `result.wake`, `scalar_speed()`, sampled and exported fields; no
   far-wake cell flag (5).
 - **Cost and solver.** About +0.2 s and 13 bytes per cell on a 1.8 M-cell,

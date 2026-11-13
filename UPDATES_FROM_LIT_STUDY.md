@@ -154,3 +154,8 @@ Each test produces a one-page verdict: exact hypothesis, changed code/formula, r
 For the first execution batch, cap work at **L0 array eligibility, L1 and L2's array pair**: at most six primary native solves, plus necessary bounded numerical controls. Review that evidence before extending to another mechanism or city directions. Run L5's archived comparison separately if its metadata is sufficient. Leave all other branches queued rather than launching the entire table.
 
 If no isolated candidate passes, report that result and stop. Combine models only after separate benefits are established; then a later 2x2 experiment must distinguish their individual effects from their interaction.
+
+
+## Wake comparator update (2026-11-13)
+
+L3 predates the merged spreading wake. Any future Singh wake-diffusion arm must compare against both `wake=2` and `wake=3`; a gain over the legacy wake alone cannot justify promotion. Port composition instrumentation to the split `prepareWake`/`applyWake` before reuse. No research result is changed by this requirement.

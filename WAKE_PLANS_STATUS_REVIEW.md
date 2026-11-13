@@ -4,6 +4,16 @@
 - **Question:** across every wake plan and design, what is done, what is left, and what should change given what has been learned since they were written.
 - **Method:** read every document below and compared it with `main` (`62a40ac`, 0.1.0b3), the integration record and the research branch's experiment reports. No new runs.
 
+## Execution update (2026-11-13)
+
+This review is preserved below as the pre-execution assessment. The reviewed
+plans and M2 registration were committed in `dcb2337`, then current `main` was
+merged into the worktree. Recommendations 5.1–5.4 and 5.6–5.10 are reflected in
+the docs and harness; 5.5 is recorded as the tower-research continuation, not
+claimed as executed. C1 is implemented and M2 fails its registered gates.
+See [execution results and outstanding work](validation/WAKE_COMFORT_RESULTS.md).
+No default switch or completion of C2–C7 is claimed.
+
 ## Verdict
 
 - **The wake model is finished and on `main`.** Everything the investigation decided is implemented, with two declared improvements. Everything its section 8 listed as "not run" has since been run. Every gate passes. `wake=3` was merged as opt-in on 2026-11-13 with a re-qualified native identity.

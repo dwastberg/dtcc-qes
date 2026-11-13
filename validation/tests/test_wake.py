@@ -65,3 +65,60 @@ def test_wake_validation_matrices_and_empty_gate_table(monkeypatch, tmp_path):
     monkeypatch.setattr(run_wake_validation, "RUNS", tmp_path)
     rows = run_wake_validation.gate_table({3: {}, 2: {}})
     assert len(rows) == len(run_wake_validation.GATES) and all(r["passed"] is None for r in rows)
+
+
+def test_registered_m2_strict_threshold_and_missing_inputs():
+    from aij.wake_comfort import m2
+    result = m2([.5, .6, .7, np.nan, .8], [.2, .2, .2, .9, np.nan], .6)
+    np.testing.assert_allclose(result, [.2, .2, .7, np.nan, np.nan], equal_nan=True)
+
+
+def test_registered_climates_and_public_assessment():
+    from aij.wake_comfort import climate, assess
+    directions = np.arange(16) * 22.5
+    for dominant in (None, 5):
+        speeds, angles = climate(directions, 7., dominant)
+        assert len(speeds) == len(angles) == 150000
+        counts = np.array([np.sum(angles == d) for d in directions])
+        assert sorted(set(counts)) == ([9375] if dominant is None else [7000, 45000])
+        field = np.full((80, 16), .8)
+        result = assess(field, directions, 7., dominant)
+        for threshold in (5., 15.):
+            np.testing.assert_allclose(result.exceedance[threshold], np.exp(-(threshold / (7 * .8))**2), atol=16/150000)
+        assert result.metadata['hours'] == 150000
+        assert result.warnings  # registered 2 m height differs from NEN's 1.75 m
+
+
+def test_cost_and_paired_maximum_bootstrap():
+    from aij.wake_comfort import cost, worst_rotation, evaluate
+    np.testing.assert_array_equal(cost(np.array([0, 4, 2]), np.array([2, 2, 2])), [6, 2, 0])
+    d = np.full((16, 80), -2.)
+    d[7] = 1.
+    assert worst_rotation(d) == dict(T=1., interval_95=[1., 1.])
+    # Missing observations must not become favourable classes (-1).
+    x = np.ones((80, 16)); x[0, 0] = np.nan
+    with pytest.raises(ValueError, match='complete finite'):
+        evaluate(x, {'wake 2 vector': np.ones_like(x)}, np.arange(16)*22.5)
+
+
+def test_gaussian_mean_limits_bounds_and_quadrature():
+    from aij.wake_comfort import gaussian_mean_speed
+    v = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [2., 3., 1.]])
+    k = np.array([1., .2, .2, 0.])
+    mean = gaussian_mean_speed(v, k)
+    assert np.all(mean >= np.linalg.norm(v, axis=1) - 1e-12)
+    assert np.all(mean <= np.sqrt(np.sum(v*v, axis=1)+2*k) + 1e-12)
+    assert mean[1] == mean[2]
+    np.testing.assert_allclose(mean, gaussian_mean_speed(v, k, order=256), atol=1e-10)
+    assert np.isnan(gaussian_mean_speed(np.array([[np.nan, 0, 0]]), np.array([1.]))[0])
+
+
+def test_cavity_overlap_joins_probe_id_and_direction():
+    from types import SimpleNamespace
+    from check_wake_cavity_overlap import overlap
+    measured = SimpleNamespace(ids=np.array([3, 8]), labels=['N', 'E'], values=np.array([[1., 2.], [3., 4.]]))
+    masks = dict(probe_ids=[3, 8], frozen_full_spurious_pairs=[dict(probe_id=8, label='E'), dict(probe_id=3, label='N')])
+    assert overlap(masks, measured)['overlap_pairs'] == [(8, 'E')]
+    masks['probe_ids'] = [8, 3]
+    with pytest.raises(ValueError, match='probe order'):
+        overlap(masks, measured)

@@ -268,8 +268,13 @@ of the [spreading wake](spreading-wake.md) instead of the mean vector's
 magnitude. Every result needs `Parameterizations(wake=3)`; the run's default
 inflow turbulence is used and recorded per direction in
 `metadata["runs"]["inflow_tke"]`, and `metadata["runs"]["speed"]` names the
-measure. The scalar speed is at least the vector speed, so its classes are never
-better. It already contains the turbulence and is not combined with GEM. It is
+measure. The scalar speed is at least the same `wake=3` run's vector speed, so
+its classes are never better than that run's vector classes. This does not hold
+against the default `wake=2` vector: exploratory Case E results show better
+overall comfort agreement but more missed safety warnings near the new tower
+(15 of 20 risk probes versus 2 at the highest climate level). A dominant wind
+direction also increases optimistic comfort classifications. Keep `wake=2`
+vector for safety screening pending the [comfort plan](../WAKE3_COMFORT_DEFAULT_PLAN.md). It already contains the turbulence and is not combined with GEM. It is
 experimental: NEN 8100 and the Lawson criteria are defined on mean speeds, and
 which of the two speeds they intend at a pedestrian probe is not settled.
 

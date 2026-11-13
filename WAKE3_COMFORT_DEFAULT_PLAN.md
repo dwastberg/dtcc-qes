@@ -2,7 +2,7 @@
 
 - **Date:** 2026-11-12. Follows [`WAKE_UPDATE_V2.md`](WAKE_UPDATE_V2.md) (called "the wake plan" below) and its results, [`validation/WAKE_UPDATE_V2_RESULTS.md`](validation/WAKE_UPDATE_V2_RESULTS.md) ("the results").
 - **Goal:** decide on evidence whether pedestrian comfort assessments should default to `Parameterizations(wake=3)` with `comfort.assess_results(..., speed="scalar")`, and make the switch if they should.
-- **Status:** plan only. Today both are opt-in; the defaults are `wake=2` and `speed="vector"`. Reviewed 2026-11-12 in [`WAKE3_COMFORT_DEFAULT_PLAN_REVIEW.md`](WAKE3_COMFORT_DEFAULT_PLAN_REVIEW.md) ("the review"). The candidate M2 is registered in section 10.
+- **Status:** C1 implemented; M2 fails C4 on the stored development cases. C2/C3 diagnostics are partly complete; the switch waits for tower-remedy work and independent data. See [execution report](validation/WAKE_COMFORT_RESULTS.md). Today both are opt-in; the defaults are `wake=2` and `speed="vector"`. Reviewed 2026-11-12 in [`WAKE3_COMFORT_DEFAULT_PLAN_REVIEW.md`](WAKE3_COMFORT_DEFAULT_PLAN_REVIEW.md) ("the review"). The candidate M2 is registered in section 10.
 
 ## 1. Why the switch is not made yet
 
@@ -107,7 +107,7 @@ Each step ends with its results recorded in this file (section 9) and the test s
 - C2 has two separate questions:
   1. what the validation's instruments read;
   2. which speed the criteria's thresholds assume.
-- **Question 1 is already answered for the AIJ thermistor.** The plan's earlier premise was that an omnidirectional sensor reads the time mean. The paired data contradict it.
+- **Question 1 is already answered for the AIJ thermistor by F14** (`CLAUDE_WIND_EXPERIMENTS.md`, 2026-11-02, negative). The fast-half 9 % offset below is the new observation; the RMS-versus-mean finding is not new. The plan's earlier premise was that an omnidirectional sensor reads the time mean. The paired data contradict it.
   - At the 33 Case D 0° points, the split-fibre probe gives the mean vector and the three component variances.
   - Against the thermistor at the same points:
 
@@ -143,7 +143,8 @@ Each step ends with its results recorded in this file (section 9) and the test s
     - A mean-speed comparator makes the tail 4–6 points worse (the review, section 1.3), so it cannot explain it.
     - The instrument offset can explain part of it: the thermistor reads 9 % above the split-fibre RMS at the faster Case D points (C2).
     - Quantify that share. No runs are needed.
-  - **H4, direction thresholds:** the bias concentrates near ±10° from a face normal.
+  - **H4, direction thresholds:** the bias concentrates near ±10° from a face normal. Test the review's M7: Case E flank directions θ ± 5° (32 runs per state and wake code); compare centre and flank-averaged K without tuning.
+  - **Retained cavity:** test overlap with E2's spurious-decrease group. Reuse its per-building attribution, ported to `prepareWake`/`applyWake`; distinguish cavity writes from the far-wake deficit. This is secondary to H1, not an alternative.
 - Write the attribution (share of the windy-point bias per cause) to the results file. C4's remedy follows from it.
 
 ### C4. Remedy
@@ -153,7 +154,7 @@ Depends on C3; at most one remedy at a time, each with its own check.
 | Finding | Remedy | Where |
 |---|---|---|
 | H2 dominates | Limit sheltering (for example, no shelter for buildings taller than the sheltering wake's top, or a cap on D in corner streams), from first principles; the A and B scores must not drop | `winds/SpreadingWake`, `applySpreadingWake` |
-| H1 dominates | The tall-building zone F08 of `CLAUDE_WIND_EXPERIMENTS.md` (Gandemer/Wise literature constants, hypotheses H8a–H8c already declared; it needs that document's projection, gate P0), or the momentum route of `MOMENTUM_PLAN.md` | a separate plan; the switch waits for it |
+| H1 dominates | The tall-building zone F08 of `CLAUDE_WIND_EXPERIMENTS.md` (Gandemer/Wise literature constants, hypotheses H8a–H8c already declared; gate P0 passed on the research branch in E0d at four Case E after directions, maximum difference <6e-9; recheck on the current wake=3 fields. Run F13 before or alongside F08, on both wake codes), or the momentum route of `MOMENTUM_PLAN.md` | a separate plan; the switch waits for it |
 | H3 dominates | The comparator from C2; any instrument share is reported, not remedied | Python only |
 | H4 contributes | S3 of the Fabel review (continuous direction thresholds) | a separate plan |
 | Any (a stopgap, independent of C3) | M2 as registered in section 10, measured alone against the C1 baseline | Python only (two solves per direction) |
@@ -231,13 +232,15 @@ Depends on C3; at most one remedy at a time, each with its own check.
 
 Each step's outcome, in order.
 
+- **Execution (2026-11-13):** C1 now runs through `comfort.assess`, including M2 and a Gaussian mean sensitivity estimate. Discrete climate levels match D3. M2 fails D7 at four of six levels and fails safety at Case E after 7.75 m/s. The E2 cavity stratum overlaps 15 of 135 windy pairs. Full results and the remaining C2–C7 dependencies are in [the execution report](validation/WAKE_COMFORT_RESULTS.md). The following review entries remain the historical pre-C1 record.
+
 - **Review (2026-11-12).**
   - `WAKE3_COMFORT_DEFAULT_PLAN_REVIEW.md`, from the stored W4 runs; no new runs.
   - Decided:
     - D6: no separate comfort and safety estimators; a future option, section 11;
     - D7: option A, a comfort cost with a_opt = 3, linear, gated in the worst dominant-direction climate; added to D3, C1 and C4;
     - D8: M2 registered, section 10.
-  - Not yet adopted: the review's other proposals (the test changes P1–P3 and P5–P9, and the rest of its revised C4 gate). P4, the dominant-direction climates, came in with D7.
+  - Adoption: P3 and P4 adopted; P1, P6, P7 and P9 partly adopted; P2, P5 and P8 not adopted. D7 supplies the declared cost instead of P2's iso-risk comparison.
 - **End-to-end check (2026-11-12).** Every assumption was checked against the code, the stored runs and the referenced documents; no new runs.
   - **Verified:**
     - `pedestrian_policy.cpp` requires `wake_flag == 2` (line 44), and W6 records why a switch needs a new study;
@@ -263,7 +266,7 @@ Each step's outcome, in order.
     - Case E after: 34 % against 27 %;
     - Case D: 80 % against 80 %, a pass.
 
-    M2 also fails the D7 comfort gate in Case E after. As planned, the switch waits for the tower effect (H1) and an independent dataset.
+    M2 also fails the D7 comfort gate in Case E after at all three levels and in Case E before at 9.25 m/s. It fails the hard safety gate in Case E after at 7.75 m/s (3 of 20 missed, against 2 of 20). As planned, the switch waits for the tower effect (H1) and an independent dataset.
 
 ## 10. Registered candidate: M2, speed-up preservation
 
@@ -335,7 +338,7 @@ Against `wake=2` vector:
 
 ### 10.5 Cost and form
 
-- **Cost:** two solves per direction (`wake=2` and `wake=3`). It is Python only, with no native change and no effect on the policy identity. Its `wake=3` run is still `unqualified_model_settings` under the adaptive policy until C6.
+- **Cost:** two prepared models (parameterizations are fixed at preparation) and two solves per direction (`wake=2` and `wake=3`). The merged default stop rule uses 150–175 versus 200–225 sweeps: about 2.3 times the wake=2 solve cost, plus the second preparation. It is Python only, with no native change and no effect on the policy identity. Its `wake=3` run is still `unqualified_model_settings` under the adaptive policy until C6.
 - **If M2 survives C5:** a native single-solve form (the review's M3, a downwash exemption in the spreading wake) is a separate candidate, with its own registration.
 
 ## 11. Future options

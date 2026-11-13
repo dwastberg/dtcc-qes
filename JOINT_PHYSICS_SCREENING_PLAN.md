@@ -1121,3 +1121,8 @@ Excluded research sources are preserved in verified stash
 Large fields, binaries, data and reports remain local. Committing the source
 adds no new experiments, physical promotion or attempt allowance. The qualified
 native identity remains `660544978f520df395dbc0b29469ea98a82def3753309982f10e0497c64648a8`.
+
+
+## Wake comparator update (2026-11-13)
+
+E3 predates the merged spreading wake. Any future Singh wake-diffusion arm must compare against both `wake=2` and `wake=3`; a gain over the legacy wake alone cannot justify promotion. Port composition instrumentation to the split `prepareWake`/`applyWake` before reuse. No research result is changed by this requirement.

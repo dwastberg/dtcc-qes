@@ -30,7 +30,7 @@ from pathlib import Path
 import numpy as np
 
 import run_validation
-from aij import campaigns, compare, metrics, numerics, runner
+from aij import campaigns, compare, metrics, numerics, runner, wake_comfort
 from aij.campaigns import WAKE3
 from aij.conventions import AB_LABEL
 
@@ -100,6 +100,11 @@ def load(specs) -> dict:
         k_in = np.interp(np.log(heights), np.log(table.heights), table.k)
         K = np.array([np.nan if v is None else v for v in probes["K"]], dtype=np.float64)
         probes["K_scalar_inflow"] = np.sqrt(K ** 2 + 2 * k_in / uref ** 2).tolist()
+        if "K_scalar_wake_rule" in probes:
+            scalar = np.asarray(probes["K_scalar_wake_rule"], float)
+            tke = np.maximum(0., (scalar**2 - K**2) * uref**2 / 2)
+            probes["K_gaussian_mean"] = (wake_comfort.gaussian_mean_speed(
+                np.asarray(probes["velocity"], float), tke) / uref).tolist()
         out[spec.case, spec.state, spec.label, spec.resolution] = record
     return out
 
@@ -163,7 +168,7 @@ def reports(records, models, convergence) -> dict:
         ("wake 2, QES-Turb k", 2, "K_scalar"))}
     # Every scalar comparison with each inflow k (the table and the rule, section 3.4) and QES-Turb's k.
     scalars = {}
-    for wake, quantities in ((3, ("K_scalar_wake", "K_scalar_wake_rule", "K_scalar", "K")),
+    for wake, quantities in ((3, ("K_scalar_wake", "K_scalar_wake_rule", "K_gaussian_mean", "K_scalar", "K")),
                              (2, ("K_scalar_inflow", "K_scalar", "K"))):
         for quantity in quantities:
             for case in ("A", "B", "D", "E before", "E after"):
@@ -173,6 +178,22 @@ def reports(records, models, convergence) -> dict:
                     scalars[f"wake {wake} {case} {quantity}"] = {k: s[k] for k in ("hit_rate", "r", "fb", "mae")}
     out["scalar speeds at 2 m"] = scalars
     out["windy tail"] = windy_tail(records)
+    out["comfort classes"] = wake_comfort.report(records)
+    failures = []
+    for case in ("D", "E before", "E after"):
+        candidate = out["windy tail"][f"{case}: M2"]
+        baseline = out["windy tail"][f"{case}: wake 2 vector"]
+        if min(candidate["top_decile"], 0.) < min(baseline["top_decile"], 0.):
+            failures.append(f"{case}: windy-tail mean")
+        if candidate["top_decile_over_20pct_slow"] > baseline["top_decile_over_20pct_slow"]:
+            failures.append(f"{case}: windy-tail share")
+    for state, report in out["comfort classes"]["states"].items():
+        for level in report["levels"]:
+            for gate, passed in level["models"]["M2"]["comfort_gates"].items():
+                if not passed:
+                    failures.append(f"E {state} {level['scale']:g}: {gate}")
+    out["M2 decision"] = dict(status="rejected" if failures else "requires remaining wake and independent gates",
+                              failed_conditions=failures, independently_confirmed=False)
     # Cases A and B at 1 m with the cavity variants.
     variants = {}
     for wake in WAKES:
@@ -243,13 +264,22 @@ def windy_tail(records) -> dict:
     decile more than 20 % too slow. Vector K is compared with the same scalar measurements."""
     out = {}
     models = (("wake 2 vector", 2, "K"), ("wake 2 + inflow k", 2, "K_scalar_inflow"),
-              ("wake 3 vector", 3, "K"), ("wake 3 scalar (5.5 u*²)", 3, "K_scalar_wake_rule"))
+              ("wake 3 vector", 3, "K"), ("wake 3 scalar (5.5 u*²)", 3, "K_scalar_wake_rule"),
+              ("M2", 3, "K_scalar_wake_rule"))
     for case in ("A", "B", "D", "E before", "E after"):
         for name, wake, quantity in models:
             try:
                 s, m = _pairs(_at(records[wake], 2.0), case, quantity)
             except (KeyError, StopIteration, AttributeError):
                 continue
+            if name == "M2":
+                v, _ = _pairs(_at(records[2], 2.0), case, "K")
+                table = runner._tables(case.split()[0])[0]
+                record = next(r for (c, state, label, res), r in records[2].items()
+                              if c == case.split()[0] and res == 2.0)
+                heights = np.asarray(record["probes"]["xyz"])[:, 2] if case in ("A", "B") else 2.
+                approach = np.interp(np.log(heights), np.log(table.heights), table.speeds) / record["profile"]["reference_speed"]
+                s = wake_comfort.m2(v, s, approach)
             ok = np.isfinite(s) & np.isfinite(m)
             s, m = s[ok], m[ok]
             row = {}
@@ -258,6 +288,8 @@ def windy_tail(records) -> dict:
                 if sel.any():
                     row[f"K {low:g}-{high:g}"] = float(s[sel].mean() / m[sel].mean() - 1)
             top = m >= np.percentile(m, 90)
+            own = s >= np.percentile(s, 90)
+            row["own_top_decile"] = float(s[own].mean() / m[own].mean() - 1)
             row.update(top_decile=float(s[top].mean() / m[top].mean() - 1),
                        top_decile_over_20pct_slow=float(np.mean(s[top] < 0.8 * m[top])))
             out[f"{case}: {name}"] = row

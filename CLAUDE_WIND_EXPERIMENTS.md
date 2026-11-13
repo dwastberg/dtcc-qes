@@ -1244,6 +1244,8 @@ def column(z_faces, frontal_area, top_speed, ground_z0, h50, cd=1.2, iterations=
 
 ### F08: a tall-building amplification zone, with literature constants
 
+**2026-11-13 prerequisite update:** research E0d passed city P0 on Case E after N/E/SW/W (maximum difference <6e-9). For the comfort-default work, run F13 before or alongside F08 and evaluate both `wake=2` and `wake=3`; verify projection parity on the current fields before interpreting a remedy. The constants and H8a–H8c remain fixed.
+
 - **Idea tested:** B2, without calibration. The literature has no downwash or corner-stream parameterization in the QUIC/QES lineage. H03 calibrates the zone with outside data.
 - **Why:**
   - The tower effect is the planner's main question, and the model gets its sign wrong.

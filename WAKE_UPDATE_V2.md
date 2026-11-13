@@ -2,7 +2,9 @@
 
 - **Date:** 2026-11-11. Implements the decision in `FABEL_WAKE_INVESTIGATION.md` (called "the investigation" below).
 - **Goal:** a spreading far wake and a wake turbulence term for the scalar speed, as an opt-in model first and the default after validation.
-- **Status:** implemented on branch `feat/wake-update-v2` (off `main`) as an opt-in `wake=3`; every W4 gate passes; the native identity is re-qualified for the default `wake=2`. The default switch is not made (section 9, W6) and is open for decision. See section 9 for each step's outcome. The prototype in `experiments/fabel_wake/` is the reference for behaviour, not for code.
+- **Status:** merged into `main` on 2026-11-13 as 0.1.0b3, with opt-in `wake=3`; every W4 gate passes; the native identity is re-qualified for the default `wake=2`. The default switch is not made (section 9, W6) and is open for decision. See section 9 for each step's outcome. The prototype in `experiments/fabel_wake/` is the reference for behaviour, not for code.
+
+Merged into `main` on 2026-11-13 as 0.1.0b3, native identity `bf48ef3f…`. Durable integration evidence: [merged verification](docs/data/wake-update-v2/merged-main-verification.json) and [validation results](validation/WAKE_UPDATE_V2_RESULTS.md).
 
 ## 1. Scope
 
