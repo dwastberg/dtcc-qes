@@ -85,7 +85,9 @@ Measured on the AIJ cases at the pedestrian probes
 - **Outputs.** `result.wake`, `scalar_speed()`, sampled and exported fields; no
   far-wake cell flag (5).
 - **Cost and solver.** About +0.2 s and 13 bytes per cell on a 1.8 M-cell,
-  510-building district; up to 50 more iterations to converge at the probes.
+  510-building district; up to 50 more iterations to converge at the probes
+  (with the default velocity stop rule: 200–225 sweeps per Case E direction at
+  2 m, against 150–175 with `wake=2`).
   Adaptive `pedestrian-v1` runs are `unqualified_model_settings`.
 
 ## Limits
