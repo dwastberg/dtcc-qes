@@ -1,0 +1,229 @@
+{
+  "candidate_commit": "cfd0c1fbafd58de373a3ced96e1f633538ebbfaf",
+  "lock_sha256": "0397035cfe6861c79c8977be4bd08faa4e8a2bfb0ad1929b016a6933771298a8",
+  "stages": [
+    "tree",
+    "native",
+    "compare",
+    "isolate",
+    "s7",
+    "combined",
+    "pytest",
+    "combined",
+    "artifacts"
+  ],
+  "native": {
+    "openmp": {
+      "ctest": [
+        "100% tests passed, 0 tests failed out of 62",
+        "",
+        "Total Test time (real) =   4.69 sec"
+      ],
+      "identity": "6e072763067beed0fdced05d906f7be9172fa9f78c85ca72f6eaf3c19e823de3"
+    },
+    "serial": {
+      "ctest": [
+        "100% tests passed, 0 tests failed out of 59",
+        "",
+        "Total Test time (real) =   3.94 sec"
+      ],
+      "identity": "6e072763067beed0fdced05d906f7be9172fa9f78c85ca72f6eaf3c19e823de3"
+    },
+    "sanitizers": {
+      "ctest": [
+        "100% tests passed, 0 tests failed out of 59",
+        "",
+        "Total Test time (real) =  15.19 sec"
+      ],
+      "identity": "6e072763067beed0fdced05d906f7be9172fa9f78c85ca72f6eaf3c19e823de3"
+    }
+  },
+  "new_identity": "6e072763067beed0fdced05d906f7be9172fa9f78c85ca72f6eaf3c19e823de3",
+  "compare": {
+    "exit": 1,
+    "differences": [
+      "differs: native/geometry/courtyard/e1w1s0/27/cell_flags",
+      "differs: native/geometry/courtyard/e1w1s0/27/diagnostics/scalars",
+      "differs: native/geometry/courtyard/e1w1s0/27/velocity",
+      "differs: native/geometry/courtyard/e1w1s0/270/cell_flags",
+      "differs: native/geometry/courtyard/e1w1s0/270/diagnostics/scalars",
+      "differs: native/geometry/courtyard/e1w1s0/270/velocity",
+      "differs: native/geometry/courtyard/e1w1s1/27/diagnostics/scalars",
+      "differs: native/geometry/courtyard/e1w1s1/27/velocity",
+      "differs: native/geometry/courtyard/e1w2s0/27/cell_flags",
+      "differs: native/geometry/courtyard/e1w2s0/27/diagnostics/scalars",
+      "differs: native/geometry/courtyard/e1w2s0/27/velocity",
+      "differs: native/geometry/courtyard/e1w2s0/270/cell_flags",
+      "differs: native/geometry/courtyard/e1w2s0/270/diagnostics/scalars",
+      "differs: native/geometry/courtyard/e1w2s0/270/velocity",
+      "differs: native/geometry/courtyard/e1w2s1/27/diagnostics/scalars",
+      "differs: native/geometry/courtyard/e1w2s1/27/velocity",
+      "differs: native/geometry/slab_gap/e1w1s0/270/cell_flags",
+      "differs: native/geometry/slab_gap/e1w1s0/270/diagnostics/scalars",
+      "differs: native/geometry/slab_gap/e1w1s0/270/velocity",
+      "differs: native/geometry/slab_gap/e1w2s0/270/cell_flags",
+      "differs: native/geometry/slab_gap/e1w2s0/270/diagnostics/scalars",
+      "differs: native/geometry/slab_gap/e1w2s0/270/velocity"
+    ],
+    "comparisons": [
+      {
+        "kind": "revision",
+        "backend": "openmp",
+        "threads": 1,
+        "cases": 509,
+        "records": 5503
+      },
+      {
+        "kind": "revision",
+        "backend": "openmp",
+        "threads": 2,
+        "cases": 509,
+        "records": 5503
+      },
+      {
+        "kind": "revision",
+        "backend": "openmp",
+        "threads": 4,
+        "cases": 509,
+        "records": 5503
+      },
+      {
+        "kind": "revision",
+        "backend": "openmp",
+        "threads": 8,
+        "cases": 509,
+        "records": 5503
+      },
+      {
+        "kind": "team",
+        "backend": null,
+        "threads": [
+          1,
+          2
+        ],
+        "cases": null,
+        "records": 5503
+      },
+      {
+        "kind": "team",
+        "backend": null,
+        "threads": [
+          1,
+          4
+        ],
+        "cases": null,
+        "records": 5503
+      },
+      {
+        "kind": "team",
+        "backend": null,
+        "threads": [
+          1,
+          8
+        ],
+        "cases": null,
+        "records": 5503
+      },
+      {
+        "kind": "revision",
+        "backend": "serial",
+        "threads": 1,
+        "cases": 509,
+        "records": 5503
+      },
+      {
+        "kind": "backend",
+        "backend": null,
+        "threads": 1,
+        "cases": null,
+        "records": 5503
+      },
+      {
+        "kind": "backend",
+        "backend": null,
+        "threads": 2,
+        "cases": null,
+        "records": 5503
+      },
+      {
+        "kind": "backend",
+        "backend": null,
+        "threads": 4,
+        "cases": null,
+        "records": 5503
+      },
+      {
+        "kind": "backend",
+        "backend": null,
+        "threads": 8,
+        "cases": null,
+        "records": 5503
+      }
+    ]
+  },
+  "isolated": {
+    "openmp": "True 6e072763067beed0fdced05d906f7be9172fa9f78c85ca72f6eaf3c19e823de3",
+    "serial": "True 6e072763067beed0fdced05d906f7be9172fa9f78c85ca72f6eaf3c19e823de3"
+  },
+  "s7": {
+    "exit": 0,
+    "passed": true,
+    "workers": 24,
+    "differences": []
+  },
+  "combined": {
+    "non-adaptive": {
+      "exit": 0,
+      "report": "{\n  \"passed\": true,\n  \"differences\": []\n}"
+    },
+    "adaptive": {
+      "exit": 0,
+      "report": "{\n  \"passed\": true,\n  \"differences\": []\n}"
+    }
+  },
+  "pytest": {
+    "openmp": {
+      "exit": 0,
+      "tail": [
+        "..............................................                           [100%]",
+        "1974 passed, 16 skipped in 99.81s (0:01:39)"
+      ]
+    },
+    "serial": {
+      "exit": 0,
+      "tail": [
+        "..............................................                           [100%]",
+        "1974 passed, 16 skipped in 130.72s (0:02:10)"
+      ]
+    }
+  },
+  "artifacts": {
+    "sdist": "dtcc_qes-0.1.0b1.tar.gz",
+    "sdist_bytes": 1428526793,
+    "wheel": "dtcc_qes-0.1.0b1-cp314-cp314-macosx_15_0_arm64.whl",
+    "wheel_sha256": "8e84357f2dcde5c9119bcf433d1952ff547b317018bbec5f327f5b0333519c0d",
+    "smoke_exit": 0,
+    "smoke": {
+      "passed": true,
+      "package": "/private/tmp/dtcc-qes-wake-update-v2/build/requal/wheel-install/dtcc_qes",
+      "module": "/private/tmp/dtcc-qes-wake-update-v2/build/requal/wheel-install/dtcc_qes/_qes.cpython-314-darwin.so",
+      "policy_revision": "6e072763067beed0fdced05d906f7be9172fa9f78c85ca72f6eaf3c19e823de3",
+      "adaptive_accepted": true,
+      "actual_threads": 4,
+      "checks": [
+        "owned_output",
+        "sampling",
+        "adaptive_vs_legacy_status",
+        "derived_qualification",
+        "nested_timings",
+        "history_bounds",
+        "float64",
+        "two_turbulence_methods",
+        "zero_work_error",
+        "canonical_footprints_with_partition_hole"
+      ]
+    },
+    "smoke_note": "OMP_NUM_THREADS=4, OMP_DYNAMIC=FALSE; the first attempt used the default 14-thread team, which pedestrian-v1 rejects as unqualified_thread_team"
+  },
+  "isolated_note": "rebuilt incrementally after a concurrent summary write; identity unchanged"
+}

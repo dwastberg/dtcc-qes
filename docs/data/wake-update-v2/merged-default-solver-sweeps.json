@@ -1,0 +1,198 @@
+{
+ "2": [
+  {
+   "label": "N",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.38964858395047486
+  },
+  {
+   "label": "NNE",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.38277166709303856
+  },
+  {
+   "label": "NE",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.3846601671539247
+  },
+  {
+   "label": "ENE",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.43744104099459946
+  },
+  {
+   "label": "E",
+   "sweeps": 150,
+   "termination": "velocity_estimate",
+   "seconds": 0.36731254193000495
+  },
+  {
+   "label": "ESE",
+   "sweeps": 150,
+   "termination": "velocity_estimate",
+   "seconds": 0.36060620890930295
+  },
+  {
+   "label": "SE",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.3792167908977717
+  },
+  {
+   "label": "SSE",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.41074129194021225
+  },
+  {
+   "label": "S",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.3837950418237597
+  },
+  {
+   "label": "SSW",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.38220929191447794
+  },
+  {
+   "label": "SW",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.37939641578122973
+  },
+  {
+   "label": "WSW",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.42275887494906783
+  },
+  {
+   "label": "W",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.3786318330094218
+  },
+  {
+   "label": "WNW",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.3808640001807362
+  },
+  {
+   "label": "NW",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.37803937518037856
+  },
+  {
+   "label": "NNW",
+   "sweeps": 175,
+   "termination": "velocity_estimate",
+   "seconds": 0.40199245885014534
+  }
+ ],
+ "3": [
+  {
+   "label": "N",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.5946235419251025
+  },
+  {
+   "label": "NNE",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.6191363751422614
+  },
+  {
+   "label": "NE",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.6343862081412226
+  },
+  {
+   "label": "ENE",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.6604045000858605
+  },
+  {
+   "label": "E",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.6195773328654468
+  },
+  {
+   "label": "ESE",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.6210367500316352
+  },
+  {
+   "label": "SE",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.6040325840003788
+  },
+  {
+   "label": "SSE",
+   "sweeps": 200,
+   "termination": "velocity_estimate",
+   "seconds": 0.581840957980603
+  },
+  {
+   "label": "S",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.6070323339663446
+  },
+  {
+   "label": "SSW",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.6276294579729438
+  },
+  {
+   "label": "SW",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.6252255421131849
+  },
+  {
+   "label": "WSW",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.657591582974419
+  },
+  {
+   "label": "W",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.6296862920280546
+  },
+  {
+   "label": "WNW",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.6217832500115037
+  },
+  {
+   "label": "NW",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.6157667920924723
+  },
+  {
+   "label": "NNW",
+   "sweeps": 225,
+   "termination": "velocity_estimate",
+   "seconds": 0.6041483748704195
+  }
+ ]
+}

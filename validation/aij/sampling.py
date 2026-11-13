@@ -53,7 +53,8 @@ def probe_sample(result, xyz, *, radius: float | None = None) -> dict:
 
     ``speed_min``/``speed_max`` span the valid cell centres within ``radius``
     (default max(1 m, the grid spacing)) of each probe, plus the probe value:
-    the spatial tolerance of the comparison.
+    the spatial tolerance of the comparison. With wake code 3, ``wake_deficit``
+    and ``wake_tke`` come from the same samples as the velocity.
     """
     xyz = np.asarray(xyz, dtype=np.float64)
     resolution = float(result.resolution)
@@ -65,6 +66,8 @@ def probe_sample(result, xyz, *, radius: float | None = None) -> dict:
     method = np.where(linear.valid, LINEAR, NONE).astype(object)
     stress = None if linear.stress is None else linear.stress.copy()
     stress_valid = None if linear.stress_valid is None else linear.stress_valid.copy()
+    wake = None if linear.wake_deficit is None else dict(wake_deficit=linear.wake_deficit.copy(),
+                                                          wake_tke=linear.wake_tke.copy())
 
     # Fallback: the nearest valid fluid centre within one cell of the probe.
     missing = np.flatnonzero(~linear.valid)
@@ -87,6 +90,9 @@ def probe_sample(result, xyz, *, radius: float | None = None) -> dict:
                 if stress is not None:
                     stress[i] = near.stress[row]
                     stress_valid[i] = near.stress_valid[row]
+                if wake is not None:
+                    wake["wake_deficit"][i] = near.wake_deficit[row]
+                    wake["wake_tke"][i] = near.wake_tke[row]
 
     speed = np.linalg.norm(velocity, axis=1)
     speed_min, speed_max = speed.copy(), speed.copy()
@@ -103,4 +109,6 @@ def probe_sample(result, xyz, *, radius: float | None = None) -> dict:
     if stress is not None:
         k = k_from_stress(stress)
         out.update(stress=stress, stress_valid=stress_valid, k=np.where(stress_valid, k, np.nan))
+    if wake is not None:
+        out.update(wake)  # wake code 3: deficit D and wake turbulence k_w (m²/s²)
     return out

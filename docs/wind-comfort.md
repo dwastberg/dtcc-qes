@@ -263,6 +263,16 @@ Only a gust-equivalent criterion with an explicit peak factor computes GEM;
 otherwise the existing single mean-only warning applies. No exposure transfer
 is implicit, and numerical mean-wind acceptance never qualifies gusts.
 
+`assess_results(..., speed="scalar")` assesses the scalar speed √(|u|² + 2k)
+of the [spreading wake](spreading-wake.md) instead of the mean vector's
+magnitude. Every result needs `Parameterizations(wake=3)`; the run's default
+inflow turbulence is used and recorded per direction in
+`metadata["runs"]["inflow_tke"]`, and `metadata["runs"]["speed"]` names the
+measure. The scalar speed is at least the vector speed, so its classes are never
+better. It already contains the turbulence and is not combined with GEM. It is
+experimental: NEN 8100 and the Lawson criteria are defined on mean speeds, and
+which of the two speeds they intend at a pedestrian probe is not settled.
+
 ## Explicit exposure-transfer laws
 
 `log_law_transfer(..., from_law="standard", to_law="shifted")` converts a station

@@ -96,6 +96,12 @@ struct TurbulenceData {
 
 };
 
+struct WakeFields {
+  // Spreading wake (wake code 3), physical (z,y,x) cells like velocity.
+  std::vector<float> deficit; // D, averaged from the four horizontal faces
+  std::vector<float> tke;     // k_w = 0.08 max_b U_H,b^2 G_b (m^2/s^2), averaged from the two u faces
+};
+
 struct WindData {
   std::uint64_t operation_id = 0; // Binding transfer/progress correlation.
   int nx = 0, ny = 0, nz = 0;
@@ -114,5 +120,6 @@ struct WindData {
   std::optional<StopEstimateData> stop_estimate; // Only "velocity" and "fixed" solves.
   std::optional<double> relaxation; // The resolved factor; only grid_relaxation solves.
   ControlTimings timings; // Always measured, including legacy solves.
+  std::optional<WakeFields> wake; // Wake code 3 only.
 };
 }

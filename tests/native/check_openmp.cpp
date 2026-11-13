@@ -23,7 +23,7 @@ struct Snapshot {
   dtcc_qes::solver::SolveDiagnostics diagnostics;
 };
 
-static Snapshot solve(float height, bool serial, int threads)
+static Snapshot solve(float height, bool serial, int threads, int wake = 2)
 {
   omp_set_num_threads(threads);
   GridConfig grid;
@@ -32,6 +32,7 @@ static Snapshot solve(float height, bool serial, int threads)
   ModelSettings model;
   model.sensor_x = fixture::sensor_x; model.sensor_y = fixture::sensor_y;
   model.roughness_length = fixture::roughness;
+  model.wake_flag = wake;// 3: the spreading wake's field pass is threaded too
   BuildingArrays geometry;
   for (const auto &vertex : fixture::vertices)
     geometry.vertices.insert(geometry.vertices.end(), {vertex[0], vertex[1]});
@@ -81,11 +82,12 @@ int main(int argc, char **argv)
     actual_threads = omp_get_num_threads();
   }
   require(actual_threads == threads, "OpenMP did not create the requested team");
+  for (const int wake : {2, 3})
   for (const float height : {fixture::height, 24.0f}) {
-    const auto serial = solve(height, true, 1);
-    const auto baseline = solve(height, false, 1);
+    const auto serial = solve(height, true, 1, wake);
+    const auto baseline = solve(height, false, 1, wake);
     for (int repeat = 0; repeat < 3; ++repeat) {
-      const auto parallel = solve(height, false, threads);
+      const auto parallel = solve(height, false, threads, wake);
       require(parallel.flags == serial.flags, "OpenMP changed cell classifications");
       require(parallel.velocity == baseline.velocity, "Velocity depends on thread count or repeat");
       require(parallel.diagnostics.iterations == baseline.diagnostics.iterations

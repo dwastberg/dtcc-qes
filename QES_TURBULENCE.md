@@ -4,6 +4,11 @@
 
 > **Execution:** Follow the task order and acceptance gates below, using checkbox (`- [ ]`) tracking. Superpowers execution skills may be used when installed; they are unavailable in the current environment, so this checkout follows the documented implementation and verification steps directly.
 
+> **Wake turbulence (2026-11):** `Parameterizations(wake=3)` adds a separate,
+> empirical wake turbulence k_w and the scalar speed √(|u|² + 2k); they do not use
+> QES-Turb, which still runs on the final field. See
+> [the spreading wake](docs/spreading-wake.md).
+
 **Goal:** `wind.run(city, speed, direction, turbulence=True)` returns the solved
 wind and the QES-Turb turbulence fields from one prepare/solve. Turbulence then
 flows through sampling, DTCC export, comfort (GEM) and the `qes_wind` dataset.

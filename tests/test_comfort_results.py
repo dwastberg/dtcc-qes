@@ -105,3 +105,35 @@ def test_unsupported_linear_height_remains_nan_and_gem_provenance_is_separate():
         json.dumps(actual.metadata,allow_nan=False)
     mean=comfort.assess_results(solved,[5],[0],comfort.CITY_OF_LONDON)
     assert sum("Mean speeds only" in w for w in mean.warnings)==1
+
+
+def test_scalar_speed_option_on_a_wake_result_pair():
+    """speed='scalar' assesses sqrt(|u|² + 2k) of the spreading wake (WAKE_UPDATE_V2.md, D4 and W5)."""
+    from fixtures.footprints import building, city
+    from shapely.geometry import box
+    value = city(building("b", box(8, 8, 16, 14), 10))
+    options = dict(bounds=(0, 0, 0, 40, 30, 32), parameterizations=wind.Parameterizations(wake=3),
+                   solver=wind.Solver(stop="multiplier_change", max_iterations=60))
+    pair = [wind.run(value, wind.LogProfile(speed, d), **options) for speed, d in ((3, 0), (7, 270))]
+    hours, angles = [3, 7, 9, 12], [0, 270, 270, 0]
+    vector = comfort.assess_results(pair, hours, angles)
+    scalar = comfort.assess_results(pair, hours, angles, speed="scalar")
+    samples = [r.sample(1.75, method="linear") for r in pair]
+    expected = comfort.assess(hours, angles, np.stack([s.scalar_speed for s in samples]), [0, 270], [3, 7], height=1.75)
+    np.testing.assert_array_equal(scalar.comfort, expected.comfort)
+    valid = vector.comfort >= 0
+    np.testing.assert_array_equal(scalar.comfort >= 0, valid)
+    assert np.all(scalar.comfort[valid] >= vector.comfort[valid])
+    for threshold, fraction in vector.exceedance.items():
+        assert np.all(scalar.exceedance[threshold][valid] >= fraction[valid])
+    assert any(np.any(scalar.exceedance[s][valid] > vector.exceedance[s][valid]) for s in vector.exceedance)
+    runs = scalar.metadata["runs"]
+    assert runs["speed"].startswith("scalar") and len(runs["inflow_tke"]) == 2
+    assert vector.metadata["runs"]["speed"].startswith("vector")
+    json.dumps(scalar.metadata, allow_nan=False)
+    with pytest.raises(ValueError, match="wake=3"):
+        comfort.assess_results(results(), [3], [0], speed="scalar")
+    with pytest.raises(ValueError, match="speed must be"):
+        comfort.assess_results(pair, [3], [0], speed="gust")
+    with pytest.raises(ValueError, match="already contains the turbulence"):
+        comfort.assess_results(pair, [3], [0], comfort.CITY_OF_LONDON, speed="scalar", peak_factor=3)

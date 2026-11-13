@@ -7,6 +7,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <limits>
+#include <memory>
 
 using namespace dtcc_qes;
 static void require(bool v, const char *message) { if (!v) throw std::runtime_error(message); }
@@ -126,6 +127,40 @@ int main()
   rejects(bad);
   bad=courtyard; bad.vertices[10]=30; rejects(bad);
   bad=courtyard; bad.vertices[14]=8; bad.vertices[15]=20; rejects(bad);
+
+  // The upstream cavity is fitted to the gap in front of a separated downstream
+  // neighbour with exposed faces as with strict footprints (WAKE_UPDATE_V2.md,
+  // section 3.5): two equal 80 m slabs 15 m apart, wind across, canyon model off.
+  {
+    GridConfig slab_grid; slab_grid.nx=112; slab_grid.ny=80; slab_grid.nz=24; slab_grid.cell_size=2.5;
+    BuildingArrays slabs{{},{0},{},{},{}};
+    append(slabs,{60,60,60,140,70,140,70,60,60,60},20);
+    append(slabs,{85,60,85,140,95,140,95,60,85,60},20);
+    const auto initial=[&](bool exposed) {
+      ModelSettings settings; settings.sensor_x=5; settings.sensor_y=5; settings.street_canyon_flag=0; settings.sidewall_flag=0;
+      settings.exposed_faces=exposed;
+      auto arrays=slabs;
+      if (exposed) arrays.ring_offsets=arrays.offsets;
+      ModelInputs input(slab_grid,settings,arrays); input.set_condition(WindCondition{});
+      auto data=std::make_unique<WINDSGeneralData>(make_domain(input),input.buildings,input.parameterizations,.1);
+      data->applyWindProfile(input.inflow);
+      data->applyParametrizations();
+      return data;
+    };
+    const auto strict=initial(false), exposed=initial(true);
+    require(strict->icellflag==exposed->icellflag,"Exposed faces changed the gap cavity flags");
+    require(strict->u0==exposed->u0 && strict->v0==exposed->v0 && strict->w0==exposed->w0,
+            "Exposed faces changed the gap cavity velocities");
+    // The gap strips close their cavity at the downstream wall and write no far wake.
+    const auto &d=exposed->domain;
+    int cavity=0;
+    for (int k=1;k<d.nz()-1;++k) for (int j=25;j<55;++j) for (int i=28;i<34;++i) {
+      const auto flag=exposed->icellflag[d.cell(i,j,k)];
+      require(flag!=5,"Far wake written in the gap between the slabs");
+      cavity+=flag==4;
+    }
+    require(cavity>0,"No cavity in the gap between the slabs");
+  }
 
   // An explicit ring ending replaces the old 0.1 m closure heuristic in opt-in mode.
   BuildingArrays close{{},{0},{},{},{}};

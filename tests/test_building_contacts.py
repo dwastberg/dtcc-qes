@@ -137,3 +137,26 @@ def test_empty_resolved_city_and_corner_contact():
     assert np.isfinite(empty.velocity).all()
     corner = run(city(building("a", box(0, 0, 10, 10), 6), building("b", box(10, 10, 20, 20), 12)))
     assert np.isfinite(corner.velocity).all()
+
+
+def test_exposed_faces_fit_the_cavity_to_a_separated_neighbour():
+    """Two 80 m slabs 15 m apart, wind across, canyon model off (WAKE_UPDATE_V2.md, section 3.5).
+
+    The upstream cavity closes at the downstream wall with exposed faces as with
+    strict footprints. With the sidewall model off the fields are identical; with
+    it on, only its separate exposure rule (initial flags) differs.
+    """
+    value = city(building("up", box(60, 60, 70, 140), 20), building("down", box(85, 60, 95, 140), 20))
+    options = dict(bounds=(0, 0, 0, 280, 200, 60), resolution=2.5, solver=wind.Solver(stop="multiplier_change", max_iterations=300),
+                   speed=5, direction=270)
+    isolated = wind.Parameterizations(street_canyon=0, sidewall=0)
+    strict = wind.run(value, parameterizations=isolated, **options)
+    exposed = wind.run(value, parameterizations=isolated, footprints=wind.Footprints(min_detail=0.1), **options)
+    same(strict, exposed)
+    assert not np.any(exposed.cell_flags[:, 25:55, 28:34] == 5)  # no far wake in the gap, inside the end strips
+    gap = np.array([[77.5, 100.0, 15.0]])  # 0.75 H, mid-gap
+    speeds = []
+    for footprints in (wind.Footprints(min_detail=0.1, exposed_faces=False), wind.Footprints(min_detail=0.1)):
+        result = wind.run(value, parameterizations=wind.Parameterizations(street_canyon=0), footprints=footprints, **options)
+        speeds.append(result.sample_points(gap, "linear", frame="global").velocity[0, 0] / 5)
+    assert abs(speeds[1] - speeds[0]) < 0.02  # before the fix: about 0.26

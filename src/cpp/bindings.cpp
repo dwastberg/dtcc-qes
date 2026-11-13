@@ -8,6 +8,7 @@
 #include "preflight.h"
 #include "turbulence_reference.h"
 #include "control_bindings.h"
+#include "wake_model.h"
 #include <chrono>
 #include <cstring>
 #include <exception>
@@ -204,6 +205,12 @@ nb::dict python_result(const WindData &data)
     }
     trace["frames"]=frames;result["trace"]=trace;
   }
+  if (data.wake) {
+    // Wake code 3 only; the keys are absent for the other codes.
+    const auto shape = nb::make_tuple(data.nz, data.ny, data.nx);
+    result["wake_deficit"] = owned_array(data.wake->deficit, shape, "float32");
+    result["wake_tke"] = owned_array(data.wake->tke, shape, "float32");
+  }
   result["turbulence"] = nb::none();
   if (data.turbulence) {
     const auto &t = *data.turbulence;
@@ -270,6 +277,14 @@ NB_MODULE(_qes, m)
   m.attr("io_enabled") = false;
   m.attr("openmp_enabled") = dtcc_qes::openmp_enabled();
   m.attr("cpu_backend") = dtcc_qes::cpu_backend();
+  {
+    using W = dtcc_qes::SpreadingWakeModel;
+    nb::dict wake;
+    wake["spread"] = W::spread; wake["edge_offset"] = W::bubble; wake["edge_length"] = W::bubble_length;
+    wake["turbulence"] = W::turbulence; wake["reach_cut"] = W::reach_cut; wake["taper_start"] = W::taper_start;
+    wake["skip"] = W::skip; wake["layer_cut"] = W::layer_cut;
+    m.attr("spreading_wake_constants") = wake;
+  }
   m.attr("cpu_sweep_order") = dtcc_qes::cpu_sweep_order();
   m.attr("fp_contract") = dtcc_qes::fp_contract();
   m.attr("solver_policy_revision") = dtcc_qes::solver_policy_revision();

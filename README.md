@@ -132,7 +132,7 @@ recorded = wind.Parameterizations.from_dict(studied.metadata["model"]["parameter
 The empirical building models set the initial field before mass correction:
 `rooftop` (0 none, 1 log profile, 2 vortex), `upwind_cavity` (0 none, 1 Röckle,
 2 MVP, 3 HMVP), `street_canyon` (0 none, 1 Röckle with Fackrell), `wake`
-(0 none, 1 Röckle, 2 modified Röckle), `high_rise` (0/1; only buildings at least
+(0 none, 1 Röckle, 2 modified Röckle, 3 spreading far wake), `high_rise` (0/1; only buildings at least
 twice as tall as their effective length) and `sidewall` (0/1). Rooftop,
 street-canyon and sidewall models need `wake > 0`. `wall_roughness` (m) is the
 z0 of the sidewall and street-canyon log laws; QES-Turb's wall model uses the
@@ -141,6 +141,15 @@ profile's ground roughness instead. The defaults are the only settings
 `metadata["model"]` keeps the native flag names and the versioned payload.
 QES's street-intersection model is not implemented and is not offered. The
 dataset interface uses the defaults.
+
+`wake=3` (experimental, opt-in) keeps the code-2 cavity and replaces the far
+wake: each building's shadow spreads across the wind and in height, shelters
+the buildings behind it and adds a wake turbulence. It returns `result.wake`
+(the deficit D and the wake turbulence k_w) and `result.scalar_speed()`,
+√(|u|² + 2k) with k = k_inflow (1 − D)² + k_w, what an omnidirectional
+anemometer reads. The inflow turbulence defaults to 5.5 u*², with u* fitted to
+the profile; pass `inflow_tke=` to override it. `sample` and `sample_points`
+carry the same fields. See [the spreading wake](docs/spreading-wake.md).
 
 ## Solver
 
@@ -210,7 +219,9 @@ assessment = comfort.assess_results(runs, [3, 5, 7], [0, 90, 0], comfort.NEN8100
 heights. It preserves per-direction qualification and caveats under
 `metadata["runs"]` for mean-only and GEM criteria. For `CITY_OF_LONDON`, providing
 `peak_factor` with turbulent results enables GEM screening; no calibrated peak
-factor is assumed. Missing GEM yields one mean-only warning. No weather-station
+factor is assumed. Missing GEM yields one mean-only warning. With `wake=3`
+results, `speed="scalar"` assesses the scalar speed instead of the mean
+vector's magnitude (experimental; not combined with GEM). No weather-station
 exposure conversion is implicit: `log_law_transfer` explicitly defaults to a
 standard station law and shifted QES target law. See the
 [comfort guide and measured class impact](docs/wind-comfort.md).

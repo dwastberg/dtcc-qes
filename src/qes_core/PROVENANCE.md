@@ -268,3 +268,30 @@ synchronized. See `docs/CODE_REVIEW_2026_11.md` for scope and verification.
   (evidence in `docs/data/solver-stop-rule/`; summary in
   `validation/SOLVER_STOP_RULE_RESULTS.md`). There are no numerical differences
   from `main`.
+
+### Wake update v2 (WAKE_UPDATE_V2.md)
+
+- **W1a.** `polygonWake` is split into `prepareWake` (the geometry preamble)
+  and `applyWake` (the cavity and far-wake loop). Bitwise identical.
+- **W1b.** With exposed faces, the first wake search records the gap
+  (`canyon_factor`) before it stops at a solid neighbor, as the strict branch
+  does. Changes exposed-face results in gaps; see the commit and the plan.
+- **W1c.** `winds/SpreadingWake.h/.cpp` is new and **not derived from QES**: the
+  spreading far wake and wake turbulence of wake code 3, with its shelter and
+  application in `WINDSGeneralData::applySpreadingWake` and the code-3 branch
+  of `applyWake`. Codes 0-2 stay bitwise identical.
+- **Re-qualification.** The branch identity
+  `6e072763067beed0fdced05d906f7be9172fa9f78c85ca72f6eaf3c19e823de3` was
+  re-qualified for the default `wake=2` by the procedure of
+  `docs/solver-control-requalification.md` (evidence in
+  `docs/data/wake-update-v2/`; summary in
+  `validation/WAKE_UPDATE_V2_RESULTS.md`). The only numerical differences from
+  `main` are the declared W1b exposed-face cases.
+- **Re-qualification with the stop rule.** After `main` (with the stop rule,
+  `1319a43d…`) was merged into the wake update, the combined identity
+  `bf48ef3f660d09c3c57a8198ceeac13e4ce9511383a119ea2a17714c5de22ab7` was
+  re-qualified against `main` `b374dfb` by the procedure of
+  `docs/solver-control-requalification.md` (evidence
+  `docs/data/wake-update-v2/combined-requalification*.json`;
+  `MAIN_INTEGRATION_PLAN.md` step B4). The only numerical differences are the
+  declared W1b exposed-face cases.

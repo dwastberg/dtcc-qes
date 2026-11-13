@@ -58,6 +58,9 @@ def case_ab(case: str, **options) -> RunSpec:
     return RunSpec(case, AB_LABEL, AB_DIRECTION, **options)
 
 
+WAKE3 = {"wake": 3}  # the spreading far wake and wake turbulence (WAKE_UPDATE_V2.md)
+
+
 def fixed_work(spec: RunSpec) -> RunSpec:
     """``spec`` with the Phase 2 solver work for its resolution."""
     return replace(spec, tolerance=FIXED_WORK_TOLERANCE, max_iterations=ITERATIONS[spec.resolution])
@@ -104,6 +107,9 @@ def campaign(name: str) -> list[RunSpec]:
         return specs
     if name == "baseline":
         return baseline(2.0)
+    if name == "wake3":
+        # The spreading far wake (WAKE_UPDATE_V2.md), on the baseline matrix.
+        return baseline(2.0, parameterizations=WAKE3)
     if name == "grid":
         return baseline(4.0) + baseline(1.0)
     if name == "fine_check":
@@ -291,6 +297,8 @@ def ab_campaign(name: str) -> list[RunSpec]:
         return specs
     if name == "ab_baseline":
         return ab_baseline()
+    if name == "ab_wake3":
+        return ab_baseline(2.0, parameterizations=WAKE3) + ab_baseline(AB_RESOLUTION, parameterizations=WAKE3)
     if name == "ab_grid":
         return [spec for r in AB_GRID if r != AB_RESOLUTION for spec in ab_baseline(r)]
     if name == "ab_sensitivity":
