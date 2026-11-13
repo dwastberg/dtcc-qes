@@ -16,7 +16,7 @@ In scope:
 Out of scope (unchanged by this plan):
 - The cavity law, including the overlong Case A cavity.
 - The upwind cavity, sidewall, rooftop and street-canyon models, and their ±10° thresholds (review S3).
-- The tower effect (F08, `MOMENTUM_PLAN.md`).
+- The tower effect (F08 of `CLAUDE_WIND_EXPERIMENTS.md`; the momentum route of `MOMENTUM_PLAN.md`).
 - QES-Turb. It keeps running on the final field as today.
 
 ## 2. Decisions to confirm before coding
