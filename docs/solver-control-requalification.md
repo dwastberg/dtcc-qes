@@ -47,7 +47,8 @@ thresholds; it does not qualify new inflow families or physical accuracy.
    native/Python integration tests execute instead of skipping absent defaults.
 5. Build an isolated sdist and a wheel from that sdist. Run
    `tools/check_artifacts.py` and `tools/wheel_runtime_smoke.py` against the
-   installed wheel. Verify the imported path, qualified identity and acceptance.
+   installed wheel. `check_artifacts.py` also audits the qualification evidence in the
+   checkout's `docs/data`, which the sdist does not ship. Verify the imported path, qualified identity and acceptance.
    Complete the focused public-call, combined and export cost checks.
 6. Only after every gate passes, promote NEW in the production qualification
    header. Rebuild release artifacts, verify their source/arithmetic identity

@@ -28,10 +28,13 @@ sdist.include = [
     "/src/**", "/tests/**", "/tools/**", "/research/unified_v2/**", "/examples/**", "/demo/**", "/docs/**", "/CMakeLists.txt",
     "/README.md", "/DYNAMIC_VERTICAL_GRID.md", "/SOLVER_CONTROL_REFACTOR.md", "/WIND_PROFILES.md", "/LICENSE", "/NOTICE",
     "/validation/aij/*.py", "/validation/tests/*.py", "/validation/*.py", "/validation/*.md", "/validation/specifications/*",
-    "!**/__pycache__/**", "!**/*.pyc",
+    "!**/__pycache__/**", "!**/*.pyc", "!/docs/data/**",
 ]
 # The QES-Public submodule is reference-only; the build uses src/qes_core.
-sdist.exclude = [".idea/**", "dtcc-qes/**", "/QES-Public/**", "/build/**", "**/__pycache__/**", "**/*.pyc"]
+# Qualification evidence (docs/data, about 1.8 GB) stays in git; tools/check_artifacts.py
+# audits it on the checkout.
+sdist.exclude = [".idea/**", "dtcc-qes/**", "/QES-Public/**", "/build/**", "**/__pycache__/**", "**/*.pyc",
+                 "/docs/data/**"]
 
 [tool.uv.sources]
 dtcc-core = { git = "https://github.com/dtcc-platform/dtcc-core.git", branch = "dev/qes-updates" }
