@@ -151,16 +151,16 @@ requires its original identity; it is not the requalification entry point.
 
 Completed-iterate residual diagnostics, bounded hotspot investigation and two
 qualified small same-grid references are documented in the
-[S5 completion report](docs/solver-control-s5.md). The oblique urban solid-mask
+[S5 completion report](solver-control-s5.md). The oblique urban solid-mask
 defect is corrected and independently frozen. Large urban accuracy remains
 unqualified, and the disabled-controls performance review target was missed;
 bounded results still report unassessed accuracy.
 
-The [S6 method study](docs/solver-control-s6.md) selects internal SOR relaxation
+The [S6 method study](solver-control-s6.md) selects internal SOR relaxation
 `1.90f` for the qualified opt-in policy on its measured small-grid scope.
 Public legacy and bounded calls retain `1.78f`.
 
-[S7's opt-in pedestrian policy](docs/solver-control-s7.md) is now qualified on
+[S7's opt-in pedestrian policy](solver-control-s7.md) is now qualified on
 its declared small-domain scope. Use `SolverControl(..., mode="adaptive")`
 with an explicit ROI and required receptors at both 1.5 and 1.75 m. Acceptance
 is separate from legacy convergence and covers only those outputs. Larger or
@@ -168,15 +168,15 @@ unsupported configurations remain unaccepted; full-volume, turbulence and
 physical/model accuracy are not qualified by this policy. Qualification is tied
 to a frozen native source/arithmetic identity. The footprint-enabled build was
 requalified against all 24 frozen S7 workers, with exact fields, diagnostics and
-assessment decisions ([verification evidence](docs/data/feature-merge/head-requalification.json)).
+assessment decisions ([verification evidence](data/feature-merge/head-requalification.json)).
 This preserves the existing policy scope; it adds no adaptive scope for touching
 or canonical footprints. Result metadata records the current
 decision under `versions.native_build.solver_policy_build_supported`.
 
-The [S9 closure report](docs/solver-control-s9.md) closes the solver-control
+The [S9 closure report](solver-control-s9.md) closes the solver-control
 refactor within that qualified numerical scope and records the release checks,
 defaults, errors, dataset cache identity and remaining limitations. No default
-policy is promoted. [S8a](docs/solver-control-s8a.md) measured modest preparation
+policy is promoted. [S8a](solver-control-s8a.md) measured modest preparation
 reuse savings and deferred a public reuse API; S8b comfort sensitivity is
 explicitly deferred. Large-domain accuracy, grid independence and physical
 comfort/gust qualification remain separate work.

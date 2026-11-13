@@ -104,7 +104,7 @@ The remedy does not fix this top-boundary limitation.
 
 [Driver](../tools/run_precision_verification.py),
 [native worker](../tools/vertical_grid_study.cpp), and
-[production float64 solver](../src/cpp/precision_solver.cpp).
+[production float64 solver](../src/qes_core/solver/cpu_float64.cpp).
 
 The precision matrix contains, per CPU backend:
 
