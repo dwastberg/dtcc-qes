@@ -296,6 +296,9 @@ its original source identity.
 
 ## API migration
 
+Changes to default results by version, and how to keep the previous behaviour,
+are listed in [CHANGELOG.md](CHANGELOG.md).
+
 | Old spelling/behavior | Current spelling/behavior |
 | --- | --- |
 | `run(city, u, d)` | `run(city, speed=u, direction=d)` or `run(city, LogProfile(u,d))` |
