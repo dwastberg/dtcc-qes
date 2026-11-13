@@ -13,7 +13,7 @@ from fixtures.specs import pedestrian_solver
 pytestmark = pytest.mark.usefixtures("dtcc_logger")
 SPREADING = wind.Parameterizations(wake=3)
 # One 20 x 30 x 20 m building on a 2 m grid: the investigation's wake-edge and direction setup.
-SINGLE = dict(resolution=2.0, bounds=(0, 0, 0, 200, 200, 60), solver=wind.Solver(max_iterations=400))
+SINGLE = dict(resolution=2.0, bounds=(0, 0, 0, 200, 200, 60), solver=wind.Solver(stop="multiplier_change", max_iterations=400))
 
 
 def single():
@@ -26,7 +26,7 @@ def pair():
 
 def run(value=None, **options):
     options = dict(dict(speed=5, direction=270, bounds=(0, 0, 0, 150, 80, 50), parameterizations=SPREADING,
-                        solver=wind.Solver(max_iterations=100)), **options)
+                        solver=wind.Solver(stop="multiplier_change", max_iterations=100)), **options)
     return wind.run(pair() if value is None else value, **options)
 
 
@@ -178,7 +178,7 @@ def test_combines_with_profiles_grids_turbulence_and_exposed_faces(profile):
     result = wind.run(pair(), profile, bounds=(0, 0, 0, 150, 80, None), resolution=2.0,
                       vertical_grid=wind.VerticalGrid.from_faces(faces), turbulence=wind.Turbulence(),
                       footprints=wind.Footprints(min_detail=0.01), parameterizations=SPREADING,
-                      solver=wind.Solver(max_iterations=100))
+                      solver=wind.Solver(stop="multiplier_change", max_iterations=100))
     assert result.metadata["model"]["exposed_faces"] and result.turbulence is not None
     assert result.wake.deficit.shape == result.velocity.shape[:3] and result.wake.deficit.max() > 0.5
     scalar = result.scalar_speed()

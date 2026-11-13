@@ -5,6 +5,65 @@ climate into comfort and safety classes. Its helper dependency closure uses only
 isolated-load test enforces this. Any source of pedestrian-level mean speeds can
 be used: QES, other CFD or wind-tunnel probes.
 
+## Preparing a city once
+
+Use `wind.prepare` when solving multiple directions on one city and grid:
+
+```python
+from dtcc_qes import wind, comfort
+
+profile = wind.LogProfile(5, 270)
+with wind.prepare(city, profile, resolution=2, bounds=(0, 0, 0, 80, 60, 40),
+                  turbulence=wind.Turbulence()) as model:
+    results = [model.run(profile.with_direction(direction))
+               for direction in range(0, 360, 30)]
+    setup = model.preparation_timings
+
+# Fields and metadata remain valid after the model has closed.
+hourly_speeds, hourly_directions = [3, 5, 7], [0, 90, 270]  # Toy climate.
+assessment = comfort.assess_results(results, hourly_speeds, hourly_directions)
+```
+
+Python geometry extraction, footprint cleaning, grid planning, native building
+voxelization, the pressure operator and turbulence geometry are retained.
+Each run recomputes the inflow, building parameterizations, right-hand side,
+velocity solution and turbulence fields. Solver workspaces are reset to zero;
+previous directions do not warm-start subsequent solutions.
+
+The profile supplied to `prepare` establishes reference height and roughness;
+both must remain unchanged. Subsequent profiles may change direction, speed,
+family and shape, subject to normal layer-coverage validation. Each run accepts
+a profile or both `speed=` and `direction=`. `solver=` at preparation supplies
+the default, and a per-run override can change numerical settings and monitoring.
+Geometry, bounds, layers, terrain, cleaning, building-model and turbulence
+settings are fixed. Prepare another model to change them. Preparation snapshots
+the inputs, so later edits to the source city or bounds do not affect the model.
+
+Use a context manager or `close()` for prompt release. Closing twice is harmless;
+running a closed model raises. Concurrent or reentrant run/close calls on one
+model raise immediately. Independent models retain the native process-wide
+execution lock. Failed conditions leave the model available for retry, with
+the same failure policy as `wind.run`. Every result owns its arrays and editable
+metadata independently of the model and other results.
+
+`model.preparation_timings` returns a copy of the one-time setup measurements:
+`total_seconds` includes `city_preparation_seconds` and
+`native_preparation_seconds`; the native measurement includes binding work and
+lock wait. Each result's `metadata["timings"]["public_call_seconds"]` measures
+only its `model.run` call. Its city and native preparation timers are zero,
+and `condition_preparation_seconds` records profile metadata/layer evaluation.
+Add setup `total_seconds` once to the sum of per-run public-call times. Model
+teardown, caller sampling and file output require separate timing. The raw
+`result.solver["record"]`, when present, remains untouched and retains the
+native runner's original preparation timer; use the result timing report for
+series accounting.
+
+The example above retains full volumes to use `assess_results`. For large
+direction series, sample each result and discard its volume, then pass the
+stacked pedestrian fields to `comfort.assess`. The prepared model itself does
+not accumulate results. The complete [example](../examples/wind_comfort.py)
+uses preparation reuse for both mean-speed and gust-equivalent assessment.
+
 ## Method
 
 The criteria below share one method, described in Annex A of the City of

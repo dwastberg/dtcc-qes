@@ -1,0 +1,220 @@
+[
+ {
+  "name": "D-0deg-r1-measured-float32-it1000-noturb",
+  "case": "D",
+  "label": "0 deg.",
+  "resolution": 1.0,
+  "reference_estimate": 5.908454302133716e-12,
+  "rows": [
+   {
+    "omega": 1.95,
+    "tolerance": 0.003,
+    "sweeps": 725,
+    "termination": "velocity_estimate",
+    "estimate": 0.0023261414358620256,
+    "volume": 0.0008732653142766636,
+    "band": 0.0008732653142766636,
+    "volume_over_estimate": 0.3754136789851076
+   },
+   {
+    "omega": 1.95,
+    "tolerance": 0.001,
+    "sweeps": 1050,
+    "termination": "velocity_estimate",
+    "estimate": 0.0008342151208618361,
+    "volume": 0.0001448647742888929,
+    "band": 0.0001369796390801294,
+    "volume_over_estimate": 0.17365397805212598
+   },
+   {
+    "omega": 1.95,
+    "tolerance": 0.0003,
+    "sweeps": 1150,
+    "termination": "precision_floor",
+    "estimate": 0.005891000606579867,
+    "volume": 8.646828541854925e-05,
+    "band": 8.162277149207555e-05,
+    "volume_over_estimate": 0.014678030303030316
+   },
+   {
+    "omega": 1.95,
+    "tolerance": 0.0001,
+    "sweeps": 1150,
+    "termination": "precision_floor",
+    "estimate": 0.005891000606579867,
+    "volume": 8.646828541854925e-05,
+    "band": 8.162277149207555e-05,
+    "volume_over_estimate": 0.014678030303030316
+   },
+   {
+    "omega": 1.95,
+    "tolerance": 3e-05,
+    "sweeps": 1150,
+    "termination": "precision_floor",
+    "estimate": 0.005891000606579867,
+    "volume": 8.646828541854925e-05,
+    "band": 8.162277149207555e-05,
+    "volume_over_estimate": 0.014678030303030316
+   },
+   {
+    "omega": 1.97,
+    "tolerance": 0.003,
+    "sweeps": 400,
+    "termination": "velocity_estimate",
+    "estimate": 0.002034646992502865,
+    "volume": 0.0008166925981756939,
+    "band": 0.0008166925981756939,
+    "volume_over_estimate": 0.40139277289131226
+   },
+   {
+    "omega": 1.97,
+    "tolerance": 0.001,
+    "sweeps": 525,
+    "termination": "velocity_estimate",
+    "estimate": 0.0006775626387766691,
+    "volume": 0.00022128442935069595,
+    "band": 0.00020964446785204507,
+    "volume_over_estimate": 0.32658888888888893
+   },
+   {
+    "omega": 1.97,
+    "tolerance": 0.0003,
+    "sweeps": 850,
+    "termination": "precision_floor",
+    "estimate": 0.00543784671376603,
+    "volume": 2.235015648742485e-05,
+    "band": 1.773708418842036e-05,
+    "volume_over_estimate": 0.004110111531986536
+   },
+   {
+    "omega": 1.97,
+    "tolerance": 0.0001,
+    "sweeps": 850,
+    "termination": "precision_floor",
+    "estimate": 0.00543784671376603,
+    "volume": 2.235015648742485e-05,
+    "band": 1.773708418842036e-05,
+    "volume_over_estimate": 0.004110111531986536
+   },
+   {
+    "omega": 1.97,
+    "tolerance": 3e-05,
+    "sweeps": 850,
+    "termination": "precision_floor",
+    "estimate": 0.00543784671376603,
+    "volume": 2.235015648742485e-05,
+    "band": 1.773708418842036e-05,
+    "volume_over_estimate": 0.004110111531986536
+   }
+  ]
+ },
+ {
+  "name": "E-after-W-r1-measured-float32-it1000-noturb",
+  "case": "E",
+  "label": "W",
+  "resolution": 1.0,
+  "reference_estimate": 1.062283862905956e-11,
+  "rows": [
+   {
+    "omega": 1.95,
+    "tolerance": 0.003,
+    "sweeps": 500,
+    "termination": "velocity_estimate",
+    "estimate": 0.0019280238314136069,
+    "volume": 0.0007941365066630318,
+    "band": 0.0007941365066630318,
+    "volume_over_estimate": 0.41189143708912523
+   },
+   {
+    "omega": 1.95,
+    "tolerance": 0.001,
+    "sweeps": 625,
+    "termination": "velocity_estimate",
+    "estimate": 0.0007482909353247701,
+    "volume": 0.0002205868065961391,
+    "band": 0.0002205868065961391,
+    "volume_over_estimate": 0.29478748997594223
+   },
+   {
+    "omega": 1.95,
+    "tolerance": 0.0003,
+    "sweeps": 775,
+    "termination": "precision_floor",
+    "estimate": 0.002352285859240665,
+    "volume": 6.258760589765318e-05,
+    "band": 6.258760589765318e-05,
+    "volume_over_estimate": 0.026607142857142756
+   },
+   {
+    "omega": 1.95,
+    "tolerance": 0.0001,
+    "sweeps": 775,
+    "termination": "precision_floor",
+    "estimate": 0.002352285859240665,
+    "volume": 6.258760589765318e-05,
+    "band": 6.258760589765318e-05,
+    "volume_over_estimate": 0.026607142857142756
+   },
+   {
+    "omega": 1.95,
+    "tolerance": 3e-05,
+    "sweeps": 775,
+    "termination": "precision_floor",
+    "estimate": 0.002352285859240665,
+    "volume": 6.258760589765318e-05,
+    "band": 6.258760589765318e-05,
+    "volume_over_estimate": 0.026607142857142756
+   },
+   {
+    "omega": 1.97,
+    "tolerance": 0.003,
+    "sweeps": 300,
+    "termination": "velocity_estimate",
+    "estimate": 0.0007047678196966939,
+    "volume": 0.00021194575650096935,
+    "band": 0.00021194575650096935,
+    "volume_over_estimate": 0.30073131970211553
+   },
+   {
+    "omega": 1.97,
+    "tolerance": 0.001,
+    "sweeps": 325,
+    "termination": "velocity_estimate",
+    "estimate": 0.0007447032785590663,
+    "volume": 0.00014059708592349129,
+    "band": 0.00014059708592349129,
+    "volume_over_estimate": 0.18879611513935318
+   },
+   {
+    "omega": 1.97,
+    "tolerance": 0.0003,
+    "sweeps": 375,
+    "termination": "velocity_estimate",
+    "estimate": 0.0002649356065670386,
+    "volume": 5.3766533925500715e-05,
+    "band": 5.3766533925500715e-05,
+    "volume_over_estimate": 0.20294189453125008
+   },
+   {
+    "omega": 1.97,
+    "tolerance": 0.0001,
+    "sweeps": 5450,
+    "termination": "precision_floor",
+    "estimate": 0.0040145748057688144,
+    "volume": 4.800583386205421e-05,
+    "band": 4.3925337983779605e-05,
+    "volume_over_estimate": 0.011957887493607388
+   },
+   {
+    "omega": 1.97,
+    "tolerance": 3e-05,
+    "sweeps": 5450,
+    "termination": "precision_floor",
+    "estimate": 0.0040145748057688144,
+    "volume": 4.800583386205421e-05,
+    "band": 4.3925337983779605e-05,
+    "volume_over_estimate": 0.011957887493607388
+   }
+  ]
+ }
+]

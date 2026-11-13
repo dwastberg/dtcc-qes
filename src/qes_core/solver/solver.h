@@ -18,11 +18,47 @@ class WINDSGeneralData;
 namespace dtcc_qes::solver {
 
 enum class SweepOrder { Lexicographic, RedBlack };
-enum class StopRule { LegacyTolerance, FixedSweeps };
+enum class StopRule { LegacyTolerance, FixedSweeps, VelocityEstimate };
 enum class Phase { Empty, Active, Finalized, Failed };
-enum class Termination { None, LegacyTolerance, IterationLimit, FixedBudget };
+enum class Termination { None, LegacyTolerance, IterationLimit, FixedBudget, VelocityEstimate, PrecisionFloor };
 
 constexpr SweepOrder default_order() { return SweepOrder::RedBlack; }
+
+// Remaining-velocity-error estimate (SOLVER_STOP_RULE.md 3.1). Every interval
+// sweeps, the largest velocity change over the block is measured on the faces
+// the solver corrects, relative to the reference speed. r is the larger of the
+// last two block-to-block ratios, so a contraction that still rises during the
+// early transient is followed; the remaining change is S*change*r/(1-r), with r
+// clipped to the limit below. Disabled by default; VelocityEstimate requires it.
+struct EstimateOptions {
+  bool enabled = false;
+  double reference_speed = 0; // velocity scale; positive and finite when enabled
+  double tolerance = 1e-3;    // VelocityEstimate stops at or below this fraction of the scale
+  int interval = 25;          // sweeps per block
+};
+struct EstimateCheck {
+  int iteration = 0;
+  double change = 0;      // largest face-velocity change over the block / reference speed
+  double contraction = 0; // larger of the last two block ratios; NaN before the third check
+  double estimate = 0;    // remaining change; +inf before the third check
+  double floor = 0;       // rounding level of change for this iterate
+};
+inline constexpr double estimate_contraction_limit = 0.99;
+inline constexpr double estimate_safety_factor = 2;
+// Study E1 (validation/SOLVER_STOP_RULE_RESULTS.md): factor 4 delayed floor stops at fast relaxations on
+// 1 m grids; the estimate fell short only at the third and fourth checks, so passes count from the fourth.
+inline constexpr double estimate_floor_factor = 6;
+inline constexpr int estimate_required_passes = 2, estimate_first_counted_check = 4;
+inline constexpr std::size_t estimate_history_limit = 2000;
+struct EstimateReport {
+  EstimateOptions options;
+  std::vector<EstimateCheck> history; // the first estimate_history_limit checks
+  bool history_truncated = false;
+  int checks = 0;
+};
+// One check from the latest relative change and the changes one and two checks earlier.
+EstimateCheck estimate_step(int iteration, double change, std::optional<double> previous,
+                            std::optional<double> two_back, double floor);
 
 enum class OperatorStorage { Automatic, Explicit };
 enum class CoefficientOwnership { Take };
@@ -165,8 +201,9 @@ public:
 
   // Optional observer belongs to the caller and must outlive the condition.
   // Stores occur only after complete sweeps; numerical stopping is unaffected.
+  // An enabled estimate owns one multiplier snapshot and never changes the iterate.
   void begin(ConditionInputs, int total_sweeps, StopRule = StopRule::LegacyTolerance,
-             std::atomic<int> *completed_sweeps = nullptr);
+             std::atomic<int> *completed_sweeps = nullptr, EstimateOptions = {});
   WorkReport advance(int work_sweeps, bool collect_residual_trend = false);
   Observation observe(LayerRange) const;
   void observe_faces(FaceDestination) const; // Pure materialization; retains resumable phase.
@@ -187,6 +224,7 @@ public:
   Termination termination() const;
   std::size_t workspace_bytes() const;
   StudyState<Real> copy_state_for_study() const;
+  std::optional<EstimateReport> estimate_report() const;
 
 private:
   dtcc_qes::ResourceAccount resources_{dtcc_qes::ResourceKind::Workspace};
@@ -212,6 +250,14 @@ private:
   bool collect_residual_ = false;
   std::optional<ResidualTrend> last_trend_;
   std::atomic<int> *completed_sweeps_ = nullptr;
+  EstimateOptions estimate_;
+  std::vector<Real> snapshot_;
+  std::vector<EstimateCheck> history_;
+  bool history_truncated_ = false;
+  int checks_ = 0, passes_ = 0, floor_passes_ = 0;
+  double recent_[2] = {0, 0}, minimum_spacing_ = 0;
+  Termination estimate_stop_ = Termination::None;
+  void check_estimate();
   struct TrendTotals {
     double maximum = 0, weighted_square = 0, volume = 0;
     std::size_t cells = 0;

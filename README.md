@@ -57,6 +57,34 @@ explicit lower/upper tail policies. Coverage includes every final cell centre.
 Turning greater than 45° across layers warns: wakes use roof-level direction.
 See [profile conventions and caveats](docs/wind-profiles.md).
 
+## Repeated wind directions
+
+`wind.prepare` snapshots the city and prepares Python geometry and the native
+model once. Each `model.run` starts a fresh condition on that fixed model and
+returns the same fields and diagnostics as an independent `wind.run` call.
+
+```python
+profile = wind.LogProfile(5, 270)
+with wind.prepare(city, profile, bounds=bounds) as model:
+    samples = [model.run(profile.with_direction(direction)).sample(1.75, method="linear")
+               for direction in (0, 90, 180, 270)]
+    preparation_seconds = model.preparation_timings["total_seconds"]
+```
+
+Pass a profile or both `speed=` and `direction=` to each run. Profiles can
+change speed, direction and shape while retaining the preparation reference
+height and roughness. A per-run `solver=` overrides the preparation default,
+including precision and monitoring. Geometry, grid, cleaning, turbulence and
+building parameterizations stay fixed; call `wind.prepare` again to change
+them. Editing the original city does not update an existing model.
+
+The context manager releases native storage; `model.close()` is also available
+and idempotent. Results and metadata remain independent and usable afterwards.
+Concurrent or reentrant run/close calls on one model raise `RuntimeError`.
+For long direction series, retain sampled planes rather than every 3D result.
+See the [comfort example](examples/wind_comfort.py) and
+[timing and lifecycle details](docs/wind-comfort.md#preparing-a-city-once).
+
 ## Domains and vertical grids
 
 A six-coordinate bounds tuple may end with `None`: the shared planner then
@@ -125,10 +153,15 @@ carry the same fields. See [the spreading wake](docs/spreading-wake.md).
 
 ## Solver
 
-`Solver()` uses tolerance `1e-4`, at most 1,000 iterations and float32 arithmetic.
-These shared direct/dataset defaults passed the predeclared two-city
-[accuracy/latency study](docs/data/feature-merge/phase5.json). Multiplier-change
-convergence is not a mass residual, grid-independence or physical certificate.
+`Solver()` stops when the estimated remaining face-velocity error is at most
+`1e-3` of the reference speed, with a grid-dependent SOR factor
+(`relaxation="grid"`), at most 20,000 sweeps and float32 arithmetic. On the AIJ
+cases this takes 150–250 sweeps at 2 m and 325–475 at 1 m
+([study and gates](SOLVER_STOP_RULE.md)). `Solver(stop="multiplier_change")` is
+the former default exactly: tolerance `1e-4` on the multiplier change, at most
+1,000 sweeps, factor 1.78. Stored solver specs without `stop` keep that meaning.
+The velocity estimate is numerical evidence, not a mass residual,
+grid-independence or physical certificate.
 
 ```python
 monitor = wind.MonitorSpec((0, 24, 0, 24))
@@ -142,7 +175,12 @@ adaptive = wind.Solver(max_solve_seconds=5, policy="pedestrian-v1",
 
 A budget plus monitor selects bounded mode; adding `pedestrian-v1` requests
 adaptive assessment. Eligible adaptive runs use method 1.90; other runs use
-1.78. Adaptive qualification requires the supported native build, inflow,
+1.78. Legacy and bounded runs can opt into another SOR factor
+(`relaxation=1.9`) and into a stop rule on the estimated remaining velocity
+error (`stop="velocity"`, `velocity_tolerance=1e-3` of the reference speed) or
+on fixed work (`stop="fixed"`); see
+[stop rules](docs/solver-control.md#stop-rules-opt-in). These options are not
+yet defaults. Adaptive qualification requires the supported native build, inflow,
 precision, grid, geometry, monitor and thread team. `raise_on_failure=True`
 raises for legacy/bounded non-convergence or adaptive unaccepted/not-assessed
 output; known exclusions raise before native preparation. Zero completed
@@ -275,6 +313,7 @@ its original source identity.
 | Profile JSON v1 | v2; move roughness onto every profile payload |
 | Preview required/placeholder inflow | Omit inflow for grid-only preview; diagnostics explicitly unknown |
 | Numeric top from four dataset coordinates | Shared computed top via six-coordinate bounds ending in None |
+| `Solver()`: multiplier change ≤ 1e-4, 1,000 sweeps, ω 1.78 (before 0.1.0b2) | `Solver()` stops on the velocity estimate (1e-3 of the reference speed, `relaxation="grid"`, ≤ 20,000 sweeps); `Solver(stop="multiplier_change")` is the former behavior exactly, and stored specs without `stop` keep it |
 
 Terrain sampling, cut cells, vegetation, transient conditions, CUDA and
 independent physical comfort/gust qualification remain outside this work.

@@ -69,7 +69,13 @@ public:
       }
     }
     if (record.termination_reason.empty()) {
-      record.termination_reason = !adaptive_ && state.diagnostics().converged ? "legacy_tolerance" : "iteration_limit";
+      // Only non-adaptive "velocity" and "fixed" solves reach the last three
+      // values; adaptive fixed sweeps keep their frozen iteration_limit.
+      const auto termination = state.termination();
+      record.termination_reason = termination == solver::Termination::VelocityEstimate ? "velocity_estimate"
+        : termination == solver::Termination::PrecisionFloor ? "precision_floor"
+        : !adaptive_ && termination == solver::Termination::FixedBudget ? "fixed_work"
+        : !adaptive_ && state.diagnostics().converged ? "legacy_tolerance" : "iteration_limit";
       record.phase = "completed";
       check("before_finalization",record.iterations);
     }

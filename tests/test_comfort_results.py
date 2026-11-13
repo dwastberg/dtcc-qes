@@ -113,7 +113,7 @@ def test_scalar_speed_option_on_a_wake_result_pair():
     from shapely.geometry import box
     value = city(building("b", box(8, 8, 16, 14), 10))
     options = dict(bounds=(0, 0, 0, 40, 30, 32), parameterizations=wind.Parameterizations(wake=3),
-                   solver=wind.Solver(max_iterations=60))
+                   solver=wind.Solver(stop="multiplier_change", max_iterations=60))
     pair = [wind.run(value, wind.LogProfile(speed, d), **options) for speed, d in ((3, 0), (7, 270))]
     hours, angles = [3, 7, 9, 12], [0, 270, 270, 0]
     vector = comfort.assess_results(pair, hours, angles)

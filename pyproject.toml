@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "dtcc-qes"
-version = "0.1.0b1"
+version = "0.1.0b3"
 description = "DTCC integration with the QES-Winds CPU solver"
 readme = "README.md"
 requires-python = ">=3.13"

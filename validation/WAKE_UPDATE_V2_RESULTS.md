@@ -162,3 +162,44 @@ The branch's native edits disabled adaptive acceptance until its identity was re
 | sdist and wheel from the sdist, `check_artifacts.py`, `wheel_runtime_smoke.py` (4 threads) | pass; adaptive run accepted |
 
 The identity was then promoted in `src/qes_core/dtcc/pedestrian_qualification.h`; the rebuilt production extension reports the same identity and build support, and every suite passes. This qualifies the branch with the default `wake=2`; it does not qualify `wake=3` for the adaptive policy.
+
+## Integration into main (2026-11-13)
+
+`main` gained the velocity stop rule as its default solver (0.1.0b2) after this branch was qualified. `MAIN_INTEGRATION_PLAN.md` part B merged `main` into the branch as `integrate/wake-update-v2` and re-qualified the combined code.
+
+- **Merge (B1).** Three conflicts:
+  - `wind.py` `__all__`: the union.
+  - `PROVENANCE.md`: both entries.
+  - The qualification header.
+
+  The wake fields are assembled in `_result_from_native`, which `wind.run` and `PreparedWindModel.run` share.
+- **Tests (B2).** Five wake test solves calibrated on N multiplier sweeps pin `stop="multiplier_change"`. The suite also passed without the pins.
+- **Validation (B3).** On the merged code (evidence `docs/data/wake-update-v2/merged-*.json`):
+  - **W4 gates:** every gate passes, and every gated and reported value equals this branch's own summary. Only wall times differ, from running 3 jobs at once.
+  - **Stop rule's G6** (default against fixed work, AIJ 2 m): passes, worst change 0.0053. Against `main`, the fixed-work scores move only in Case E, by the W1b fix: vector-K q and R ≤ 0.0008, FAC2 ≤ 0.0039.
+  - **Default solver with `wake=3`:** 200–225 sweeps per Case E direction at 2 m, against 150–175 with `wake=2`.
+- **Re-qualification (B4).** Candidate `640dd5e`, identity `bf48ef3f660d09c3c57a8198ceeac13e4ce9511383a119ea2a17714c5de22ab7`, against `main` `b374dfb` by `docs/solver-control-requalification.md` (evidence `docs/data/wake-update-v2/combined-requalification*.json`):
+
+| Check | Result |
+|---|---|
+| Fresh Release builds and native symbol checks | equal identities; CTest OpenMP 63/63, serial 60/60, ASan/UBSan 60/60 |
+| `compare_native_builds.py` (509 cases, OpenMP at 1, 2, 4 and 8 threads and serial) | thread teams and backends identical. 45 differing records against `main`: the 22 declared W1b records and 23 `metadata/versions` records that differ only in `dtcc_qes` 0.1.0b2 → 0.1.0b3 (115 of 115 checked). Nothing else. |
+| Isolated copy with the new identity | keeps it and reports build support |
+| S7 workers | 24/24 match exactly |
+| Combined feature baseline, non-adaptive and adaptive | 436/436 arrays bitwise identical; metadata differs only in the declared identity pair and the package version |
+| `pytest -W error` on both isolated packages | 2,066 passed, 16 skipped |
+| Artifacts | sdist, wheel from the sdist, `check_artifacts.py` pass |
+| Wheel runtime smoke (4-thread team) | passes; adaptive run accepted |
+
+The identity is promoted in `pedestrian_qualification.h`. The rebuilt extension reports it as supported: `pytest -W error` 2,032 passed; validation tests 186 passed.
+
+**Merged into main** as version 0.1.0b3 (`baeca7f`). The merged tree is the qualified tree. Post-merge check on `main` (`docs/data/wake-update-v2/merged-main-verification.json`):
+
+| Check | Result |
+|---|---|
+| Release build | identity `bf48ef3f…` supported |
+| Native CTest | OpenMP 63/63, serial 60/60 |
+| `pytest -W error` | 2,032 passed |
+| Validation tests | 186 passed |
+| Artifacts | sdist and wheel pass `check_artifacts.py` |
+| Wheel runtime smoke (4-thread team) | passes; adaptive run accepted |

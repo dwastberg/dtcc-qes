@@ -63,6 +63,18 @@ def snapshot(out,release=False):
     write(out/f'{prefix}online-protocol.json',p);return p
 
 
+def legacy_solver(wind, **settings):
+    """``wind.Solver`` on the multiplier rule, the default before SOLVER_STOP_RULE.md stage 2.
+
+    These cases were frozen with that rule. Packages before the stop rules have
+    no ``stop`` option and use it anyway; the pedestrian-v1 policy resolves it.
+    """
+    import dataclasses
+    if "stop" in {f.name for f in dataclasses.fields(wind.Solver)} and settings.get("policy") is None:
+        settings.setdefault("stop", "multiplier_change")
+    return wind.Solver(**settings)
+
+
 def worker(out,request,package,output):
     from dtcc_qes import wind,_qes
     import dtcc_qes
@@ -77,7 +89,7 @@ def worker(out,request,package,output):
     if request['variant']=='unqualified_profile':dz[:2]=[.9,1.5]
     nz,ny,nx=spec['expected_shape']
     options=dict(bounds=(0,0,0,nx*2,ny*2,float(dz.sum())),resolution=2.,max_cells=400000)
-    solver=wind.Solver(max_iterations=request['iterations'], tolerance=.1 if request['variant']=='legacy_converged_unaccepted' else 1e-5)
+    solver=legacy_solver(wind,max_iterations=request['iterations'], tolerance=.1 if request['variant']=='legacy_converged_unaccepted' else 1e-5)
     if not np.all(dz==2):options['vertical_grid']=wind.VerticalGrid.from_faces(np.r_[0,np.cumsum(dz)])
     if request['variant']=='unqualified_precision':solver=replace(solver,precision='float64')
     receptors=tuple(wind.Receptor(f'r{i}-h{h}',x,y,h) for i,(x,y) in enumerate(spec['receptors']) for h in [1.5,1.75])

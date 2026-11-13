@@ -256,6 +256,18 @@ canopy/wake research implementations. The private canyon contract is now
 The runner's scoped cleanup owns failure cleanup; its write-only phase enum and
 redundant catch-all cleanup were removed. Public progress remains independently
 synchronized. See `docs/CODE_REVIEW_2026_11.md` for scope and verification.
+- **Solver stop rule (`SOLVER_STOP_RULE.md`, stage 1).** `SolverState` gains
+  the opt-in velocity-estimate and fixed-work stop rules (the block change of
+  the corrected face velocities, checked every 25 sweeps), and the runner an
+  opt-in SOR relaxation, including the grid-dependent `grid_relaxation`. The
+  sweep kernels and every default path are unchanged: `compare_native_builds.py`
+  against `main` is bitwise identical.
+- **Re-qualification.** The branch identity
+  `1319a43d89ce2abf951c3eae48d8047457049e31c28a9938e10b4722fbcf4bf6` was
+  re-qualified by the procedure of `docs/solver-control-requalification.md`
+  (evidence in `docs/data/solver-stop-rule/`; summary in
+  `validation/SOLVER_STOP_RULE_RESULTS.md`). There are no numerical differences
+  from `main`.
 
 ### Wake update v2 (WAKE_UPDATE_V2.md)
 
@@ -275,3 +287,11 @@ synchronized. See `docs/CODE_REVIEW_2026_11.md` for scope and verification.
   `docs/data/wake-update-v2/`; summary in
   `validation/WAKE_UPDATE_V2_RESULTS.md`). The only numerical differences from
   `main` are the declared W1b exposed-face cases.
+- **Re-qualification with the stop rule.** After `main` (with the stop rule,
+  `1319a43d…`) was merged into the wake update, the combined identity
+  `bf48ef3f660d09c3c57a8198ceeac13e4ce9511383a119ea2a17714c5de22ab7` was
+  re-qualified against `main` `b374dfb` by the procedure of
+  `docs/solver-control-requalification.md` (evidence
+  `docs/data/wake-update-v2/combined-requalification*.json`;
+  `MAIN_INTEGRATION_PLAN.md` step B4). The only numerical differences are the
+  declared W1b exposed-face cases.

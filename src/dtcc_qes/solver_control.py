@@ -92,6 +92,31 @@ class MonitorSpec:
             object.__setattr__(self, "low_flow_fraction", _number(self.low_flow_fraction, "low_flow_fraction", positive=True))
 
 
+class _RuleDefault:
+    """Marks a Solver setting left out, resolved from the stop rule and policy."""
+    __slots__ = ()
+
+    def __repr__(self):
+        return "<rule default>"
+
+
+_RULE_DEFAULT = _RuleDefault()
+
+
+class _ResolvedStr(str):
+    """A rule setting filled in by default: a plain string, re-resolved by dataclasses.replace."""
+    __slots__ = ()
+
+
+class _ResolvedInt(int):
+    """A sweep cap filled in by default: a plain integer, re-resolved by dataclasses.replace."""
+    __slots__ = ()
+
+
+def _left_out(value):
+    return value is _RULE_DEFAULT or isinstance(value, (_ResolvedStr, _ResolvedInt))
+
+
 @dataclass(frozen=True)
 class Solver:
     """Immutable solver work, arithmetic and optional assessment specification.
@@ -100,9 +125,29 @@ class Solver:
     requests adaptive numerical assessment on its frozen scope. The cooperative
     budget covers the native solve, including mutex wait and monitoring; city
     preparation and output/turbulence calculation have separate timing scopes.
+
+    Legacy and bounded solves stop by default when the estimated remaining
+    face-velocity error is at most ``velocity_tolerance`` (1e-3) times the
+    reference speed, with a grid-dependent SOR factor and a cap of 20,000 sweeps
+    (SOLVER_STOP_RULE.md, stage 2). ``stop`` chooses the rule: ``"velocity"``
+    (the default), ``"multiplier_change"`` (the former default: ``tolerance`` on
+    the Lagrange multiplier change) or ``"fixed"`` (exactly ``max_iterations``
+    sweeps, recording the estimate). ``relaxation`` is a number, None (1.78) or
+    ``"grid"``: 2 - 16/N for N cells across the shorter horizontal side of the
+    domain, clipped to [1.78, 1.98]; the value used is
+    ``result.solver["relaxation"]``. ``max_iterations`` caps every rule.
+
+    Settings left out depend on the rule: ``"velocity"`` uses ``"grid"`` and
+    20,000 sweeps; the other rules and the pedestrian-v1 policy use 1.78 and
+    1,000 sweeps, so ``Solver(stop="multiplier_change")`` is the former default
+    exactly. The policy fixes its own factor and sweeps and rejects other rules
+    and factors. A calm condition has no velocity scale: a ``"velocity"`` solve
+    of one ends on the multiplier rule (``result.solver["calm_stop"]``).
+    ``to_dict`` omits the rule options at their former defaults, and
+    ``from_dict`` reads missing ones as those, so stored specs keep their meaning.
     """
     tolerance: float = 1e-4
-    max_iterations: int = 1000
+    max_iterations: int = _RULE_DEFAULT
     precision: Literal["float32", "float64"] = "float32"
     max_solve_seconds: float | None = None
     monitor: MonitorSpec | None = None
@@ -110,17 +155,59 @@ class Solver:
     checkpoint_interval: int = 25
     residual_interval: int = 0
     raise_on_failure: bool = False
+    relaxation: float | Literal["grid"] | None = _RULE_DEFAULT
+    stop: Literal["multiplier_change", "velocity", "fixed"] = _RULE_DEFAULT
+    velocity_tolerance: float = 1e-3
+
+    # The rule options before stage 2. to_dict omits them at these values, from_dict
+    # fills them in when missing, and the policy accepts only these.
+    _OPTIONAL_DEFAULTS = dict(relaxation=None, stop="multiplier_change", velocity_tolerance=1e-3)
+
+    def _resolve_rule_defaults(self):
+        """Fill the settings left out: the velocity rule outside the policy (D4, D6, D7).
+
+        Filled values are marked, so that ``dataclasses.replace`` (which passes
+        every current value back) resolves them again for the new settings, e.g.
+        when a policy is added. A left-out relaxation resolved to None is not
+        marked; None is also the policy's only accepted value.
+        """
+        if _left_out(self.stop):
+            object.__setattr__(self, "stop", _ResolvedStr("multiplier_change" if self.policy is not None
+                                                          else "velocity"))
+        velocity = self.stop == "velocity"
+        if _left_out(self.relaxation):
+            object.__setattr__(self, "relaxation", _ResolvedStr("grid") if velocity else None)
+        if _left_out(self.max_iterations):
+            object.__setattr__(self, "max_iterations", _ResolvedInt(20000 if velocity else 1000))
 
     def __post_init__(self):
         import numpy as np
+        self._resolve_rule_defaults()
         if not isinstance(self.precision, str) or self.precision not in ("float32", "float64"):
             raise ValueError("precision must be 'float32' or 'float64'")
+        if self.relaxation is not None and not (isinstance(self.relaxation, str) and self.relaxation == "grid"):
+            if isinstance(self.relaxation, str):
+                raise ValueError("relaxation must be a number, 'grid' or None")
+            relaxation = _number(self.relaxation, "relaxation", positive=True)
+            if not relaxation < 2 or not 0 < np.float32(relaxation) < 2:
+                raise ValueError("relaxation must be between zero and two")
+            object.__setattr__(self, "relaxation", relaxation)
+        if not isinstance(self.stop, str) or self.stop not in ("multiplier_change", "velocity", "fixed"):
+            raise ValueError("stop must be 'multiplier_change', 'velocity' or 'fixed'")
+        object.__setattr__(self, "velocity_tolerance",
+                           _number(self.velocity_tolerance, "velocity_tolerance", positive=True))
+        if self.policy is not None:
+            changed = [name for name, default in self._OPTIONAL_DEFAULTS.items() if getattr(self, name) != default]
+            if changed:
+                raise ValueError(f"{', '.join(changed)} is fixed by the pedestrian-v1 policy; omit it")
         tolerance = _number(self.tolerance, "tolerance", positive=True)
         limits = np.finfo(self.precision)
         if not float(limits.eps) <= tolerance <= float(limits.max):
             raise ValueError(f"tolerance must be at least {self.precision} epsilon and finite in {self.precision}")
         object.__setattr__(self, "tolerance", tolerance)
-        object.__setattr__(self, "max_iterations", _integer(self.max_iterations, "max_iterations"))
+        iterations = _integer(self.max_iterations, "max_iterations")
+        object.__setattr__(self, "max_iterations", _ResolvedInt(iterations)
+                           if isinstance(self.max_iterations, _ResolvedInt) else iterations)
         if not isinstance(self.raise_on_failure, bool):
             raise ValueError("raise_on_failure must be boolean")
         if self.policy is not None and (not isinstance(self.policy, str) or self.policy != "pedestrian-v1"):
@@ -149,7 +236,11 @@ class Solver:
 
     def to_dict(self):
         import json
-        return json.loads(json.dumps(dict(schema_version=1, **asdict(self)), allow_nan=False))
+        fields = asdict(self)
+        for name, default in self._OPTIONAL_DEFAULTS.items():
+            if fields[name] == default:
+                del fields[name]
+        return json.loads(json.dumps(dict(schema_version=1, **fields), allow_nan=False))
 
     @classmethod
     def from_dict(cls, payload):
@@ -160,6 +251,8 @@ class Solver:
                 monitor["receptors"] = tuple(Receptor(**r) for r in monitor.get("receptors", ()))
                 monitor["mass_regions"] = tuple(MassRegion(**r) for r in monitor.get("mass_regions", ()))
                 value["monitor"] = MonitorSpec(**monitor)
+            for name, legacy in cls._OPTIONAL_DEFAULTS.items():
+                value.setdefault(name, legacy)  # payloads written before stage 2
             return cls(**value)
         except (KeyError, TypeError) as error:
             raise ValueError(f"Invalid solver settings: {error}") from error

@@ -2,10 +2,12 @@
 
 from importlib.metadata import distribution
 from copy import deepcopy
+from contextlib import contextmanager
 import time
 import json
 from dataclasses import replace
 import math
+from threading import Lock
 from typing import Literal
 import numpy as np
 
@@ -27,7 +29,7 @@ from .profiles import (LogProfile, MeasuredProfile, PowerLawProfile, UniformProf
                        PROFILE_TYPES, profile_from_dict, evaluate, _profile_record,
                        friction_velocity, INFLOW_TKE_PER_USTAR2, VON_KARMAN)
 
-__all__ = ["run", "preview_grid", "WindResult", "WindSample", "WindPointSample", "SamplingSupport", "GridPreview",
+__all__ = ["run", "prepare", "PreparedWindModel", "preview_grid", "WindResult", "WindSample", "WindPointSample", "SamplingSupport", "GridPreview",
            "SolveDiagnostics", "ConvergenceError", "VerticalGrid", "Turbulence", "TurbulenceFields", "WakeFields",
            "Solver", "MonitorSpec", "Receptor", "MassRegion", "BudgetExhaustedError",
            "NumericalFailureError", "UnacceptedResultError",
@@ -82,7 +84,9 @@ def run(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformP
     ``solver=Solver(...)`` owns tolerance, iterations, precision and failure
     behavior. A budget plus MonitorSpec selects bounded native execution;
     policy="pedestrian-v1" additionally requests adaptive numerical assessment.
-    Solver() retains the legacy tolerance/iteration stop. The cooperative budget
+    Solver() stops on the estimated remaining velocity error (1e-3 of the
+    reference speed, grid-dependent relaxation, at most 20,000 sweeps);
+    Solver(stop="multiplier_change") is the former default. The cooperative budget
     covers mutex wait, initialization and monitoring, with preparation and final
     output/turbulence outside the solve budget. A zero-sweep deadline always
     raises BudgetExhaustedError. Completed-work failures return the available
@@ -160,30 +164,209 @@ def run(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformP
     return result
 
 
+def prepare(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformProfile | None = None, *,
+            speed: float | None = None, direction: float | None = None,
+            resolution: float = 2.0,
+            bounds: Bounds | tuple[float, float, float, float, float, float | None] | None = None,
+            horizontal_padding: float = 20.0, vertical_clearance: float = 20.0,
+            max_cells: int = 20_000_000, solver: Solver = Solver(),
+            terrain: Literal["flat"] | float | None = None,
+            height_policy: Literal["measured", "allow_estimated"] = "measured", vertical_grid: VerticalGrid | None = None,
+            turbulence: Turbulence | None = None, footprints: Footprints | None = None,
+            parameterizations: Parameterizations = Parameterizations()) -> "PreparedWindModel":
+    """Snapshot a city and prepare its geometry and native model once.
+
+    Arguments have the same meaning as :func:`run`. Supply a profile (or both
+    speed and direction) to establish the reference height and roughness used
+    for preparation. No wind condition is solved here. ``solver`` supplies the
+    default for subsequent ``model.run(profile)`` calls.
+
+    Profiles passed to the model may change speed, direction and shape, but
+    must retain the preparation reference height and roughness. All geometry,
+    grid, footprint, parameterization and turbulence settings are fixed.
+    Prepare another model when those settings or the source city change.
+    Later source-city edits cannot affect this snapshot.
+
+    Use ``with prepare(...) as model:`` or call ``model.close()`` to release
+    its native storage promptly. Each run returns independent owned fields;
+    retain sampled planes instead of full volumes for long direction series.
+    """
+    started = time.perf_counter()
+    turbulence_spec = _resolve_turbulence(turbulence)
+    if not isinstance(solver, Solver):
+        raise TypeError("solver must be Solver")
+    profile_spec = _resolve_condition(speed, direction, profile)
+    exclusions = _check_solver_inputs(solver, profile_spec, turbulence_spec)
+    if exclusions:
+        _warn_solver_outcome(str(UnacceptedResultError(None, None, exclusions=exclusions)), turbulence_spec)
+    grid = _validate_grid(resolution, bounds, horizontal_padding, vertical_clearance, max_cells,
+                          vertical_grid=vertical_grid)
+    city_started = time.perf_counter()
+    geometry, prepared = _prepare_city(city, profile_spec, grid, terrain, height_policy,
+        turbulence=turbulence_spec is not None, footprints=footprints, parameterizations=parameterizations)
+    city_seconds = time.perf_counter() - city_started
+    eligibility = _preflight_eligibility(prepared, geometry, profile_spec, solver, turbulence_spec)
+    if eligibility["exclusions"]:
+        if solver.raise_on_failure:
+            raise UnacceptedResultError(None, None, exclusions=eligibility["exclusions"])
+        if not exclusions:
+            _warn_solver_outcome(str(UnacceptedResultError(None, None, exclusions=eligibility["exclusions"])),
+                                 turbulence_spec)
+    runner = _qes.WindRunner()
+    native_started = time.perf_counter()
+    try:
+        runner.prepare(prepared.grid, prepared.model, **prepared.arrays, dz_layers=prepared.dz_layers,
+                       turbulence=_native_turbulence(turbulence_spec))
+    except BaseException:
+        # A retained exception traceback must not retain a partially built runner.
+        del runner
+        raise
+    timings = dict(total_seconds=time.perf_counter() - started,
+                   city_preparation_seconds=city_seconds,
+                   native_preparation_seconds=time.perf_counter() - native_started)
+    return PreparedWindModel(geometry, prepared, runner, profile_spec, solver,
+                             vertical_grid, turbulence_spec, height_policy, timings)
+
+
+class PreparedWindModel:
+    """Reusable city snapshot created by :func:`prepare`.
+
+    Each condition starts from zero and uses the same solve/result path as
+    ``wind.run``. Results and their editable metadata outlive this model and
+    cannot affect later runs. Concurrent or reentrant run/close calls on one
+    model raise RuntimeError; use separate models for independent callers.
+    Native execution still uses the existing process-wide lock and budget.
+    """
+
+    def __init__(self, geometry, prepared, runner, profile, solver, vertical_grid,
+                 turbulence, height_policy, timings):
+        self._geometry, self._prepared, self._runner = geometry, prepared, runner
+        self._reference_height = profile.reference_height
+        self._roughness_length = profile.roughness_length
+        self._solver, self._vertical_grid = solver, vertical_grid
+        self._turbulence, self._height_policy = turbulence, height_policy
+        self._preparation_timings = timings
+        self._lock = Lock()
+
+    @property
+    def preparation_timings(self):
+        """One-time seconds, copied on access; total includes its subphases.
+
+        Native preparation includes binding transfer and lock wait. Add only
+        total_seconds to the sum of run public_call_seconds for a series;
+        teardown, caller sampling and file output are outside those totals.
+        """
+        return dict(self._preparation_timings)
+
+    @property
+    def closed(self):
+        return self._runner is None
+
+    @contextmanager
+    def _operation(self):
+        if not self._lock.acquire(blocking=False):
+            raise RuntimeError("PreparedWindModel is already in use")
+        try:
+            yield
+        finally:
+            self._lock.release()
+
+    def _require_open(self):
+        if self.closed:
+            raise RuntimeError("PreparedWindModel is closed; call wind.prepare to create another model")
+
+    def close(self):
+        """Release the prepared model; repeated calls are harmless."""
+        with self._operation():
+            self._runner = None
+            self._geometry = self._prepared = None
+
+    def __enter__(self):
+        with self._operation():
+            self._require_open()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+    def run(self, profile: LogProfile | MeasuredProfile | PowerLawProfile | UniformProfile | None = None, *,
+            speed: float | None = None, direction: float | None = None,
+            solver: Solver | None = None) -> WindResult:
+        """Solve one profile, or both speed/direction, on the prepared model.
+
+        ``solver=None`` uses the preparation default. A per-call override can
+        change precision, stopping criteria and monitoring without redoing
+        geometry. Failures leave the model available for retry.
+
+        Result timings cover this call only: city/native preparation are zero.
+        Use ``preparation_timings`` for the one-time setup cost. The untouched
+        raw solver record retains the native runner's original setup timer.
+        """
+        started = time.perf_counter()
+        with self._operation():
+            self._require_open()
+            solver = self._solver if solver is None else solver
+            if not isinstance(solver, Solver):
+                raise TypeError("solver must be Solver")
+            profile_spec = _resolve_condition(speed, direction, profile)
+            for name, value in (("reference_height", self._reference_height),
+                                ("roughness_length", self._roughness_length)):
+                if getattr(profile_spec, name) != value:
+                    raise ValueError(f"{name} must match the prepared model; call wind.prepare for new settings")
+            exclusions = _check_solver_inputs(solver, profile_spec, self._turbulence)
+            if exclusions:
+                _warn_solver_outcome(str(UnacceptedResultError(None, None, exclusions=exclusions)), self._turbulence)
+            condition_started = time.perf_counter()
+            prepared = replace(self._prepared, domain=deepcopy(self._prepared.domain))
+            _prepare_profile(prepared, profile_spec)
+            condition_seconds = time.perf_counter() - condition_started
+            result = _solve_prepared(self._geometry, prepared, profile_spec, solver,
+                vertical_grid=self._vertical_grid, turbulence_spec=self._turbulence,
+                height_policy=self._height_policy, _known_exclusions=exclusions, _runner=self._runner)
+            # Domain/profile metadata is per-condition; terrain, footprint and
+            # source records also need ownership independent of the snapshot.
+            result = replace(result, metadata=deepcopy(result.metadata))
+            timings = result.metadata["timings"]
+            timings["city_preparation_seconds"] = 0.0
+            timings["condition_preparation_seconds"] = condition_seconds
+            if timings["native"] is not None:
+                timings["native"]["preparation_seconds"] = 0.0
+            timings["scopes"].update(
+                public_call="PreparedWindModel.run: validation, profile preparation, native execution and output",
+                city_preparation="zero; geometry and native setup are counted in model.preparation_timings",
+                condition_preparation="profile metadata and layer evaluation; nested in public_call",
+                native="native totals contain phase timers; preparation is zero here; the raw solver record retains its original setup timer")
+            timings["public_call_seconds"] = time.perf_counter() - started
+            return result
+
+
 def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
                     turbulence_spec=None, height_policy="measured",
                     _known_exclusions=(), _runner=None, _experiment=None):
     """Solve a validated prepared domain and assemble the common result metadata."""
-    adaptive = solver.mode == "adaptive"
-    if profile is None:
-        raise ValueError("Solving requires a known inflow profile")
-    profile_record = prepared.domain["profile"]
-    native_condition = _native_condition(profile_record)
-    if profile_record["max_turning_deg"] > 45:
-        get_python_logger("dtcc-qes").warning(
-            "Background profile turns %.1f degrees across physical layers (>45 degrees); "
-            "building wakes follow each roof-level direction, including where lower layers turn.",
-            profile_record["max_turning_deg"])
-    native_solver = _native_solver(solver)
-    eligibility = _preflight_eligibility(prepared,geometry,profile,solver,turbulence_spec)
-    if eligibility["exclusions"]:
-        if solver.raise_on_failure:
-            raise UnacceptedResultError(None,None,exclusions=eligibility["exclusions"])
-        if not _known_exclusions:
-            _warn_solver_outcome(str(UnacceptedResultError(None,None,exclusions=eligibility["exclusions"])),turbulence_spec)
-        _known_exclusions = eligibility["exclusions"]
-    runner = _qes.WindRunner() if _runner is None else _runner
+    runner = None
     try:
+        adaptive = solver.mode == "adaptive"
+        if profile is None:
+            raise ValueError("Solving requires a known inflow profile")
+        profile_record = prepared.domain["profile"]
+        native_condition = _native_condition(profile_record)
+        if profile_record["max_turning_deg"] > 45:
+            get_python_logger("dtcc-qes").warning(
+                "Background profile turns %.1f degrees across physical layers (>45 degrees); "
+                "building wakes follow each roof-level direction, including where lower layers turn.",
+                profile_record["max_turning_deg"])
+        native_solver = _native_solver(solver)
+        if _calm_stop(solver, profile_record):
+            native_solver.stop_rule = "multiplier_change"
+        eligibility = _preflight_eligibility(prepared,geometry,profile,solver,turbulence_spec)
+        if eligibility["exclusions"]:
+            if solver.raise_on_failure:
+                raise UnacceptedResultError(None,None,exclusions=eligibility["exclusions"])
+            if not _known_exclusions:
+                _warn_solver_outcome(str(UnacceptedResultError(None,None,exclusions=eligibility["exclusions"])),turbulence_spec)
+            _known_exclusions = eligibility["exclusions"]
+        runner = _qes.WindRunner() if _runner is None else _runner
         if _runner is None:
             runner.prepare(prepared.grid, prepared.model, **prepared.arrays, dz_layers=prepared.dz_layers,
                            turbulence=_native_turbulence(turbulence_spec))
@@ -197,14 +380,15 @@ def _solve_prepared(geometry, prepared, profile, solver, *, vertical_grid=None,
     finally:
         # Arrays already own their storage. A retained Python exception's
         # traceback must not retain the much larger prepared native domain.
-        del runner
+        del runner, _runner
     diagnostics = SolveDiagnostics(**native["diagnostics"])
     record = native.get("control")
     failure = None
     if adaptive and not record["accepted"]:
         failure = UnacceptedResultError(diagnostics, record)
-    elif not adaptive and not diagnostics.converged:
-        failure = ConvergenceError(diagnostics, record)
+    elif not adaptive and solver.stop != "fixed" and not diagnostics.converged:
+        # Fixed work is the requested outcome; a bounded deadline still warns below.
+        failure = ConvergenceError(diagnostics, record, native.get("stop_estimate"))
     if failure is not None:
         if solver.raise_on_failure:
             raise failure
@@ -271,6 +455,12 @@ def _result_from_native(native, diagnostics, geometry, prepared, solver, *,
         environment=dict(precision=solver.precision, backend=_qes.cpu_backend,
             sweep_order=_qes.cpu_sweep_order, native_build=dict(metadata["versions"]["native_build"]),
             source_revision=_qes.qes_revision, shape=list(native["cell_flags"].shape)))
+    if "stop_estimate" in native:
+        metadata["solver"]["stop_estimate"] = native["stop_estimate"]
+    if "relaxation" in native:
+        metadata["solver"]["relaxation"] = native["relaxation"]
+    if _calm_stop(solver, prepared.domain["profile"]):
+        metadata["solver"]["calm_stop"] = "multiplier_change"
     metadata["timings"] = _timing_report(record,native.get("timings"))
     if turbulence_spec is not None:
         fields = native["turbulence"]
@@ -550,10 +740,20 @@ def _timing_report(record,native_timings=None):
             native="native totals contain phase timers; do not add parent totals and children"))
 
 
+def _calm_stop(solver, profile_record):
+    """A calm condition has no velocity scale; its zero field ends on the multiplier rule."""
+    return solver.stop == "velocity" and not profile_record["reference"]["speed"] > 0
+
+
 def _native_solver(solver):
     options=_qes.SolverOptions()
-    options.tolerance,options.max_iterations=solver.tolerance,solver.max_iterations
+    options.tolerance,options.max_iterations=solver.tolerance,int(solver.max_iterations)
     options.precision=solver.precision
+    if solver.relaxation == "grid":
+        options.grid_relaxation=True
+    elif solver.relaxation is not None:
+        options.relaxation=solver.relaxation
+    options.stop_rule,options.velocity_tolerance=str(solver.stop),solver.velocity_tolerance
     return options
 
 
