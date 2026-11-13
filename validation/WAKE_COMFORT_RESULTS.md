@@ -123,3 +123,21 @@ Evidence: [C1 and W4 summary](../docs/data/wake-comfort/c1-summary.json),
 Verification: 337 tests passed, 5 skipped across the validation suite and
 comfort/wake product tests; the final focused wake suite passed 9 tests.
 The four warnings are dependency deprecations from laspy.
+
+## Merge preparation
+
+The assessment commit is `91a8492`; the branch incorporates `main` through
+`7bf2115` in merge `8c61f1b`. There are no product/native source differences
+from that main revision. Review this as a validation-and-documentation change.
+The full comfort-default plan remains open as listed above; this branch does
+not complete C2–C7 or implement the tower remedy.
+
+Merge scope includes the pre-run M2 registration, C1 harness and tests,
+Gaussian diagnostic, H4 and cavity-overlap diagnostics, archived evidence,
+corrected user guidance, and the unsent Hamburg request draft. Existing
+untracked `validation/AIJ_A` and `validation/AIJ_B` dataset links are excluded.
+The active worktree and historical prototype are retained. The branch is
+prepared for integration; `main` has not been modified by this task.
+
+Post-merge verification: 337 passed, 5 skipped, 4 dependency warnings in 68.14 s.
+`git diff --check main` passes; archived implementation hashes match the sources.
