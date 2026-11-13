@@ -16,6 +16,8 @@ study=load_tool('vertical_refinement', _tools/'run_vertical_refinement.py')
 
 from fixtures.vertical_refinement import documents
 
+pytestmark = pytest.mark.evidence  # its tools read docs/data
+
 def test_three_levels_are_uniform_subdivisions_of_actual_generator_and_fit_resources():
     configs=study.plans()
     base=np.asarray(configs['base']['layers_input'])

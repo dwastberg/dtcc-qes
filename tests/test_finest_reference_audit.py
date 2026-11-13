@@ -8,6 +8,8 @@ import run_finest_reference as study
 from audit_finest_reference import stopped_summary
 sys.path.pop(0)
 
+pytestmark = pytest.mark.evidence  # its tools read docs/data
+
 
 @pytest.fixture
 def native():
