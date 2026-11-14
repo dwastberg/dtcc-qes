@@ -219,7 +219,11 @@ void rotation()
     for (int k = 2; k < fixture.grid.nz; ++k) {
       const auto cell = d.cell(10, 10, k);
       const auto actual = stress_at(*turb, cell);
-      const auto expected = shear_oracle(turb->Lm[cell], degrees);
+      // The second ground layer uses the shifted-log closure even for this
+      // manufactured linear shear; higher layers retain the linear derivative.
+      const double ratio = k == 2 ? (d.z[3]-d.z[1]) /
+        ((d.z[2]+fixture.model.roughness_length)*std::log((d.z[3]+fixture.model.roughness_length)/(d.z[1]+fixture.model.roughness_length))) : 1.;
+      const auto expected = shear_oracle(turb->Lm[cell]*ratio, degrees);
       const double cap = turb->getUpperBound() * turb->getFrictionVelocity() * turb->getFrictionVelocity();
       for (std::size_t component = 0; component < actual.size(); ++component) {
         require(std::abs(expected[component]) < cap, "Rotation oracle must use uncapped stress");
@@ -744,7 +748,9 @@ void flat_analytic()
     for (int j = 1; j < grid.ny-1; ++j)
       for (int i = 1; i < grid.nx-1; ++i) {
         const auto cell = (k * grid.ny + j) * grid.nx + i;
-        const double g = (result.velocity[3*(cell+plane)] - result.velocity[3*(cell-plane)]) / 4.0;
+        const double denominator = k == 1 ? (result.z[k]+t.roughness_length)
+          *std::log((result.z[k+1]+t.roughness_length)/(result.z[k-1]+t.roughness_length)) : 4.;
+        const double g = (result.velocity[3*(cell+plane)] - result.velocity[3*(cell-plane)]) / denominator;
         const double lm = 0.4 * result.z[k], lu = lm * g;
         const double energy = std::pow(lu / 0.55, 2);
         const std::array<double,6> expected{std::pow(2.5*lu,2), 0, -lm*lm*g*std::abs(g),

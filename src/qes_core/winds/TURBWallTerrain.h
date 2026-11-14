@@ -63,6 +63,7 @@ protected:
                                                   const std::vector<float> &,
                                                   const std::vector<float> &);
 
+  void comp_ground_velocity_deriv(WINDSGeneralData *, TURBGeneralData *);
   void set_loglaw_stairstep(WINDSGeneralData *, TURBGeneralData *);
 
 public:

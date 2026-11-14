@@ -45,7 +45,7 @@ TURBWallTerrain::TURBWallTerrain(const TurbulenceConfig &config,
   if (config.terrainWallFlag == 1) {
     comp_wall_velocity_deriv = &TURBWallTerrain::set_loglaw_stairstep;
   } else if (config.terrainWallFlag == 2) {
-    comp_wall_velocity_deriv = &TURBWallTerrain::comp_velocity_deriv_finitediff_stairstep;
+    comp_wall_velocity_deriv = &TURBWallTerrain::comp_ground_velocity_deriv;
   } else {
     comp_wall_velocity_deriv = nullptr;
   }
@@ -197,4 +197,47 @@ void TURBWallTerrain::set_loglaw_stairstep(WINDSGeneralData *WGD, TURBGeneralDat
   }
 
   return;
+}
+
+// Shifted-log ground closure. Building roofs retain the inherited finite
+// difference, because their profiles and separated flow have a different model.
+void TURBWallTerrain::comp_ground_velocity_deriv(WINDSGeneralData *WGD, TURBGeneralData *TGD)
+{
+  // Keep all other wall derivatives, but suppress the inherited below-wall
+  // stencil: under an overhang its upper sample may be solid.
+  std::vector<pairCellFaceID> ground;
+  ground.swap(wall_below_indices);
+  comp_velocity_deriv_finitediff_stairstep(WGD, TGD);
+  ground.swap(wall_below_indices);
+  const auto &d = WGD->domain;
+  const int face_plane = d.nx() * d.ny();
+  const int cell_plane = (d.nx()-1) * (d.ny()-1);
+  const double z0 = WGD->groundRoughness;
+  const auto fluid = [&](int cell) {
+    return WGD->icellflag[cell] != 0 && WGD->icellflag[cell] != 2;
+  };
+  for (const auto &wall : wall_below_indices) {
+    const int k = wall.cellID / cell_plane;
+    const double height = d.z[k] - d.z_face[k];
+    const bool above = k+1 < d.nz()-1 && fluid(wall.cellID+cell_plane);
+    const auto rewrite = [&](const std::vector<float> &velocity, int offset, std::vector<float> &gradient) {
+      const auto value = [&](int level) {
+        const auto f = wall.faceID + (level-k)*face_plane;
+        return .5 * (double(velocity[f]) + velocity[f+offset]);
+      };
+      const double lower = value(k);
+      if (!above) {
+        gradient[wall.cellID] = lower / ((height+z0)*std::log((height+z0)/z0));
+        return;
+      }
+      const double next = d.z[k+1] - d.z_face[k];
+      gradient[wall.cellID] = (value(k+1)-lower) / ((height+z0)*std::log((next+z0)/(height+z0)));
+      if (k+2 < d.nz()-1 && fluid(wall.cellID+2*cell_plane)) {
+        const double upper = d.z[k+2] - d.z_face[k];
+        gradient[wall.cellID+cell_plane] = (value(k+2)-lower) / ((next+z0)*std::log((upper+z0)/(height+z0)));
+      }
+    };
+    rewrite(WGD->u, 1, TGD->Gxz);
+    rewrite(WGD->v, d.nx(), TGD->Gyz);
+  }
 }

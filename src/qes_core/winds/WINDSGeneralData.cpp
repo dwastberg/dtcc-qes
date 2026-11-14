@@ -111,6 +111,7 @@ WINDSGeneralData::WINDSGeneralData(qes::Domain domain_in, const std::vector<Buil
   // Consolidate all buildings onto allBuildingsV; the buildings are owned here.
   allBuildingsV.clear();
 
+  groundRoughness = site_z0;
   z0 = parameterizations.wallRoughness;
 
   if (parameterizations.upwindCavityFlag == 1) {
@@ -286,6 +287,7 @@ void WINDSGeneralData::ensureMixingLengthStorage()
 
 void WINDSGeneralData::applyWindProfile(const InflowCondition &inflow)
 {
+  groundRoughness = inflow.site_z0;
   profileDirection = (270.0 - inflow.site_wind_dir) * M_PI / 180.0;
   validateInflow(inflow);
 

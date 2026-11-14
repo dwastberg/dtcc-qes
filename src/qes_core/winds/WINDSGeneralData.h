@@ -105,6 +105,7 @@ public:
   std::size_t canyon_changed_faces=0,canyon_roof_changes=0,canyon_audit_zones=0,canyon_W_changes=0;
   std::size_t canyon_qualified=0,canyon_fallback=0,canyon_writes=0;
 
+  float groundRoughness = 0.1; // Inflow roughness; z0 below is overwritten by wall roughness.
   float profileDirection = 0; // Calm-layer fallback, in the log-profile convention.
   void applyParametrizations(const std::function<void(const char *)> &stage = {},
                             const std::function<void(const char *,int)> &building_observer = {});

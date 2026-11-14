@@ -225,6 +225,12 @@ def test_flat_streamwise_std_matches_surface_layer_relation(direction):
     result = solve(FLAT,direction=direction)
     speed = np.linalg.norm(result.velocity.astype(float),axis=-1)
     gradient = (speed[2:,10,10]-speed[:-2,10,10])/(result.z[2:].astype(float)-result.z[:-2])
+    roughness = result.turbulence.roughness_length
+    gradient[0] = (speed[2,10,10]-speed[0,10,10]) / (
+        (float(result.z[1])+roughness)*np.log((float(result.z[2])+roughness)/(float(result.z[0])+roughness)))
+    first = (speed[1,10,10]-speed[0,10,10]) / (
+        (float(result.z[0])+roughness)*np.log((float(result.z[1])+roughness)/(float(result.z[0])+roughness)))
+    np.testing.assert_allclose(result.streamwise_std[0,10,10],2.5*.4*float(result.z[0])*abs(first),rtol=1e-5)
     expected = 2.5*.4*result.z[1:-1].astype(float)*np.abs(gradient)
     np.testing.assert_allclose(result.streamwise_std[1:-1,10,10],expected,rtol=1e-5,atol=1e-7)
     # Independent full covariance in streamwise/crosswind/vertical dyads.
@@ -244,6 +250,10 @@ def test_stretched_grid_matches_nonuniform_gradient():
     z = result.z.astype(float)
     hm,hp = z[1:-1]-z[:-2],z[2:]-z[1:-1]
     gradient = (hm/hp*(speed[2:]-speed[1:-1])+hp/hm*(speed[1:-1]-speed[:-2]))/(hp+hm)
+    roughness = result.turbulence.roughness_length
+    gradient[0] = (speed[2]-speed[0])/((z[1]+roughness)*np.log((z[2]+roughness)/(z[0]+roughness)))
+    first = (speed[1]-speed[0])/((z[0]+roughness)*np.log((z[1]+roughness)/(z[0]+roughness)))
+    np.testing.assert_allclose(result.streamwise_std[0,10,10],2.5*.4*z[0]*abs(first),rtol=1e-4)
     np.testing.assert_allclose(result.streamwise_std[1:-1,10,10],2.5*.4*z[1:-1]*np.abs(gradient),rtol=1e-4,atol=1e-7)
 
 

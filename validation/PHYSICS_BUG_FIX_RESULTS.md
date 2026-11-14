@@ -292,7 +292,7 @@ and calm flow. NumPy rotation/scaling oracles, zero, nonfinite and indefinite
 cases pass. Serial **65/65**, OpenMP **68/68**. The full Python run exposed four
 stale metadata/component-cap assertions; these now check the new counters and
 independent eigenvalue bound. The focused runner/oracle suite passes **78/78**;
-the full rerun is pending.
+the full rerun passes **2072 tests, 16 skipped**.
 
 Archive: `output/fixes/archive/F5-2b3de21`. No attribution threshold is crossed:
 
@@ -328,3 +328,67 @@ cannot hold above the corrected two layers while retaining central differences.
 On a 2 m grid at z=5, their log-gradient bias is about 5.7%, versus about 1.7%
 at z=9. Tests will use the exact log gradient in the first two layers and the
 unchanged discretized derivative elsewhere. This preserves F6's stated scope.
+
+## F6: ground-adjacent derivatives
+
+The shifted-log closure applies to the first two ground layers, using a
+wall-function fallback when the upper cell is solid. Roof derivatives are
+bit-identical in the reversed-roof manufactured test. Uniform, shifted-log,
+linear and oblique profiles pass on uniform and stretched grids, including
+an overhang with poisoned solid-cell velocities. The overhang is constructed
+at the core boundary: the public flat-ground input rejects nonzero base heights.
+
+**Correction to the plan:** `WINDSGeneralData.cpp` overwrites `z0` with
+`parameterizations.wallRoughness` after initially setting it from the inflow.
+F6 therefore stores `groundRoughness` from the constructor/profile separately.
+Using `z0` failed the manufactured test by 3.7%; the dedicated field passes.
+The inherited ground stencil is suppressed before the new one is applied,
+so its one-sided difference cannot supply a solid-cell velocity.
+
+Measured sigma/uStar in an empty domain:
+
+| Grid | First centre | sigma/uStar | Second centre | sigma/uStar |
+|---|---:|---:|---:|---:|
+| 2 m | 1 | 2.27025 | 3 | 2.41672 |
+| 1 m | 0.5 | 2.07939 | 1.5 | 2.33932 |
+| stretched | 0.25 | 1.78186 | 0.875 | 2.23875 |
+
+All computed layers agree within 2% with the scoped gradient/mixing-length
+prediction; intensity decreases monotonically. The first two ground gradients
+match the shifted-log analytic derivative to 1e-5 relative error. Linear-shear
+oracles explicitly use the log-space model in those layers, not an exact linear
+derivative. The κ*d mixing length and higher-layer central differences remain.
+
+Serial **66/66**, OpenMP **69/69**. Five Python analytic assertions still used
+central differences in the second ground layer; updated independent formulas
+pass the focused suite (**60 passed, 8 skipped**). Full strict release suite
+is running on Python 3.13, matching the original checkout.
+
+Archive: `output/fixes/archive/F6-aab96e8`. No attribution threshold is crossed:
+
+| Grid | Comparison | delta q | delta FAC2 | delta R | delta FB | share abs(delta K)>0.05 |
+|---|---|---:|---:|---:|---:|---:|
+| 2 m | A-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-k | +0.00000 | +0.00000 | +0.00011 | -0.00075 | 0.00000 |
+| 2 m | B-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-k | +0.00000 | +0.00503 | +0.00002 | -0.00100 | 0.00000 |
+| 2 m | D-split_fibre | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-thermistor-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-thermistor-K_scalar | -0.01015 | -0.00508 | +0.00049 | +0.00600 | 0.00000 |
+| 2 m | E-before-thermistor-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | E-before-thermistor-K_scalar | +0.00625 | +0.01875 | -0.00384 | +0.00894 | 0.00000 |
+| 2 m | E-after-thermistor-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | E-after-thermistor-K_scalar | +0.01875 | +0.00625 | -0.00114 | +0.00859 | 0.00000 |
+
+The comfort example's GEM maps are bit-identical between F5 and F6: its 1.5 m
+sample is the third cell centre. Its full directional maps and raw arrays are
+in `output/comfort/F6`. This does not imply unchanged comfort on uniform grids,
+where 1.5 m lies in the corrected/interpolated ground layers.
+
+Next-step reassessment: all six fixes are implemented. Proceed to full release
+validation, fresh build/sanitizer checks, audited fixture updates, packaging,
+version/documentation updates, and the upstream draft. Qualification stays frozen.
