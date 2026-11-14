@@ -31,6 +31,7 @@
 /** @file UpwindCavity.cpp */
 
 #include "PolyBuilding.h"
+#include "CavityFrame.h"
 
 // These take care of the circular reference
 #include "WINDSGeneralData.h"
@@ -112,19 +113,7 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
       perpendicular_dir[id] = atan2(polygonVertices[id + 1].y_poly - polygonVertices[id].y_poly,
                                     polygonVertices[id + 1].x_poly - polygonVertices[id].x_poly)
                               + 0.5 * M_PI;
-      if (perpendicular_dir[id] <= -M_PI) {
-        perpendicular_dir[id] += 2 * M_PI;
-      }
-
-      if (perpendicular_dir[id] >= 0.75 * M_PI) {
-        effective_gamma[id] = perpendicular_dir[id] - M_PI;
-      } else if (perpendicular_dir[id] >= 0.25 * M_PI) {
-        effective_gamma[id] = perpendicular_dir[id] - 0.5 * M_PI;
-      } else if (perpendicular_dir[id] < -0.75 * M_PI) {
-        effective_gamma[id] = perpendicular_dir[id] + M_PI;
-      } else if (perpendicular_dir[id] < -0.25 * M_PI) {
-        effective_gamma[id] = perpendicular_dir[id] + 0.5 * M_PI;
-      }
+      effective_gamma[id] = cavityFrame(perpendicular_dir[id]);
       uh_rotation = u0_h * cos(effective_gamma[id]) + v0_h * sin(effective_gamma[id]);
       vh_rotation = -u0_h * sin(effective_gamma[id]) + v0_h * cos(effective_gamma[id]);
       face_length.push_back(sqrt(pow(xf2[id] - xf1[id], 2.0) + pow(yf2[id] - yf1[id], 2.0)));
