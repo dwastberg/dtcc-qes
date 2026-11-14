@@ -198,3 +198,133 @@ The defect was real but does not explain the tower-effect discrepancy.
 Next-step reassessment: F4 remains a half-cell modelling tolerance on parameter
 faces; original masks must remain intact. Its changes can move the roof point,
 so the incident capture stays after geometry preparation, as implemented here.
+
+## F4: facade runs
+
+Smallest-deviation removal is deterministic across rings, bounded by every
+original vertex in each merged run, with triangle-contact and edge-crossing
+vetoes. Original masks are retained. Changed rings have canonical start vertices;
+unchanged rectangles are untouched. The kinked rectangle's entire initial
+velocity field equals the plain rectangle on both strict and exposed paths.
+Circle, setback, unequal-grid, slot, courtyard and original-mask checks pass.
+
+Serial **64/64**, OpenMP **67/67**, Python **2068 passed, 16 skipped**, with
+only the three known F5 failures. Final archive:
+`output/fixes/archive/F4-final-2b3de21`. The earlier `F4-0b297b9` is preliminary,
+before canonicalizing ring start vertices. All A/B/D archived arrays are
+bit-identical to F3. Score changes:
+
+| Grid | Comparison | delta q | delta FAC2 | delta R | delta FB | share abs(delta K)>0.05 |
+|---|---|---:|---:|---:|---:|---:|
+| 2 m | A-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-k | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-k | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-split_fibre | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-thermistor-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-thermistor-K_scalar | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | E-before-thermistor-K | +0.00000 | +0.00000 | +0.00022 | +0.00168 | 0.00937 |
+| 2 m | E-before-thermistor-K_scalar | +0.00313 | +0.00627 | +0.01118 | -0.00131 | 0.00940 |
+| 2 m | E-after-thermistor-K | +0.00312 | +0.00000 | +0.00031 | +0.00174 | 0.00313 |
+| 2 m | E-after-thermistor-K_scalar | -0.00313 | +0.00625 | +0.00787 | -0.00129 | 0.00937 |
+
+Sensitivity archives are `output/sensitivity/archive/F4-quarter-0b297b9` and
+`output/sensitivity/archive/F4-one-2b3de21`. Against half-cell:
+
+| Grid | Comparison | delta q | delta FAC2 | delta R | delta FB | share abs(delta K)>0.05 |
+|---|---|---:|---:|---:|---:|---:|
+| 2 m | A-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-k | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-k | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-split_fibre | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-thermistor-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-thermistor-K_scalar | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | E-before-thermistor-K | -0.00312 | +0.00000 | +0.00178 | -0.00016 | 0.00000 |
+| 2 m | E-before-thermistor-K_scalar | +0.00000 | -0.00313 | -0.01052 | +0.00212 | 0.00313 |
+| 2 m | E-after-thermistor-K | -0.00312 | +0.00000 | +0.00056 | -0.00022 | 0.00000 |
+| 2 m | E-after-thermistor-K_scalar | +0.00000 | -0.00312 | -0.00594 | +0.00226 | 0.00313 |
+
+| Grid | Comparison | delta q | delta FAC2 | delta R | delta FB | share abs(delta K)>0.05 |
+|---|---|---:|---:|---:|---:|---:|
+| 2 m | A-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-k | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-k | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-split_fibre | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-thermistor-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-thermistor-K_scalar | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | E-before-thermistor-K | -0.00937 | -0.00625 | -0.01555 | -0.00307 | 0.03750 |
+| 2 m | E-before-thermistor-K_scalar | -0.00313 | -0.00313 | -0.00430 | -0.00086 | 0.03448 |
+| 2 m | E-after-thermistor-K | -0.00937 | +0.00938 | +0.00188 | -0.00419 | 0.03438 |
+| 2 m | E-after-thermistor-K_scalar | -0.00233 | +0.00538 | +0.01111 | +0.00115 | 0.03762 |
+
+No q/R change exceeds 0.02, so D3 remains half-cell. No attribution is required.
+
+Next-step reassessment: F5 ports only spectral scaling. The research production
+coupling failed accuracy protections and is excluded. The new 20 m cube test
+finds spectral radius/B=3 before F5, independently reproducing the defect.
+
+## F5: spectral stress limiter
+
+Ported only `spectral_limit` unchanged from the research header; production
+coupling remains excluded. Early TKE capping is retained. Per-cell double
+spectral scales and energy-cap flags drive export and sampling; the two new
+activity counters are exposed in Python metadata. Positive scaling preserves
+indefinite eigenvalue signs; it is not a realizability repair.
+
+The three cube directions now have maximum spectral radius/B=1 (before: 3).
+Cell-by-cell native checks cover spectral and streamwise bounds, tensor shape,
+inactive-cell locality, unchanged mean wind, export/probe agreement, counts,
+and calm flow. NumPy rotation/scaling oracles, zero, nonfinite and indefinite
+cases pass. Serial **65/65**, OpenMP **68/68**. The full Python run exposed four
+stale metadata/component-cap assertions; these now check the new counters and
+independent eigenvalue bound. The focused runner/oracle suite passes **78/78**;
+the full rerun is pending.
+
+Archive: `output/fixes/archive/F5-2b3de21`. No attribution threshold is crossed:
+
+| Grid | Comparison | delta q | delta FAC2 | delta R | delta FB | share abs(delta K)>0.05 |
+|---|---|---:|---:|---:|---:|---:|
+| 2 m | A-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-k | -0.00350 | -0.00955 | +0.05799 | +0.05917 | 0.09028 |
+| 2 m | B-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-k | +0.00464 | +0.00867 | -0.01775 | +0.03697 | 0.06122 |
+| 2 m | D-split_fibre | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-thermistor-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-thermistor-K_scalar | -0.00135 | +0.00168 | -0.00030 | -0.00230 | 0.00431 |
+| 2 m | E-before-thermistor-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | E-before-thermistor-K_scalar | -0.00024 | -0.00160 | +0.02449 | +0.00672 | 0.04389 |
+| 2 m | E-after-thermistor-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | E-after-thermistor-K_scalar | +0.00000 | +0.00625 | +0.01506 | +0.00797 | 0.04375 |
+
+Comfort example maps and raw arrays: `output/comfort/F4-baseline` and
+`output/comfort/F5`. The old Python package and extension were isolated for the
+baseline, since current Python metadata requires the new native counters.
+Maximum absolute GEM change is **1.356 m/s**, 99th percentile **0**, and
+**0.136%** of finite directional map cells change by >0.05 m/s. Non-realizable
+share at 1.5 m is zero in every direction both before and after in this example.
+The example's 1.5 m centre is its third layer; F6 only changes the first two
+layers, so this particular map need not change under F6.
+
+Next-step reassessment (F6): the requested all-layer 2% analytic profile check
+cannot hold above the corrected two layers while retaining central differences.
+On a 2 m grid at z=5, their log-gradient bias is about 5.7%, versus about 1.7%
+at z=9. Tests will use the exact log gradient in the first two layers and the
+unchanged discretized derivative elsewhere. This preserves F6's stated scope.

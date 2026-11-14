@@ -53,8 +53,8 @@ MonitorReceptorRecord::TurbulenceSample turbulence_sample(const TURBGeneralData 
       const float lm=turb.Lm[c],nu=lm*lm*std::sqrt(2.f*ss);
       const float uncapped=std::pow(nu/(.55f*lm),2.f);
       out.mixing_length+=weight*lm;out.tke+=weight*turb.tke[c];out.uncapped_tke+=weight*uncapped;
-      out.capped |= bound>0 && turb.tke[c]>=bound;
-      for(int n=0;n<6;++n){out.stress[n]+=weight*stress[n];out.capped |= bound>0 && std::abs(stress[n])>=bound;}
+      out.capped |= bound>0 && (turb.spectralScale[c]<1 || turb.energyCapped[c]);
+      for(int n=0;n<6;++n)out.stress[n]+=weight*stress[n];
       for(int n=0;n<9;++n)out.gradient[n]+=weight*(*gradients[n])[c];
     }
   StressTensor stress;
@@ -150,11 +150,11 @@ TurbulenceData turbulence_fields(const TURBGeneralData &turb, const GridConfig &
     result.tke[cell] = turb.tke[source];
     result.co_eps[cell] = turb.CoEps[source];
     result.mixing_length[cell] = turb.Lm[source];
-    bool capped = false;
-    if (bound > 0) {
-      capped = turb.tke[source] >= bound;
-      for (float component : stress) capped = capped || std::abs(component) >= bound;
-    }
+    const bool spectral = bound > 0 && turb.spectralScale[source] < 1;
+    const bool energy = bound > 0 && turb.energyCapped[source];
+    const bool capped = spectral || energy;
+    if (spectral) ++result.spectral_limited_cells;
+    if (energy) ++result.energy_capped_cells;
     result.state[cell] = capped ? 2 : 1;
     result.stress_valid[cell] = stress_is_valid(stress);
     ++result.computed_cells;

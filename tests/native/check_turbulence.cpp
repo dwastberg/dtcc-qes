@@ -956,14 +956,15 @@ void invalid_stress()
     const auto &s = cases[n];
     turb->txx[cell]=s[0]; turb->txy[cell]=s[1]; turb->txz[cell]=s[2];
     turb->tyy[cell]=s[3]; turb->tyz[cell]=s[4]; turb->tzz[cell]=s[5];
-    if (n == 2) turb->tke[cell] = bound;
+    if (n == 1) turb->spectralScale[cell] = .5;
+    if (n == 2) {turb->tke[cell] = bound; turb->energyCapped[cell] = 1;}
   }
   const auto &d = fixture.data->domain;
   turb->iturbflag[d.cell(d.nx()-2,10,5)] = 2; // A marked wall in an uncomputed boundary column.
   const auto fields = turbulence_fields(*turb, fixture.grid);
   require(fields.computed_cells == turb->icellfluid.size() && fields.invalid_stress_cells == 3
-          && fields.capped_cells == 3, "Extraction conflated computed, valid and capped stress");
-  const std::array<std::uint8_t,5> states{1,2,2,1,2}, valid{0,1,1,0,0};
+          && fields.capped_cells == 2 && fields.spectral_limited_cells == 1 && fields.energy_capped_cells == 1, "Extraction conflated computed, valid and capped stress");
+  const std::array<std::uint8_t,5> states{1,2,2,1,1}, valid{0,1,1,0,0};
   const auto plane = fixture.grid.nx * fixture.grid.ny;
   for (std::size_t n = 0; n < cases.size(); ++n) {
     const auto cell = turb->icellfluid[n], output = cell - plane;

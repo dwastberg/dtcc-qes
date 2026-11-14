@@ -238,6 +238,8 @@ nb::dict python_result(const WindData &data)
     fields["upper_bound"] = t.upper_bound;
     fields["computed_cells"] = t.computed_cells;
     fields["capped_cells"] = t.capped_cells;
+    fields["spectral_limited_cells"] = t.spectral_limited_cells;
+    fields["energy_capped_cells"] = t.energy_capped_cells;
     fields["invalid_stress_cells"] = t.invalid_stress_cells;
     fields["rotation_fallback_columns"] = t.rotation_fallback_columns;
     result["turbulence"] = fields;

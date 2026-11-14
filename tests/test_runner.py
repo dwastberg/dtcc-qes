@@ -77,7 +77,7 @@ def test_turbulence_arrays_masks_metadata_and_ownership(method, precision):
     arrays_names = (*float_arrays, "state", "stress_valid")
     scalars = ("friction_velocity", "reference_speed", "reference_height", "roughness_length",
                "displacement_height", "upper_bound", "computed_cells", "capped_cells",
-               "invalid_stress_cells", "rotation_fallback_columns")
+               "invalid_stress_cells", "rotation_fallback_columns", "spectral_limited_cells", "energy_capped_cells")
     assert set(turb) == set((*arrays_names, *scalars, "reference_sampling"))
     shape = (grid.nz, grid.ny, grid.nx)
     for name in arrays_names:
@@ -95,8 +95,14 @@ def test_turbulence_arrays_masks_metadata_and_ownership(method, precision):
     assert (turb["state"] == 2).sum() == turb["capped_cells"]
     bound = (np.float32(turb["upper_bound"]) * np.float32(turb["friction_velocity"]))
     bound *= np.float32(turb["friction_velocity"])
-    capped = computed & ((turb["tke"] >= bound) | (np.abs(turb["stress"]).max(axis=-1) >= bound))
-    np.testing.assert_array_equal(turb["state"] == 2, capped)
+    # Cap state records limiter activity, which cannot be reconstructed exactly
+    # from rounded post-limit magnitudes. Native tests compare every activity bit.
+    assert max(turb["spectral_limited_cells"], turb["energy_capped_cells"]) <= turb["capped_cells"]
+    assert turb["capped_cells"] <= turb["spectral_limited_cells"] + turb["energy_capped_cells"]
+    stress = turb["stress"][computed].astype(float)
+    tensor = stress[:, (0, 1, 2, 1, 3, 4, 2, 4, 5)].reshape(-1, 3, 3)
+    radius = np.max(np.abs(np.linalg.eigvalsh(tensor)), axis=1)
+    assert np.all(radius <= bound * (1 + 2e-6))
     assert not turb["stress_valid"][~computed].any()
     for name in float_arrays:
         assert np.isnan(turb[name][~computed]).all()

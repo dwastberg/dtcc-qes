@@ -154,6 +154,8 @@ public:
   ///@}
 
   std::vector<float> nuT; /**< turbulent viscosity */
+  std::vector<double> spectralScale; // Recorded stress scale; 1 where unlimited.
+  std::vector<unsigned char> energyCapped; // Early TKE cap fired.
   std::vector<float> tke; /**< turbulence kinetic energy */
   std::vector<float> CoEps; /**< dissipation rate */
 

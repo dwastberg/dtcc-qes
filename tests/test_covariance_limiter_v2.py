@@ -55,22 +55,32 @@ def test_exact_row_sum_boundary_and_calm(probe):
     assert active[0,0]<1
 
 
-def test_native_zero_length_and_supported_zero_energy_branches(tmp_path):
+def test_native_supported_zero_tensor_branch(tmp_path):
     source=tmp_path/'zero.cpp'
     source.write_text('''#include "dtcc/api/covariance_model.h"
 #include <cassert>
 int main() {
  using namespace dtcc_qes;
- assert(uncapped_energy(0,0)==0);
- assert(production_scale(0,0)==1);
- assert(!std::isfinite(uncapped_energy(1,0)));
- assert(std::isnan(production_scale(0,uncapped_energy(1,0))));
- StressTensor strain{};
- const auto invalid=consistent_constitutive(strain,1,uncapped_energy(1,0),0);
- assert(!stress_validity(invalid).valid);
  StressTensor zero{};
  assert(spectral_limit(zero,0)==1 && stress_validity(zero).valid);
+ StressTensor nonzero{1,0,0,1,0,1};
+ assert(spectral_limit(nonzero,0)==0 && nonzero==zero);
+ StressTensor finite{1,0,0,1,0,1};
+ const auto unchanged=finite;
+ assert(std::isnan(spectral_limit(finite,std::numeric_limits<float>::infinity())));
+ assert(finite==unchanged);
+ finite[0]=std::numeric_limits<float>::quiet_NaN();
+ assert(std::isnan(spectral_limit(finite,1)) && std::isnan(finite[0]) && finite[3]==1);
 }''')
     binary=tmp_path/'zero'
     subprocess.run(['c++','-std=c++17','-O2','-I'+str(ROOT/'src/qes_core'),str(source),'-o',str(binary)],check=True)
     subprocess.run([str(binary)],check=True)
+
+
+def test_indefinite_tensor_keeps_eigenvalue_signs(probe):
+    tensor=np.array([[-.25,0,0,1,0,2],[-.25,0,0,1,0,2]],np.float32)
+    result=probe(tensor,np.array([3,1],np.float32))
+    np.testing.assert_allclose(result[:,0],[1,.5])
+    eigen=np.linalg.eigvalsh(matrices(result[:,1:]))
+    assert np.all(eigen[:,0]<0)
+    np.testing.assert_allclose(eigen[1],.5*eigen[0])

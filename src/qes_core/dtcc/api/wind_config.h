@@ -92,6 +92,7 @@ struct TurbulenceData {
   float friction_velocity = 0, reference_speed = 0, reference_height = 0;
   float roughness_length = 0, displacement_height = 0, upper_bound = 0;
   std::size_t computed_cells = 0, capped_cells = 0, invalid_stress_cells = 0;
+  std::size_t spectral_limited_cells = 0, energy_capped_cells = 0;
   std::size_t rotation_fallback_columns = 0;
 
 };

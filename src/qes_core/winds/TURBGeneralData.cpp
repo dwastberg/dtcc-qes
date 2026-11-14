@@ -1,3 +1,4 @@
+#include "dtcc/api/covariance_model.h"
 #include "../dtcc/api/turbulence_reference.h"
 /****************************************************************************
  * Copyright (c) 2025 University of Utah
@@ -245,6 +246,8 @@ void TURBGeneralData::allocateMemory()
 
   // derived turbulence quantities
   tke.resize(numcell_cent, 0);
+  spectralScale.resize(numcell_cent, 1.0);
+  energyCapped.resize(numcell_cent, 0);
   CoEps.resize(numcell_cent, 0);
   nuT.resize(numcell_cent, 0);
   // qes::log::info() << "\t\t Memory allocation completed.\n";
@@ -450,7 +453,8 @@ void TURBGeneralData::getTurbulentViscosity()
 
     if (production_observer) production_observer(cellID,NU_T,TKE);
 
-    if (TKE > tkeBound)
+    energyCapped[cellID] = TKE > tkeBound;
+    if (energyCapped[cellID])
       TKE = tkeBound;
 
     nuT[cellID] = NU_T;
@@ -736,41 +740,10 @@ void TURBGeneralData::boundTurbFields()
 {
   float stressBound = turbUpperBound * uStar * uStar;
   for (int cellID : icellfluid) {
-    if (txx[cellID] < -stressBound)
-      txx[cellID] = -stressBound;
-    if (txx[cellID] > stressBound)
-      txx[cellID] = stressBound;
-  }
-  for (int cellID : icellfluid) {
-    if (txy[cellID] < -stressBound)
-      txy[cellID] = -stressBound;
-    if (txy[cellID] > stressBound)
-      txy[cellID] = stressBound;
-  }
-  for (int cellID : icellfluid) {
-    if (txz[cellID] < -stressBound)
-      txz[cellID] = -stressBound;
-    if (txz[cellID] > stressBound)
-      txz[cellID] = stressBound;
-  }
-  for (int cellID : icellfluid) {
-    if (tyy[cellID] < -stressBound)
-      tyy[cellID] = -stressBound;
-    if (tyy[cellID] > stressBound)
-      tyy[cellID] = stressBound;
-  }
-  for (int cellID : icellfluid) {
-    if (tyz[cellID] < -stressBound)
-      tyz[cellID] = -stressBound;
-    if (tyz[cellID] > stressBound)
-      tyz[cellID] = stressBound;
-  }
-  for (int cellID : icellfluid) {
-    if (tzz[cellID] < -stressBound)
-      tzz[cellID] = -stressBound;
-    if (tzz[cellID] > stressBound)
-      tzz[cellID] = stressBound;
-    if (stress_observer) stress_observer(2,cellID,
-      {txx[cellID],txy[cellID],txz[cellID],tyy[cellID],tyz[cellID],tzz[cellID]});
+    dtcc_qes::StressTensor stress{txx[cellID],txy[cellID],txz[cellID],tyy[cellID],tyz[cellID],tzz[cellID]};
+    spectralScale[cellID] = dtcc_qes::spectral_limit(stress, stressBound);
+    txx[cellID]=stress[0]; txy[cellID]=stress[1]; txz[cellID]=stress[2];
+    tyy[cellID]=stress[3]; tyz[cellID]=stress[4]; tzz[cellID]=stress[5];
+    if (stress_observer) stress_observer(2,cellID,stress);
   }
 }
