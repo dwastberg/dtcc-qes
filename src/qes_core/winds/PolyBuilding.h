@@ -104,6 +104,8 @@ public:
     // polygonWake only assigns this for eligible wind-facing edges. Restore
     // the fresh-building decision before every condition, including retries.
     rooftop_flag = 0;
+    incident_u = incident_v = 0;
+    incident_dir = 0;
   }
 
   PolyBuilding()

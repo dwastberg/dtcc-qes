@@ -1,0 +1,209 @@
+diff --git a/src/qes_core/winds/Building.h b/src/qes_core/winds/Building.h
+index 600d2fa..01b44f9 100644
+--- a/src/qes_core/winds/Building.h
++++ b/src/qes_core/winds/Building.h
+@@ -67,6 +67,10 @@ public:
+   float H{}; /**< Height of the building */
+   float base_height{}; /**< Base height of the building */
+ 
++  double incident_u{}, incident_v{}, later_u{}, later_v{};
++  float incident_dir{}, later_dir{};
++  void useLaterReference() { u0_h=later_u; v0_h=later_v; upwind_dir=later_dir; }
++
+   float upwind_dir{}; /**< Wind direction of initial velocity at the height of building at the centroid */
+   float height_eff{}; /**< Effective height of the building */
+   float building_cent_x{}; /**< x coordinate of buildings' centroid */
+diff --git a/src/qes_core/winds/PolyBuilding.h b/src/qes_core/winds/PolyBuilding.h
+index e9ffda4..3ccd911 100644
+--- a/src/qes_core/winds/PolyBuilding.h
++++ b/src/qes_core/winds/PolyBuilding.h
+@@ -104,6 +104,8 @@ public:
+     // polygonWake only assigns this for eligible wind-facing edges. Restore
+     // the fresh-building decision before every condition, including retries.
+     rooftop_flag = 0;
++    incident_u = incident_v = later_u = later_v = 0;
++    incident_dir = later_dir = 0;
+   }
+ 
+   PolyBuilding()
+diff --git a/src/qes_core/winds/PolygonWake.cpp b/src/qes_core/winds/PolygonWake.cpp
+index 87b59d2..0b23543 100644
+--- a/src/qes_core/winds/PolygonWake.cpp
++++ b/src/qes_core/winds/PolygonWake.cpp
+@@ -84,13 +84,12 @@ void PolyBuilding::prepareWake(WINDSGeneralData *WGD, WakePreamble &wake)
+   int k_s(0);// Index of the saddle point in vetical dir
+ 
+ 
+-  long index_building_face = WGD->domain.face(i_building_cent, j_building_cent, k_end);
+   long icell_cent;
+-  u0_h = WGD->u0[index_building_face];// u velocity at the height of building at the centroid
+-  v0_h = WGD->v0[index_building_face];// v velocity at the height of building at the centroid
++  u0_h = incident_u;
++  v0_h = incident_v;
+ 
+   // Wind direction of initial velocity at the height of building at the centroid
+-  upwind_dir = atan2(v0_h, u0_h);
++  upwind_dir = incident_dir;
+ 
+   x1 = x2 = y1 = y2 = 0.0;
+   xi.resize(polygonVertices.size(), 0.0);// Difference of x values of the centroid and each node
+diff --git a/src/qes_core/winds/Rooftop.cpp b/src/qes_core/winds/Rooftop.cpp
+index c174e39..4c1cf34 100644
+--- a/src/qes_core/winds/Rooftop.cpp
++++ b/src/qes_core/winds/Rooftop.cpp
+@@ -102,12 +102,11 @@ void PolyBuilding::rooftop(WINDSGeneralData *WGD)
+   upwind_rel_dir.resize(polygonVertices.size(), 0.0);// Upwind reletive direction for each face
+   perpendicular_flag.resize(polygonVertices.size(), 0);
+ 
+-  long index_building_face = WGD->domain.face(i_building_cent, j_building_cent, k_end);
+-  u0_h = WGD->u0[index_building_face];// u velocity at the height of building at the centroid
+-  v0_h = WGD->v0[index_building_face];// v velocity at the height of building at the centroid
++  u0_h = incident_u;
++  v0_h = incident_v;
+ 
+   // Wind direction of initial velocity at the height of building at the centroid
+-  upwind_dir = atan2(v0_h, u0_h);
++  useLaterReference();
+ 
+   xi.resize(polygonVertices.size(), 0.0);// Difference of x values of the centroid and each node
+   yi.resize(polygonVertices.size(), 0.0);// Difference of y values of the centroid and each node
+diff --git a/src/qes_core/winds/Sidewall.cpp b/src/qes_core/winds/Sidewall.cpp
+index 70a3a09..ab2c641 100644
+--- a/src/qes_core/winds/Sidewall.cpp
++++ b/src/qes_core/winds/Sidewall.cpp
+@@ -81,12 +81,11 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
+   int x_id_max, y_id_max;
+   long icell_face, icell_cent;
+ 
+-  long index_building_face = WGD->domain.face(i_building_cent, j_building_cent, k_end);
+-  u0_h = WGD->u0[index_building_face];// u velocity at the height of building at the centroid
+-  v0_h = WGD->v0[index_building_face];// v velocity at the height of building at the centroid
++  u0_h = incident_u;
++  v0_h = incident_v;
+ 
+   // Wind direction of initial velocity at the height of building at the centroid
+-  upwind_dir = atan2(v0_h, u0_h);
++  useLaterReference();
+ 
+   xi.resize(polygonVertices.size(), 0.0);// Difference of x values of the centroid and each node
+   yi.resize(polygonVertices.size(), 0.0);// Difference of y values of the centroid and each node
+diff --git a/src/qes_core/winds/StreetCanyon.cpp b/src/qes_core/winds/StreetCanyon.cpp
+index ee675e2..4cc630c 100644
+--- a/src/qes_core/winds/StreetCanyon.cpp
++++ b/src/qes_core/winds/StreetCanyon.cpp
+@@ -96,12 +96,11 @@ void PolyBuilding::streetCanyon(WINDSGeneralData *WGD)
+   perpendicular_flag.resize(polygonVertices.size(), 0);
+   perpendicular_dir.resize(polygonVertices.size(), 0.0);
+ 
+-  long index_building_face = WGD->domain.face(i_building_cent, j_building_cent, k_end);
+-  u0_h = WGD->u0[index_building_face];// u velocity at the height of building at the centroid
+-  v0_h = WGD->v0[index_building_face];// v velocity at the height of building at the centroid
++  u0_h = incident_u;
++  v0_h = incident_v;
+ 
+   // Wind direction of initial velocity at the height of building at the centroid
+-  upwind_dir = atan2(v0_h, u0_h);
++  useLaterReference();
+   if(observe)event("incident",{double(i_building_cent),double(j_building_cent),double(k_end),u0_h,v0_h,upwind_dir,Lr,dx,dy,dxy});
+   // Loop through to calculate projected location for each polygon node in rotated coordinates
+   for (size_t id = 0; id < polygonVertices.size(); id++) {
+diff --git a/src/qes_core/winds/StreetCanyonModified.cpp b/src/qes_core/winds/StreetCanyonModified.cpp
+index 8f7b3b1..db7963c 100644
+--- a/src/qes_core/winds/StreetCanyonModified.cpp
++++ b/src/qes_core/winds/StreetCanyonModified.cpp
+@@ -125,12 +125,11 @@ void PolyBuilding::streetCanyonModified(WINDSGeneralData *WGD)
+   perpendicular_flag.resize(polygonVertices.size() - 1, 0);
+   perpendicular_dir.resize(polygonVertices.size() - 1, 0.0);
+ 
+-  long index_building_face = WGD->domain.face(i_building_cent, j_building_cent, k_end);
+-  u0_h = WGD->u0[index_building_face];// u velocity at the height of building at the centroid
+-  v0_h = WGD->v0[index_building_face];// v velocity at the height of building at the centroid
++  u0_h = incident_u;
++  v0_h = incident_v;
+ 
+   // Wind direction of initial velocity at the height of building at the centroid
+-  upwind_dir = atan2(v0_h, u0_h);
++  useLaterReference();
+   // Loop through to calculate projected location for each polygon node in rotated coordinates
+   for (size_t id = 0; id < polygonVertices.size(); id++) {
+     xi[id] = (polygonVertices[id].x_poly - building_cent_x) * cos(upwind_dir) + (polygonVertices[id].y_poly - building_cent_y) * sin(upwind_dir);
+diff --git a/src/qes_core/winds/UpwindCavity.cpp b/src/qes_core/winds/UpwindCavity.cpp
+index c371394..c727966 100644
+--- a/src/qes_core/winds/UpwindCavity.cpp
++++ b/src/qes_core/winds/UpwindCavity.cpp
+@@ -87,11 +87,10 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
+   effective_gamma.resize(polygonVertices.size(), 0.0);
+   int counter = 0;
+ 
+-  long index_building_face = WGD->domain.face(i_building_cent, j_building_cent, k_end);
+-  u0_h = WGD->u0[index_building_face];// u velocity at the height of building at the centroid
+-  v0_h = WGD->v0[index_building_face];// v velocity at the height of building at the centroid
++  u0_h = incident_u;
++  v0_h = incident_v;
+   // Wind direction of initial velocity at the height of building at the centroid
+-  upwind_dir = atan2(v0_h, u0_h);
++  upwind_dir = incident_dir;
+   for (auto id = 0u; id < polygonVertices.size() - 1; id++) {
+     if (!isFace(id)) continue;
+     xf1[id] = 0.5 * (polygonVertices[id].x_poly - polygonVertices[id + 1].x_poly) * cos(upwind_dir)
+diff --git a/src/qes_core/winds/WINDSGeneralData.cpp b/src/qes_core/winds/WINDSGeneralData.cpp
+index 12347f2..a4bd15a 100644
+--- a/src/qes_core/winds/WINDSGeneralData.cpp
++++ b/src/qes_core/winds/WINDSGeneralData.cpp
+@@ -286,6 +286,7 @@ void WINDSGeneralData::ensureMixingLengthStorage()
+ 
+ void WINDSGeneralData::applyWindProfile(const InflowCondition &inflow)
+ {
++  profileDirection = (270.0 - inflow.site_wind_dir) * M_PI / 180.0;
+   validateInflow(inflow);
+ 
+   qes::log::info() << "[QES-WINDS]\t Applying Wind Profile...\n";
+@@ -331,7 +332,17 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
+     const std::function<void(const char *,int)> &building_observer)
+ {
+   parameterizations.validateWakeDependencies();
+-  for (auto *building : allBuildingsV) building->resetConditionState();
++  for (auto *building : allBuildingsV) {
++    building->resetConditionState();
++    const auto face = domain.face(building->i_building_cent, building->j_building_cent, building->k_end);
++    building->incident_u = u0[face];
++    building->incident_v = v0[face];
++    building->incident_dir = (building->incident_u == 0 && building->incident_v == 0)
++        ? profileDirection : atan2(building->incident_v, building->incident_u);
++    building->later_u = building->incident_u;
++    building->later_v = building->incident_v;
++    building->later_dir = building->incident_dir;
++  }
+ 
+   auto start_param = std::chrono::high_resolution_clock::now();// Start recording execution time
+   qes::log::info() << "[QES-WINDS]\t Applying parameterizations...\n";
+@@ -366,6 +377,17 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
+   ///////////////////////////////////////////
+   //   Street Canyon Parameterization     ///
+   ///////////////////////////////////////////
++  // Temporary benchmark choice; removed after the documented D2 comparison.
++  constexpr bool useStageBoundaryDirection = true;
++  if (useStageBoundaryDirection) for (auto *building : allBuildingsV) {
++    const auto face = domain.face(building->i_building_cent, building->j_building_cent, building->k_end);
++    const double u = u0[face], v = v0[face];
++    const double speed = std::hypot(u, v);
++    if (speed > 0 && speed >= 0.1 * std::hypot(building->incident_u, building->incident_v)) {
++      building->later_u = u; building->later_v = v;
++      building->later_dir = atan2(v, u);
++    }
++  }
+   if (stage) stage("wake");
+   if (parameterizations.streetCanyonFlag == 1) {
+     qes::log::info() << "[QES-WINDS]\t Applying street canyon parameterization...\n";
+diff --git a/src/qes_core/winds/WINDSGeneralData.h b/src/qes_core/winds/WINDSGeneralData.h
+index 22e1bb3..079fb5d 100644
+--- a/src/qes_core/winds/WINDSGeneralData.h
++++ b/src/qes_core/winds/WINDSGeneralData.h
+@@ -105,6 +105,7 @@ public:
+   std::size_t canyon_changed_faces=0,canyon_roof_changes=0,canyon_audit_zones=0,canyon_W_changes=0;
+   std::size_t canyon_qualified=0,canyon_fallback=0,canyon_writes=0;
+ 
++  float profileDirection = 0; // Calm-layer fallback, in the log-profile convention.
+   void applyParametrizations(const std::function<void(const char *)> &stage = {},
+                             const std::function<void(const char *,int)> &building_observer = {});
+ 

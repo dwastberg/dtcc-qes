@@ -87,11 +87,10 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
   effective_gamma.resize(polygonVertices.size(), 0.0);
   int counter = 0;
 
-  long index_building_face = WGD->domain.face(i_building_cent, j_building_cent, k_end);
-  u0_h = WGD->u0[index_building_face];// u velocity at the height of building at the centroid
-  v0_h = WGD->v0[index_building_face];// v velocity at the height of building at the centroid
+  u0_h = incident_u;
+  v0_h = incident_v;
   // Wind direction of initial velocity at the height of building at the centroid
-  upwind_dir = atan2(v0_h, u0_h);
+  upwind_dir = incident_dir;
   for (auto id = 0u; id < polygonVertices.size() - 1; id++) {
     if (!isFace(id)) continue;
     xf1[id] = 0.5 * (polygonVertices[id].x_poly - polygonVertices[id + 1].x_poly) * cos(upwind_dir)

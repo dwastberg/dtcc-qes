@@ -67,6 +67,10 @@ public:
   float H{}; /**< Height of the building */
   float base_height{}; /**< Base height of the building */
 
+  double incident_u{}, incident_v{};
+  float incident_dir{};
+  void useLaterReference() { u0_h=incident_u; v0_h=incident_v; upwind_dir=incident_dir; }
+
   float upwind_dir{}; /**< Wind direction of initial velocity at the height of building at the centroid */
   float height_eff{}; /**< Effective height of the building */
   float building_cent_x{}; /**< x coordinate of buildings' centroid */

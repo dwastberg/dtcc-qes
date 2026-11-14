@@ -73,3 +73,128 @@ changes by 0.05. No attribution threshold is crossed.
 | 2 m | E-before-thermistor-K_scalar | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
 | 2 m | E-after-thermistor-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
 | 2 m | E-after-thermistor-K_scalar | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+
+## F2: far wake past low obstacles
+
+Serial **62/62**, OpenMP **65/65**, Python **2068 passed, 16 skipped** with
+only the three known F5 failures. Low-obstacle speeds now
+0.18063/1.31151/1.87655 m/s versus strict 0.18274/1.31160/1.87657.
+Tall and touching controls retain their pre-fix speeds within 0.00002 m/s.
+Archive: `output/fixes/archive/F2-acc7a50`. No attribution threshold is crossed.
+
+| Grid | Comparison | delta q | delta FAC2 | delta R | delta FB | share abs(delta K)>0.05 |
+|---|---|---:|---:|---:|---:|---:|
+| 2 m | A-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-k | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-k | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-split_fibre | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-thermistor-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-thermistor-K_scalar | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | E-before-thermistor-K | +0.00625 | +0.01250 | +0.00650 | +0.01436 | 0.05625 |
+| 2 m | E-before-thermistor-K_scalar | +0.00940 | +0.00313 | +0.02049 | +0.01309 | 0.06897 |
+| 2 m | E-after-thermistor-K | +0.00938 | -0.00313 | +0.01495 | +0.02787 | 0.08750 |
+| 2 m | E-after-thermistor-K_scalar | +0.02500 | +0.01875 | +0.02606 | +0.02764 | 0.10000 |
+
+Tower-effect diagnostic (x3 calculation adapted to archived records rather than
+stale precomputed arrays), fast directions, within 30 m:
+
+```text
+within 30 m pairs 88 measured 0.27568381500000005 simulated 0.0025303954869942856
+upwind pairs 26 measured 0.16237485634615384 simulated -0.08516012073721686
+beside pairs 52 measured 0.3624847145192308 simulated 0.10775170422383719
+downwind pairs 26 measured 0.3148395101923077 simulated -0.05900466208722093
+
+```
+
+The mean simulated tower effect remains far below the measured +0.276. F3 is
+still necessary: its native reproduction gives upstream u=-0.0821 with wake=2
+and -0.3653 with wake=3. Proceed with both direction variants as planned.
+
+Full baseline: **74/74 successful**, archive `output/archive/baseline-full-be78a1c`.
+The initial archive helper captured Git revision at completion, hence that
+suffix; its fingerprint exactly matches `baseline-fast-033df33`
+(`9659890f342508a0525065f9e2a8d1fd44b5897636a26bb9646661b8f101ca5b`).
+The helper now captures revision at run start. Concurrent timings are execution
+logs, not controlled performance comparisons.
+
+## F3: frozen incident reference and direction choice
+
+Both variants pass the required synthetic checks, including isolated references,
+repeated calm and turning layer profiles, input-order independence and positive
+upstream flow for wakes 2 and 3. Both serial suites pass **63/63**. The F2 final
+speed controls moved by 0.00012 m/s through the pressure solve; their tolerance
+is now 0.001 m/s, retaining a much smaller threshold than the wake defect.
+
+Archives: `output/fixes/archive/F3-V1-acc7a50` and
+`output/fixes/archive/F3-V3-acc7a50`. V3's source patch is retained in
+`physics_evidence/F3-V3.patch`; the losing implementation and build constant
+are removed from production code. Both variants have all 13 successful runs.
+
+The deterministic D2 ranking selects **V1**:
+
+```text
+Required synthetic tests must pass separately for both variants.
+A V1 q/R 0.6827956989247311 0.8866287807602937 V3 q/R 0.6827956989247311 0.8866287807602937
+B V1 q/R 0.5044642857142857 0.7436538899625231 V3 q/R 0.5044642857142857 0.7436538899625231
+D V1 q/R 0.23737373737373738 0.4258845471558165 V3 q/R 0.23737373737373738 0.4258845471558165
+E V1 q/R 0.259375 0.49716608957965475 V3 q/R 0.2578125 0.4975727428530609
+mean score V1 0.5296677536838803 V3 0.5295232728430561 delta -0.00014448084082423207
+Mean initial mirror error V1 0.00039289642250000005 V3 0.0003884099391666667
+Decision: V1 (simpler, order-independent tie-break)
+
+```
+
+V1 against F2:
+
+| Grid | Comparison | delta q | delta FAC2 | delta R | delta FB | share abs(delta K)>0.05 |
+|---|---|---:|---:|---:|---:|---:|
+| 2 m | A-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-k | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-k | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-split_fibre | +0.00000 | +0.00000 | -0.00317 | -0.00119 | 0.02564 |
+| 2 m | D-thermistor-K | +0.01010 | +0.00000 | -0.00158 | -0.00050 | 0.00855 |
+| 2 m | D-thermistor-K_scalar | +0.00000 | +0.00510 | -0.00169 | -0.00044 | 0.00862 |
+| 2 m | E-before-thermistor-K | +0.00000 | +0.00000 | +0.00131 | -0.00060 | 0.00937 |
+| 2 m | E-before-thermistor-K_scalar | -0.00313 | +0.00000 | -0.00775 | -0.00262 | 0.00940 |
+| 2 m | E-after-thermistor-K | +0.00000 | +0.00313 | -0.00161 | -0.00091 | 0.00937 |
+| 2 m | E-after-thermistor-K_scalar | +0.00000 | -0.00313 | -0.00341 | -0.00319 | 0.01250 |
+
+V3 against F2:
+
+| Grid | Comparison | delta q | delta FAC2 | delta R | delta FB | share abs(delta K)>0.05 |
+|---|---|---:|---:|---:|---:|---:|
+| 2 m | A-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-k | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-k | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | D-split_fibre | +0.00000 | +0.00000 | -0.00317 | -0.00119 | 0.02564 |
+| 2 m | D-thermistor-K | +0.01010 | +0.00000 | -0.00158 | -0.00050 | 0.00855 |
+| 2 m | D-thermistor-K_scalar | +0.00000 | +0.00510 | -0.00169 | -0.00044 | 0.00862 |
+| 2 m | E-before-thermistor-K | -0.00312 | +0.00000 | +0.00050 | +0.00073 | 0.00313 |
+| 2 m | E-before-thermistor-K_scalar | +0.00000 | +0.00000 | -0.00257 | -0.00054 | 0.00313 |
+| 2 m | E-after-thermistor-K | +0.00000 | -0.00312 | -0.00041 | +0.00080 | 0.00313 |
+| 2 m | E-after-thermistor-K_scalar | +0.00000 | +0.00000 | -0.00013 | -0.00044 | 0.00313 |
+
+No attribution threshold is crossed. Synthetic per-building frame angles,
+10% fallback conditions and local sidewall/roof cell counts and peaks,
+including the exposed tandem control, are in `physics_evidence/physics-f3-*-frames.log`.
+Both variants leave the tower's mean delta K about +0.0026 (measured +0.276).
+The defect was real but does not explain the tower-effect discrepancy.
+
+Next-step reassessment: F4 remains a half-cell modelling tolerance on parameter
+faces; original masks must remain intact. Its changes can move the roof point,
+so the incident capture stays after geometry preparation, as implemented here.

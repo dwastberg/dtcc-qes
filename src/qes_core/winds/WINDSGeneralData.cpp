@@ -286,6 +286,7 @@ void WINDSGeneralData::ensureMixingLengthStorage()
 
 void WINDSGeneralData::applyWindProfile(const InflowCondition &inflow)
 {
+  profileDirection = (270.0 - inflow.site_wind_dir) * M_PI / 180.0;
   validateInflow(inflow);
 
   qes::log::info() << "[QES-WINDS]\t Applying Wind Profile...\n";
@@ -331,7 +332,14 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
     const std::function<void(const char *,int)> &building_observer)
 {
   parameterizations.validateWakeDependencies();
-  for (auto *building : allBuildingsV) building->resetConditionState();
+  for (auto *building : allBuildingsV) {
+    building->resetConditionState();
+    const auto face = domain.face(building->i_building_cent, building->j_building_cent, building->k_end);
+    building->incident_u = u0[face];
+    building->incident_v = v0[face];
+    building->incident_dir = (building->incident_u == 0 && building->incident_v == 0)
+        ? profileDirection : atan2(building->incident_v, building->incident_u);
+  }
 
   auto start_param = std::chrono::high_resolution_clock::now();// Start recording execution time
   qes::log::info() << "[QES-WINDS]\t Applying parameterizations...\n";

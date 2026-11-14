@@ -81,12 +81,11 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
   int x_id_max, y_id_max;
   long icell_face, icell_cent;
 
-  long index_building_face = WGD->domain.face(i_building_cent, j_building_cent, k_end);
-  u0_h = WGD->u0[index_building_face];// u velocity at the height of building at the centroid
-  v0_h = WGD->v0[index_building_face];// v velocity at the height of building at the centroid
+  u0_h = incident_u;
+  v0_h = incident_v;
 
   // Wind direction of initial velocity at the height of building at the centroid
-  upwind_dir = atan2(v0_h, u0_h);
+  useLaterReference();
 
   xi.resize(polygonVertices.size(), 0.0);// Difference of x values of the centroid and each node
   yi.resize(polygonVertices.size(), 0.0);// Difference of y values of the centroid and each node

@@ -96,12 +96,11 @@ void PolyBuilding::streetCanyon(WINDSGeneralData *WGD)
   perpendicular_flag.resize(polygonVertices.size(), 0);
   perpendicular_dir.resize(polygonVertices.size(), 0.0);
 
-  long index_building_face = WGD->domain.face(i_building_cent, j_building_cent, k_end);
-  u0_h = WGD->u0[index_building_face];// u velocity at the height of building at the centroid
-  v0_h = WGD->v0[index_building_face];// v velocity at the height of building at the centroid
+  u0_h = incident_u;
+  v0_h = incident_v;
 
   // Wind direction of initial velocity at the height of building at the centroid
-  upwind_dir = atan2(v0_h, u0_h);
+  useLaterReference();
   if(observe)event("incident",{double(i_building_cent),double(j_building_cent),double(k_end),u0_h,v0_h,upwind_dir,Lr,dx,dy,dxy});
   // Loop through to calculate projected location for each polygon node in rotated coordinates
   for (size_t id = 0; id < polygonVertices.size(); id++) {

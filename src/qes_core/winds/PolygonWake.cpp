@@ -84,13 +84,12 @@ void PolyBuilding::prepareWake(WINDSGeneralData *WGD, WakePreamble &wake)
   int k_s(0);// Index of the saddle point in vetical dir
 
 
-  long index_building_face = WGD->domain.face(i_building_cent, j_building_cent, k_end);
   long icell_cent;
-  u0_h = WGD->u0[index_building_face];// u velocity at the height of building at the centroid
-  v0_h = WGD->v0[index_building_face];// v velocity at the height of building at the centroid
+  u0_h = incident_u;
+  v0_h = incident_v;
 
   // Wind direction of initial velocity at the height of building at the centroid
-  upwind_dir = atan2(v0_h, u0_h);
+  upwind_dir = incident_dir;
 
   x1 = x2 = y1 = y2 = 0.0;
   xi.resize(polygonVertices.size(), 0.0);// Difference of x values of the centroid and each node
