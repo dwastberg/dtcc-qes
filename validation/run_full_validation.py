@@ -565,13 +565,18 @@ def plot_all(by_resolution: dict, comps: dict, locations: dict, output: Path) ->
 
 
 def main(argv=None):
+    global RUNS
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--archive", metavar="LABEL", help="save an immutable checksummed result snapshot")
+    parser.add_argument("--output-root", type=Path, default=VALIDATION / "output",
+                        help="independent run cache and summaries (for concurrent baseline validation)")
     parser.add_argument("--fast", action="store_true",
                         help=f"only the 13 runs at 2 m with Case E at {', '.join(FAST_E_LABELS)}; "
                              f"figures and summary in {FAST_OUTPUT}")
     args = parser.parse_args(argv)
-    output = FAST_OUTPUT if args.fast else OUTPUT
+    RUNS = args.output_root / "runs"
+    output = args.output_root / ("fast" if args.fast else "full")
+    revision = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=VALIDATION, text=True).strip()
     resolutions = FAST_RESOLUTIONS if args.fast else RESOLUTIONS
     plan = {resolution: specs(resolution, args.fast) for resolution in resolutions}
     started = time.perf_counter()
@@ -599,10 +604,9 @@ def main(argv=None):
     if failed:
         sys.exit(1)
     if args.archive:
-        revision = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=VALIDATION, text=True).strip()
         records = [(case, record["key"]) for by_key in by_resolution.values()
                    for (case, _, _), record in by_key.items()]
-        print("Archived:", archive_results(VALIDATION / "output", args.archive, revision,
+        print("Archived:", archive_results(args.output_root, args.archive, revision,
                                           output, figures, records, fingerprint))
 
 
