@@ -1,0 +1,6 @@
+wake 2 reverse 0 isolated 1 upwind u 1.63118
+wake 2 reverse 0 isolated 0 upwind u 0.296056
+wake 2 reverse 1 isolated 0 upwind u 0.296056
+wake 3 reverse 0 isolated 1 upwind u 1.59369
+wake 3 reverse 0 isolated 0 upwind u 0.0772571
+wake 3 reverse 1 isolated 0 upwind u 0.0772571

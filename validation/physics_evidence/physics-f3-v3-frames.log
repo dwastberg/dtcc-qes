@@ -1,0 +1,286 @@
+layout 0 wake 2 mirror max/mean initial/final 1.81866 1.10077 8.79412e-05 0.000458897
+fallback 115,100 0
+fallback 89,100 0
+frame 115,100 angle 0 incident 7.38284 later 7.38284
+frame 89,100 angle -3.14159 incident 4.88704 later 1.12002
+building 115,100 zone 9 count 3780 peak 7.35879
+building 115,100 zone 10 count 737 peak 7.49568
+building 89,100 zone 9 count 0 peak 0
+building 89,100 zone 10 count 29 peak 1.95482
+layout 1 wake 2 mirror max/mean initial/final 1.81866 0.877259 8.01244e-05 0.000447805
+fallback 115,100 0
+fallback 225,100 0
+frame 115,100 angle 0 incident 7.38284 later 7.38284
+frame 225,100 angle 0 incident 4.88704 later 1.88166
+building 115,100 zone 9 count 3780 peak 7.35879
+building 115,100 zone 10 count 737 peak 7.49568
+building 225,100 zone 9 count 0 peak 0
+building 225,100 zone 10 count 20 peak 2.24055
+layout 2 wake 2 mirror max/mean initial/final 8.13002 7.42734 0.000229561 0.00104661
+fallback 70,100 0
+fallback 140,100 0
+frame 70,100 angle 0 incident 5.79818 later 5.79818
+frame 140,100 angle 0 incident 5.79818 later 5.79818
+building 70,100 zone 9 count 240 peak 5.69029
+building 70,100 zone 10 count 177 peak 5.98625
+building 140,100 zone 9 count 156 peak 5.69029
+building 140,100 zone 10 count 177 peak 5.98625
+exposed tandem control
+fallback 140,100 0
+frame 140,100 angle 0 incident 5.79818 later 5.79818
+building 140,100 zone 9 count 240 peak 5.69029
+building 140,100 zone 10 count 177 peak 5.98625
+layout 3 wake 2 mirror max/mean initial/final 1.15642 1.18363 0.0010358 0.00147254
+fallback 100,50 0
+fallback 140,50 0
+fallback 180,50 0
+fallback 100,90 0
+fallback 140,90 0
+fallback 180,90 0
+fallback 100,130 0
+fallback 140,130 0
+fallback 180,130 0
+frame 100,50 angle 0 incident 5.79818 later 5.79818
+frame 140,50 angle 0 incident 5.79818 later 5.79818
+frame 180,50 angle 0 incident 5.79818 later 5.79818
+frame 100,90 angle 0 incident 5.79818 later 5.79818
+frame 140,90 angle 0 incident 5.79818 later 5.79818
+frame 180,90 angle 0 incident 5.79818 later 5.79818
+frame 100,130 angle 0 incident 5.79818 later 5.79818
+frame 140,130 angle 0 incident 5.79818 later 5.79818
+frame 180,130 angle 0 incident 5.79818 later 5.79818
+building 100,50 zone 9 count 240 peak 5.69029
+building 100,50 zone 10 count 177 peak 5.98625
+building 140,50 zone 9 count 0 peak 0
+building 140,50 zone 10 count 177 peak 5.98625
+building 180,50 zone 9 count 0 peak 0
+building 180,50 zone 10 count 177 peak 5.98625
+building 100,90 zone 9 count 240 peak 5.69029
+building 100,90 zone 10 count 177 peak 5.98625
+building 140,90 zone 9 count 0 peak 0
+building 140,90 zone 10 count 177 peak 5.98625
+building 180,90 zone 9 count 0 peak 0
+building 180,90 zone 10 count 177 peak 5.98625
+building 100,130 zone 9 count 240 peak 5.69029
+building 100,130 zone 10 count 177 peak 5.98625
+building 140,130 zone 9 count 0 peak 0
+building 140,130 zone 10 count 177 peak 5.98625
+building 180,130 zone 9 count 0 peak 0
+building 180,130 zone 10 count 177 peak 5.98625
+layout 4 wake 2 mirror max/mean initial/final 0.94311 0.723539 8.19667e-06 6.66564e-05
+fallback 118.352,37.7375 0
+fallback 155.307,53.0448 0
+fallback 192.263,68.3522 0
+fallback 103.045,74.6927 0
+fallback 140,90 0
+fallback 176.955,105.307 0
+fallback 87.7375,111.648 0
+fallback 124.693,126.955 0
+fallback 161.648,142.263 0
+frame 118.352,37.7375 angle 0 incident 5.79818 later 5.79818
+frame 155.307,53.0448 angle 0 incident 5.79818 later 5.79818
+frame 192.263,68.3522 angle 0 incident 5.79818 later 5.79818
+frame 103.045,74.6927 angle 0 incident 5.79818 later 5.79818
+frame 140,90 angle 0 incident 5.79818 later 5.79818
+frame 176.955,105.307 angle 0 incident 5.79818 later 5.79818
+frame 87.7375,111.648 angle 0 incident 5.79818 later 5.79818
+frame 124.693,126.955 angle 0 incident 5.79818 later 5.79818
+frame 161.648,142.263 angle 0 incident 5.79818 later 5.79818
+building 118.352,37.7375 zone 9 count 0 peak 0
+building 118.352,37.7375 zone 10 count 193 peak 5.98625
+building 155.307,53.0448 zone 9 count 0 peak 0
+building 155.307,53.0448 zone 10 count 187 peak 5.98625
+building 192.263,68.3522 zone 9 count 0 peak 0
+building 192.263,68.3522 zone 10 count 193 peak 5.98625
+building 103.045,74.6927 zone 9 count 0 peak 0
+building 103.045,74.6927 zone 10 count 185 peak 5.98625
+building 140,90 zone 9 count 0 peak 0
+building 140,90 zone 10 count 195 peak 5.98625
+building 176.955,105.307 zone 9 count 0 peak 0
+building 176.955,105.307 zone 10 count 186 peak 5.98625
+building 87.7375,111.648 zone 9 count 0 peak 0
+building 87.7375,111.648 zone 10 count 190 peak 5.98625
+building 124.693,126.955 zone 9 count 0 peak 0
+building 124.693,126.955 zone 10 count 187 peak 5.98625
+building 161.648,142.263 zone 9 count 0 peak 0
+building 161.648,142.263 zone 10 count 190 peak 5.98625
+layout 5 wake 2 mirror max/mean initial/final 6.858 3.43934 2.52914e-05 0.000214853
+fallback 140,33.4315 0
+fallback 168.284,61.7157 0
+fallback 196.569,90 0
+fallback 111.716,61.7157 0
+fallback 140,90 0
+fallback 168.284,118.284 0
+fallback 83.4315,90 0
+fallback 111.716,118.284 0
+fallback 140,146.569 0
+frame 140,33.4315 angle 0 incident 5.79818 later 5.79818
+frame 168.284,61.7157 angle 0 incident 5.79818 later 5.79818
+frame 196.569,90 angle 0 incident 5.79818 later 5.79818
+frame 111.716,61.7157 angle 0 incident 5.79818 later 5.79818
+frame 140,90 angle 0 incident 5.79818 later 5.79818
+frame 168.284,118.284 angle 0 incident 5.79818 later 5.79818
+frame 83.4315,90 angle 0 incident 5.79818 later 5.79818
+frame 111.716,118.284 angle 0 incident 5.79818 later 5.79818
+frame 140,146.569 angle 0 incident 5.79818 later 5.79818
+building 140,33.4315 zone 9 count 0 peak 0
+building 140,33.4315 zone 10 count 185 peak 5.98625
+building 168.284,61.7157 zone 9 count 0 peak 0
+building 168.284,61.7157 zone 10 count 202 peak 5.98625
+building 196.569,90 zone 9 count 0 peak 0
+building 196.569,90 zone 10 count 196 peak 5.98625
+building 111.716,61.7157 zone 9 count 0 peak 0
+building 111.716,61.7157 zone 10 count 192 peak 5.98625
+building 140,90 zone 9 count 0 peak 0
+building 140,90 zone 10 count 215 peak 5.98625
+building 168.284,118.284 zone 9 count 0 peak 0
+building 168.284,118.284 zone 10 count 206 peak 5.98625
+building 83.4315,90 zone 9 count 0 peak 0
+building 83.4315,90 zone 10 count 185 peak 5.98625
+building 111.716,118.284 zone 9 count 0 peak 0
+building 111.716,118.284 zone 10 count 202 peak 5.98625
+building 140,146.569 zone 9 count 0 peak 0
+building 140,146.569 zone 10 count 196 peak 5.98625
+layout 0 wake 3 mirror max/mean initial/final 7.42871 3.93117 0.00110222 0.00508601
+fallback 115,100 0
+fallback 89,100 0
+frame 115,100 angle 0 incident 7.38284 later 7.38284
+frame 89,100 angle -3.14159 incident 4.88704 later 1.12002
+building 115,100 zone 9 count 3780 peak 7.35879
+building 115,100 zone 10 count 737 peak 7.49568
+building 89,100 zone 9 count 0 peak 0
+building 89,100 zone 10 count 29 peak 1.95482
+layout 1 wake 3 mirror max/mean initial/final 7.42871 3.93119 0.00109549 0.00508559
+fallback 115,100 0
+fallback 225,100 0
+frame 115,100 angle 0 incident 7.38284 later 7.38284
+frame 225,100 angle 0 incident 4.88704 later 1.5589
+building 115,100 zone 9 count 3780 peak 7.35879
+building 115,100 zone 10 count 737 peak 7.49568
+building 225,100 zone 9 count 24 peak 1.40622
+building 225,100 zone 10 count 20 peak 1.67705
+layout 2 wake 3 mirror max/mean initial/final 1.58043 0.627309 5.01012e-05 0.000274485
+fallback 70,100 0
+fallback 140,100 0
+frame 70,100 angle 0 incident 5.79818 later 5.79818
+frame 140,100 angle 0 incident 5.79818 later 4.49612
+building 70,100 zone 9 count 240 peak 5.69029
+building 70,100 zone 10 count 177 peak 5.98625
+building 140,100 zone 9 count 240 peak 4.70014
+building 140,100 zone 10 count 177 peak 5.10957
+exposed tandem control
+fallback 140,100 0
+frame 140,100 angle 0 incident 5.79818 later 5.79818
+building 140,100 zone 9 count 240 peak 5.69029
+building 140,100 zone 10 count 177 peak 5.98625
+layout 3 wake 3 mirror max/mean initial/final 1.58043 0.871263 0.000807473 0.00135105
+fallback 100,50 0
+fallback 140,50 0
+fallback 180,50 0
+fallback 100,90 0
+fallback 140,90 0
+fallback 180,90 0
+fallback 100,130 0
+fallback 140,130 0
+fallback 180,130 0
+frame 100,50 angle 0 incident 5.79818 later 5.79818
+frame 140,50 angle 0 incident 5.79818 later 3.9377
+frame 180,50 angle 0 incident 5.79818 later 3.9377
+frame 100,90 angle 0 incident 5.79818 later 5.79818
+frame 140,90 angle 0 incident 5.79818 later 3.9377
+frame 180,90 angle 0 incident 5.79818 later 3.9377
+frame 100,130 angle 0 incident 5.79818 later 5.79818
+frame 140,130 angle 0 incident 5.79818 later 3.9377
+frame 180,130 angle 0 incident 5.79818 later 3.9377
+building 100,50 zone 9 count 240 peak 5.69029
+building 100,50 zone 10 count 177 peak 5.98625
+building 140,50 zone 9 count 0 peak 0
+building 140,50 zone 10 count 177 peak 5.03403
+building 180,50 zone 9 count 0 peak 0
+building 180,50 zone 10 count 177 peak 5.03403
+building 100,90 zone 9 count 240 peak 5.69029
+building 100,90 zone 10 count 177 peak 5.98625
+building 140,90 zone 9 count 0 peak 0
+building 140,90 zone 10 count 177 peak 5.03403
+building 180,90 zone 9 count 0 peak 0
+building 180,90 zone 10 count 177 peak 5.03403
+building 100,130 zone 9 count 240 peak 5.69029
+building 100,130 zone 10 count 177 peak 5.98625
+building 140,130 zone 9 count 0 peak 0
+building 140,130 zone 10 count 177 peak 5.03403
+building 180,130 zone 9 count 0 peak 0
+building 180,130 zone 10 count 177 peak 5.03403
+layout 4 wake 3 mirror max/mean initial/final 0.894713 0.683622 8.19302e-05 0.000220598
+fallback 118.352,37.7375 0
+fallback 155.307,53.0448 0
+fallback 192.263,68.3522 0
+fallback 103.045,74.6927 0
+fallback 140,90 0
+fallback 176.955,105.307 0
+fallback 87.7375,111.648 0
+fallback 124.693,126.955 0
+fallback 161.648,142.263 0
+frame 118.352,37.7375 angle 0 incident 5.79818 later 5.79818
+frame 155.307,53.0448 angle 0 incident 5.79818 later 4.70948
+frame 192.263,68.3522 angle 0 incident 5.79818 later 4.57432
+frame 103.045,74.6927 angle 0 incident 5.79818 later 5.79818
+frame 140,90 angle 0 incident 5.79818 later 4.61142
+frame 176.955,105.307 angle 0 incident 5.79818 later 4.55374
+frame 87.7375,111.648 angle 0 incident 5.79818 later 5.79818
+frame 124.693,126.955 angle 0 incident 5.79818 later 4.50965
+frame 161.648,142.263 angle 0 incident 5.79818 later 4.58199
+building 118.352,37.7375 zone 9 count 0 peak 0
+building 118.352,37.7375 zone 10 count 193 peak 5.98589
+building 155.307,53.0448 zone 9 count 0 peak 0
+building 155.307,53.0448 zone 10 count 187 peak 5.23024
+building 192.263,68.3522 zone 9 count 0 peak 0
+building 192.263,68.3522 zone 10 count 193 peak 4.95565
+building 103.045,74.6927 zone 9 count 0 peak 0
+building 103.045,74.6927 zone 10 count 185 peak 5.98589
+building 140,90 zone 9 count 0 peak 0
+building 140,90 zone 10 count 195 peak 5.27239
+building 176.955,105.307 zone 9 count 0 peak 0
+building 176.955,105.307 zone 10 count 186 peak 4.94343
+building 87.7375,111.648 zone 9 count 0 peak 0
+building 87.7375,111.648 zone 10 count 190 peak 5.98625
+building 124.693,126.955 zone 9 count 0 peak 0
+building 124.693,126.955 zone 10 count 187 peak 5.81382
+building 161.648,142.263 zone 9 count 0 peak 0
+building 161.648,142.263 zone 10 count 190 peak 5.78243
+layout 5 wake 3 mirror max/mean initial/final 5.13134 2.60823 5.67902e-05 0.00018556
+fallback 140,33.4315 0
+fallback 168.284,61.7157 0
+fallback 196.569,90 0
+fallback 111.716,61.7157 0
+fallback 140,90 0
+fallback 168.284,118.284 0
+fallback 83.4315,90 0
+fallback 111.716,118.284 0
+fallback 140,146.569 0
+frame 140,33.4315 angle 0 incident 5.79818 later 5.67701
+frame 168.284,61.7157 angle 0 incident 5.79818 later 3.74897
+frame 196.569,90 angle 0 incident 5.79818 later 3.74504
+frame 111.716,61.7157 angle 0 incident 5.79818 later 5.68277
+frame 140,90 angle 0 incident 5.79818 later 3.75643
+frame 168.284,118.284 angle 0 incident 5.79818 later 3.75311
+frame 83.4315,90 angle 0 incident 5.79818 later 5.79818
+frame 111.716,118.284 angle 0 incident 5.79818 later 5.60778
+frame 140,146.569 angle 0 incident 5.79818 later 5.59858
+building 140,33.4315 zone 9 count 0 peak 0
+building 140,33.4315 zone 10 count 185 peak 5.89205
+building 168.284,61.7157 zone 9 count 0 peak 0
+building 168.284,61.7157 zone 10 count 202 peak 4.7011
+building 196.569,90 zone 9 count 0 peak 0
+building 196.569,90 zone 10 count 196 peak 4.68652
+building 111.716,61.7157 zone 9 count 0 peak 0
+building 111.716,61.7157 zone 10 count 192 peak 5.89227
+building 140,90 zone 9 count 0 peak 0
+building 140,90 zone 10 count 215 peak 4.68817
+building 168.284,118.284 zone 9 count 0 peak 0
+building 168.284,118.284 zone 10 count 206 peak 4.67379
+building 83.4315,90 zone 9 count 0 peak 0
+building 83.4315,90 zone 10 count 185 peak 5.98625
+building 111.716,118.284 zone 9 count 0 peak 0
+building 111.716,118.284 zone 10 count 202 peak 5.97974
+building 140,146.569 zone 9 count 0 peak 0
+building 140,146.569 zone 10 count 196 peak 5.97947

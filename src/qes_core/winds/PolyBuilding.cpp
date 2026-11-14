@@ -40,6 +40,7 @@
  */
 
 #include "PolyBuilding.h"
+#include "FacadeRuns.h"
 #include <algorithm>
 #include <limits>
 #include <utility>
@@ -302,30 +303,20 @@ bool PolyBuilding::faceExposed(const WINDSGeneralData *WGD, std::size_t edge, do
 }
 
 void PolyBuilding::prepareParameterFaces(WINDSGeneralData *WGD) {
-  if (!WGD->parameterizations.exposedFaces && !WGD->parameterizations.canonicalFaces)
-    return;
+  const double tolerance = 0.5 * std::min(WGD->domain.dx(), WGD->domain.dy());
+  const auto rings = facade_runs::simplify(polygonVertices, ringOffsets, tolerance);
   std::vector<polyVert> vertices;
   std::vector<std::size_t> offsets{0};
-  for (std::size_t r = 0; r + 1 < ringOffsets.size(); ++r) {
-    std::vector<polyVert> ring(polygonVertices.begin() + ringOffsets[r],
-                               polygonVertices.begin() + ringOffsets[r + 1] - 1);
-    bool changed = true;
-    while (changed && ring.size() > 3) {
-      changed = false;
-      for (std::size_t i = 0; i < ring.size(); ++i) {
-        const auto &a = ring[(i + ring.size() - 1) % ring.size()], &b = ring[i], &c = ring[(i + 1) % ring.size()];
-        if ((double(b.x_poly) - a.x_poly) * (double(c.y_poly) - b.y_poly) ==
-                (double(b.y_poly) - a.y_poly) * (double(c.x_poly) - b.x_poly) &&
-            b.x_poly >= std::min(a.x_poly, c.x_poly) && b.x_poly <= std::max(a.x_poly, c.x_poly) &&
-            b.y_poly >= std::min(a.y_poly, c.y_poly) && b.y_poly <= std::max(a.y_poly, c.y_poly)) {
-          ring.erase(ring.begin() + i);
-          changed = true;
-          break;
-        }
-      }
-    }
-    vertices.insert(vertices.end(), ring.begin(), ring.end());
-    vertices.push_back(ring.front());
+  for (auto ring : rings) {
+    // A changed polygon has a canonical start as well as a deterministic set
+    // of retained corners. Unchanged polygons return below without mutation.
+    auto first = std::min_element(ring.begin(), ring.end(), [&](auto a, auto b) {
+      return std::tie(polygonVertices[a].x_poly, polygonVertices[a].y_poly)
+           < std::tie(polygonVertices[b].x_poly, polygonVertices[b].y_poly);
+    });
+    std::rotate(ring.begin(), first, ring.end());
+    for (auto index : ring) vertices.push_back(polygonVertices[index]);
+    vertices.push_back(polygonVertices[ring.front()]);
     offsets.push_back(vertices.size());
   }
   if (vertices.size() == polygonVertices.size())
