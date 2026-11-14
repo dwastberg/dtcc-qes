@@ -488,10 +488,14 @@ void PolyBuilding::applyWake(WINDSGeneralData *WGD, int building_id, const WakeP
             }
             icell_cent = WGD->domain.cell(i, j, k);
             if (WGD->parameterizations.exposedFaces) {
-              const auto initial=WGD->icellflag_initial[icell_cent];
-              const bool solid=initial==0 || initial==2 || initial==7;
+              const int flag = WGD->icellflag[icell_cent];
+              const bool solid = flag == 0 || flag == 2;
               if (x_id_min<0 && containsXY((i+.5)*dx,(j+.5)*dy)) continue;
-              if (solid) break;
+              const int upper_flag = WGD->icellflag[WGD->domain.cell(i, j, kk)];
+              // A low obstacle does not terminate the tower's far wake. Keep
+              // termination at party walls, fitted gaps and tall obstacles.
+              if (solid && (x_id_min < 0 || canyon_factor < 1.0
+                            || upper_flag == 0 || upper_flag == 2)) break;
             }
             if (WGD->icellflag[icell_cent] != 0 && WGD->icellflag[icell_cent] != 2 && x_id_min < 0) {
               x_id_min = x_id;

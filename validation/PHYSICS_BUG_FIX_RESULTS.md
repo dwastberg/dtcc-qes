@@ -50,3 +50,26 @@ angle mapping into its independently tested helper; final checks are pending.
 Next-step reassessment: F2's break-condition change remains appropriate. Its
 regression must also verify tall and touching obstacles to avoid removing the
 intended wake termination along with the low-obstacle defect.
+
+F1 Python: **2068 passed, 16 skipped**, only the three known F5 failures remain.
+Fast archive: `output/fixes/archive/F1-3b82e6e` (F1 native edits present at run
+start; committed as `be78a1c`). Every score change is below 0.00001; no probe
+changes by 0.05. No attribution threshold is crossed.
+
+| Grid | Comparison | delta q | delta FAC2 | delta R | delta FB | share abs(delta K)>0.05 |
+|---|---|---:|---:|---:|---:|---:|
+| 2 m | A-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-W | +0.00000 | +0.00000 | -0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-k | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-K | +0.00000 | +0.00000 | -0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-U | +0.00000 | +0.00000 | -0.00000 | -0.00000 | 0.00000 |
+| 2 m | B-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-k | +0.00000 | +0.00000 | +0.00000 | -0.00000 | 0.00000 |
+| 2 m | D-split_fibre | +0.00000 | +0.00000 | -0.00000 | -0.00000 | 0.00000 |
+| 2 m | D-thermistor-K | +0.00000 | +0.00000 | -0.00000 | -0.00000 | 0.00000 |
+| 2 m | D-thermistor-K_scalar | +0.00000 | +0.00000 | -0.00000 | -0.00000 | 0.00000 |
+| 2 m | E-before-thermistor-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | E-before-thermistor-K_scalar | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | E-after-thermistor-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | E-after-thermistor-K_scalar | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
