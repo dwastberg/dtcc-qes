@@ -19,6 +19,7 @@ from the full set's own scores, so compare a fast run with an earlier fast run.
 """
 
 import argparse
+import subprocess
 import sys
 import time
 import warnings
@@ -31,6 +32,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 
 import run_validation
+from archive_results import archive_results
 from aij import campaigns, case_ab, case_d, case_e, cityutil, compare, metrics, report, runner, tables
 from aij.conventions import AB_LABEL, D_LABELS
 from aij.report import BUILDING, DIVERGING, GRID, INK, INK_SECONDARY, MISSING, SERIES, SURFACE
@@ -564,6 +566,7 @@ def plot_all(by_resolution: dict, comps: dict, locations: dict, output: Path) ->
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--archive", metavar="LABEL", help="save an immutable checksummed result snapshot")
     parser.add_argument("--fast", action="store_true",
                         help=f"only the 13 runs at 2 m with Case E at {', '.join(FAST_E_LABELS)}; "
                              f"figures and summary in {FAST_OUTPUT}")
@@ -595,6 +598,12 @@ def main(argv=None):
     (output / "summary.txt").write_text(text + "\n")
     if failed:
         sys.exit(1)
+    if args.archive:
+        revision = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=VALIDATION, text=True).strip()
+        records = [(case, record["key"]) for by_key in by_resolution.values()
+                   for (case, _, _), record in by_key.items()]
+        print("Archived:", archive_results(VALIDATION / "output", args.archive, revision,
+                                          output, figures, records, fingerprint))
 
 
 if __name__ == "__main__":
