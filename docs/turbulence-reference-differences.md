@@ -1,5 +1,33 @@
 # Turbulence numerical changes and reference provenance
 
+## Physics corrections, 0.1.0b5
+
+The F5 spectral limiter and F6 ground stencil supersede the historical component
+cap and first-two-layer derivatives described below. Current regression fixtures
+live in `tests/fixtures/reference/turbulence/audited-physics/{serial,openmp}`.
+Generate/check them with `tools/make_reference.py --embedded-physics [--check]`
+using the corresponding compiled backend. Schema 2 records every native source
+hash, native identity, binary hash, backend/toolchain and full case definition.
+They are embedded regression snapshots, **not independent standalone QES
+oracles**. Manufactured full-tensor, locality and derivative tests establish the
+independent checks; snapshots additionally check the runner/public bridge.
+
+The schema-1 `upstream` and `audited` standalone archives remain byte-identical
+historical evidence. Their provenance and named historical repairs remain tested.
+Current exact comparisons select schema 2; they skip only on a different recorded
+toolchain. Uncomputed archive floats remain zero, while runtime outputs use NaN.
+F5 modifies only actively limited stress tensors (with the mean wind held fixed);
+F6 modifies first-two-ground-layer derivatives and dependent turbulence fields.
+See [per-fix results](../validation/PHYSICS_BUG_FIX_RESULTS.md).
+
+Wind-only `tests/fixtures/reference/{flat,one_building}` archives are unchanged.
+Their standard cardinal rectangular cases do not exercise F1's angle defect or
+F3's contaminated multi-building reference. Their existing backend-appropriate
+wind comparisons remain in the test suite. The new rotated and tandem native
+cases cover the deliberate wind parity exceptions.
+
+The following sections describe earlier milestones and their original checks.
+
 Task 1A, 2026-10-27. QES repair:
 `2df34fc85c6e859d7c8f3bd4aad3975daa7d81d9`, based on Task 1 revision
 `514d91cdc1bfc220a17af102df2b267cdc0c2c9e`.

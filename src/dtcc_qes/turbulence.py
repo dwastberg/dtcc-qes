@@ -9,7 +9,7 @@ import numpy as np
 from ._validation import versioned_mapping
 from ._statistics import _STRESS_RELATIVE_TOLERANCE, _velocity_magnitude
 
-NUMERICS_VERSION = "dtcc-qes-turbulence-v2"
+NUMERICS_VERSION = "dtcc-qes-turbulence-v3"
 
 
 @dataclass(frozen=True)
@@ -55,13 +55,15 @@ def _turbulence_metadata(spec, native, domain_top, velocity, has_buildings):
     bound = float(upper*friction*friction)  # Match QES's float32 operation order.
     computed = native["state"] > 0
     fixes = ["orthogonal_stress_rotation", "nearest_fluid_column_direction_fallback",
-             "declared_height_vector_reference", "float64_reference_mean"]
+             "declared_height_vector_reference", "float64_reference_mean",
+             "spectral_radius_stress_bound", "recorded_limiter_activity",
+             "shifted_log_ground_derivatives"]
     if spec.qes_method == 1:
         fixes += ["bounded_exposed_voxel_face_distances", "minimum_distance_preservation",
                   "physical_3H_to_3.6H_transition"]
     return dict(model="QES-Turb algebraic mixing-length model",mixing_length=spec.mixing_length,caveats=[],
         qes_method=spec.qes_method,numerics_version=NUMERICS_VERSION,audited_fixes=fixes,
-        upstream_parity="Audited fork parity; oblique rotation and method-1 distances differ from pristine QES",
+        upstream_parity="Audited embedded physics; rotation, wall distances, spectral bound and ground derivatives differ from pristine QES",
         stress_components=("txx","txy","txz","tyy","tyz","tzz"),
         units=dict(stress="m^2/s^2",tke="m^2/s^2",co_eps="m^2/s^3",mixing_length="m"),
         tke_definition="QES kinetic energy before stress anisotropy scaling",

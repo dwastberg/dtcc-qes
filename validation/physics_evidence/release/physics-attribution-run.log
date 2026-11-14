@@ -1,0 +1,7 @@
+/private/tmp/dtcc-qes-physics-f2-attribution/src/dtcc_qes/_qes.cpython-313-darwin.so c478f1add202b8b1ea6f0037b73403ba202a417d1a97bf1506412c191706e2a2
+[23:32:31] [dtcc-qes] [info] Wind grid 600 x 580 x 54, 83 buildings: 6000
+iterations, converged=False, max_divergence=0.00021734833717346191 s^-1
+[23:32:31] [dtcc-qes] [warning] Wind solve did not converge after 6000
+iterations: maximum Lagrange multiplier change 0.000183105 > tolerance 1.2e-07;
+requested turbulence is screening output based on this mean wind
+/private/tmp/dtcc-qes-physics-bugs/validation/output/attribution/F2-D-1m/runs/D/89b9c57e009f1d6f.json

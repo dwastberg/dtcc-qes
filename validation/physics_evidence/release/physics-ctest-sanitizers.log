@@ -1,0 +1,211 @@
+Test project /private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers
+      Start  1: noio_core
+ 1/66 Test  #1: noio_core ..............................   Passed    0.70 sec
+      Start  2: native_success
+ 2/66 Test  #2: native_success .........................   Passed    3.34 sec
+      Start  3: native_failures
+ 3/66 Test  #3: native_failures ........................   Passed    1.29 sec
+      Start  4: native_nonconvergence
+ 4/66 Test  #4: native_nonconvergence ..................   Passed    0.20 sec
+      Start  5: native_messages
+ 5/66 Test  #5: native_messages ........................   Passed    0.06 sec
+      Start  6: runner_lifecycle
+ 6/66 Test  #6: runner_lifecycle .......................   Passed   25.43 sec
+      Start  7: check_canyon_join
+ 7/66 Test  #7: check_canyon_join ......................   Passed    0.23 sec
+      Start  8: check_canyon_roof_protection
+ 8/66 Test  #8: check_canyon_roof_protection ...........   Passed    0.17 sec
+      Start  9: check_canyon_core_audit
+ 9/66 Test  #9: check_canyon_core_audit ................   Passed    0.19 sec
+      Start 10: check_canyon_horizontal_audit
+10/66 Test #10: check_canyon_horizontal_audit ..........   Passed    0.17 sec
+      Start 11: check_canyon_preflight
+11/66 Test #11: check_canyon_preflight .................   Passed    0.17 sec
+      Start 12: check_canyon_kernel
+12/66 Test #12: check_canyon_kernel ....................   Passed    0.17 sec
+      Start 13: check_physical_canyon_geometry
+13/66 Test #13: check_physical_canyon_geometry .........   Passed    0.19 sec
+      Start 14: check_physical_canyon_coverage
+14/66 Test #14: check_physical_canyon_coverage .........   Passed    0.18 sec
+      Start 15: wake_obstacles
+15/66 Test #15: wake_obstacles .........................   Passed  788.45 sec
+      Start 16: ground_gradient
+16/66 Test #16: ground_gradient ........................Subprocess aborted***Exception:   0.49 sec
+=================================================================
+==72672==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x60b000000624 at pc 0x000104f92be4 bp 0x00016ae6c390 sp 0x00016ae6c388
+READ of size 4 at 0x60b000000624 thread T0
+==72672==WARNING: external symbolizer didn't start up correctly!
+==72672==WARNING: Can't write to symbolizer at fd 4
+==72672==WARNING: external symbolizer didn't start up correctly!
+==72672==WARNING: Can't write to symbolizer at fd 5
+==72672==WARNING: external symbolizer didn't start up correctly!
+==72672==WARNING: Can't write to symbolizer at fd 6
+==72672==WARNING: external symbolizer didn't start up correctly!
+==72672==WARNING: Can't write to symbolizer at fd 7
+==72672==WARNING: external symbolizer didn't start up correctly!
+==72672==WARNING: Failed to use and restart external symbolizer!
+    #0 0x000104f92be0 in manufactured(bool, int)+0xca4 (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x100002be0)
+    #1 0x000104f91898 in main+0x360 (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x100001898)
+    #2 0x00018adceb94  (<unknown module>)
+
+0x60b000000624 is located 0 bytes after 100-byte region [0x60b0000005c0,0x60b000000624)
+allocated by thread T0 here:
+    #0 0x0001062d3404 in _Znwm+0x74 (/Library/Developer/CommandLineTools/usr/lib/clang/17/lib/darwin/libclang_rt.asan_osx_dynamic.dylib:arm64e+0x4b404)
+    #1 0x000104fe4684 in void* std::__1::__libcpp_operator_new[abi:ne200100]<float>(unsigned long)+0x14 (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x100054684)
+    #2 0x000104fe45e4 in float* std::__1::__libcpp_allocate[abi:ne200100]<float>(std::__1::__element_count, unsigned long)+0x58 (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x1000545e4)
+    #3 0x000104fe457c in std::__1::allocator<float>::allocate[abi:ne200100](unsigned long)+0xa4 (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x10005457c)
+    #4 0x000104fe44b4 in std::__1::__allocation_result<std::__1::allocator_traits<std::__1::allocator<float>>::pointer> std::__1::__allocate_at_least[abi:ne200100]<std::__1::allocator<float>>(std::__1::allocator<float>&, unsigned long)+0x1c (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x1000544b4)
+    #5 0x000104fe9888 in std::__1::vector<float, std::__1::allocator<float>>::__vallocate[abi:ne200100](unsigned long)+0x1c8 (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x100059888)
+    #6 0x000104fe94c8 in void std::__1::vector<float, std::__1::allocator<float>>::__init_with_size[abi:ne200100]<float*, float*>(float*, float*, unsigned long)+0x214 (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x1000594c8)
+    #7 0x000104fe9290 in std::__1::vector<float, std::__1::allocator<float>>::vector[abi:ne200100](std::__1::vector<float, std::__1::allocator<float>> const&)+0x230 (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x100059290)
+    #8 0x000104fe904c in std::__1::vector<float, std::__1::allocator<float>>::vector[abi:ne200100](std::__1::vector<float, std::__1::allocator<float>> const&)+0x58 (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x10005904c)
+    #9 0x000105034a24 in qes::Domain::Domain(qes::Domain const&)+0x1d4 (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x1000a4a24)
+    #10 0x0001050177f0 in qes::Domain::Domain(qes::Domain const&)+0x58 (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x1000877f0)
+    #11 0x0001053851e0 in WINDSGeneralData::WINDSGeneralData(qes::Domain, std::__1::vector<BuildingFootprint, std::__1::allocator<BuildingFootprint>> const&, BuildingParameterizations const&, float)+0xbec (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x1003f51e0)
+    #12 0x00010538c5d4 in WINDSGeneralData::WINDSGeneralData(qes::Domain, std::__1::vector<BuildingFootprint, std::__1::allocator<BuildingFootprint>> const&, BuildingParameterizations const&, float)+0x74 (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x1003fc5d4)
+    #13 0x000104f92758 in manufactured(bool, int)+0x81c (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x100002758)
+    #14 0x000104f91898 in main+0x360 (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x100001898)
+    #15 0x00018adceb94  (<unknown module>)
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow (/private/tmp/dtcc-qes-physics-bugs/build/release-sanitizers/check_ground_gradient:arm64+0x100002be0) in manufactured(bool, int)+0xca4
+Shadow bytes around the buggy address:
+  0x60b000000380: fa fa fa fa fa fa fd fd fd fd fd fd fd fd fd fd
+  0x60b000000400: fd fd fd fa fa fa fa fa fa fa fa fa fd fd fd fd
+  0x60b000000480: fd fd fd fd fd fd fd fd fd fa fa fa fa fa fa fa
+  0x60b000000500: fa fa 00 00 00 00 00 00 00 00 00 00 00 00 04 fa
+  0x60b000000580: fa fa fa fa fa fa fa fa 00 00 00 00 00 00 00 00
+=>0x60b000000600: 00 00 00 00[04]fa fa fa fa fa fa fa fa fa 00 00
+  0x60b000000680: 00 00 00 00 00 00 00 00 00 00 00 fa fa fa fa fa
+  0x60b000000700: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x60b000000780: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x60b000000800: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x60b000000880: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==72672==ABORTING
+
+      Start 17: spectral_cap
+17/66 Test #17: spectral_cap ...........................   Passed   50.28 sec
+      Start 18: facade_runs
+18/66 Test #18: facade_runs ............................   Passed   12.16 sec
+      Start 19: incident_reference
+19/66 Test #19: incident_reference .....................   Passed  657.11 sec
+      Start 20: point_mirror_symmetry
+20/66 Test #20: point_mirror_symmetry ..................   Passed  297.59 sec
+      Start 21: building_contacts
+21/66 Test #21: building_contacts ......................   Passed    3.10 sec
+      Start 22: spreading_wake
+22/66 Test #22: spreading_wake .........................   Passed    5.08 sec
+      Start 23: staggered_flux
+23/66 Test #23: staggered_flux .........................   Passed   76.21 sec
+      Start 24: reference_sampling_manufactured
+24/66 Test #24: reference_sampling_manufactured ........   Passed    0.49 sec
+      Start 25: stress_validity_certificate
+25/66 Test #25: stress_validity_certificate ............   Passed    0.63 sec
+      Start 26: reference_sampling_support
+26/66 Test #26: reference_sampling_support .............   Passed    0.17 sec
+      Start 27: native_turbulence_low_top
+27/66 Test #27: native_turbulence_low_top ..............   Passed    0.22 sec
+      Start 28: native_turbulence_ref_in_top_cell
+28/66 Test #28: native_turbulence_ref_in_top_cell ......   Passed    0.06 sec
+      Start 29: native_turbulence_ref_above_top
+29/66 Test #29: native_turbulence_ref_above_top ........   Passed    0.05 sec
+      Start 30: native_turbulence_reference_boundary
+30/66 Test #30: native_turbulence_reference_boundary ...   Passed    0.05 sec
+      Start 31: native_turbulence_methods
+31/66 Test #31: native_turbulence_methods ..............   Passed    0.07 sec
+      Start 32: native_turbulence_ownership
+32/66 Test #32: native_turbulence_ownership ............   Passed    0.07 sec
+      Start 33: native_turbulence_references
+33/66 Test #33: native_turbulence_references ...........   Passed    0.11 sec
+      Start 34: native_turbulence_lifecycle
+34/66 Test #34: native_turbulence_lifecycle ............   Passed    1.36 sec
+      Start 35: native_turbulence_rotation
+35/66 Test #35: native_turbulence_rotation .............   Passed    0.56 sec
+      Start 36: native_turbulence_rotation_fallback
+36/66 Test #36: native_turbulence_rotation_fallback ....   Passed    0.31 sec
+      Start 37: native_turbulence_calm
+37/66 Test #37: native_turbulence_calm .................   Passed    0.19 sec
+      Start 38: native_turbulence_validity
+38/66 Test #38: native_turbulence_validity .............   Passed    0.03 sec
+      Start 39: native_turbulence_building_validity
+39/66 Test #39: native_turbulence_building_validity ....   Passed    0.80 sec
+      Start 40: native_turbulence_wall_thin
+40/66 Test #40: native_turbulence_wall_thin ............   Passed    0.86 sec
+      Start 41: native_turbulence_wall_upper_bound
+41/66 Test #41: native_turbulence_wall_upper_bound .....   Passed    0.68 sec
+      Start 42: native_turbulence_wall_geometry
+42/66 Test #42: native_turbulence_wall_geometry ........   Passed    6.82 sec
+      Start 43: native_turbulence_wall_nonuniform
+43/66 Test #43: native_turbulence_wall_nonuniform ......   Passed    0.66 sec
+      Start 44: native_turbulence_wall_transition
+44/66 Test #44: native_turbulence_wall_transition ......   Passed    0.14 sec
+      Start 45: native_turbulence_wall_underside
+45/66 Test #45: native_turbulence_wall_underside .......   Passed    0.23 sec
+      Start 46: native_turbulence_wall_empty
+46/66 Test #46: native_turbulence_wall_empty ...........   Passed    0.21 sec
+      Start 47: native_turbulence_flat_analytic
+47/66 Test #47: native_turbulence_flat_analytic ........   Passed    0.20 sec
+      Start 48: native_turbulence_bridge_calm
+48/66 Test #48: native_turbulence_bridge_calm ..........   Passed    0.31 sec
+      Start 49: native_turbulence_scaling
+49/66 Test #49: native_turbulence_scaling ..............   Passed    1.28 sec
+      Start 50: native_turbulence_repeat
+50/66 Test #50: native_turbulence_repeat ...............   Passed    2.62 sec
+      Start 51: native_turbulence_wall_distance
+51/66 Test #51: native_turbulence_wall_distance ........   Passed   25.51 sec
+      Start 52: native_turbulence_margin
+52/66 Test #52: native_turbulence_margin ...............   Passed    0.67 sec
+      Start 53: native_turbulence_bridge_methods
+53/66 Test #53: native_turbulence_bridge_methods .......   Passed    0.03 sec
+      Start 54: native_turbulence_invalid_stress
+54/66 Test #54: native_turbulence_invalid_stress .......   Passed    0.08 sec
+      Start 55: explicit_vertical_grid
+55/66 Test #55: explicit_vertical_grid .................   Passed   33.64 sec
+      Start 56: background_profiles
+56/66 Test #56: background_profiles ....................   Passed    0.29 sec
+      Start 57: precision_solver
+57/66 Test #57: precision_solver .......................   Passed   16.10 sec
+      Start 58: solver_phases
+58/66 Test #58: solver_phases ..........................   Passed    9.23 sec
+      Start 59: stop_rule
+59/66 Test #59: stop_rule ..............................   Passed   29.99 sec
+      Start 60: condition_mask
+60/66 Test #60: condition_mask .........................   Passed   37.88 sec
+      Start 61: equation_residual
+61/66 Test #61: equation_residual ......................   Passed    0.55 sec
+      Start 62: solver_monitor
+62/66 Test #62: solver_monitor .........................   Passed   18.39 sec
+      Start 63: solver_control
+63/66 Test #63: solver_control .........................   Passed    4.49 sec
+      Start 64: pedestrian_policy
+64/66 Test #64: pedestrian_policy ......................   Passed   13.17 sec
+      Start 65: study_sampler
+65/66 Test #65: study_sampler ..........................   Passed    0.29 sec
+      Start 66: study_solver_diagnostics
+66/66 Test #66: study_solver_diagnostics ...............   Passed    0.10 sec
+
+98% tests passed, 1 tests failed out of 66
+
+Total Test time (real) = 2132.62 sec
+
+The following tests FAILED:
+	 16 - ground_gradient (Subprocess aborted)
+Errors while running CTest

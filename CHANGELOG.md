@@ -4,6 +4,39 @@ Versions before 0.1.0b2 were not released. Their features (unified `run()` API, 
 
 Every version below changes default results. Each one states what changes, how it was checked, and how to keep the previous behaviour where that is possible. The native identity is the qualified source and arithmetic identity of the build. Adaptive `pedestrian-v1` acceptance needs the build to report it as supported.
 
+## 0.1.0b5 (2026-11-14)
+
+Native identity `b69e655c0ca10190b72b95c2c08c3296e0267c3312b1301a83f9dd0268222761`
+(AppleClang 17 Release, default arithmetic). The six corrections replace the
+old behaviour without switches. See [measurements and per-fix comparisons](validation/PHYSICS_BUG_FIX_RESULTS.md).
+
+- **Upwind cavity angles:** wrap face normals correctly and cover the missing
+  angle sector. Rotated-building and opposite-wind tests check initial and solved fields.
+- **Low obstacles in exposed wakes:** stop a wake only at an actual blocking
+  solid at the reference height. A low kiosk no longer truncates a tower wake;
+  tall-obstacle and touching-building controls preserve blocking.
+- **Incident wind:** capture every building's roof wind before writing cavities.
+  Wake, canyon, sidewall and rooftop frames use this incident direction; local
+  stage strengths remain local. Order, calm-flow and turning-profile tests pass.
+  Both proposed direction variants were benchmarked; the specified tie-break selected V1.
+- **Split façades:** simplify parameterization rings within half the smaller
+  horizontal cell size while preserving original solid masks and topology.
+  Kinked façades, courtyard/slot, unequal-spacing and tolerance-sensitivity tests pass.
+- **Stress bound:** scale the complete tensor when its spectral radius exceeds
+  `20 u*²`, bounding variance in every direction while retaining tensor shape.
+  The earlier energy cap remains. Cap flags record actual limiter activity;
+  this does not repair indefinite tensors. Full-tensor and export/probe tests pass.
+- **Ground gradients:** use shifted-log derivatives in the first two ground
+  layers with profile roughness and a solid-aware fallback. Roofs are unchanged.
+  Manufactured uniform/stretched-grid profiles pass; mixing length remains κd.
+
+Turbulence metadata now identifies `dtcc-qes-turbulence-v3`, so dataset requests
+for earlier numerics cannot silently reuse the corrected model.
+
+The native identity is intentionally **unqualified** for the experimental
+`pedestrian-v1` policy. Adaptive runs report `unqualified_build`; ordinary
+`Solver()` runs remain available. Qualification evidence is unchanged.
+
 ## 0.1.0b4 (2026-11-13)
 
 Native identity `31f6d956fecfa24654a34b7ed43941c38876f38b26d0800ca5868e7b54396f87`.

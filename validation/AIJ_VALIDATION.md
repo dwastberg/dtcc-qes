@@ -1,5 +1,34 @@
 # AIJ Cases D and E: validation results (step 2)
 
+## 0.1.0b5 physics corrections (2026-11-14)
+
+All 74 baseline configurations completed at 2 m and 1 m. This block supersedes
+the historical headline values below; [the execution report](PHYSICS_BUG_FIX_RESULTS.md)
+contains baseline deltas, per-fix tables, locality checks and immutable archives.
+No physical accuracy claim follows merely from passing implementation tests.
+
+| Case/quantity | q (2 m / 1 m) | R (2 m / 1 m) |
+|---|---:|---:|
+| A-K | 0.683 / 0.661 | 0.887 / 0.864 |
+| B-K | 0.504 / 0.513 | 0.744 / 0.733 |
+| D-split_fibre | 0.273 / 0.273 | 0.546 / 0.550 |
+| D-thermistor-K | 0.237 / 0.247 | 0.426 / 0.425 |
+| E-before-thermistor-K | 0.161 / 0.159 | 0.515 / 0.500 |
+| E-after-thermistor-K | 0.293 / 0.278 | 0.460 / 0.445 |
+| A-k | 0.101 / 0.070 | 0.242 / 0.191 |
+| B-k | 0.030 / 0.020 | 0.082 / 0.141 |
+| D-k | 0.030 / 0.061 | 0.089 / 0.122 |
+
+The six fixes leave the broad accuracy limitations intact. Case D's 1 m
+split-fibre hit rate loses one of 33 hits: probe 59 changes by only 0.00317 in
+K across the tolerance boundary. F3's 2 m Case D k correlation drops by 0.02569;
+the report attributes it to changed local shear near the tower. F6 subsequently
+recovers 0.02287 of that correlation. Neither decline is hidden by pooled averages.
+Within 30 m of the Case E tower, measured mean ΔK is +0.26161 and simulated
+ΔK remains -0.00250 over all directions. The missing tower effect remains a
+model limitation, outside this six-bug batch.
+
+
 This file records the results of validating dtcc-qes against the AIJ wind-tunnel data. The plan, its findings F1–F11 and the framework design are in [`AIJ_VALIDATION_PLAN.md`](AIJ_VALIDATION_PLAN.md). The City models come from step 1 ([`AIJ_CITY_MODELS.md`](AIJ_CITY_MODELS.md)).
 
 Cases A and B (single buildings, split-fibre mean vectors) use the same framework; their setup, findings and results are in [`AIJ_AB_VALIDATION.md`](AIJ_AB_VALIDATION.md).

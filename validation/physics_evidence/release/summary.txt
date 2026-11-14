@@ -1,0 +1,69 @@
+AIJ full validation, 2026-11-14 21:15: dtcc-qes 165ad02+dirty, solver policy b69e655c, code fingerprint 1440ad8ffb27
+
+Timing (one run at a time; wall: the whole wind.run call, solver: the native solve)
+case   grid  runs  new  M cells  iterations      wall  per run     max   solver  peak RSS  threads
+A       2 m     1    0      0.9        2000        1s     1.2s    1.2s       1s  0.57 GiB  default
+B       2 m     1    0      1.0        2000        1s     1.2s    1.2s       1s  0.55 GiB  default
+D       2 m     3    0      2.6        2000        8s     2.7s    2.7s       6s  1.03 GiB  default
+E       2 m    32   24      1.8        2000      207s     6.5s    7.4s      48s  0.95 GiB  default
+A       1 m     1    1      7.1        6000       28s    27.7s   27.7s      26s  2.11 GiB  default
+B       1 m     1    1      7.5        6000       17s    16.9s   16.9s      16s  2.34 GiB  default
+D       1 m     3    3     18.8        6000      107s    35.7s   36.1s      95s  5.10 GiB  default
+E       1 m    32   32     13.2        6000      957s    29.9s   33.5s     735s  4.02 GiB  default
+all            74   61                          1327s
+
+Agreement with the measurements (q: |s - m| <= 0.25 |m| or <= 0.05, VDI 3783-9 reference 0.66; FB > 0: dtcc-qes too slow on average)
+                                           q              FAC2             R               FB
+case  comparison                   n      2 m    1 m      2 m    1 m      2 m    1 m      2 m    1 m
+A     |U|/U_H                    186     0.68   0.66     0.89   0.88     0.89   0.86    -0.08  -0.10
+A     U/U_H                      186     0.63   0.61     0.86   0.84     0.91   0.89    -0.07  -0.08
+A     W/U_H                      186     0.84   0.84     0.46   0.46     0.81   0.81    -1.06  -1.14
+A     k/U_H²                     157     0.10   0.07     0.28   0.24     0.24   0.19    -0.95  -1.06
+A     no building |U|/U_H        186     0.55   0.55     0.74   0.74     0.50   0.50    -0.23  -0.23
+B     |U|/U_H                    224     0.50   0.51     0.77   0.74     0.74   0.73    -0.22  -0.23
+B     U/U_H                      224     0.45   0.45     0.76   0.75     0.83   0.83    -0.41  -0.42
+B     W/U_H                      224     0.62   0.63     0.19   0.18     0.73   0.72    +1.17  +1.17
+B     k/U_H²                     204     0.03   0.02     0.11   0.11     0.08   0.14    -0.67  -0.72
+B     no building |U|/U_H        224     0.39   0.39     0.57   0.57     0.51   0.51    -0.41  -0.41
+D     split fibre |U|             33     0.27   0.27     0.61   0.61     0.55   0.55    -0.23  -0.23
+D     thermistor |U|             198     0.24   0.25     0.56   0.58     0.43   0.42    +0.44  +0.43
+D     thermistor √(|U|²+2k)      196     0.25   0.28     0.66   0.64     0.41   0.42    +0.30  +0.29
+E     before |U|                1280     0.16   0.16     0.67   0.66     0.51   0.50    -0.42  -0.44
+E     before √(|U|²+2k)         1275     0.08   0.08     0.54   0.52     0.36   0.29    -0.63  -0.64
+E     after |U|                 1280     0.29   0.28     0.71   0.71     0.46   0.45    -0.13  -0.15
+E     after √(|U|²+2k)          1272     0.26   0.25     0.70   0.68     0.34   0.32    -0.37  -0.39
+(the no-building reference is the undisturbed inflow at each probe; it does not depend on the grid)
+
+Flow features
+A  wake reattachment X_F/b at z = 2 m: measured 1.32 (published 1.42), dtcc-qes 1.85 (2 m), 1.91 (1 m)
+   streamwise-flow sign agreement 0.98 (2 m), 0.97 (1 m); measured reverse flow reproduced 1.00 (2 m), 1.00 (1 m)
+B  wake reattachment X_F/b at z = 2 m: measured 7.85 (published 7.60), dtcc-qes 8.38 (2 m), 8.32 (1 m)
+   streamwise-flow sign agreement 0.97 (2 m), 0.97 (1 m); measured reverse flow reproduced 0.87 (2 m), 0.87 (1 m)
+D  split-fibre flow direction at 0°: median error 37° (2 m), 31° (1 m); within 30° 0.45 (2 m), 0.48 (1 m)
+D  thermistor: share of K within 0.03 of the undisturbed inflow (0.57): measured 0.07, dtcc-qes 0.08 (2 m), 0.09 (1 m)
+E  before: share of K within 0.03 of the undisturbed inflow (0.75): measured 0.00, dtcc-qes 0.13 (2 m), 0.14 (1 m)
+E  after: share of K within 0.03 of the undisturbed inflow (0.75): measured 0.03, dtcc-qes 0.09 (2 m), 0.11 (1 m)
+E  new buildings, ΔK = K_after - K_before over 16 directions: mean measured +0.097, dtcc-qes -0.019 (2 m), -0.018 (1 m)
+   ΔK correlation R 0.40 (2 m), 0.39 (1 m); sign agreement where |ΔK| > 0.04 0.72 (2 m), 0.73 (1 m); top-10 windiest overlap 0.59 (2 m), 0.57 (1 m)
+
+Weakest kinds of location at 1 m (lowest hit rate, classes with >= 10 values)
+A  (|U|/U_H) wake: q 0.58, bias +0.07 (n 104); upwind: q 0.65, bias +0.03 (n 26); roof: q 0.81, bias +0.15 (n 16)
+B  (|U|/U_H) wake: q 0.44, bias +0.15 (n 156); upwind: q 0.46, bias +0.02 (n 26); roof: q 0.72, bias +0.29 (n 18)
+D  (thermistor |U|) wind 22.5 deg.: q 0.18, bias -0.21 (n 66); wind 45 deg.: q 0.20, bias -0.25 (n 66); K 0.2-0.6: q 0.21, bias -0.15 (n 145)
+E  (thermistor |U|) K 0.2-0.6: q 0.17, bias +0.14 (n 2004); wall 2-5 m: q 0.18, bias +0.13 (n 1200); slab-adjacent: q 0.19, bias +0.10 (n 224)
+
+Figures in validation/output/fixes/full:
+  A_1_centre_plane.png
+  A_2_sections.png
+  A_3_locations.png
+  B_1_centre_plane.png
+  B_2_sections.png
+  B_3_locations.png
+  D_1_error_maps.png
+  D_2_split_fibre.png
+  D_3_locations.png
+  E_1_error_maps.png
+  E_2_new_buildings.png
+  E_3_locations.png
+
+61 runs solved now in 1380 s, 0 failed; 1384 s in total

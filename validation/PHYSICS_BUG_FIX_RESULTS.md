@@ -392,3 +392,164 @@ where 1.5 m lies in the corrected/interpolated ground layers.
 Next-step reassessment: all six fixes are implemented. Proceed to full release
 validation, fresh build/sanitizer checks, audited fixture updates, packaging,
 version/documentation updates, and the upstream draft. Qualification stays frozen.
+
+## Release validation and final reassessment
+
+The full release archive is `output/fixes/archive/release-165ad02`, compared
+against `output/archive/baseline-full-be78a1c`: **74 successful runs**, including
+61 freshly solved and 13 matching F6 runs reused; no failed runs. Runtime was
+1384 s, with native builds/tests concurrently active, so these timings are not
+a controlled performance comparison. Native physics is unchanged after F6;
+later changes repair a test's coordinate bounds, identify fixtures, and update
+metadata/documentation. The release metadata identifies turbulence numerics v3;
+the archived numerical campaign preceded that metadata-only version change.
+
+| Case/quantity | q (2 m / 1 m) | R (2 m / 1 m) |
+|---|---:|---:|
+| A-K | 0.683 / 0.661 | 0.887 / 0.864 |
+| B-K | 0.504 / 0.513 | 0.744 / 0.733 |
+| D-split_fibre | 0.273 / 0.273 | 0.546 / 0.550 |
+| D-thermistor-K | 0.237 / 0.247 | 0.426 / 0.425 |
+| E-before-thermistor-K | 0.161 / 0.159 | 0.515 / 0.500 |
+| E-after-thermistor-K | 0.293 / 0.278 | 0.460 / 0.445 |
+| A-k | 0.101 / 0.070 | 0.242 / 0.191 |
+| B-k | 0.030 / 0.020 | 0.082 / 0.141 |
+| D-k | 0.030 / 0.061 | 0.089 / 0.122 |
+
+Full baseline-to-release deltas (k comparisons use `W=0`; the last column is
+the share above 0.05 in the displayed normalized quantity, not an error gate):
+
+| Grid | Comparison | delta q | delta FAC2 | delta R | delta FB | share abs(delta K)>0.05 |
+|---|---|---:|---:|---:|---:|---:|
+| 2 m | A-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-W | +0.00000 | +0.00000 | -0.00000 | +0.00000 | 0.00000 |
+| 2 m | A-k | -0.00350 | -0.00955 | +0.05810 | +0.05842 | 0.09028 |
+| 2 m | B-K | +0.00000 | +0.00000 | -0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-U | +0.00000 | +0.00000 | -0.00000 | -0.00000 | 0.00000 |
+| 2 m | B-W | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 2 m | B-k | +0.00464 | +0.01369 | -0.01773 | +0.03597 | 0.06122 |
+| 2 m | D-split_fibre | +0.00000 | +0.00000 | -0.00317 | -0.00119 | 0.02564 |
+| 2 m | D-thermistor-K | +0.01010 | +0.00000 | -0.00158 | -0.00050 | 0.00855 |
+| 2 m | D-thermistor-K_scalar | -0.01150 | +0.00171 | -0.00149 | +0.00326 | 0.01293 |
+| 2 m | E-before-thermistor-K | +0.00234 | +0.00312 | +0.00109 | +0.00963 | 0.04922 |
+| 2 m | E-before-thermistor-K_scalar | +0.00849 | +0.02737 | +0.02543 | +0.02380 | 0.10345 |
+| 2 m | E-after-thermistor-K | -0.00469 | -0.00469 | +0.00288 | +0.01718 | 0.06484 |
+| 2 m | E-after-thermistor-K_scalar | +0.02079 | +0.01873 | +0.02816 | +0.03037 | 0.12274 |
+| 2 m | D-k | +0.00000 | -0.06061 | -0.00282 | +0.11429 | 0.00000 |
+| 1 m | A-K | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 1 m | A-U | +0.00000 | +0.00000 | +0.00000 | +0.00000 | 0.00000 |
+| 1 m | A-W | +0.00000 | +0.00000 | -0.00000 | -0.00000 | 0.00000 |
+| 1 m | A-k | -0.00183 | -0.00616 | +0.01946 | +0.05771 | 0.10458 |
+| 1 m | B-K | +0.00000 | +0.00000 | +0.00000 | -0.00000 | 0.00000 |
+| 1 m | B-U | +0.00000 | +0.00000 | +0.00000 | -0.00000 | 0.00000 |
+| 1 m | B-W | +0.00000 | +0.00000 | -0.00000 | +0.00000 | 0.00000 |
+| 1 m | B-k | -0.00019 | +0.00883 | +0.00706 | +0.06355 | 0.06931 |
+| 1 m | D-split_fibre | -0.03030 | +0.00000 | -0.00259 | -0.00122 | 0.02564 |
+
+Attribution required for D-split_fibre: probes/directions with changes >0.05: 75/0 deg., 76/0 deg.
+
+| 1 m | D-thermistor-K | +0.01010 | +0.00000 | -0.00146 | -0.00052 | 0.00855 |
+| 1 m | D-thermistor-K_scalar | +0.00510 | +0.00000 | +0.00458 | +0.00274 | 0.01724 |
+| 1 m | E-before-thermistor-K | +0.00078 | +0.00313 | +0.00146 | +0.01190 | 0.05547 |
+| 1 m | E-before-thermistor-K_scalar | +0.00593 | +0.00701 | +0.04276 | +0.01739 | 0.11348 |
+| 1 m | E-after-thermistor-K | -0.00078 | -0.00156 | +0.00366 | +0.02041 | 0.07187 |
+| 1 m | E-after-thermistor-K_scalar | +0.01165 | +0.01706 | +0.03617 | +0.02773 | 0.14139 |
+| 1 m | D-k | +0.00000 | +0.03030 | -0.00367 | -0.01645 | 0.00000 |
+
+### Attribution and late comparison-tool correction
+
+The first comparison tables omitted Case D's separately stored split-fibre k
+scores. The comparison utility now includes them. Their stepwise changes are:
+
+| Step | delta q | delta FAC2 | delta R | delta FB |
+|---|---:|---:|---:|---:|
+| F1-3b82e6e | +0.00000 | +0.00000 | -0.00000 | -0.00000 |
+| F2-acc7a50 | +0.00000 | +0.00000 | +0.00000 | +0.00000 |
+| F3-V1-acc7a50 | +0.00000 | +0.00000 | -0.02569 | -0.00490 |
+| F4-final-2b3de21 | +0.00000 | +0.00000 | +0.00000 | +0.00000 |
+| F5-2b3de21 | +0.00000 | +0.00000 | +0.00000 | +0.00000 |
+| F6-aab96e8 | +0.00000 | -0.06061 | +0.02287 | +0.11919 |
+
+**F3, D-k at 2 m:** R changes from 0.091414 to 0.065725 (−0.025689), crossing
+the 0.02 attribution threshold. The largest changes in normalized k are at
+probe 33, (−5,−15,2 m), 0.009795 → 0.014025 (measured 0.019131), and probe 32,
+(−5,15,2 m), 0.009787 → 0.007773 (measured 0.030426). Probes 30 and 29 change
+by −0.000785 and −0.000730. These near-tower changes follow the corrected
+incident frames and their local shear; F2→F3 is isolated in the immutable fast
+archives. The first change improves an already low value while the second
+worsens it, reducing their pooled correlation. F4/F5 leave D-k unchanged;
+F6 increases R by 0.02287. This observed regression does not justify restoring
+the contaminated reference.
+
+**Release, D split-fibre K at 1 m:** q changes from 10/33 to 9/33, entirely
+because probe 59 at 0 degrees moves from 0.23947337 to 0.24264145. Measured
+K is 0.18966854 and the absolute tolerance is 0.05: the error crosses from
+0.04980483 to 0.05297292. A dedicated historical F2 build reproduces
+0.23947349 there, and all its D probe K values are within 1.70e-6 of baseline.
+F3 is therefore the responsible wind correction: F4 leaves these rectangles
+unchanged, and F5/F6 do not change mean wind. The diagnostic is retained in
+`output/attribution/F2-D-1m`, built from `acc7a50`; its native identity is
+`c478f1add202b8b1ea6f0037b73403ba202a417d1a97bf1506412c191706e2a2`.
+The >0.05 K moves at probes 75/76 are not the reason q loses that hit.
+
+### Final-field magnitude and remaining tower limitation
+
+The following statistics pool matching fluid samples on the **archived
+measurement-height planes**, not whole 3D volumes. They measure the norm of
+the velocity-vector difference after pressure correction; spatially spread
+changes are expected and are not judged against initial parameterization zones.
+
+| Grid | Case | Valid pairs | max vector change (m/s) | p99 (m/s) | share >0.05 m/s |
+|---|---|---:|---:|---:|---:|
+| 2 m | E | 1582128 | 4.382199 | 0.551513 | 0.083086 |
+| 2 m | D | 162168 | 5.791975 | 0.015585 | 0.005833 |
+| 2 m | B | 20096 | 0.000010 | 0.000004 | 0.000000 |
+| 2 m | A | 19072 | 0.000005 | 0.000002 | 0.000000 |
+| 1 m | E | 6334416 | 5.522393 | 0.672287 | 0.090197 |
+| 1 m | D | 648525 | 6.640672 | 0.014991 | 0.005815 |
+| 1 m | B | 80384 | 0.000021 | 0.000007 | 0.000000 |
+| 1 m | A | 76288 | 0.000011 | 0.000003 | 0.000000 |
+
+The all-direction tower diagnostic gives mean ΔK within 30 m of +0.261607
+measured versus −0.002496 simulated (352 pairs). The four-direction fast values
+reported for F2/F3 above use a different subset. These fixes do not resolve the
+missing tower speed-up; the out-of-scope model changes remain deferred.
+
+### Release checks
+
+- Fresh serial CTest: 66/66; fresh OpenMP: 69/69.
+- Debug ASan/UBSan: 65 checks passed initially; `ground_gradient` caught an
+  out-of-bounds read in the new test's profile initialization. The test confused
+  face count with the shorter z-centre vector. Both initialization loops now
+  use `d.z.size()`. The rebuilt affected check passes under ASan/UBSan and both
+  Release backends; no production source changed. Thus all 66 checks pass.
+- Strict Python (`-W error`), Python 3.13: OpenMP **2104 passed**, serial
+  **2094 passed, 10 skipped** (OpenMP-specific checks). Earlier 16 permanently
+  skipped historical-parity checks now run against the identified current
+  backend fixtures. The final metadata-only checks pass: **190 tests**.
+- Native symbol audit passes on both Release QES archives and all bridge
+  objects. Debug sanitizer objects pass file-I/O/library/device checks; debug
+  assertion/diagnostic symbols are intentionally outside the Release-only ban.
+- Schema-2 audited embedded snapshots for eight cases on both backends pass
+  exact generation/replay and source/archive provenance checks. Historical
+  standalone archives remain byte-identical. Public/raw bridge comparisons
+  explicitly select the same fixed-relaxation/multiplier stopping settings;
+  today's public defaults otherwise differ.
+- The 0.1.0b5 sdist and wheel built from it pass the artifact/evidence audit.
+  Isolated wheel smoke exercises owned outputs, sampling, both turbulence
+  methods, canonical geometry, legacy and adaptive control; the latter reports
+  `unqualified_build` as required. Final artifact hashes are recorded below.
+
+The release increments turbulence metadata to `dtcc-qes-turbulence-v3`, names
+the spectral/ground fixes and corrects its old standalone-parity wording.
+No qualification header/evidence changes, model additions from section 7, or
+runtime switches were introduced. The [upstream issue draft](../docs/upstream-physics-issue-draft.md)
+contains F1/F3 reproductions and is not submitted.
+
+All archived SHA-256 manifests were rechecked before integration. Raw release
+check logs and the full summary are retained in `validation/physics_evidence/release`.
+
+Release artifacts and their SHA-256 manifest are in `build/physics-artifacts/`.
+The wheel is built from the unpacked source distribution and installed into an
+isolated directory for the runtime smoke test. No package is uploaded.

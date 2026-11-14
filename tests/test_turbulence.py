@@ -497,17 +497,13 @@ def test_full_three_dimensional_projection_matches_factor_oracle(scale):
 
 
 @pytest.mark.parametrize("spec",TURBULENCE_CASES.values(),ids=TURBULENCE_CASES)
-def test_public_fields_match_audited_standalone_reference(spec):
-    import platform
-    from fixtures.turbulence_reference import DIRECTORY
-    path=DIRECTORY/"audited"/f"{spec.case.name}.npz"
-    metadata=json.loads(path.with_suffix(".json").read_text())
-    toolchain=metadata["toolchain"]
-    if (toolchain["compiler_id"] != _qes.compiler_id or toolchain["compiler_version"] != _qes.compiler_version
-            or toolchain["build_type"] != _qes.build_type or toolchain["machine"] != platform.machine()
-            or toolchain["platform"] != platform.platform() or _qes.cpu_sweep_order != "lexicographic"):
-        pytest.skip("Archived exact parity requires lexicographic ordering and the recorded toolchain")
+def test_public_fields_match_audited_physics_reference(spec):
+    from fixtures.turbulence_reference import physics_reference
+    path = physics_reference(spec.case.name)
     city,condition,grid,solver=city_case(spec.case)
+    # These named cases specify the legacy stopping rule and fixed relaxation;
+    # plain Solver() now defaults to velocity stopping and grid relaxation.
+    solver["solver"] = replace(solver["solver"], stop="multiplier_change", relaxation=None)
     options={}
     if spec.dz_layers:
         faces=np.r_[0.,np.cumsum(spec.dz_layers)]

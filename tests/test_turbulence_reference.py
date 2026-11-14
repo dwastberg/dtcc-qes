@@ -1,5 +1,5 @@
 from fixtures.oracles import covariance, assert_turbulence_archive
-"""Exact audited standalone parity; independent correctness remains mandatory."""
+"""Current embedded regression and immutable historical standalone provenance."""
 
 import json
 import hashlib
@@ -22,18 +22,8 @@ UPSTREAM_REVISION = "dced7ec571487be7538eca17bfc25bb3262fb6d0"
 
 @pytest.mark.parametrize("spec", CASES.values(), ids=CASES)
 def test_bound_runner_turbulence_matches_audited_reference(spec):
-    directory = DIRECTORY / "audited"
-    metadata = json.loads((directory / f"{spec.case.name}.json").read_text())
-    assert metadata["qes"]["revision"] == _qes.qes_revision
-    assert not metadata["qes"]["modified"]
-    toolchain = metadata["toolchain"]
-    if (toolchain["compiler_id"] != _qes.compiler_id
-            or toolchain["compiler_version"] != _qes.compiler_version
-            or toolchain["build_type"] != _qes.build_type
-            or toolchain["machine"] != platform.machine()
-            or toolchain["platform"] != platform.platform() or _qes.cpu_sweep_order != "lexicographic"):
-        pytest.skip("Archived exact fixtures require lexicographic ordering and their recorded toolchain; "
-                    "S2 red/black parity is checked against the immutable S1a OpenMP oracle")
+    from fixtures.turbulence_reference import physics_reference
+    path = physics_reference(spec.case.name)
     grid, model, condition, solver, arrays = inputs(spec.case)
     settings = _qes.TurbulenceSettings()
     settings.enabled = True
@@ -43,13 +33,42 @@ def test_bound_runner_turbulence_matches_audited_reference(spec):
     runner.prepare(grid, model, **arrays, turbulence=settings, dz_layers=layers)
     result = runner.solve(condition, solver)
     assert result["diagnostics"]["converged"]
-    with np.load(directory / f"{spec.case.name}.npz") as reference:
+    with np.load(path) as reference:
         for axis in ("x", "y", "z"):
             np.testing.assert_array_equal(result[axis], reference[axis])
         np.testing.assert_array_equal(result["velocity"], np.stack([reference[key] for key in ("u", "v", "w")], axis=-1))
         np.testing.assert_array_equal(result["cell_flags"], reference["icell"])
         fields = result["turbulence"]
         assert_turbulence_archive(fields,reference,fields["state"]>0)
+        np.testing.assert_array_equal(fields["state"], reference["state"])
+
+
+@pytest.mark.parametrize("backend", ["serial", "openmp"])
+@pytest.mark.parametrize("spec", CASES.values(), ids=CASES)
+def test_physics_reference_provenance(backend, spec):
+    root = Path(__file__).resolve().parents[1]
+    path = DIRECTORY / "audited-physics" / backend / f"{spec.case.name}.npz"
+    metadata = json.loads(path.with_suffix(".json").read_text())
+    assert metadata["schema_version"] == 2
+    assert metadata["baseline"] == "audited-physics"
+    assert metadata["generator"] == "embedded WindRunner"
+    assert metadata["case_definition"] == json.loads(json.dumps(asdict(spec)))
+    assert not metadata["solver_policy_build_supported"]
+    assert not metadata["grid_relaxation"]
+    assert metadata["stop_rule"] == "multiplier_change"
+    assert metadata["toolchain"]["openmp_enabled"] == (backend == "openmp")
+    assert metadata["solver_summary"]["converged"]
+    assert metadata["archive_sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+    assert len(metadata["executable_sha256"]) == 64
+    for name, digest in metadata["sources"].items():
+        assert hashlib.sha256((root / name).read_bytes()).hexdigest() == digest, name
+    with np.load(path) as reference:
+        computed = reference["computed"].astype(bool)
+        np.testing.assert_array_equal(computed, reference["state"] > 0)
+        for name in ("stress", "tke", "co_eps", "mixing_length"):
+            assert reference[name].dtype == np.float32
+            assert np.isfinite(reference[name]).all()
+            assert np.all(reference[name][~computed] == 0)
 
 
 @pytest.mark.parametrize("baseline", ["upstream", "audited"])

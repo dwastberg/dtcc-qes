@@ -19,7 +19,7 @@ static void manufactured(bool stretched,int kind) {
   WINDSGeneralData w(make_domain(input),input.buildings,input.parameterizations,.1);
   auto &d=w.domain;
   const auto value=[&](double z) {return kind==0?std::log((z+.1)/.1):kind==1?3.:z;};
-  for(int k=1;k<d.nz();++k)for(int j=0;j<d.ny();++j)for(int i=0;i<d.nx();++i) {
+  for(int k=1;k<int(d.z.size());++k)for(int j=0;j<d.ny();++j)for(int i=0;i<d.nx();++i) {
     auto f=d.face(i,j,k);w.u[f]=2*value(d.z[k]);w.v[f]=-1.5*value(d.z[k]);
   }
   TURBGeneralData turb(input.turbulence,&w);turb.derivativeVelocity();
@@ -41,7 +41,7 @@ static void roof_and_gap(bool gap) {
   input.buildings[0].base_height=gap?2.1f:0;
   WINDSGeneralData w(make_domain(input),input.buildings,input.parameterizations,.1);auto &d=w.domain;
   const double roof=gap?10.1:8;
-  for(int k=1;k<d.nz();++k)for(int j=0;j<d.ny();++j)for(int i=0;i<d.nx();++i) {
+  for(int k=1;k<int(d.z.size());++k)for(int j=0;j<d.ny();++j)for(int i=0;i<d.nx();++i) {
     const auto f=d.face(i,j,k);
     w.u[f]=d.z[k]>roof?-2*std::log((d.z[k]-roof)/.1):2*std::log((d.z[k]+.1)/.1);
     w.v[f]=-.75*w.u[f];

@@ -322,7 +322,10 @@ called after every wind solve. It is a pure post-processor: it reads the solved
    `σ/u* = (2.5, 2.0, 1.3)`; the tensor is then rotated back. The review
    baseline failed the oblique-wind check below; Task 1A corrected the
    transforms and added the documented direction fallback.
-5. Every component is clipped to `|τij| ≤ 20 u*²`. Background mixing is added
+5. Since 0.1.0b5, the full tensor is scaled by `min(1, B/radius)`, where
+   `B = 20 u*²` and radius is the largest absolute eigenvalue. This bounds
+   variance in every direction and preserves tensor shape. Actual energy and
+   spectral limiter activity is recorded separately. Background mixing is added
    if set. Finally `div τ` is computed for QES-Plume.
 
 QES's own NetCDF output (`TURBOutput`) contains G (9 components), L, the 6 τ
@@ -393,9 +396,12 @@ float32 arithmetic still require the stated comparison tolerances.
    case uses the wrong dz. These affect `div τ` only, which is not returned.
 8. **QES `tke` ≠ ½ trace τ.** The σ scaling is applied after k, so in pure shear
    ½ trace τ ≈ 1.8 k. Both are exposed; σ is derived only from valid τ.
-9. **Ground-cell gradient.** Ground-adjacent cells use a one-sided gradient. On
-   the uniform 2 m grid, the first-cell σ is roughly 40 % below the
-   surface-layer value 2.5 u\* (estimate; Task 9 measures it).
+9. **Ground-cell gradient: repaired in 0.1.0b5.** The first two ground layers
+   use shifted-log differences with the profile roughness, stored separately
+   from building-wall roughness. A solid above triggers a wall-function fallback.
+   Roof derivatives are unchanged. Mixing length remains κd, so a shifted-log
+   profile retains the factor `d/(d + z0)` in σ; this is not a gradient defect.
+   Higher layers retain their central/nonuniform finite differences.
 10. **Serial code.** QES-Turb has no OpenMP. Cost is O(cells) per solve, plus
     the mixing-length setup at prepare.
 11. **Method 1 reads outside coordinate arrays.** `LocalMixingSerial::getMinDistWall`
@@ -414,8 +420,10 @@ float32 arithmetic still require the stated comparison tolerances.
     This was verified on the review baseline and is repaired in Task 1A, with
     full-tensor, oblique-angle and direction-reversal regressions.
 14. **Computed stress need not be a valid covariance.** Diagonal absolute
-    values and component-wise clipping do not guarantee positive
-    semidefiniteness. A computed fluid cell can have `ê·τ·ê < 0`, making the
+    values do not guarantee positive semidefiniteness. Since 0.1.0b5 the
+    spectral-radius limiter bounds every directional variance by `20 u*²`,
+    but positive scaling preserves eigenvalue signs and does not repair an
+    indefinite tensor. A computed fluid cell can have `ê·τ·ê < 0`, making the
     proposed square root invalid. QES-Plume applies `VectorMath::makeRealizable`
     before using stress (`src/plume/GLE_Solver.cpp`); the binding cannot assume
     that correction has already occurred in QES-Turb.

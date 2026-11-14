@@ -1,8 +1,8 @@
 # Plan: fix the six largest physics bugs
 
-**Date:** 2026-11-14, revision 5. Revision 2 closed decisions D1, D3 and D4. Revision 3 answered the external review of revision 2 (section 9) and re-checked the plan against the source. Revision 4 closes D6 (spectral scale) and D7 (no re-qualification in this release). Revision 5 is a final check of every file, line and formula against the source; section 10 lists what it corrected.
+**Date:** 2026-11-14, revision 6 (implemented). Revision 2 closed decisions D1, D3 and D4. Revision 3 answered the external review of revision 2 (section 9) and re-checked the plan against the source. Revision 4 closes D6 (spectral scale) and D7 (no re-qualification in this release). Revision 5 is a final check of every file, line and formula against the source; section 10 lists what it corrected.
 **Base:** `main` `033df33`. The two commits after `134396b` (0.1.0b4) touch only `.gitignore` and three test and tool files, so the native identity is unchanged.
-**Source of the findings:** [END_TO_END_REVIEW.md](END_TO_END_REVIEW.md), section 3. Nothing is implemented yet.
+**Source of the findings:** [END_TO_END_REVIEW.md](END_TO_END_REVIEW.md), section 3. All six fixes are implemented. [Execution results](validation/PHYSICS_BUG_FIX_RESULTS.md) record step-by-step reassessment, validation and release checks.
 
 **Scope.** Six bugs, four in the building parameterizations and two in the turbulence model:
 
@@ -59,7 +59,7 @@ Status after the user's review on 2026-11-14 and the external review of revision
 - No runtime switches and no private flags. The fixes replace the defective code.
 - The changelog describes each change and how it was checked. It does not need to offer a way back.
 
-**D2. Direction used by the stages that run after the wake** (canyon, sidewall, rooftop): **open — decided by the F3 benchmark.**
+**D2. Direction used by the stages that run after the wake** (canyon, sidewall, rooftop): **decided — V1, by the F3 benchmark and its prescribed tie-break.**
 - Because of finding 3, only the direction is in question. The upwind cavity and the wake use the frozen incident vector in every variant.
 - **V1, profile direction.** The later stages use the direction of the approach profile at the roof point. Order-independent, and one frame per building.
 - **V3, field direction at a stage boundary.** The later stages use the direction of the field at the roof point, captured once for all buildings after the last wake is written and before the first canyon, sidewall or rooftop write. So a building's frame cannot depend on what an earlier building's canyon, sidewall or rooftop wrote. Where that field speed is below 10 % of the profile speed, the direction is undefined and V3 uses the profile direction.
@@ -429,3 +429,17 @@ A final pass checked every file, line number, function and formula in the plan a
 | P0, P1 | — | Copy the untracked Case A and B files into the worktree; CTest build and `uv run --group validate` commands. |
 | P2 | v mapping "the same" | u, v and w mappings written out; `u0` captured at the `"solid_mask"` stage; registration in CMake. |
 | Section 6 | `PROVENANCE.md`; "hazard 9 … the spectral limiter contract" | `src/qes_core/PROVENANCE.md`; hazard 9 is the ground gradient (F6) and hazard 14 the stress validity (F5). |
+
+## 11. Implementation corrections (revision 6)
+
+- Finding 15 overlooked a later overwrite of `WGD->z0` by building-wall
+  roughness. F6 now retains the profile roughness in `groundRoughness` and
+  refreshes it for each profile; wall and roof behaviour is preserved.
+- F6's all-layer analytic 2% target was incompatible with retaining central
+  differences above layer two (about 5.7% gradient bias at z=5 m on the 2 m
+  grid). The manufactured test uses the exact shifted-log derivative in the
+  corrected two layers and the unchanged discretized derivative elsewhere.
+- D2's benchmark tie-break selected V1; no runtime direction variant ships.
+- Current audited fixtures are separately labelled embedded schema-2 snapshots.
+  Historical standalone upstream/audited fixtures are preserved, with independent
+  manufactured tests establishing the new physics checks.

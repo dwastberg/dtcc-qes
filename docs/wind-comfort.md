@@ -1,5 +1,14 @@
 # Pedestrian wind comfort
 
+Version 0.1.0b5 changes gust screening through the spectral stress bound and
+corrected first two ground-layer derivatives, as well as the building wind
+corrections. Recompute cached directional results before comparing comfort
+maps across versions. The twelve-direction example's F5 comparison changes
+GEM by at most 1.356 m/s, with 0.136% of valid samples changing by more than
+0.05 m/s. F6 leaves that example's 1.5 m maps unchanged because it samples the
+third cell centre; uniform grids can change. These are numerical checks, not
+physical gust calibration. [Full results](../validation/PHYSICS_BUG_FIX_RESULTS.md).
+
 `dtcc_qes.comfort` turns per-direction pedestrian wind speeds and an hourly wind
 climate into comfort and safety classes. Its helper dependency closure uses only NumPy and the standard library; an
 isolated-load test enforces this. Any source of pedestrian-level mean speeds can

@@ -34,6 +34,12 @@ a matching build attestation. Wind tolerances never relax turbulence fields::
     uv run --frozen --group reference python tools/make_reference.py --turbulence --baseline upstream
     uv run --frozen --group reference python tools/make_reference.py --turbulence --baseline audited
     uv run --frozen --group reference python tools/make_reference.py --turbulence --baseline audited --check
+
+Current embedded physics uses separately labelled schema-2 regression snapshots,
+without claiming standalone parity. Use a rebuilt extension of each backend::
+
+    python tools/make_reference.py --embedded-physics
+    python tools/make_reference.py --embedded-physics --check
 """
 
 from __future__ import annotations
@@ -497,6 +503,8 @@ def compare_turbulence_metadata(metadata: dict, provenance: dict, spec, archive:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--embedded-physics", action="store_true",
+                    help="audit current embedded physics, separately from historical standalone QES")
     ap.add_argument("--qes-source", type=Path, help="QES tree to build instead of the pristine reference revision")
     ap.add_argument("--qes-rev", help="QES revision to export (wind default: pristine QES_REFERENCE_REV)")
     ap.add_argument("--turbulence", action="store_true", help="generate standalone turbulence as well as wind")
@@ -514,6 +522,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("-j", "--jobs", type=int, default=os.cpu_count() or 2)
     ap.add_argument("cases", nargs="*", help="case names (default: all)")
     args = ap.parse_args(argv)
+
+    if args.embedded_physics:
+        if args.qes_source or args.qes_rev or args.exe or args.baseline or args.method is not None:
+            ap.error("--embedded-physics cannot select a standalone QES source or baseline")
+        from make_physics_reference import generate
+        return generate(args.cases, args.output, args.reference_dir, args.check)
 
     if args.turbulence and not args.baseline:
         ap.error("--turbulence requires explicit --baseline upstream|audited")

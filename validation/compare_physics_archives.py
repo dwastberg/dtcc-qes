@@ -1,5 +1,6 @@
 """Compare archived AIJ runs without loading or recomputing a native result."""
 import argparse
+from dataclasses import replace
 import json
 from pathlib import Path
 import numpy as np
@@ -9,8 +10,14 @@ from aij import campaigns, compare, metrics
 def comparisons(archive, resolution):
     specs = campaigns.ab_baseline(resolution) + campaigns.baseline(resolution)
     records = compare.load_records(Path(archive) / 'runs', specs)
-    return {c.name: c for c in (compare.isolated(records, 'A') + compare.isolated(records, 'B')
-                                + compare.case_d(records) + compare.case_e_comparisons(records))}
+    result = {c.name: c for c in (compare.isolated(records, 'A') + compare.isolated(records, 'B')
+                                  + compare.case_d(records) + compare.case_e_comparisons(records))}
+    extra = compare.split_fibre_extras(records)
+    if extra and 'k' in extra:
+        result['D-k'] = replace(result['D-split_fibre'], name='D-k', quantity='k',
+                               simulated=np.asarray(extra['k']['simulated'])[:, None],
+                               measured=np.asarray(extra['k']['measured'])[:, None], options={'w': 0.})
+    return result
 
 
 def main():

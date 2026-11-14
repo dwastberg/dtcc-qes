@@ -30,6 +30,22 @@ The fork commits between the upstream base and the vendored revision are:
 `src/dtcc_qes/_qes_revision.txt` records the vendored revision. It is compiled
 into the extension as `_qes.qes_revision`.
 
+## Physics corrections in 0.1.0b5
+
+Six embedded-core changes correct cavity angles, exposed wake blocking,
+incident reference capture, façade simplification, the stress bound and ground
+derivatives. The vendored origin revision above remains the origin, not a claim
+of standalone parity after these changes. [Results](../../../validation/PHYSICS_BUG_FIX_RESULTS.md)
+record individual commits and tests (from the repository root, see
+`validation/PHYSICS_BUG_FIX_RESULTS.md`).
+
+Release native identity on AppleClang 17 is
+`b69e655c0ca10190b72b95c2c08c3296e0267c3312b1301a83f9dd0268222761`.
+It is **unqualified** for `pedestrian-v1`; the qualification header and historical
+evidence are unchanged. The identity includes compiler/arithmetic configuration,
+so other toolchains have their own identity. Current embedded fixtures carry
+source hashes and a binary hash separately from historical standalone fixtures.
+
 ## Contents
 
 The unified feature integration routes the morphometric scalars in
