@@ -1,0 +1,599 @@
+diff --git a/src/qes_core/CMakeLists.txt b/src/qes_core/CMakeLists.txt
+index 42cf49d..5c1320b 100644
+--- a/src/qes_core/CMakeLists.txt
++++ b/src/qes_core/CMakeLists.txt
+@@ -23,7 +23,7 @@ add_library(qeswindscore STATIC
+   winds/TURBGeneralData.cpp winds/TURBWall.cpp winds/TURBWallBuilding.cpp winds/TURBWallTerrain.cpp
+   winds/LogProfile.cpp winds/LayerProfile.cpp
+   winds/WINDSGeneralData.cpp winds/Wall.cpp winds/UpwindCavity.cpp winds/NonLocalMixing.cpp
+-  winds/PolygonWake.cpp winds/SpreadingWake.cpp winds/StreetCanyon.cpp winds/StreetCanyonModified.cpp winds/Sidewall.cpp
++  winds/PolygonWake.cpp winds/SpreadingWake.cpp winds/Downwash.cpp winds/StreetCanyon.cpp winds/StreetCanyonModified.cpp winds/Sidewall.cpp
+   winds/Rooftop.cpp)
+ target_link_libraries(qeswindscore PUBLIC qesutil)
+ target_include_directories(qeswindscore PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/winds")
+diff --git a/src/qes_core/dtcc/api/experiment.h b/src/qes_core/dtcc/api/experiment.h
+new file mode 100644
+index 0000000..6fdc175
+--- /dev/null
++++ b/src/qes_core/dtcc/api/experiment.h
+@@ -0,0 +1,25 @@
++#pragma once
++
++#include <algorithm>
++#include <cstdlib>
++
++namespace dtcc_qes {
++// Experiment switches of ACCURACY_IMPROVEMENT_PLAN.md (branch exp/accuracy-prototypes only).
++// Read from the environment at every call; unset means the released behaviour, bit for bit.
++inline double experimentValue(const char *name, double fallback)
++{
++  const char *text = std::getenv(name);
++  return text && *text ? std::atof(text) : fallback;
++}
++
++// Part M: weight of a zone that used to switch on inside ``tol`` of the aligned direction.
++// ``deviation`` is the angle from alignment (radians, >= 0). With a half-width h > 0 the weight is 1
++// up to tol - h and falls by a smoothstep to 0 at tol + h; ``inside`` is the released test (h = 0).
++inline float angleFadeWeight(float deviation, float tol, bool inside)
++{
++  const float h = float(experimentValue("QES_EXP_ANGLE_FADE", 0.0) * 3.14159265358979323846 / 180.0);
++  if (h <= 0.0f) return inside ? 1.0f : 0.0f;
++  const float t = std::clamp((tol + h - deviation) / (2.0f * h), 0.0f, 1.0f);
++  return t * t * (3.0f - 2.0f * t);
++}
++}
+diff --git a/src/qes_core/dtcc/wind_runner.cpp b/src/qes_core/dtcc/wind_runner.cpp
+index 142a924..7bf89b7 100644
+--- a/src/qes_core/dtcc/wind_runner.cpp
++++ b/src/qes_core/dtcc/wind_runner.cpp
+@@ -1,3 +1,4 @@
++#include "api/experiment.h"
+ #include "wind_runner.h"
+ #include "api/canyon_contract.h"
+ #include "model_inputs.h"
+@@ -344,6 +345,11 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
+       data.canyon_incident_v[k]=data.v0[d.face(0,0,k)];
+     }
+   }
++  std::vector<float> experiment_inflow_u(data.domain.nz()), experiment_inflow_v(data.domain.nz());
++  for(int k=0;k<data.domain.nz();++k) {
++    experiment_inflow_u[k]=data.u0[data.domain.face(0,0,k)];
++    experiment_inflow_v[k]=data.v0[data.domain.face(0,0,k)];
++  }
+   capture("inflow");
+   if(trace_recorder)trace_recorder->frame("inflow");
+   stage_progress("inflow");
+@@ -354,6 +360,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
+   },trace_recorder?std::function<void(const char *,int)>{[&](const char *name,int building) {
+     trace_recorder->frame(name,building);
+   }}:std::function<void(const char *,int)>{});
++  if (dtcc_qes::experimentValue("QES_EXP_DOWNWASH", 0.0) >= 1.0) data.applyDownwash(experiment_inflow_u, experiment_inflow_v);
+   if (!data.wakeDeficitU.empty()) result.wake = wake_fields(data);
+   if(experiment) {
+     auto& out=*result.experiment;
+@@ -420,6 +427,22 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
+       progress_phase("finalization");
+       workspace.finalize(solver::FaceDestination(data),
+                          solver::CenteredDestination{result.velocity,result.cell_flags},&mass);
++      if (result.wake && !data.downwashWeight.empty() && dtcc_qes::experimentValue("QES_EXP_DOWNWASH", 0.0) == 3.0) {
++        // Experiment (part D, mode 3): the turbulent share of the tall-building zone, from the solved mean flow.
++        const double gamma = dtcc_qes::experimentValue("QES_EXP_DW_GAMMA", 0.8);
++        const double share = (1.0 - gamma * gamma) / (2.0 * gamma * gamma);
++        const auto &d = data.domain;
++        const int cx = d.nx() - 1, cy = d.ny() - 1, cz = d.nz() - 2;
++        for (int k = 1; k <= cz; ++k)
++          for (int j = 0; j < cy; ++j)
++            for (int i = 0; i < cx; ++i) {
++              const double w = 0.5 * (data.downwashWeight[d.face(i, j, k)] + data.downwashWeight[d.face(i + 1, j, k)]);
++              if (w <= 0) continue;
++              const auto c = (std::size_t(k - 1) * cy + j) * cx + i;
++              const float *v = &result.velocity[3 * c];
++              result.wake->tke[c] += float(w * share * (double(v[0]) * v[0] + double(v[1]) * v[1] + double(v[2]) * v[2]));
++            }
++      }
+       if (const auto report = workspace.estimate_report())
+         result.stop_estimate = stop_estimate_data(*report,options.stop_rule,workspace.termination());
+       stage_progress("projection");
+diff --git a/src/qes_core/winds/Downwash.cpp b/src/qes_core/winds/Downwash.cpp
+new file mode 100644
+index 0000000..3ef1b59
+--- /dev/null
++++ b/src/qes_core/winds/Downwash.cpp
+@@ -0,0 +1,199 @@
++// Experiment (ACCURACY_IMPROVEMENT_PLAN.md, part D; branch exp/accuracy-prototypes only).
++// A zone around a building that is much taller than its neighbours: faster air near the ground beside the
++// building (corner streams) and a reversed flow in front of it (standing vortex).
++//
++// Constants, fixed before any run:
++// - Speed ratios to the undisturbed speed at the same height, against building height: Reiter (2010),
++//   Environment and Planning B 37, Fig. 5 (corner) and Fig. 7 (front vortex).
++// - Eligibility: weight 0 at a height ratio H/h of 1.5, 1 at 2.5 (smoothstep); h is the area-weighted mean roof
++//   height of the other buildings within 2 H; no neighbour gives weight 0.
++// - Reach: 0.75 H from the walls, cosine decay. Height: full weight up to 0.25 H, zero at 0.5 H.
++// - Sector: the angle theta from the upwind direction about the centroid. Ratio from the vortex value at 0 to the
++//   corner value at 90 degrees; the zone fades out between 90 and 150 degrees, so the near wake is not touched.
++#include "WINDSGeneralData.h"
++#include "PolyBuilding.h"
++#include "../dtcc/api/experiment.h"
++
++#include <algorithm>
++#include <cmath>
++#include <vector>
++
++namespace {
++const double kPi = 3.14159265358979323846;
++const double kCornerH[] = { 0, 12, 24, 36, 48, 72, 96, 192 }, kCornerR[] = { 1.0, 1.58, 1.68, 1.8, 1.94, 2.38, 2.74, 3.3 };
++const double kVortexH[] = { 24, 36, 48, 72, 96, 192 }, kVortexR[] = { 0.12, 0.28, 0.58, 1.2, 1.36, 1.4 };
++
++double interpolate(const double *x, const double *y, int n, double at)
++{
++  if (at <= x[0]) return y[0];
++  for (int i = 1; i < n; i++)
++    if (at <= x[i]) return y[i - 1] + (y[i] - y[i - 1]) * (at - x[i - 1]) / (x[i] - x[i - 1]);
++  return y[n - 1];
++}
++
++double smoothstep(double t)
++{
++  t = std::clamp(t, 0.0, 1.0);
++  return t * t * (3.0 - 2.0 * t);
++}
++
++struct Footprint
++{
++  std::vector<double> x, y;// closed ring: last vertex repeats the first
++  double area = 0, roof = 0, height = 0, base = 0, cx = 0, cy = 0;
++
++  double distance(double px, double py) const// 0 inside
++  {
++    bool inside = false;
++    double best = 1e30;
++    for (std::size_t i = 0; i + 1 < x.size(); i++) {
++      const double ax = x[i], ay = y[i], bx = x[i + 1], by = y[i + 1];
++      if ((ay > py) != (by > py) && px < (bx - ax) * (py - ay) / (by - ay) + ax) inside = !inside;
++      const double ex = bx - ax, ey = by - ay, len2 = ex * ex + ey * ey;
++      const double t = len2 > 0 ? std::clamp(((px - ax) * ex + (py - ay) * ey) / len2, 0.0, 1.0) : 0.0;
++      best = std::min(best, std::hypot(px - ax - t * ex, py - ay - t * ey));
++    }
++    return inside ? 0.0 : best;
++  }
++};
++}// namespace
++
++void WINDSGeneralData::applyDownwash(const std::vector<float> &inflow_u, const std::vector<float> &inflow_v)
++{
++  // The QES_EXP_DW_* values exist for the sensitivity runs (D5) only; unset gives the frozen constants.
++  const double ratio_low = dtcc_qes::experimentValue("QES_EXP_DW_RATIO_LOW", 1.5), ratio_high = dtcc_qes::experimentValue("QES_EXP_DW_RATIO_HIGH", 2.5);
++  const double reach_factor = dtcc_qes::experimentValue("QES_EXP_DW_REACH", 0.75), full_height = 0.25, top_height = 0.5;
++  const double ratio_scale = dtcc_qes::experimentValue("QES_EXP_DW_SCALE", 1.0);
++  auto [nx, ny, nz] = domain.getDomainCellNum();
++  const double dx = domain.dx(), dy = domain.dy();
++  std::vector<Footprint> prints;
++  for (auto *building : allBuildingsV) {
++    Footprint p;
++    for (const auto &v : building->polygonVertices) {
++      p.x.push_back(v.x_poly);
++      p.y.push_back(v.y_poly);
++    }
++    if (p.x.size() < 4) continue;
++    for (std::size_t i = 0; i + 1 < p.x.size(); i++) p.area += 0.5 * (p.x[i] * p.y[i + 1] - p.x[i + 1] * p.y[i]);
++    p.area = std::abs(p.area);
++    p.base = building->base_height;
++    p.height = building->H;
++    p.roof = p.base + p.height;
++    p.cx = building->building_cent_x;
++    p.cy = building->building_cent_y;
++    prints.push_back(std::move(p));
++  }
++  const bool has_wake = !wakeDeficitU.empty();
++  // Mode 3 (2026-11-15): the target is a scalar speed. A share gamma of it goes to the mean flow; the rest is
++  // added as turbulence after the solve (wind_runner.cpp), k = W (1 - gamma^2) / (2 gamma^2) |U|^2.
++  const double gamma = dtcc_qes::experimentValue("QES_EXP_DOWNWASH", 0.0) == 3.0 ? dtcc_qes::experimentValue("QES_EXP_DW_GAMMA", 0.8) : 1.0;
++  downwashWeight.assign(u0.size(), 0.0f);
++  // Revision (2026-11-15): mode 2 keeps the direction of the existing field and moves only its speed toward
++  // the target; mode 1 imposes the tangential and reversed directions.
++  const bool magnitude_only = dtcc_qes::experimentValue("QES_EXP_DOWNWASH", 0.0) == 2.0;
++  const std::vector<float> before_u = magnitude_only ? u0 : std::vector<float>{}, before_v = magnitude_only ? v0 : std::vector<float>{};
++  auto centre_speed = [&](int i, int j, int k) {
++    const long f = domain.face(i, j, k);
++    return std::hypot(0.5 * (before_u[f] + before_u[domain.face(i + 1, j, k)]), 0.5 * (before_v[f] + before_v[domain.face(i, j + 1, k)]));
++  };
++  auto scaled = [](double value, double local, double target, double w) {
++    const double factor = target / std::max(local, 0.2 * target);// at most a factor 5
++    return value * (1.0 + w * (factor - 1.0));
++  };
++  for (std::size_t n = 0; n < prints.size(); n++) {
++    const Footprint &tower = prints[n];
++    const double H = tower.roof;
++    if (tower.base > 0 || H <= 0) continue;
++    double weighted = 0, total = 0;
++    for (std::size_t m = 0; m < prints.size(); m++) {
++      if (m == n) continue;
++      const Footprint &other = prints[m];
++      double gap = 1e30;
++      for (std::size_t i = 0; i + 1 < other.x.size(); i++) gap = std::min(gap, tower.distance(other.x[i], other.y[i]));
++      for (std::size_t i = 0; i + 1 < tower.x.size(); i++) gap = std::min(gap, other.distance(tower.x[i], tower.y[i]));
++      if (gap > 2.0 * H) continue;
++      weighted += other.area * other.roof;
++      total += other.area;
++    }
++    if (total <= 0) continue;// isolated: inactive
++    const double eligibility = smoothstep((H / (weighted / total) - ratio_low) / (ratio_high - ratio_low));
++    if (eligibility <= 0) continue;
++    const double corner = ratio_scale * interpolate(kCornerH, kCornerR, 8, H), vortex = ratio_scale * interpolate(kVortexH, kVortexR, 6, H);
++    const double reach = reach_factor * H;
++    // incident direction: the inflow at three quarters of the height
++    int k_ref = 1;
++    for (int k = 1; k < nz - 1; k++)
++      if (std::abs(domain.z[k] - 0.75 * H) < std::abs(domain.z[k_ref] - 0.75 * H)) k_ref = k;
++    const double ref = std::hypot(inflow_u[k_ref], inflow_v[k_ref]);
++    if (!(ref > 0)) continue;
++    const double fx = inflow_u[k_ref] / ref, fy = inflow_v[k_ref] / ref;
++    double x0 = 1e30, x1 = -1e30, y0 = 1e30, y1 = -1e30;
++    for (std::size_t i = 0; i < tower.x.size(); i++) {
++      x0 = std::min(x0, tower.x[i]); x1 = std::max(x1, tower.x[i]);
++      y0 = std::min(y0, tower.y[i]); y1 = std::max(y1, tower.y[i]);
++    }
++    const int i0 = std::max(1, int((x0 - reach) / dx)), i1 = std::min(nx - 2, int((x1 + reach) / dx) + 1);
++    const int j0 = std::max(1, int((y0 - reach) / dy)), j1 = std::min(ny - 2, int((y1 + reach) / dy) + 1);
++    // weight and target unit vector at a point; returns the horizontal weight (0 outside the zone)
++    auto zone = [&](double px, double py, double &ratio, double &tx, double &ty) {
++      const double d = tower.distance(px, py);
++      if (d <= 0 || d >= reach) return 0.0;
++      const double rx = px - tower.cx, ry = py - tower.cy, r = std::hypot(rx, ry);
++      if (!(r > 0)) return 0.0;
++      const double along = rx * fx + ry * fy, cross = rx * fy - ry * fx;
++      const double theta = std::atan2(std::abs(cross), -along);// 0 upwind, pi downwind
++      double angular = 1.0;
++      if (theta > 0.5 * kPi) {
++        const double s = (theta - 0.5 * kPi) / (kPi / 3.0);
++        if (s >= 1.0) return 0.0;
++        angular = std::pow(std::cos(0.5 * kPi * s), 2.0);
++      }
++      const double sine = std::sin(std::min(theta, 0.5 * kPi));
++      ratio = vortex + (corner - vortex) * sine * sine;
++      // tangent around the building with a downstream component; reversed flow on the upwind axis
++      double px_t = -ry / r, py_t = rx / r;
++      if (px_t * fx + py_t * fy < 0) { px_t = -px_t; py_t = -py_t; }
++      const double blend = smoothstep(theta / (0.25 * kPi));
++      tx = blend * px_t - (1.0 - blend) * fx;
++      ty = blend * py_t - (1.0 - blend) * fy;
++      const double norm = std::hypot(tx, ty);
++      if (!(norm > 0)) return 0.0;
++      tx /= norm;
++      ty /= norm;
++      return 0.5 * (1.0 + std::cos(kPi * d / reach)) * angular;
++    };
++    auto solid = [&](int i, int j, int k) {
++      const auto flag = icellflag[domain.cell(i, j, k)];
++      return flag == 0 || flag == 2;
++    };
++    for (int k = 1; k < nz - 1; k++) {
++      const double z = domain.z[k];
++      if (z >= top_height * H) break;
++      const double vertical = z <= full_height * H ? 1.0 : smoothstep((top_height * H - z) / ((top_height - full_height) * H));
++      const double speed = std::hypot(inflow_u[k], inflow_v[k]);
++      for (int j = j0; j <= j1; j++)
++        for (int i = i0; i <= i1; i++) {
++          const long f = domain.face(i, j, k);
++          double ratio = 0, tx = 0, ty = 0;
++          if (!solid(i, j, k) && !solid(i - 1, j, k) && !(has_wake && (wakeCavity[f] & 1))) {
++            const double w = eligibility * vertical * zone(i * dx, (j + 0.5) * dy, ratio, tx, ty);
++            if (w > 0) {
++              if (magnitude_only) u0[f] = float(scaled(before_u[f], 0.5 * (centre_speed(i - 1, j, k) + centre_speed(i, j, k)), ratio * speed, w));
++              else u0[f] += float(w * (gamma * ratio * speed * tx - u0[f]));
++              downwashWeight[f] = std::max(downwashWeight[f], float(w));
++              if (has_wake) wakeDeficitU[f] *= float(1.0 - w);
++            }
++          }
++          if (!solid(i, j, k) && !solid(i, j - 1, k) && !(has_wake && (wakeCavity[f] & 2))) {
++            const double w = eligibility * vertical * zone((i + 0.5) * dx, j * dy, ratio, tx, ty);
++            if (w > 0) {
++              if (magnitude_only) v0[f] = float(scaled(before_v[f], 0.5 * (centre_speed(i, j - 1, k) + centre_speed(i, j, k)), ratio * speed, w));
++              else v0[f] += float(w * (gamma * ratio * speed * ty - v0[f]));
++              if (has_wake) wakeDeficitV[f] *= float(1.0 - w);
++            }
++          }
++        }
++    }
++  }
++  wall->setVelocityZero(this);
++}
+diff --git a/src/qes_core/winds/Sidewall.cpp b/src/qes_core/winds/Sidewall.cpp
+index ab2c641..f5996d7 100644
+--- a/src/qes_core/winds/Sidewall.cpp
++++ b/src/qes_core/winds/Sidewall.cpp
+@@ -31,6 +31,8 @@
+ /** Sidewall.cpp */
+ 
+ #include "PolyBuilding.h"
++#include "../dtcc/api/experiment.h"
++#include <unordered_map>
+ 
+ // These take care of the circular reference
+ #include "WINDSGeneralData.h"
+@@ -58,6 +60,21 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
+   int side_wall_flag = 0;// If 1, indicates that there are faces that are nominally parallel with the wind
+   std::vector<float> face_rel_dir; /**< Face relative angle to the perpendicular direction of the local wind */
+   face_rel_dir.resize(polygonVertices.size(), 0.0);
++  // Experiment (part M): weights that fade with angle instead of the +/-10 degree switches.
++  auto parallelWeight = [&](size_t f) {
++    const float a = abs(face_rel_dir[f]);
++    return dtcc_qes::angleFadeWeight(abs(a - float(0.5 * M_PI)), tol, a >= 0.5 * M_PI - tol && a <= 0.5 * M_PI + tol);
++  };
++  auto facingWeight = [&](size_t f) {
++    const float a = abs(face_rel_dir[f]);
++    return dtcc_qes::angleFadeWeight(float(M_PI) - a, tol, a >= M_PI - tol);
++  };
++  std::unordered_map<long, float> base_u, base_v;// values before this building's sidewall zone, per face
++  auto faded = [](std::vector<float> &field, std::unordered_map<long, float> &base, long face, float value, float weight) {
++    if (weight >= 1.0f) { field[face] = value; return; }
++    const float before = base.emplace(face, field[face]).first->second;
++    field[face] = before + weight * (value - before);
++  };
+   float R_scale_side; /**< Vortex size scaling factor */
+   float R_cx_side; /**< Downwind length of the half-ellipse that defines the vortex recirculation region */
+   float vd; /**< Half of lateral width of the elliptical recirculation region */
+@@ -103,7 +120,7 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
+     if (face_rel_dir[id] > M_PI) {
+       face_rel_dir[id] -= 2 * M_PI;
+     }
+-    if (abs(face_rel_dir[id]) >= 0.5 * M_PI - tol && abs(face_rel_dir[id]) <= 0.5 * M_PI + tol) {
++    if (parallelWeight(id) > 0.0f) {
+       side_wall_flag = 1;// Indicates that there are faces that are nominally parallel with the wind
+     }
+   }
+@@ -122,13 +139,18 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
+     for (size_t id = 0; id < polygonVertices.size() - 1; id++) {
+     if (!isFace(id)) continue;
+       // +/-10 degree perpendicular to the local wind
+-      if (abs(face_rel_dir[id]) >= 0.5 * M_PI - tol && abs(face_rel_dir[id]) <= 0.5 * M_PI + tol) {
++      if (parallelWeight(id) > 0.0f) {
++        float fade_weight = parallelWeight(id);
++        const bool released_face = abs(face_rel_dir[id]) >= 0.5 * M_PI - tol && abs(face_rel_dir[id]) <= 0.5 * M_PI + tol;
++        bool released_neighbour = true;
+         right_flag = 0;
+         left_flag = 0;
+         if (face_rel_dir[id] > 0.0) {
+           index_previous = previousFace(id);
+           // Finding the left face eligible for the parameterization
+-          if (abs(face_rel_dir[index_previous]) >= M_PI - tol) {
++          if (facingWeight(index_previous) > 0.0f) {
++            fade_weight *= facingWeight(index_previous);
++            released_neighbour = abs(face_rel_dir[index_previous]) >= M_PI - tol;
+             left_flag = 1;
+             x_start_left = polygonVertices[id].x_poly;
+             y_start_left = polygonVertices[id].y_poly;
+@@ -140,7 +162,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
+         } else {
+           index_next = nextFace(id);
+           // Finding the right face eligible for the parameterization
+-          if (abs(face_rel_dir[index_next]) >= M_PI - tol) {
++          if (facingWeight(index_next) > 0.0f) {
++            fade_weight *= facingWeight(index_next);
++            released_neighbour = abs(face_rel_dir[index_next]) >= M_PI - tol;
+             right_flag = 1;
+             x_start_right = polygonVertices[id + 1].x_poly;
+             y_start_right = polygonVertices[id + 1].y_poly;
+@@ -220,9 +244,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
+                     }
+                     internal_BL_width = y_pref * sqrt(xp_u);
+                     if (abs(yp_u) <= shell_width) {
+-                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) WGD->u0[icell_face] = -u0_right * abs((shell_width - abs(yp_u)) / vd);
++                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) faded(WGD->u0, base_u, icell_face, -u0_right * abs((shell_width - abs(yp_u)) / vd), fade_weight);
+                     } else if (abs(yp_u) <= internal_BL_width) {
+-                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) WGD->u0[icell_face] = u0_right * log((abs(yp_u) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
++                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) faded(WGD->u0, base_u, icell_face, u0_right * log((abs(yp_u) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0), fade_weight);
+                     }
+ 
+                     x_v = (i + 0.5) * dx;// x location of v component
+@@ -240,9 +264,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
+                     }
+                     internal_BL_width = y_pref * sqrt(xp_v);
+                     if (abs(yp_v) <= shell_width) {
+-                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) WGD->v0[icell_face] = -v0_right * abs((shell_width - abs(yp_v)) / vd);
++                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) faded(WGD->v0, base_v, icell_face, -v0_right * abs((shell_width - abs(yp_v)) / vd), fade_weight);
+                     } else if (abs(yp_v) <= internal_BL_width) {
+-                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) WGD->v0[icell_face] = v0_right * log((abs(yp_v) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
++                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) faded(WGD->v0, base_v, icell_face, v0_right * log((abs(yp_v) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0), fade_weight);
+                     }
+                     // x location of cell center in local coordinates
+                     xp_c = (x_v - x_start_right) * cos(face_dir) + (y_u - y_start_right) * sin(face_dir);
+@@ -252,7 +276,7 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
+                     shell_width_calc = 1 - pow((0.5 * R_cx_side - xp_c) / (0.5 * R_cx_side), 2.0);
+                     internal_BL_width = y_pref * sqrt(xp_c);
+                     if ((abs(yp_c) <= shell_width || abs(yp_c) <= internal_BL_width) && (WGD->icellflag[icell_cent] != 7) && (WGD->icellflag[icell_cent] != 8)) {
+-                      WGD->icellflag[icell_cent] = 9;// Cell marked as sidewall cell
++                      if (released_face && released_neighbour) WGD->icellflag[icell_cent] = 9;// Cell marked as sidewall cell
+                     }
+                   }
+                 }
+@@ -319,9 +343,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
+                     }
+                     internal_BL_width = y_pref * sqrt(xp_u);
+                     if (abs(yp_u) <= shell_width) {
+-                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) WGD->u0[icell_face] = -u0_left * abs((shell_width - abs(yp_u)) / vd);
++                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) faded(WGD->u0, base_u, icell_face, -u0_left * abs((shell_width - abs(yp_u)) / vd), fade_weight);
+                     } else if (abs(yp_u) <= internal_BL_width) {
+-                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) WGD->u0[icell_face] = u0_left * log((abs(yp_u) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
++                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) faded(WGD->u0, base_u, icell_face, u0_left * log((abs(yp_u) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0), fade_weight);
+                     }
+ 
+                     x_v = (i + 0.5) * dx;// x location of v component
+@@ -339,9 +363,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
+                     }
+                     internal_BL_width = y_pref * sqrt(xp_v);
+                     if (abs(yp_v) <= shell_width) {
+-                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) WGD->v0[icell_face] = -v0_left * abs((shell_width - abs(yp_v)) / vd);
++                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) faded(WGD->v0, base_v, icell_face, -v0_left * abs((shell_width - abs(yp_v)) / vd), fade_weight);
+                     } else if (abs(yp_v) <= internal_BL_width) {
+-                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) WGD->v0[icell_face] = v0_left * log((abs(yp_v) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
++                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) faded(WGD->v0, base_v, icell_face, v0_left * log((abs(yp_v) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0), fade_weight);
+                     }
+                     // x location of cell center in local coordinates
+                     xp_c = (x_v - x_start_left) * cos(face_dir) + (y_u - y_start_left) * sin(face_dir);
+@@ -351,7 +375,7 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
+                     shell_width_calc = 1 - pow((0.5 * R_cx_side - xp_c) / (0.5 * R_cx_side), 2.0);
+                     internal_BL_width = y_pref * sqrt(xp_c);
+                     if ((abs(yp_c) <= shell_width || abs(yp_c) <= internal_BL_width) && (WGD->icellflag[icell_cent] != 7) && (WGD->icellflag[icell_cent] != 8)) {
+-                      WGD->icellflag[icell_cent] = 9;// Cell marked as sidewall cell
++                      if (released_face && released_neighbour) WGD->icellflag[icell_cent] = 9;// Cell marked as sidewall cell
+                     }
+                   }
+                 }
+diff --git a/src/qes_core/winds/SpreadingWake.cpp b/src/qes_core/winds/SpreadingWake.cpp
+index 40813e2..104efbc 100644
+--- a/src/qes_core/winds/SpreadingWake.cpp
++++ b/src/qes_core/winds/SpreadingWake.cpp
+@@ -1,4 +1,5 @@
+ #include "SpreadingWake.h"
++#include "../dtcc/api/experiment.h"
+ 
+ #include <algorithm>
+ #include <cmath>
+@@ -8,7 +9,7 @@
+ // rounding: float extents and angles, double arithmetic.
+ 
+ SpreadingWake::SpreadingWake(const SpreadingWakeFootprint &footprint, const qes::Domain &domain, double spread)
+-  : domain_(domain), spread_(spread),
++  : domain_(domain), spread_(dtcc_qes::experimentValue("QES_EXP_WAKE_SPREAD", spread)),
+     x1_(footprint.x1), x2_(footprint.x2), y1_(footprint.y1), y2_(footprint.y2),
+     centre_x_(footprint.centre_x), centre_y_(footprint.centre_y),
+     cos_(std::cos(footprint.direction)), sin_(std::sin(footprint.direction)),
+@@ -51,6 +52,9 @@ SpreadingWake::SpreadingWake(const SpreadingWakeFootprint &footprint, const qes:
+   // Reach: march downstream until the centreline value falls below the cut at
+   // the ground and at mid-height; the taper starts where it first falls below
+   // twice the cut.
++  // Experiment (part S): the cut that ends the reach; the taper starts at twice the cut.
++  const double reach_cut = dtcc_qes::experimentValue("QES_EXP_WAKE_REACH_CUT", SpreadingWakeModel::reach_cut);
++  const double taper_start = reach_cut * (SpreadingWakeModel::taper_start / SpreadingWakeModel::reach_cut);
+   const double reach_max = std::hypot(nx * dx, ny * dy);
+   const double mid_y = 0.5 * (y1_ + y2_);
+   const double mid_z = std::min(0.5 * (base_ + top_), top_);
+@@ -58,8 +62,8 @@ SpreadingWake::SpreadingWake(const SpreadingWakeFootprint &footprint, const qes:
+     const double sigma = std::max(spread_ * (reach_ - x1_), sigma_min_);
+     const double at_mid = across(mid_y, sigma) * vertical(mid_z, sigma);
+     const double at_ground = across(mid_y, sigma) * vertical(0.0, sigma);
+-    if (at_mid < SpreadingWakeModel::reach_cut && at_ground < SpreadingWakeModel::reach_cut) break;
+-    if (taper_from_ < 0 && at_mid < SpreadingWakeModel::taper_start && at_ground < SpreadingWakeModel::taper_start)
++    if (at_mid < reach_cut && at_ground < reach_cut) break;
++    if (taper_from_ < 0 && at_mid < taper_start && at_ground < taper_start)
+       taper_from_ = reach_;
+   }
+ 
+@@ -140,6 +144,11 @@ void SpreadingWake::accumulate(double roof_speed2, std::vector<float> &deficit_u
+ {
+   if (!active_) return;
+   const double dx = domain_.dx(), dy = domain_.dy();
++  // Experiment (part S): 0 largest deficit (released), 1 root sum of squares. The roof-speed field keeps the maximum.
++  const bool rss = dtcc_qes::experimentValue("QES_EXP_WAKE_RULE", 0.0) == 1.0;
++  auto combine = [rss](float before, float g) {
++    return rss ? std::min(1.0f, std::sqrt(before * before + g * g)) : std::max(before, g);
++  };
+ #pragma omp parallel for schedule(dynamic, 4)
+   for (int j = j0_; j <= j1_; j++) {
+     for (int i = i0_; i <= i1_; i++) {
+@@ -156,11 +165,11 @@ void SpreadingWake::accumulate(double roof_speed2, std::vector<float> &deficit_u
+         const long f = domain_.face(i, j, k);
+         if (z <= top_u) {
+           const double g = std::min(gu * vertical(z, sigma_u), 1.0);
+-          deficit_u[f] = std::max(deficit_u[f], float(g));
++          deficit_u[f] = combine(deficit_u[f], float(g));
+           roof_speed2_u[f] = std::max(roof_speed2_u[f], float(roof_speed2 * g));
+         }
+         if (z <= top_v)
+-          deficit_v[f] = std::max(deficit_v[f], float(std::min(gv * vertical(z, sigma_v), 1.0)));
++          deficit_v[f] = combine(deficit_v[f], float(std::min(gv * vertical(z, sigma_v), 1.0)));
+       }
+     }
+   }
+diff --git a/src/qes_core/winds/UpwindCavity.cpp b/src/qes_core/winds/UpwindCavity.cpp
+index c727966..1eefa1f 100644
+--- a/src/qes_core/winds/UpwindCavity.cpp
++++ b/src/qes_core/winds/UpwindCavity.cpp
+@@ -31,6 +31,7 @@
+ /** @file UpwindCavity.cpp */
+ 
+ #include "PolyBuilding.h"
++#include "../dtcc/api/experiment.h"
+ #include "CavityFrame.h"
+ 
+ // These take care of the circular reference
+@@ -108,7 +109,9 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
+       upwind_rel_dir[id] -= 2 * M_PI;
+     }
+ 
+-    if (abs(upwind_rel_dir[id]) > M_PI - tol) {
++    const float fade_weight = dtcc_qes::angleFadeWeight(float(M_PI) - abs(upwind_rel_dir[id]), tol,
++                                                        abs(upwind_rel_dir[id]) > M_PI - tol);
++    if (fade_weight > 0.0f) {
+       perpendicular_dir[id] = atan2(polygonVertices[id + 1].y_poly - polygonVertices[id].y_poly,
+                                     polygonVertices[id + 1].x_poly - polygonVertices[id].x_poly)
+                               + 0.5 * M_PI;
+@@ -171,6 +174,7 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
+               rz_end = length_factor * x_ellipse_u;
+               icell_cent = WGD->domain.cell(i, j, k);
+               icell_face = WGD->domain.face(i, j, k);
++              const float before_u = WGD->u0[icell_face];
+               if (WGD->parameterizations.upwindCavityFlag == 1)// Rockle parameterization
+               {
+                 if ((x_u - x_intersect_u >= x_ellipse_u) && (x_u - x_intersect_u <= 0.1 * dxy)
+@@ -202,6 +206,7 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
+                   WGD->u0[icell_face] = u_rotation * cos(-effective_gamma[id]) + v_rotation * sin(-effective_gamma[id]);
+                 }
+               }
++              if (fade_weight < 1.0f) WGD->u0[icell_face] = before_u + fade_weight * (WGD->u0[icell_face] - before_u);
+             }
+             // v velocity
+             if (faceExposed(WGD,id,(i + 0.5) * dx,j * dy,k) && (abs(y_v) <= abs(yf2[id])) && (height_factor * vortex_height > z_front)) {
+@@ -211,6 +216,7 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
+               rz_end = length_factor * x_ellipse_v;
+               icell_cent = WGD->domain.cell(i, j, k);
+               icell_face = WGD->domain.face(i, j, k);
++              const float before_v = WGD->v0[icell_face];
+               if (WGD->parameterizations.upwindCavityFlag == 1)// Rockle parameterization
+               {
+                 if ((x_v - x_intersect_v >= x_ellipse_v) && (x_v - x_intersect_v <= 0.1 * dxy)
+@@ -242,6 +248,7 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
+                   WGD->v0[icell_face] = -u_rotation * sin(-effective_gamma[id]) + v_rotation * cos(-effective_gamma[id]);
+                 }
+               }
++              if (fade_weight < 1.0f) WGD->v0[icell_face] = before_v + fade_weight * (WGD->v0[icell_face] - before_v);
+             }
+ 
+             // w velocity
+@@ -250,6 +257,8 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
+               x_ellipse_w = -Lf_face[counter] * sqrt((1 - pow(y_w / abs(yf2[id]), 2.0)) * (1 - pow(z_front / (height_factor * vortex_height), 2.0)));
+               icell_cent = WGD->domain.cell(i, j, k);
+               icell_face = WGD->domain.face(i, j, k);
++              const float before_w = WGD->w0[icell_face];
++              const auto before_flag = WGD->icellflag[icell_cent];
+               if (WGD->parameterizations.upwindCavityFlag == 1)// Rockle parameterization
+               {
+                 if ((x_w - x_intersect_w >= x_ellipse_w) && (x_w - x_intersect_w <= 0.1 * dxy)
+@@ -279,6 +288,11 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
+                   }
+                 }
+               }
++              if (fade_weight < 1.0f) {
++                WGD->w0[icell_face] = before_w + fade_weight * (WGD->w0[icell_face] - before_w);
++                // the flag keeps the released threshold, so later zones see the same cells
++                if (!(abs(upwind_rel_dir[id]) > M_PI - tol)) WGD->icellflag[icell_cent] = before_flag;
++              }
+             }
+           }
+         }
+diff --git a/src/qes_core/winds/WINDSGeneralData.h b/src/qes_core/winds/WINDSGeneralData.h
+index 655c6da..f0ef660 100644
+--- a/src/qes_core/winds/WINDSGeneralData.h
++++ b/src/qes_core/winds/WINDSGeneralData.h
+@@ -192,6 +192,9 @@ public:
+   std::vector<std::uint8_t> wakeCavity; /**< faces a cavity wrote: bit 0 u, bit 1 v */
+   /** Wake code 3: shelter, spreading far wake and cavities, then the deficit on non-cavity faces. */
+   void applySpreadingWake(const std::function<void(const char *,int)> &building_observer);
++  /** Experiment (part D): tall-building zone, written after every parameterization. */
++  void applyDownwash(const std::vector<float> &inflow_u, const std::vector<float> &inflow_v);
++  std::vector<float> downwashWeight; /**< experiment: largest zone weight on u faces (empty when the zone is off) */
+ 
+ protected:
+ 

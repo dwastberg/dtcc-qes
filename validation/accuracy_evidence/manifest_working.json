@@ -1,0 +1,2864 @@
+{
+ "fingerprint": "0836092fc1c5f542d59414100bfae50406f12786dc8a9ee58f352f069afc1ded",
+ "solver": {
+  "stop": "velocity",
+  "relaxation": "grid",
+  "max_iterations": 20000
+ },
+ "seed": 20261115,
+ "replicates": 2000,
+ "runs": [
+  {
+   "name": "A-0deg-r1-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "2abab36709c8a866",
+   "case": "A",
+   "state": "-",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 625,
+   "converged": true
+  },
+  {
+   "name": "A-0deg-r1-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "3804d84eac10c65e",
+   "case": "A",
+   "state": "-",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 825,
+   "converged": true
+  },
+  {
+   "name": "B-0deg-r1-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "dacd6a1cf059d38f",
+   "case": "B",
+   "state": "-",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 950,
+   "converged": true
+  },
+  {
+   "name": "B-0deg-r1-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "8881fdf300f6111b",
+   "case": "B",
+   "state": "-",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 1500,
+   "converged": true
+  },
+  {
+   "name": "C-0H-0deg-r1-measured-float32-it20000-pad120-top160-wgrid-velocity1e-03",
+   "key": "b8f7caa63fa168cd",
+   "case": "C",
+   "state": "0H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 725,
+   "converged": true
+  },
+  {
+   "name": "C-0H-22.5deg-r1-measured-float32-it20000-pad120-top160-wgrid-velocity1e-03",
+   "key": "8fb8ab4786f3daf8",
+   "case": "C",
+   "state": "0H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 750,
+   "converged": true
+  },
+  {
+   "name": "C-0H-45deg-r1-measured-float32-it20000-pad120-top160-wgrid-velocity1e-03",
+   "key": "c96e3ce8d23fe05d",
+   "case": "C",
+   "state": "0H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 800,
+   "converged": true
+  },
+  {
+   "name": "C-0H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+   "key": "18c64576e81c736f",
+   "case": "C",
+   "state": "0H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 14525,
+   "converged": true
+  },
+  {
+   "name": "C-0H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+   "key": "20b3498fec9539b2",
+   "case": "C",
+   "state": "0H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 20000,
+   "converged": false
+  },
+  {
+   "name": "C-0H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+   "key": "bc13998b1d7269da",
+   "case": "C",
+   "state": "0H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 20000,
+   "converged": false
+  },
+  {
+   "name": "C-1H-0deg-r1-measured-float32-it20000-pad120-top160-wgrid-velocity1e-03",
+   "key": "ae71dbcd4811a140",
+   "case": "C",
+   "state": "1H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 750,
+   "converged": true
+  },
+  {
+   "name": "C-1H-22.5deg-r1-measured-float32-it20000-pad120-top160-wgrid-velocity1e-03",
+   "key": "7f63b28f506912d3",
+   "case": "C",
+   "state": "1H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 750,
+   "converged": true
+  },
+  {
+   "name": "C-1H-45deg-r1-measured-float32-it20000-pad120-top160-wgrid-velocity1e-03",
+   "key": "b0087c659077b29d",
+   "case": "C",
+   "state": "1H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 775,
+   "converged": true
+  },
+  {
+   "name": "C-1H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+   "key": "e0628ef07a49bc82",
+   "case": "C",
+   "state": "1H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 20000,
+   "converged": false
+  },
+  {
+   "name": "C-1H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+   "key": "f450b777e584c7f3",
+   "case": "C",
+   "state": "1H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 20000,
+   "converged": false
+  },
+  {
+   "name": "C-1H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+   "key": "2efdea08f74794be",
+   "case": "C",
+   "state": "1H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 20000,
+   "converged": false
+  },
+  {
+   "name": "C-2H-0deg-r1-measured-float32-it20000-pad120-top160-wgrid-velocity1e-03",
+   "key": "785964b8664e3418",
+   "case": "C",
+   "state": "2H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 775,
+   "converged": true
+  },
+  {
+   "name": "C-2H-22.5deg-r1-measured-float32-it20000-pad120-top160-wgrid-velocity1e-03",
+   "key": "bc02fe6789ff0ea8",
+   "case": "C",
+   "state": "2H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 800,
+   "converged": true
+  },
+  {
+   "name": "C-2H-45deg-r1-measured-float32-it20000-pad120-top160-wgrid-velocity1e-03",
+   "key": "c419fec30d0bc03d",
+   "case": "C",
+   "state": "2H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 825,
+   "converged": true
+  },
+  {
+   "name": "C-2H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+   "key": "2833fc135dda2a68",
+   "case": "C",
+   "state": "2H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 20000,
+   "converged": false
+  },
+  {
+   "name": "C-2H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+   "key": "de4934882abd2490",
+   "case": "C",
+   "state": "2H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 20000,
+   "converged": false
+  },
+  {
+   "name": "C-2H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+   "key": "3d15c8ac821e3f6d",
+   "case": "C",
+   "state": "2H",
+   "resolution": 1.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 20000,
+   "converged": false
+  },
+  {
+   "name": "D-0deg-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "fa0efdb0cb2ae191",
+   "case": "D",
+   "state": "-",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 250,
+   "converged": true
+  },
+  {
+   "name": "D-22.5deg-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "6c026b3b71643257",
+   "case": "D",
+   "state": "-",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 250,
+   "converged": true
+  },
+  {
+   "name": "D-45deg-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "36356394842f4eb5",
+   "case": "D",
+   "state": "-",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 250,
+   "converged": true
+  },
+  {
+   "name": "D-0deg-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "8bfc922d76378090",
+   "case": "D",
+   "state": "-",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 325,
+   "converged": true
+  },
+  {
+   "name": "D-22.5deg-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "9b2e188afdd269e4",
+   "case": "D",
+   "state": "-",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 325,
+   "converged": true
+  },
+  {
+   "name": "D-45deg-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "79d0371bf339b5d3",
+   "case": "D",
+   "state": "-",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 325,
+   "converged": true
+  },
+  {
+   "name": "E-before-N-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "815e8879086ddd9c",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-NNE-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "a3d8ab1fb418ee5b",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-NE-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "e8af1e99c54aff09",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-ENE-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "330979cd3416e7e4",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-E-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "ee110fabd5b05c10",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-ESE-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "40cae907998cfbbd",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-SE-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "f155df889813629b",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-SSE-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "247677300559e7f3",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-S-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "b80c19cfabfb0625",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-SSW-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "4106e22200a78cd3",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-SW-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "7dd3fdd0f2f94f85",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-WSW-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "553be88ea7cfbdae",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-W-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "fdf1a365cfcb8b9a",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-WNW-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "ba7e9fca886ac9d0",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-NW-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "73b57c2ca6c9d95b",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-NNW-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "0e83ddccadc46262",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-before-N-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "3a3fcc06ecf91252",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-NNE-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "2f8cd5df10ccdb10",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-NE-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "4b0db91cdbb28c76",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-ENE-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "229d1d1ae0432daf",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-E-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "9158c4a25fd0142c",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-ESE-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "0602053a580b4ae3",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-SE-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "c1521b1da4e2cd1d",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-SSE-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "3d66b7e045ff49fc",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-S-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "3da83ed6b3aa0b5f",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-before-SSW-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "821e953e782f677c",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-SW-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "9c446403879eba27",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-WSW-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "43b8daef726eadf4",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-W-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "34f2f1dee8c63e65",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-WNW-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "760b126261bb53a3",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-NW-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "4fd75d143561f4d9",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-before-NNW-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "cd0179fe203bd4ea",
+   "case": "E",
+   "state": "before",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-after-N-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "52edc36b76e2ca54",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-NNE-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "166e098c82ca1382",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-NE-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "2961f288bf788b46",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-ENE-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "ac22ce7585938301",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-E-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "9b7f44de773ad7bd",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-after-ESE-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "23f04d0bfda12ecf",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 150,
+   "converged": true
+  },
+  {
+   "name": "E-after-SE-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "c6e64ffcb042afed",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-SSE-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "564a1b5972435ffd",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-S-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "1295055a61d0efb7",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-SSW-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "cfad49f3a903107e",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-SW-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "efe470ce001b30f4",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-WSW-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "79127e0017806fba",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-W-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "211d0bbab2fd192f",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-WNW-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "8893e679e1481da3",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-NW-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "cc17e07fb5cf63be",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-NNW-r2-measured-float32-it20000-wgrid-velocity1e-03",
+   "key": "c86900aae7149281",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 175,
+   "converged": true
+  },
+  {
+   "name": "E-after-N-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "8caf6566c5c861ef",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-NNE-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "042b273a4d543ac1",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-NE-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "f5cff94b21311b70",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-ENE-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "e7436f795f12c862",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "4c7a8dab3689a3ace3ad24ca525401ca2c1fdb5f",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-E-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "61d4f3d0ef23852b",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-ESE-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "b7a2ddfa655e1f17",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-SE-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "d0c2b2c4e21a4795",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-SSE-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "96948cce45ba5cb7",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 200,
+   "converged": true
+  },
+  {
+   "name": "E-after-S-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "78aa4045e77a5919",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-SSW-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "51eed5579b00ba74",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-SW-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "780fdc4d87429ac5",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-WSW-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "d8edb243308c0967",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-W-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "9c03f91acb7f1c43",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-WNW-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "7dadb2a0f4847895",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-NW-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "046dca94d2fd6f66",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  },
+  {
+   "name": "E-after-NNW-r2-measured-float32-it20000-wake3-wgrid-velocity1e-03",
+   "key": "3f6a84b455c87a77",
+   "case": "E",
+   "state": "after",
+   "resolution": 2.0,
+   "native": "e76cfe8c28187281cb1df88d1c4300c87485272fc06550f3660cdcab4cbcb0c1",
+   "revision": "c9dd6d58db63fdd9b1dd46d8ab2442dc6662528c",
+   "src_dirty": false,
+   "versions": {
+    "dtcc_qes": "0.1.0b4",
+    "qes": {
+     "version": "v2.3.1",
+     "revision": "dce15d7e3b0a2d2cb0a29898f3882d103f66de71"
+    },
+    "dtcc_core": {
+     "version": "0.9.8dev",
+     "revision": "66c81a296ccea390466d20b2962fd7e33542ea41"
+    },
+    "native_build": {
+     "compiler_id": "AppleClang",
+     "compiler_version": "17.0.0.17000404",
+     "build_type": "Release",
+     "openmp_enabled": true,
+     "fp_contract": "on",
+     "solver_policy_build_supported": false
+    }
+   },
+   "sweeps": 225,
+   "converged": true
+  }
+ ]
+}
