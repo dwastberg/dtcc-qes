@@ -24,7 +24,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from aij import case_ab, case_d, case_e, cityutil, tables  # noqa: E402
+from aij import case_ab, case_c, case_d, case_e, cityutil, tables  # noqa: E402
 
 
 def point_report(city, points, case=None):
@@ -92,6 +92,8 @@ def main(argv=None):
         "aij_e_before_qes": (case_e.build_case_e_qes("before"), points_e),
         "aij_e_after_qes": (case_e.build_case_e_qes("after"), points_e),
     }
+    builds.update({f"aij_c_{state}": (case_c.build_case_c(state), tables.load_points_c())
+                   for state in ("0H", "1H", "2H")})
     summary = dict(case_e_markers=marker_report(points_e))
     for name, (built, points) in builds.items():
         built.city.save(args.output / f"{name}.dtcc")

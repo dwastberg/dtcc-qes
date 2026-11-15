@@ -11,7 +11,7 @@ from typing import NamedTuple
 import numpy as np
 import xlrd
 
-from . import CASE_A_XLS, CASE_B_XLS, CASE_D_XLS, CASE_E_XLS
+from . import CASE_A_XLS, CASE_B_XLS, CASE_C_XLS, CASE_D_XLS, CASE_E_XLS
 from .conventions import AB_DIRECTION, D_ANGLES, D_LABELS, E_LABELS, E_STATES, d_direction, e_direction
 
 U_H = 6.65  # m/s, Case D inflow speed at the tower height (Inflow!C17)
@@ -296,3 +296,39 @@ def load_results_ab(case: str) -> VectorResults:
 def load_points_ab(case: str) -> Points:
     results = load_results_ab(case)
     return Points(results.ids, results.xyz)
+
+
+C_SCALE = 100.0  # model metres -> full-scale metres; 0.02 m probe becomes 2 m
+
+
+def load_inflow_c(path=CASE_C_XLS) -> Inflow:
+    """Inflow!B3:E18: only sigma_u is measured; total k is unavailable."""
+    data = _values(_sheet(path, "Inflow"), range(2, 18), [2, 3, 4])
+    return Inflow("C", data[:, 0] * C_SCALE, data[:, 1], np.full(len(data), np.nan),
+                  dict(height=2.0, speed=float(data[1, 1])))
+
+
+def load_results_c(state: str = "1H", path=CASE_C_XLS) -> Measurements:
+    """120 scalar-speed ratios per direction, normalized at z=0.02 m in the tunnel."""
+    from .conventions import C_ANGLES, C_STATES, c_direction
+    if state not in C_STATES:
+        raise ValueError(f"Case C state must be one of {C_STATES}")
+    book = xlrd.open_workbook(path)
+    blocks = [_values(book.sheet_by_name(f"Results({a:g}_deg)"), range(2, 122), list(range(1, 8)))
+              for a in C_ANGLES]
+    first = blocks[0]
+    for block in blocks[1:]:
+        if not np.array_equal(first[:, :4], block[:, :4]):
+            raise ValueError("Case C point IDs/coordinates differ between directions")
+    ids = first[:, 0].astype(int)
+    if len(np.unique(ids)) != len(ids):
+        raise ValueError("Duplicate Case C point IDs")
+    return Measurements("C", state, "scalar_speed_ratio", "thermistor", ids, first[:, 1:4] * C_SCALE,
+                        tuple(f"{a:g} deg." for a in C_ANGLES), np.array([c_direction(a) for a in C_ANGLES]),
+                        np.column_stack([b[:, 4 + C_STATES.index(state)] for b in blocks]),
+                        load_inflow_c(path).reference)
+
+
+def load_points_c(path=CASE_C_XLS) -> Points:
+    data = load_results_c(path=path)
+    return Points(data.ids, data.xyz)

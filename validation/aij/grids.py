@@ -76,7 +76,7 @@ def vertical_faces(dz: float, top: float, fine_top: float, *, centre: float = PR
 
 def layer_centre(case: str, layer: float) -> float:
     """Height of the centre of the layer the faces are built around: 2 m, or ``layer / 2`` for A and B."""
-    return layer / 2 if case in ROOF_ALIGNED else PROBE_HEIGHT
+    return layer / 2 if case in (*ROOF_ALIGNED, "C") else PROBE_HEIGHT
 
 
 def required_top(heights, clearance: float = 20.0, reference_height: float = 0.0) -> float:

@@ -98,7 +98,7 @@ def execute(specs, output: Path = OUTPUT, *, force=False, jobs=1, in_process=Fal
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--campaign", default="smoke")
-    parser.add_argument("--case", choices=("D", "E"), help="run only this case")
+    parser.add_argument("--case", choices=("A", "B", "C", "D", "E"), help="run only this case")
     parser.add_argument("--output", type=Path, default=OUTPUT)
     parser.add_argument("--force", action="store_true", help="rerun even when a matching record exists")
     parser.add_argument("--in-process", action="store_true", help="run in this process (no peak-memory isolation)")

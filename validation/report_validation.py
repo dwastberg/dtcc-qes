@@ -587,10 +587,20 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--runs", type=Path, default=RUNS)
     parser.add_argument("--output", type=Path, default=OUTPUT)
-    parser.add_argument("--resolution", type=float, default=2.0, help="Case D/E baseline resolution to compare [m]")
-    parser.add_argument("--only", choices=("de", "ab"), help="report only Cases D and E, or only Cases A and B")
+    parser.add_argument("--resolution", type=float, default=None, help="Baseline spacing [m]: C defaults to 1, D/E to 2")
+    parser.add_argument("--only", choices=("de", "ab", "c"), help="report only the selected cases")
     args = parser.parse_args(argv)
     args.output.mkdir(parents=True, exist_ok=True)
+    if args.only == "c":
+        from aij.report_c import report
+        report(args.runs, args.output, args.resolution or 1.0)
+        return
+    if args.only is None:
+        from aij import CASE_C_XLS
+        if CASE_C_XLS.is_file():
+            from aij.report_c import report
+            report(args.runs, args.output, args.resolution or 1.0)
+    args.resolution = args.resolution or 2.0
     summary = grid = phase5 = tuning = isolated = None
     if args.only != "ab":
         numerics_report(args.runs, args.output)

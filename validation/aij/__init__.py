@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = Path(os.environ.get("DTCC_QES_AIJ_DATA", ROOT)).expanduser().resolve()
 CASE_A_XLS = DATA_ROOT / "AIJ_A" / "CaseA(1_1_2).xls"
 CASE_B_XLS = DATA_ROOT / "AIJ_B" / "CaseB(4_4_1).xls"
+CASE_C_XLS = DATA_ROOT / "AIJ_C" / "CaseC(City_blocks).xls"
 CASE_D_DXF = DATA_ROOT / "AIJ_D" / "CaseD(Highrise+Blocks).dxf"
 CASE_D_XLS = DATA_ROOT / "AIJ_D" / "CaseD(Highrise+Blocks).xls"
 CASE_E_DXF = DATA_ROOT / "AIJ_E" / "CaseE(Niigata).dxf"

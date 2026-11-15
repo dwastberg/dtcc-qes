@@ -27,7 +27,7 @@ from dtcc_qes.profiles import LogProfile, MeasuredProfile, PowerLawProfile
 from .tables import Inflow
 
 KINDS = ("measured", "power_law", "log", "canopy")
-FIT_HEIGHT = {"D": 200.0, "E": 100.0, "A": 64.0, "B": 64.0}  # m: power-law and log fits use points up to
+FIT_HEIGHT = {"D": 200.0, "E": 100.0, "A": 64.0, "B": 64.0, "C": 40.0}  # m: power-law and log fits use points up to
 # 2 H (D, A, B) and 0.4 Z_R (E)
 TAIL_POINTS = 4  # lowest points used for the roughness of the measured profile's log tail
 CANOPY_LOWEST = 0.1  # m: lowest tabulated canopy point, below every cell centre down to 0.25 m layers

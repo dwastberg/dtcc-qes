@@ -82,6 +82,8 @@ def ab_baseline(resolution: float = AB_RESOLUTION, **options) -> list[RunSpec]:
 
 def campaign(name: str) -> list[RunSpec]:
     """The run matrix of a named campaign."""
+    if name.startswith("c_"):
+        return c_campaign(name)
     if name.startswith("ab_"):
         return ab_campaign(name)
     if name == "smoke":
@@ -303,4 +305,45 @@ def ab_campaign(name: str) -> list[RunSpec]:
         return [spec for r in AB_GRID if r != AB_RESOLUTION for spec in ab_baseline(r)]
     if name == "ab_sensitivity":
         return [spec for _, specs in ab_sensitivity_variants() for spec in specs]
+    raise ValueError(f"Unknown campaign {name!r}")
+
+
+def case_c(angle: float = 0.0, state: str = "1H", **options) -> RunSpec:
+    """Symmetric domain for all directions, shared top for all centre heights."""
+    from .conventions import c_direction
+    options.setdefault("padding", 120.0)
+    options.setdefault("clearance", 160.0)
+    return RunSpec("C", f"{angle:g} deg.", c_direction(angle), state=state, **options)
+
+
+def c_baseline(resolution: float = 1.0, **options) -> list[RunSpec]:
+    from .conventions import C_ANGLES, C_STATES
+    if resolution < 1.0:
+        options.setdefault("max_cells", FINE_MAX_CELLS)
+    return [fixed_work(case_c(a, s, resolution=resolution, **options)) for s in C_STATES for a in C_ANGLES]
+
+
+def c_campaign(name: str) -> list[RunSpec]:
+    if name == "c_smoke":
+        return c_baseline(4.0)
+    if name == "c_baseline":
+        return c_baseline()
+    if name == "c_grid":
+        return c_baseline(4.0) + c_baseline(2.0)
+    if name == "c_fine":
+        return c_baseline(0.5)
+    if name == "c_convergence":
+        specs = []
+        for resolution, iterations in CONVERGENCE_ITERATIONS.items():
+            for base in c_baseline(resolution, turbulence=False):
+                specs += [replace(base, max_iterations=iterations, monitor=True, stop="fixed"),
+                          replace(base, max_iterations=iterations, precision="float64", stop="fixed")]
+        return specs
+    if name == "c_sensitivity":
+        changes = (dict(inflow="power_law"), dict(inflow="log"), dict(interpolation="linear"),
+                   dict(padding=200.0, max_cells=FINE_MAX_CELLS), dict(clearance=280.0),
+                   dict(vertical="uniform", max_cells=FINE_MAX_CELLS),
+                   dict(parameterizations=dict(street_canyon=0)), dict(parameterizations=dict(wake=1)),
+                   dict(parameterizations=dict(rooftop=2)))
+        return [replace(base, **change) for change in changes for base in c_baseline()]
     raise ValueError(f"Unknown campaign {name!r}")

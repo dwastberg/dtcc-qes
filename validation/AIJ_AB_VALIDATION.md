@@ -1,6 +1,7 @@
 # AIJ Cases A and B: validation setup and results
 
 This file covers the validation of dtcc-qes against AIJ benchmark Cases A and B: two single buildings in a turbulent boundary layer. It uses the same framework as Cases D and E:
+- **Case C city-block setup:** [`AIJ_C_VALIDATION.md`](AIJ_C_VALIDATION.md);
 - **Cities:** [`AIJ_CITY_MODELS.md`](AIJ_CITY_MODELS.md);
 - **Framework plan:** [`AIJ_VALIDATION_PLAN.md`](AIJ_VALIDATION_PLAN.md);
 - **D/E results:** [`AIJ_VALIDATION.md`](AIJ_VALIDATION.md).

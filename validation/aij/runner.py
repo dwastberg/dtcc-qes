@@ -21,16 +21,16 @@ from pathlib import Path
 import numpy as np
 import shapely
 
-from . import ROOT, CASE_A_XLS, CASE_B_XLS, CASE_D_XLS, CASE_E_XLS, case_ab, case_d, case_e, cityutil, grids, inflow, \
+from . import ROOT, CASE_A_XLS, CASE_B_XLS, CASE_C_XLS, CASE_D_XLS, CASE_E_XLS, case_ab, case_c, case_d, case_e, cityutil, grids, inflow, \
     sampling, tables
 from .runspec import FINE_TOP, MAX_ASPECT, RunSpec
 
 RECORD_SCHEMA = "aij-run-v2"
 REPO = ROOT.parent
 # Modules whose code changes a run's output; report and metrics code is deliberately excluded.
-RUN_MODULES = ("case_ab", "case_d", "case_e", "cityutil", "conventions", "dxf", "grids", "inflow", "prisms",
+RUN_MODULES = ("case_ab", "case_c", "case_d", "case_e", "cityutil", "conventions", "dxf", "grids", "inflow", "prisms",
                "runner", "runspec", "sampling", "sampling_geometry", "tables")
-XLS = {"A": CASE_A_XLS, "B": CASE_B_XLS, "D": CASE_D_XLS, "E": CASE_E_XLS}
+XLS = {"A": CASE_A_XLS, "B": CASE_B_XLS, "C": CASE_C_XLS, "D": CASE_D_XLS, "E": CASE_E_XLS}
 # Cases A and B: heights [m] of the centreline (y = 0) speeds kept in the record, for the reattachment
 # lengths (the lowest wake points of the vertical sections), and the spacing of those samples.
 CENTRELINE_HEIGHTS = {"A": (2.0,), "B": (0.8, 2.0)}
@@ -75,6 +75,8 @@ def git_state() -> dict:
 @lru_cache(maxsize=8)
 def city(case: str, state: str = "-", variant: str = "exact"):
     """The City of a case in the dtcc-qes input contract (``cityutil.qes_city``)."""
+    if case == "C":
+        return cityutil.qes_city(case_c.build_case_c(state).city)
     if case == "D":
         return cityutil.qes_city(case_d.build_case_d().city)
     if case in ("A", "B"):
@@ -111,7 +113,7 @@ def inputs(spec: RunSpec) -> dict:
     # K is normalised by the approach flow; it differs from the run's inflow only for "canopy".
     normaliser = inflow.approach_profile(data, spec.inflow, spec.direction, **options)
     # Case E states share one vertical grid (that of "after"), so they differ only in the buildings.
-    top_heights = [60.0] if spec.case == "E" else heights
+    top_heights = [60.0] if spec.case == "E" else [40.0] if spec.case == "C" else heights
     top = grids.required_top(top_heights, spec.clearance, data.reference["height"])
     layer = spec.probe_layer
     faces = grids.vertical_faces(layer, top, FINE_TOP[spec.case], centre=grids.layer_centre(spec.case, layer),
@@ -148,6 +150,8 @@ def _tables(case: str):
     """(inflow table, probe points) of a case."""
     if case in ("A", "B"):
         return tables.load_inflow_ab(case), tables.load_points_ab(case)
+    if case == "C":
+        return tables.load_inflow_c(), tables.load_points_c()
     if case == "D":
         return tables.load_inflow_d(), tables.load_points_d()
     return tables.load_inflow_e(), tables.load_points_e()

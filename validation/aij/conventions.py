@@ -29,6 +29,16 @@ E_LABELS = ("N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
 E_STATES = ("before", "after")
 AB_LABEL = "0 deg."  # Cases A and B: the single measured direction, flow toward +x
 AB_DIRECTION = 270.0
+C_ANGLES = (0.0, 22.5, 45.0)
+C_STATES = ("0H", "1H", "2H")
+
+
+def c_direction(angle: float) -> float:
+    """Case C workbook frame: flow turns from +x toward -y (see AIJ_C_VALIDATION.md)."""
+    if angle not in C_ANGLES:
+        raise ValueError(f"Case C angle must be one of {C_ANGLES}")
+    return (270.0 + float(angle)) % 360.0
+
 REFLECTIONS = {"y=x": (lambda x, y: (y, x)), "y=-x": (lambda x, y: (-y, -x)),
                "x-axis": (lambda x, y: (x, -y)), "y-axis": (lambda x, y: (-x, y))}
 

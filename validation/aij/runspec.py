@@ -14,7 +14,7 @@ from dataclasses import asdict, dataclass
 from dtcc_qes import wind
 
 SCHEMA = "aij-runspec-v1"
-FINE_TOP = {"D": 24.0, "E": 36.0, "A": 64.0, "B": 64.0}  # m: uniform layers up to 2.4 x the 10 m blocks (D),
+FINE_TOP = {"D": 24.0, "E": 36.0, "A": 64.0, "B": 64.0, "C": 80.0}  # m: uniform layers up to 2.4 x the 10 m blocks (D),
 # 1.2 x the 30 m existing roofs (E), 2 H in Cases A and B (every probe lies below 1.75 H)
 # Cases A and B (H = 32 m): 3 H upwind and to the sides, 8 H behind the building, the top at 5 H.
 AB_DOMAIN = dict(padding=96.0, downstream=256.0, clearance=128.0)
@@ -94,6 +94,8 @@ class RunSpec:
 
     def __post_init__(self):
         object.__setattr__(self, "parameterizations", parameterization_changes(dict(self.parameterizations)))
+        if self.case == "C" and self.state not in ("0H", "1H", "2H"):
+            raise ValueError("Case C state must be 0H, 1H or 2H")
         if self.city not in CITIES or self.inflow not in INFLOWS:
             raise ValueError(f"city must be one of {CITIES} and inflow one of {INFLOWS}")
         canopy = (self.canopy_roughness, self.blending_height)
@@ -133,7 +135,7 @@ class RunSpec:
     @property
     def name(self) -> str:
         defaults = CASE_DEFAULTS.get(self.case, {})
-        parts = [self.case, self.state if self.case == "E" else None, self.label.replace(" deg.", "deg"),
+        parts = [self.case, self.state if self.case in ("C", "E") else None, self.label.replace(" deg.", "deg"),
                  f"r{self.resolution:g}", self.inflow, self.precision,
                  f"it{self.max_iterations}", "mon" if self.monitor else None, None if self.turbulence else "noturb"]
         parts += [None if self.city == "exact" else self.city,
