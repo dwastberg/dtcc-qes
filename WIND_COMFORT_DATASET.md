@@ -22,7 +22,7 @@ result.write_artifact("comfort.geojson", format="geojson")
 | `bounds` | Required | Four coordinates `[xmin,ymin,xmax,ymax]`, or six `[xmin,ymin,zmin,xmax,ymax,zmax]`; Bounds objects also work. XY bounds select the assessment, six-coordinate bounds also set flat ground and domain top. |
 | `source` | `"LM"` | City source; also `"OSM"`. |
 | `resolution` | `2.0` m | Horizontal solver spacing; output retains solver cell centres inside the assessment. |
-| `max_cells` | `200_000_000` | Positive integer cell limit for the full buffered simulation domain; the demo sets `50_000_000`. |
+| `max_cells` | `50_000_000` | Positive integer cell limit for the full buffered simulation domain. |
 | `criterion` | `"nen8100"` | Also `"city_of_london"`. |
 | `start` | Twelve calendar months before end | Inclusive UTC boundary. |
 | `end` | First of the previous month | Exclusive UTC boundary, leaving the previous month outside the record. |
@@ -94,9 +94,10 @@ Explicit layers put a centre at 1.75 m (NEN) or 1.5 m (London), using a dedicate
 by horizontal spacing (the final top layer closes the exact endpoint). Geometry
 and native storage are prepared once. All sixteen directions, 22.5 degrees
 apart, run sequentially at 5 m/s and 10 m reference with the same shifted log
-profile. The configurable `max_cells` guard defaults to 200 million cells and
-bounds the full simulation domain, including buffers. Solver nonconvergence or
-any failed required direction aborts the assessment; directions are never
+profile. The configurable `max_cells` guard defaults to 50 million cells and
+bounds the full simulation domain, including buffers. Solver nonconvergence warns and uses the available field, recording the direction
+in context warnings and setting `health.solver_converged` to false. Other
+failed required directions abort the assessment; directions are never
 dropped or reweighted. Full solved volumes are released after sampling.
 
 The existing `comfort.assess` routines determine classes and threshold equality.

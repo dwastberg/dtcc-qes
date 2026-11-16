@@ -227,9 +227,9 @@ Get a map directly from Swedish assessment bounds and historical weather:
 import dtcc_qes
 from dtcc_core import datasets
 
-result = datasets.qes_wind_comfort(bounds=[319920, 6397860, 320000, 6397940])
-result.plot(field_name="comfort")
-result.plot_wind_rose()
+comfort_result = datasets.qes_wind_comfort(bounds=[319920, 6397860, 320000, 6397940])
+comfort_result.plot(field_name="comfort")
+comfort_result.plot_wind_rose()
 ```
 
 The default climate is the twelve calendar months ending at the first of the

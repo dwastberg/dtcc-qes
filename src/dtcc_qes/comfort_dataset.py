@@ -32,7 +32,7 @@ class QESWindComfortArgs(DatasetBaseArgs):
     model_config = ConfigDict(extra="forbid", strict=True, allow_inf_nan=False)
     source: Literal["LM", "OSM"] = "LM"
     resolution: float = Argument(2.0, gt=0)
-    max_cells: int = Argument(200_000_000, ge=1,
+    max_cells: int = Argument(50_000_000, ge=1,
         description="Memory-capacity guard for the full buffered simulation domain; not an accuracy setting.")
     criterion: Literal["nen8100", "city_of_london"] = "nen8100"
     start: str | None = Argument(None, description="Inclusive UTC start; defaults to 12 calendar months before end.")

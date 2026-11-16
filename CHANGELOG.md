@@ -4,6 +4,14 @@ Versions before 0.1.0b2 were not released. Their features (unified `run()` API, 
 
 Every version below changes default results. Each one states what changes, how it was checked, and how to keep the previous behaviour where that is possible. The native identity is the qualified source and arithmetic identity of the build. Adaptive `pedestrian-v1` acceptance needs the build to report it as supported.
 
+## Unreleased
+
+- **Wind comfort Dataset:** `max_cells` defaults to 50 million cells instead of
+  200 million, the limit the demo already used; larger areas need an explicit
+  `max_cells`. The documentation now states what the code does when a
+  direction does not converge: it warns, keeps the available field and sets
+  `health.solver_converged` to false.
+
 ## 0.1.0b6 (2026-11-16)
 
 - **Historical wind comfort Dataset:** importing `dtcc_qes` registers

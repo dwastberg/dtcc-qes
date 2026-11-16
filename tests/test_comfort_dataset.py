@@ -63,12 +63,12 @@ def test_dates_overrides_and_roundtrip():
 
 def test_cell_limit_default_and_request_identity():
     default = args()
-    custom = args(max_cells=50_000_000)
-    assert default.max_cells == 200_000_000
-    assert custom.model_dump()["max_cells"] == 50_000_000
+    custom = args(max_cells=75_000_000)
+    assert default.max_cells == 50_000_000
+    assert custom.model_dump()["max_cells"] == 75_000_000
     assert QESWindComfortArgs(**custom.model_dump()) == custom
     assert default.model_dump() != custom.model_dump()
-    assert datasets.qes_wind_comfort.show_options()["properties"]["max_cells"]["default"] == 200_000_000
+    assert datasets.qes_wind_comfort.show_options()["properties"]["max_cells"]["default"] == 50_000_000
 
 
 @pytest.mark.parametrize("update", [dict(start="2024-01-01", end="2023-01-01"),
@@ -264,7 +264,6 @@ def test_unknown_quality_cannot_turn_missing_hours_into_calm(weather):
     assert climate.metadata["missing_hours"] == 1
     assert climate.metadata["calm_hours"] == 2189
     assert np.isnan(climate.speeds[0])
-
 
 
 @pytest.mark.parametrize("criterion", ["nen8100", "city_of_london"])

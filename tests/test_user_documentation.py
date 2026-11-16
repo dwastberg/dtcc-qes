@@ -10,6 +10,7 @@ import numpy as np
 import pytest
 from dtcc_qes import wind,comfort
 from fixtures.datasets import source_city,fetched
+from test_comfort_dataset import weather
 
 ROOT=Path(__file__).resolve().parents[1]
 pytestmark=pytest.mark.usefixtures("dtcc_logger")
@@ -18,8 +19,35 @@ CURRENT_DOCS=["README.md","docs/wind-profiles.md","docs/wind-comfort.md",
 
 
 @pytest.mark.parametrize("document",CURRENT_DOCS)
-def test_current_python_snippets(document,fetched,caplog):
-    from dtcc_core.model import City
+def test_current_python_snippets(document,fetched,caplog,weather,monkeypatch):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    monkeypatch.setattr(plt, 'show', lambda: None)
+    from dtcc_core import datasets
+    from dtcc_core.model import City, TimeSeries
+    # README's comfort example also retrieves weather; keep documentation tests offline.
+    historical = datasets.weather_history
+    def fetch_weather(**kwargs):
+        times = np.arange(np.datetime64(kwargs['start'], 'ns'), np.datetime64(kwargs['end'], 'ns'),
+                          np.timedelta64(1, 'h'))
+        for key, series in list(weather.series.items()):
+            weather.series[key] = TimeSeries(name=series.name, times=times,
+                values=np.resize(series.values, len(times)), unit=series.unit,
+                association='sample', role='observed')
+            weather.observations[key] = {str(t): {'quality': 'G'} for t in times}
+        return weather
+    fetch_weather.ArgsModel = historical.ArgsModel
+    monkeypatch.setattr(datasets, 'weather_history', fetch_weather)
+    fetch_city = datasets.city
+    def positioned_city(**kwargs):
+        from copy import deepcopy
+        city = deepcopy(fetch_city(**kwargs))
+        bounds = kwargs['bounds']
+        if abs(bounds[0]) > 10000:
+            city.transform.set_translation(bounds[0], bounds[1], 0)
+        return city
+    monkeypatch.setattr(datasets, 'city', positioned_city)
     scope=dict(wind=wind,comfort=comfort,city=City(),np=np)
     content=(ROOT/document).read_text().split("## Historical S5–S9 milestone notes")[0]
     for i,code in enumerate(re.findall(r"```python\n(.*?)```",content,re.S)):
