@@ -4,6 +4,8 @@
 
 ## 0. Status (2026-11-16)
 
+**Closed.** The port is in `main` (`c706f46`, `2ba9a47`). Later work and the remaining follow-ups: [ACCURACY_CLOSEOUT_PLAN.md](ACCURACY_CLOSEOUT_PLAN.md).
+
 | Step | State |
 |---|---|
 | 1 Record and tooling | Done, commit `5259f62` |
@@ -18,7 +20,7 @@ Record of the port: [validation/ACCURACY_RESULTS.md](validation/ACCURACY_RESULTS
 **Deviations from the steps below.**
 
 - Steps 2 to 4 are one commit, not three series: the two options touch the same plumbing files.
-- The policy compatibility check was not run.
+- The policy compatibility check was not run for 0.1.0b6. The stall-fix work later ran all 24 frozen workers on `7008159`, which contains this port: 3 fail, identically before and after that fix, and the build differs from the last qualified one (`fe2dcd3`). Requalification is follow-up D1 of the closeout plan.
 - The options have named validation campaigns; `run_full_validation.py` stays a defaults-only run.
 - Step 1 item 3 is done in a reduced form: a variant is stored in its own directory under its parent's key.
 - The experiment branch was deleted after the port was verified against it; `validation/accuracy_evidence/exp-accuracy-prototypes.patch` keeps it reproducible.
@@ -178,7 +180,7 @@ Case C at 1 m with `wake=3` takes about 200 s per run because of the stop-rule s
 4. **The cavity edge.** The remaining step at a point probe in the direction sweep (0.069) is a spatial edge of the near-wake cavity. It is the candidate for a later blend at source.
 5. **Aligned streets.** The model channels along streets where the measurement is flat. The shelter rule removes the level error but not the pattern (R in E before falls by 0.02).
 6. **Case C inflow turbulence.** The rule value is probably 1.3–2 times the measured one; the scalar proxy of the undisturbed inflow is 1.10 where the measurement is 1.00.
-7. **Stop-rule stall** (item 6 of section 1).
+7. **Stop-rule stall** (item 6 of section 1). Investigated in [STOP_RULE_STALL_INVESTIGATION.md](STOP_RULE_STALL_INVESTIGATION.md): float32 noise against the estimate threshold; it also affects default settings on the demo city. A stagnation stop is implemented in the working tree (not committed) and is being validated; its section 0 lists what remains.
 
 ---
 

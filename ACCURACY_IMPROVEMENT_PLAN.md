@@ -2,6 +2,19 @@
 
 **Date:** 2026-11-15, revision 4 (preparation and part T carried out; see section 0). Revision 3: (end-to-end plan review: decisive checks first, resolvable gates, shrinkage comparator, shelter diagnostic; decisions closed with the user the same day: part S added, AIJ Case C added as a prerequisite delivered by separate work, M before D, D on literature constants). **Base:** `main` `4c7a8da` (0.1.0b5). **Source:** [END_TO_END_REVIEW.md](END_TO_END_REVIEW.md), section 5. The six physics fixes are implemented; the accuracy diagnostics and model proposals below are not.
 
+## Closing status (2026-11-16)
+
+**The plan is closed.** What it produced is in `main`:
+
+| Part | Outcome | Commit |
+|---|---|---|
+| T, diagnostics | Done; [validation/ACCURACY_DIAGNOSTICS.md](validation/ACCURACY_DIAGNOSTICS.md) | `5259f62` |
+| M, mixing | Mean-field path closed; continuity done as an angle fade, shipped as `Parameterizations(angle_fade=2.5)` | `c706f46` (0.1.0b6) |
+| S + D, shelter and tall-building zone | Accepted together as an opt-in scalar-speed model: `Parameterizations(wake=3, tall_buildings=1)`. It fails the mean-vector gate at the Case D split fibre and has no independent test (limits in `docs/tall-buildings.md`) | `c706f46` (0.1.0b6) |
+| The stop-rule stall found on the way | Fixed as a stagnation stop | `1bf644f` |
+
+The sections below are the plan as carried out, with the decisions taken along the way; section 0 records them as they were made. The open follow-ups are D1–D10 of [ACCURACY_CLOSEOUT_PLAN.md](ACCURACY_CLOSEOUT_PLAN.md). No default changes before unseen tower data (section 7, item 6).
+
 ## 0. Status after part T (2026-11-15)
 
 Done: I0, I2, I3, I4 and T1–T4. Results: [validation/ACCURACY_DIAGNOSTICS.md](validation/ACCURACY_DIAGNOSTICS.md). No model code was changed. The plan is stopped at the review gate after part T.

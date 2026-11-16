@@ -218,7 +218,7 @@ The revision restores the signs but not the vector error, and it is worse on eve
 **Other observations.**
 
 - The zone is active in Case E before construction too (largest change at a probe 0.39): some existing building there is eligible. The mean before-state levels are unchanged (+0.093 against +0.089).
-- Not done: the ±25 % sensitivities, the 1 m grid and the break-point sensitivities of D5.
+- Not done at this point: the ±25 % sensitivities, the 1 m grid and the break-point sensitivities of D5. *(Done later: section 8, and the 1 m grid in section 9.)*
 
 ### 6.1 Split between mean flow and turbulence (decided 2026-11-15, outside the revision limit)
 
@@ -305,7 +305,18 @@ Tables: [accuracy_evidence/final_campaign_working_grid.md](accuracy_evidence/fin
 
 **Not done.**
 
-- `tools/check_policy_compatibility.py` was not run; the build is not qualified for `pedestrian-v1`, as 0.1.0b5.
-- Case C alone with `tall_buildings=1` or with `angle_fade=2.5` on the final build; the combination was run, and the fade leaves Case C identical.
+- `tools/check_policy_compatibility.py` was not run; the build is not qualified for `pedestrian-v1`, as 0.1.0b5. *(Later the stall-fix work ran all 24 frozen workers on `7008159`, which contains this port: 3 fail, as they do without it; see `docs/PRECISION_STAGNATION_RESULTS.md`.)*
+- Case C alone with `tall_buildings=1` or with `angle_fade=2.5` on the final build; the combination was run, and the fade leaves Case C identical. *(Done in section 10: `tall_buildings=1` alone is bit-identical to the combination.)*
 - `run_full_validation.py` covers defaults only, as before; the options have named campaigns instead (`angle_fade`, `tall_buildings`, `accuracy_options`, `ab_accuracy_options`, `c_accuracy_options`).
-- The run cache of `validation/accuracy/common.py` still stores a variant under its parent's key in a directory of its own (`ACC_TAG`, `ACC_PARAMS`).
+- The run cache of `validation/accuracy/common.py` still stores a variant under its parent's key in a directory of its own (`ACC_TAG`, `ACC_PARAMS`). *(Kept by decision, documented as a research tool in its docstring.)*
+
+## 10. After the stall fix (2026-11-16)
+
+The Case C runs at 1 m with `wake=3` in sections 1 to 9 (the parent and both options) ran to the 20,000-sweep cap because of the stop-rule stall. With the fix (`1bf644f`, build `df09ee9d…`) they stop on the new stagnation trigger after 1,650–2,225 sweeps. Rerun of the 27 runs (parent, `tall_buildings=1`, both options), [accuracy_evidence/closeout_case_c_after_stall_fix.md](accuracy_evidence/closeout_case_c_after_stall_fix.md):
+
+- **Reported values are unchanged.** The new probe velocities differ from the stalled ones by at most 6.0e‑5 m/s (parent) and 3.0e‑5 m/s (both options). The Case C score table of both options against the parent is identical to four decimals.
+- **`tall_buildings=1` alone is bit-identical to the combination with `angle_fade=2.5`** on all 9 Case C runs, as expected: no wall of Case C falls inside the angle ramp.
+- No other case was affected: the stall occurred only in Case C at 1 m with `wake=3` among the stored runs.
+
+Open follow-ups of this work: [ACCURACY_CLOSEOUT_PLAN.md](../ACCURACY_CLOSEOUT_PLAN.md), section 2.3.
+

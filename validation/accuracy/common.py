@@ -1,4 +1,9 @@
-"""Run matrix and run cache of ACCURACY_IMPROVEMENT_PLAN.md (I0).
+"""Run matrix and run cache of ACCURACY_IMPROVEMENT_PLAN.md (I0). A research tool, kept as it was used.
+
+The released options have ordinary run specifications and campaigns (`aij.campaigns`: `angle_fade`,
+`tall_buildings`, `accuracy_options`); use those for validation. This cache stores a variant (`ACC_TAG`,
+`ACC_PARAMS`) in its own directory under the key of its parent specification, so that the scripts of
+the accuracy study can pair a variant with its parent by key.
 
 Every run uses the ordinary ``wind.Solver()`` (velocity stop rule, grid relaxation,
 at most 20,000 sweeps), turbulence on, float32. Records go to
