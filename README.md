@@ -221,6 +221,29 @@ turbulence may otherwise grow the domain.
 
 ## Pedestrian comfort
 
+Get a map directly from Swedish assessment bounds and historical weather:
+
+```python
+import dtcc_qes
+from dtcc_core import datasets
+
+result = datasets.qes_wind_comfort(bounds=[319920, 6397860, 320000, 6397940])
+result.plot(field_name="comfort")
+result.plot_wind_rose()
+```
+
+The default climate is the twelve calendar months ending at the first of the
+previous month, exclusive (on 2026-11-16: 2025-10-01 to 2026-10-01 UTC).
+Set `start`/`end` or an inclusive `years=(first,last)` pair to override it.
+The installed Core `weather_history` dataset supplies paired wind speed/direction
+from one SMHI station. `criterion="city_of_london"` adds seasonal and GEM
+screening; NEN 8100 is the default. Results include separate safety, validity,
+threshold probabilities, weather coverage and provenance. See the
+[Dataset policies](WIND_COMFORT_DATASET.md) and
+[runnable example](demo/wind_comfort_dataset.py).
+
+For a city and climate already in memory, use the lower-level helpers:
+
 ```python
 from dtcc_qes import comfort
 

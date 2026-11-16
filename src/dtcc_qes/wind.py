@@ -205,6 +205,13 @@ def prepare(city, profile: LogProfile | MeasuredProfile | PowerLawProfile | Unif
     geometry, prepared = _prepare_city(city, profile_spec, grid, terrain, height_policy,
         turbulence=turbulence_spec is not None, footprints=footprints, parameterizations=parameterizations)
     city_seconds = time.perf_counter() - city_started
+    return _prepared_model(geometry, prepared, profile_spec, solver, vertical_grid,
+                           turbulence_spec, height_policy, started, city_seconds, exclusions)
+
+
+def _prepared_model(geometry, prepared, profile_spec, solver, vertical_grid,
+                    turbulence_spec, height_policy, started, city_seconds, exclusions=()):
+    """Allocate reusable native storage after city/footprint preparation."""
     eligibility = _preflight_eligibility(prepared, geometry, profile_spec, solver, turbulence_spec)
     if eligibility["exclusions"]:
         if solver.raise_on_failure:

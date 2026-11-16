@@ -6,6 +6,16 @@ Every version below changes default results. Each one states what changes, how i
 
 ## 0.1.0b6 (2026-11-16)
 
+- **Historical wind comfort Dataset:** importing `dtcc_qes` registers
+  `datasets.qes_wind_comfort`. It uses the installed Core `weather_history`
+  dataset for paired wind speed/direction, defaults to twelve calendar months
+  ending at the first of the previous month (exclusive), and supports NEN 8100
+  and seasonal City of London GEM screening. It prepares geometry once, samples
+  all 16 directions at the criterion height, and returns comfort/safety maps,
+  coverage, wind rose and provenance. See [policies](WIND_COMFORT_DATASET.md)
+  and [example](demo/wind_comfort_dataset.py). `max_cells` defaults to 200 million
+  for the full buffered domain; the demo sets 50 million. Existing wind defaults are unchanged.
+
 Native identity `e130c2fbf47179923862c037a9a370ec17b91788a01f6719cd282506ba43471a`
 (AppleClang 17 Release, default arithmetic); the build is not qualified for `pedestrian-v1`, as 0.1.0b5.
 

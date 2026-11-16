@@ -211,6 +211,13 @@ static void precision_floor() {
 }
 
 #ifdef _OPENMP
+// Field by field: EstimateCheck has padding after `iteration`, and comparing it with memcmp read those
+// indeterminate bytes (a Debug build differs there). Bit equality keeps NaN contractions comparable.
+static bool same_bits(double a, double b) { return std::memcmp(&a,&b,sizeof a) == 0; }
+static bool same_check(const EstimateCheck &a, const EstimateCheck &b) {
+  return a.iteration == b.iteration && same_bits(a.change,b.change) && same_bits(a.contraction,b.contraction)
+      && same_bits(a.estimate,b.estimate) && same_bits(a.floor,b.floor);
+}
 static void thread_independent() {
   auto data = fixture(true);
   const PoissonOperator op(*data);
@@ -222,8 +229,9 @@ static void thread_independent() {
     state.advance(300);
     const auto history = state.estimate_report()->history;
     if (first.empty()) { first = history; continue; }
+    require(history.size() == first.size(), "Estimate history length depends on the thread team");
     for (std::size_t n = 0; n < history.size(); ++n)
-      require(std::memcmp(&history[n],&first[n],sizeof(EstimateCheck)) == 0, "Estimate depends on the thread team");
+      require(same_check(history[n],first[n]), "Estimate depends on the thread team");
   }
 }
 #endif

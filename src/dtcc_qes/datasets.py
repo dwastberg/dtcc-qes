@@ -20,7 +20,7 @@ from .solver_control import Solver
 from .turbulence import Turbulence, NUMERICS_VERSION
 from ._statistics import _stress_validity, _turbulence_intensity
 
-__all__ = ["QESWindArgs", "QESWindDataset"]
+__all__ = ["QESWindArgs", "QESWindDataset", "QESWindComfortArgs", "QESWindComfortDataset"]
 
 
 class _ProfilePayload(TypedDict):
@@ -271,15 +271,8 @@ class QESWindDataset(DatasetDescriptor):
         if exclusions:
             wind._warn_solver_outcome(str(wind.UnacceptedResultError(None, None, exclusions=exclusions)), turbulence)
         xy = list(args.bounds) if len(args.bounds) == 4 else [args.bounds[i] for i in (0, 1, 3, 4)]
-        source_city = core_datasets.city(
-            bounds=xy, source=args.source, smallest_building_size=args.smallest_building_size,
-            lod="lod1", strict_live=args.strict_live,
-        )
-        if not isinstance(source_city, City):
-            raise TypeError("The city dataset must return a dtcc_core.model.City")
+        source_city = _fetch_city(xy, args.source, args.strict_live, args.smallest_building_size)
         upstream = source_city.dataset_context
-        if upstream is not None and upstream.health and upstream.health.get("partial_result"):
-            raise ValueError("QES wind requires a complete city; the upstream dataset returned a partial result")
         preparation_started = time.perf_counter()
         footprints, bounds, preparation = prepare_city(source_city, args)
         vertical_grid = args.vertical_grid_spec()
@@ -351,6 +344,17 @@ class QESWindDataset(DatasetDescriptor):
             context.warnings.append("QES-Turb fields are algebraic screening output based on this mean wind; pedestrian gusts remain unvalidated.")
         obj.dataset_context = context
         return obj
+
+
+def _fetch_city(bounds, source, strict_live, smallest_building_size=15.0):
+    city = core_datasets.city(bounds=list(bounds), source=source,
+        smallest_building_size=smallest_building_size, lod="lod1", strict_live=strict_live)
+    if not isinstance(city, City):
+        raise TypeError("The city dataset must return a dtcc_core.model.City")
+    context = city.dataset_context
+    if context is not None and context.health and context.health.get("partial_result"):
+        raise ValueError("QES wind requires a complete city; the upstream dataset returned a partial result")
+    return city
 
 
 def _nearest(axis, positions):
@@ -441,3 +445,8 @@ def _field_slice(result, args):
             field_slice.add_field(Field(name=name,values=values,unit=unit,association="sample",
                 description="QES-Turb algebraic screening; unvalidated pedestrian gusts"))
     return field_slice
+
+
+# Define the single-condition descriptor first: comfort shares its narrow city
+# fetch and validation helpers, without inheriting its public argument surface.
+from .comfort_dataset import QESWindComfortArgs, QESWindComfortDataset

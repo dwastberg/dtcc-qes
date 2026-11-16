@@ -1,5 +1,16 @@
 # Pedestrian wind comfort
 
+For automatic historical weather and geometry retrieval, import `dtcc_qes` and
+call `datasets.qes_wind_comfort(bounds=[xmin,ymin,xmax,ymax])` in EPSG:3006.
+It uses the installed Core `weather_history` dataset for wind speed and direction.
+By default the period is twelve calendar months ending at the first of the
+previous month, exclusive; `start`/`end` or inclusive `years=(first,last)` override
+it. The default criterion is `nen8100`; `city_of_london` includes seasonal and
+constant-factor GEM screening. Results have `.plot(field_name="comfort")`,
+`.plot_wind_rose()`, separate safety and validity fields, PNG/GeoJSON exports and
+weather/geometry provenance. See [Dataset policies](../WIND_COMFORT_DATASET.md)
+for assumptions, coverage checks and the [example](../demo/wind_comfort_dataset.py).
+
 Version 0.1.0b5 changes gust screening through the spectral stress bound and
 corrected first two ground-layer derivatives, as well as the building wind
 corrections. Recompute cached directional results before comparing comfort
