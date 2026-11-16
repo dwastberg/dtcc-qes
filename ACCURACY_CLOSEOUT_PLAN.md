@@ -12,8 +12,10 @@ Decisions of section 4: 1, 2, 3, 4 and 6 as recommended; **no push** (the user p
 | 3 Stall fix, its evidence and the investigation record; duplicate fixture deleted (A3) | Committed, `1bf644f` |
 | 4 Checks B1 and B2 | Done: `tall_buildings=1` alone is bit-identical to the combination on Case C; after the stall fix the Case C probes move by at most 6e‑5 m/s and the score table is identical to four decimals |
 | 5 A4, A5, A6, B3, B4 | Done in the records commit: closing status in the three accuracy documents, `END_TO_END_REVIEW.md` committed, run cache documented as a research tool, the broken helper deleted |
-| 6 Release 0.1.0b7 | See the release commit |
-| 8 Housekeeping H1–H4 | After the release |
+| 6 Release 0.1.0b7 | Committed, `32145e6`. Python 2,343 passed; native 66/66, 69/69, sanitizers 69/69 |
+| 8 Housekeeping H1–H4 | Done: branches `feat/accuracy-options` and `fix/physics-bugs` deleted (both in `main`); the two physics-bug-fix worktrees removed (their untracked files were identical copies); about 14 GB of build folders deleted. `validation/output/accuracy` (2.1 GB of run caches) is kept |
+
+**The task is closed.** Not pushed: the user pushes after review. What stays open is section 2.3, as separate follow-ups.
 
 **The overall task**, from the request to review the accuracy plan to now:
 
