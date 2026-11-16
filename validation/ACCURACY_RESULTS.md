@@ -301,11 +301,10 @@ Steps 2 to 4 of [ACCURACY_MAIN_INTEGRATION_PLAN.md](../ACCURACY_MAIN_INTEGRATION
 
 Tables: [accuracy_evidence/final_campaign_working_grid.md](accuracy_evidence/final_campaign_working_grid.md), [final_campaign_second_grid_and_c.md](accuracy_evidence/final_campaign_second_grid_and_c.md), [step2_port_gate.md](accuracy_evidence/step2_port_gate.md).
 
-**Tests.** `tests/test_angle_fade.py` (16) and `tests/test_tall_buildings.py` (9) are new. The Python suites pass on the final build: 2,299 passed, 39 skipped.
+**Tests.** `tests/test_angle_fade.py` (16) and `tests/test_tall_buildings.py` (9) are new. The Python suites pass on the final build: 2,299 passed, 39 skipped. Native CTest, fresh Release builds: serial 66/66, OpenMP 69/69, the same counts as 0.1.0b5. Debug build with AddressSanitizer and UBSan: 68/69, no sanitizer report; `stop_rule` aborts with "Estimate depends on the thread team", and it does the same on the base commit `c9dd6d5`, so it predates this work.
 
 **Not done.**
 
-- The native CTest suites and the sanitizer builds were not run.
 - `tools/check_policy_compatibility.py` was not run; the build is not qualified for `pedestrian-v1`, as 0.1.0b5.
 - Case C alone with `tall_buildings=1` or with `angle_fade=2.5` on the final build; the combination was run, and the fade leaves Case C identical.
 - `run_full_validation.py` covers defaults only, as before; the options have named campaigns instead (`angle_fade`, `tall_buildings`, `accuracy_options`, `ab_accuracy_options`, `c_accuracy_options`).
