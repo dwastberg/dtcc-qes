@@ -4,15 +4,29 @@ Versions before 0.1.0b2 were not released. Their features (unified `run()` API, 
 
 Every version below changes default results. Each one states what changes, how it was checked, and how to keep the previous behaviour where that is possible. The native identity is the qualified source and arithmetic identity of the build. Adaptive `pedestrian-v1` acceptance needs the build to report it as supported.
 
-## Unreleased
+## 0.1.0b7 (2026-11-16)
 
+Native identity `df09ee9d8b82471171868fe441bc082c3a17094ce6e03f84295909e51bba329b`
+(AppleClang 17 Release, default arithmetic). Default results change only for
+velocity solves that previously ran to their sweep cap, and by at most 1.3e-4
+of the reference speed in the validation. `pedestrian-v1` remains unqualified,
+as in 0.1.0b5 and 0.1.0b6; the difference from the last qualified build
+predates this release.
+
+- **Stop-rule stall:** float32 velocity solves could run to the 20,000-sweep cap
+  when rounding kept the block change just above the floor. This happened with
+  the default settings on the wind-comfort demo city at 1 m and with `wake=3` on
+  AIJ Case C at 1 m. Such solves now stop after about 1,000-2,000 sweeps. Keep the
+  previous behaviour with `Solver(stop="fixed")` and an explicit `max_iterations`.
 - **Wind comfort Dataset:** `max_cells` defaults to 50 million cells instead of
   200 million, the limit the demo already used; larger areas need an explicit
-  `max_cells`. The documentation now states what the code does when a
-  direction does not converge: it warns, keeps the available field and sets
+  `max_cells`; pass `max_cells=200_000_000` for the previous limit. The
+  documentation now states what the code does when a direction does not
+  converge: it warns, keeps the available field and sets
   `health.solver_converged` to false.
-- Velocity solves stop at the arithmetic floor after eight checks without a
-  new minimum change, provided all eight changes remain within twice the floor.
+- **The new stop condition:** velocity solves stop at the arithmetic floor
+  after eight checks without a new minimum change, provided all eight changes
+  remain within twice the floor.
   This avoids float32 iteration-limit stalls. Results retain the raw estimate
   and report `precision_floor` with `floor_trigger="stagnation"`. Fixed work
   and adaptive numerical decisions are unchanged. Validation and qualification
@@ -39,7 +53,7 @@ No default result changes: every default run of the validation cases is bit-iden
 - **`tall_buildings` (0 or 1, default 0; needs `wake=3`):** far-wake deficits combine by the root sum of squares, and a building much taller than its neighbours gets a zone of faster air near the ground, from the speed ratios of Reiter (2010); part of the rise is carried as turbulence in `result.wake.tke`. In AIJ Case E the change within 30 m of the new 60 m tower goes from +0.024 to +0.227 (measured +0.262) and the error before construction from +0.176 to +0.093; in Case D the bias goes from −0.120 to −0.033. **It is a scalar-speed model:** at the Case D points where the flow direction is measured, sign errors rise from 5 to 10 of 29. It has no independent test yet. See [tall buildings](docs/tall-buildings.md) for the eight documented limits.
 - **Scoring protocol** in `validation/accuracy/`: paired bootstrap intervals over probe and direction groups, shrinkage comparators, the tower table, the 1° direction sweep.
 - **Version string:** `dtcc_qes.__version__` now follows `pyproject.toml` (it still said 0.1.0b4 in 0.1.0b5), with a test.
-- **Known, not fixed:** with `wake=3` on AIJ Case C at 1 m the velocity stop rule does not trigger and the run goes to the sweep cap; the fields are converged.
+- **Known at release, fixed in 0.1.0b7:** with `wake=3` on AIJ Case C at 1 m the velocity stop rule did not trigger and the run went to the sweep cap; the fields were converged.
 
 ## 0.1.0b5 (2026-11-14)
 
