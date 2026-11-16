@@ -151,6 +151,19 @@ anemometer reads. The inflow turbulence defaults to 5.5 u*², with u* fitted to
 the profile; pass `inflow_tke=` to override it. `sample` and `sample_points`
 carry the same fields. See [the spreading wake](docs/spreading-wake.md).
 
+`angle_fade` (degrees; experimental, opt-in; default 0) replaces the on/off
+test of the sidewall zone and the upwind cavity at 10° from alignment by a
+weight that fades over 10 ± `angle_fade` degrees. `2.5` halves the largest
+step of the field between neighbouring wind directions. See
+[the angle fade](docs/angle-fade.md).
+
+`tall_buildings=1` (experimental, opt-in; needs `wake=3`) combines far-wake
+deficits by the root sum of squares and adds a zone of faster air around a
+building much taller than its neighbours, from published speed ratios. It is
+a model of `result.scalar_speed()`; the mean flow direction near a tall
+building is not reliable with it, and heights must be full-scale metres. See
+[tall buildings](docs/tall-buildings.md).
+
 ## Solver
 
 `Solver()` stops when the estimated remaining face-velocity error is at most

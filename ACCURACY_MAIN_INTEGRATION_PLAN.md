@@ -1,19 +1,26 @@
 # Plan: bringing the accuracy work into `main`
 
-**Date:** 2026-11-15. **Base:** `main` `c9dd6d5` (0.1.0b5 plus the Case C validation). **Sources:** [ACCURACY_IMPROVEMENT_PLAN.md](ACCURACY_IMPROVEMENT_PLAN.md) (revision 4), [validation/ACCURACY_DIAGNOSTICS.md](validation/ACCURACY_DIAGNOSTICS.md), [validation/ACCURACY_RESULTS.md](validation/ACCURACY_RESULTS.md). **Status:** decisions closed; step 1 is done on the branch `feat/accuracy-options` (section 0). Nothing is in `main` yet.
+**Date:** 2026-11-15. **Base:** `main` `c9dd6d5` (0.1.0b5 plus the Case C validation). **Sources:** [ACCURACY_IMPROVEMENT_PLAN.md](ACCURACY_IMPROVEMENT_PLAN.md) (revision 4), [validation/ACCURACY_DIAGNOSTICS.md](validation/ACCURACY_DIAGNOSTICS.md), [validation/ACCURACY_RESULTS.md](validation/ACCURACY_RESULTS.md). **Status:** all four steps are done on the branch `feat/accuracy-options` (section 0). Not merged into `main`.
 
-## 0. Status (2026-11-15)
+## 0. Status (2026-11-16)
 
-| Item | State |
+| Step | State |
 |---|---|
-| Decisions of section 6 | All closed |
-| Experiment branch | Committed as `aa30ca7` on `exp/accuracy-prototypes`, not merged; worktree `/private/tmp/dtcc-qes-accuracy` |
-| Feature branch | `feat/accuracy-options`, from `main` `c9dd6d5` |
-| Step 1, record and tooling | Done on the feature branch, except item 3 (run keys for variants), which needs the new fields of steps 2 and 3 |
-| Version string | Already corrected in the working tree, with a test (`tests/test_package_version.py`), by other work; uncommitted and not part of this branch's commit |
-| Steps 2 to 4 | Not started |
+| 1 Record and tooling | Done, commit `5259f62` |
+| 2 Angle fade | Done: `Parameterizations.angle_fade`; 16 tests; sweep values reproduced exactly |
+| 3 Shelter and tall-building zone | Done: `Parameterizations.tall_buildings`; 9 tests; bit-identical to the prototype on 37 runs |
+| 4 Validation and release | Done: 184 default runs bit-identical to 0.1.0b5 on both grids; options reproduce the reference values; 0.1.0b6; 2,299 tests pass |
+| Merge into `main` | Not done; the work is on `feat/accuracy-options` |
 
-**Ready to start step 2.** What it needs is in place: the parent baselines of both grids, the direction sweep, the comparison script, the prototype to compare against, and the gate values.
+Record of the port: [validation/ACCURACY_RESULTS.md](validation/ACCURACY_RESULTS.md), section 9.
+
+**Deviations from the steps below.**
+
+- Steps 2 to 4 are one commit, not three series: the two options touch the same plumbing files.
+- The policy compatibility check, the native CTest suites and the sanitizer builds were not run.
+- The options have named validation campaigns; `run_full_validation.py` stays a defaults-only run.
+- Step 1 item 3 is done in a reduced form: a variant is stored in its own directory under its parent's key.
+- The experiment branch `exp/accuracy-prototypes` still exists; the port is verified against it, so it can be deleted.
 
 ---
 

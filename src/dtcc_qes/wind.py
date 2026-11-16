@@ -407,7 +407,8 @@ def _result_from_native(native, diagnostics, geometry, prepared, solver, *,
     profile_record = prepared.domain["profile"]
     record = native.get("control")
     model_names = ("wall_roughness", "rooftop_flag", "upwind_cavity_flag", "street_canyon_flag",
-                   "street_intersection_flag", "wake_flag", "high_rise_flag", "sidewall_flag")
+                   "street_intersection_flag", "wake_flag", "high_rise_flag", "sidewall_flag", "angle_fade",
+                   "tall_buildings_flag")
     metadata = dict(
         divergence_diagnostic=dict(unit="s^-1", norm="volume-weighted RMS and maximum",
             lateral_boundary_cells="excluded", last_solved_band="reported separately",

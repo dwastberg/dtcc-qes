@@ -136,10 +136,15 @@ float SpreadingWake::point(int component, int i, int j, int k) const
 }
 
 void SpreadingWake::accumulate(double roof_speed2, std::vector<float> &deficit_u, std::vector<float> &deficit_v,
-                               std::vector<float> &roof_speed2_u) const
+                               std::vector<float> &roof_speed2_u, bool root_sum_squares) const
 {
   if (!active_) return;
   const double dx = domain_.dx(), dy = domain_.dy();
+  // Deficits combine by the largest (wake code 3 as released) or, with the tall-building option, by the
+  // root sum of squares, so that weak wakes that overlap add up. The roof-speed field keeps the largest.
+  auto combine = [root_sum_squares](float before, float g) {
+    return root_sum_squares ? std::min(1.0f, std::sqrt(before * before + g * g)) : std::max(before, g);
+  };
 #pragma omp parallel for schedule(dynamic, 4)
   for (int j = j0_; j <= j1_; j++) {
     for (int i = i0_; i <= i1_; i++) {
@@ -156,11 +161,11 @@ void SpreadingWake::accumulate(double roof_speed2, std::vector<float> &deficit_u
         const long f = domain_.face(i, j, k);
         if (z <= top_u) {
           const double g = std::min(gu * vertical(z, sigma_u), 1.0);
-          deficit_u[f] = std::max(deficit_u[f], float(g));
+          deficit_u[f] = combine(deficit_u[f], float(g));
           roof_speed2_u[f] = std::max(roof_speed2_u[f], float(roof_speed2 * g));
         }
         if (z <= top_v)
-          deficit_v[f] = std::max(deficit_v[f], float(std::min(gv * vertical(z, sigma_v), 1.0)));
+          deficit_v[f] = combine(deficit_v[f], float(std::min(gv * vertical(z, sigma_v), 1.0)));
       }
     }
   }

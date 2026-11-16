@@ -4,6 +4,19 @@ Versions before 0.1.0b2 were not released. Their features (unified `run()` API, 
 
 Every version below changes default results. Each one states what changes, how it was checked, and how to keep the previous behaviour where that is possible. The native identity is the qualified source and arithmetic identity of the build. Adaptive `pedestrian-v1` acceptance needs the build to report it as supported.
 
+## 0.1.0b6 (2026-11-16)
+
+Native identity `e130c2fbf47179923862c037a9a370ec17b91788a01f6719cd282506ba43471a`
+(AppleClang 17 Release, default arithmetic); the build is not qualified for `pedestrian-v1`, as 0.1.0b5.
+
+No default result changes: every default run of the validation cases is bit-identical to 0.1.0b5. Two experimental, opt-in settings of `wind.Parameterizations` are added; both are outside `pedestrian-v1`. Measurements: [diagnostics](validation/ACCURACY_DIAGNOSTICS.md) and [results](validation/ACCURACY_RESULTS.md).
+
+- **`angle_fade` (degrees, default 0):** the sidewall zone and the upwind cavity fade with angle instead of switching on at 10° from alignment. With `2.5` the largest step of the 2 m field between wind directions one degree apart falls from 0.032 to 0.015 in K (one building, `wake=3`); the AIJ scores do not move. Cell flags keep the switch. See [the angle fade](docs/angle-fade.md).
+- **`tall_buildings` (0 or 1, default 0; needs `wake=3`):** far-wake deficits combine by the root sum of squares, and a building much taller than its neighbours gets a zone of faster air near the ground, from the speed ratios of Reiter (2010); part of the rise is carried as turbulence in `result.wake.tke`. In AIJ Case E the change within 30 m of the new 60 m tower goes from +0.024 to +0.227 (measured +0.262) and the error before construction from +0.176 to +0.093; in Case D the bias goes from −0.120 to −0.033. **It is a scalar-speed model:** at the Case D points where the flow direction is measured, sign errors rise from 5 to 10 of 29. It has no independent test yet. See [tall buildings](docs/tall-buildings.md) for the eight documented limits.
+- **Scoring protocol** in `validation/accuracy/`: paired bootstrap intervals over probe and direction groups, shrinkage comparators, the tower table, the 1° direction sweep.
+- **Version string:** `dtcc_qes.__version__` now follows `pyproject.toml` (it still said 0.1.0b4 in 0.1.0b5), with a test.
+- **Known, not fixed:** with `wake=3` on AIJ Case C at 1 m the velocity stop rule does not trigger and the run goes to the sweep cap; the fields are converged.
+
 ## 0.1.0b5 (2026-11-14)
 
 Native identity `b69e655c0ca10190b72b95c2c08c3296e0267c3312b1301a83f9dd0268222761`

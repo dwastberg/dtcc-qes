@@ -84,9 +84,21 @@ def stored(tag):
     return get_
 
 
+# ACC_PARAMS: Parameterizations fields of a variant, as JSON (e.g. {"angle_fade": 2.5}). The run is stored in
+# the variant's own directory (ACC_TAG) under the key of the plain specification, so that a variant and its
+# parent are matched by key; the record carries the variant's settings.
+PARAMS = json.loads(os.environ.get("ACC_PARAMS", "{}"))
+
+
 def execute(spec, mutate=None):
     """Solve ``spec`` and store it; the wake code 3 plane fields are added to the arrays."""
+    from dataclasses import replace
     from dtcc_qes import wind
+    key = spec.key
+    if PARAMS:
+        if not TAG:
+            raise SystemExit("ACC_PARAMS needs ACC_TAG: a variant must not overwrite the parent's runs")
+        spec = replace(spec, parameterizations={**dict(spec.parameterizations), **PARAMS})
     held, original = {}, wind.run
 
     def capture(*args, **kwargs):
@@ -102,6 +114,8 @@ def execute(spec, mutate=None):
         plane = result.sample(2.0, "nearest")
         arrays.update(wake_deficit=plane.wake_deficit.astype(np.float32), wake_tke=plane.wake_tke.astype(np.float32),
                       wake_inflow_tke=np.float64(result.metadata["wake"]["inflow_tke"]["value"]))
+    if PARAMS:
+        record.update(key=key, variant=PARAMS)
     runner.write(record, arrays, RUNS / spec.case)
     return record
 

@@ -59,6 +59,11 @@ def case_ab(case: str, **options) -> RunSpec:
 
 
 WAKE3 = {"wake": 3}  # the spreading far wake and wake turbulence (WAKE_UPDATE_V2.md)
+# The opt-in settings of 0.1.0b6 on top of wake=3 (ACCURACY_RESULTS.md): the angle fade at its validated
+# half-width, and the root-sum-of-squares shelter with the tall-building zone.
+ANGLE_FADE = {"wake": 3, "angle_fade": 2.5}
+TALL_BUILDINGS = {"wake": 3, "tall_buildings": 1}
+ACCURACY_OPTIONS = {"wake": 3, "angle_fade": 2.5, "tall_buildings": 1}
 
 
 def fixed_work(spec: RunSpec) -> RunSpec:
@@ -112,6 +117,9 @@ def campaign(name: str) -> list[RunSpec]:
     if name == "wake3":
         # The spreading far wake (WAKE_UPDATE_V2.md), on the baseline matrix.
         return baseline(2.0, parameterizations=WAKE3)
+    if name in ("angle_fade", "tall_buildings", "accuracy_options"):
+        settings = dict(angle_fade=ANGLE_FADE, tall_buildings=TALL_BUILDINGS, accuracy_options=ACCURACY_OPTIONS)[name]
+        return baseline(2.0, parameterizations=settings)
     if name == "grid":
         return baseline(4.0) + baseline(1.0)
     if name == "fine_check":
@@ -301,6 +309,9 @@ def ab_campaign(name: str) -> list[RunSpec]:
         return ab_baseline()
     if name == "ab_wake3":
         return ab_baseline(2.0, parameterizations=WAKE3) + ab_baseline(AB_RESOLUTION, parameterizations=WAKE3)
+    if name == "ab_accuracy_options":
+        return (ab_baseline(2.0, parameterizations=ACCURACY_OPTIONS)
+                + ab_baseline(AB_RESOLUTION, parameterizations=ACCURACY_OPTIONS))
     if name == "ab_grid":
         return [spec for r in AB_GRID if r != AB_RESOLUTION for spec in ab_baseline(r)]
     if name == "ab_sensitivity":
@@ -328,6 +339,8 @@ def c_campaign(name: str) -> list[RunSpec]:
         return c_baseline(4.0)
     if name == "c_baseline":
         return c_baseline()
+    if name == "c_accuracy_options":
+        return c_baseline(parameterizations=ACCURACY_OPTIONS)
     if name == "c_grid":
         return c_baseline(4.0) + c_baseline(2.0)
     if name == "c_fine":

@@ -42,7 +42,7 @@ std::vector<std::string> pedestrian_exclusions(const GridConfig &g,const ModelSe
       || in.inflow.site_z_ref!=10 || in.inflow.site_z0!=.1f))add("unqualified_inflow");
   if(m.rooftop_flag!=1 || m.upwind_cavity_flag!=2 || m.street_canyon_flag!=1
       || m.street_intersection_flag!=0 || m.wake_flag!=2 || m.high_rise_flag!=0
-      || m.sidewall_flag!=1 || float(m.wall_roughness)!=.001f)add("unqualified_model_settings");
+      || m.sidewall_flag!=1 || float(m.wall_roughness)!=.001f || m.angle_fade!=0 || m.tall_buildings_flag!=0)add("unqualified_model_settings");
   if(in.buildings.size()<4 || in.buildings.size()>32)add("unqualified_geometry");
   for(const auto &b:in.buildings) {
     if(b.height<4 || b.height>24 || b.base_height!=0 || b.vertices.size()!=5) {

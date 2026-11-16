@@ -96,6 +96,9 @@ if __name__ == "__main__":
     print("| Variant | Quantity | Median | 95th percentile | Maximum | At |\n|---|---|---|---|---|---|")
     for wake in ((3,) if common.TAG else (2, 3)):
         print("\n".join(summary(sweep(f"parent-wake{wake}", wake))))
+    if "--fade" in sys.argv:  # Parameterizations.angle_fade, on the build in use
+        fade = float(sys.argv[sys.argv.index("--fade") + 1])
+        print("\n".join(summary(sweep(f"angle-fade-{fade:g}", 3, angle_fade=fade))))
     if "--attribution" in sys.argv:
         for name, options in (("wake3, sidewall off", dict(sidewall=0)), ("wake3, upwind cavity off", dict(upwind_cavity=0)),
                               ("wake3, rooftop off", dict(rooftop=0)),

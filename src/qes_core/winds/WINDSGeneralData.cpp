@@ -334,6 +334,16 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
     const std::function<void(const char *,int)> &building_observer)
 {
   parameterizations.validateWakeDependencies();
+  // The undisturbed inflow per layer, before any zone is written (the tall-building zone scales it).
+  std::vector<float> inflow_u, inflow_v;
+  if (parameterizations.tallBuildingsFlag != 0) {
+    inflow_u.resize(domain.nz());
+    inflow_v.resize(domain.nz());
+    for (int k = 0; k < domain.nz(); ++k) {
+      inflow_u[k] = u0[domain.face(0, 0, k)];
+      inflow_v[k] = v0[domain.face(0, 0, k)];
+    }
+  }
   for (auto *building : allBuildingsV) {
     building->resetConditionState();
     const auto face = domain.face(building->i_building_cent, building->j_building_cent, building->k_end);
@@ -426,6 +436,12 @@ void WINDSGeneralData::applyParametrizations(const std::function<void(const char
   if (stage) stage("rooftop");
   wall->setVelocityZero(this);
   if (stage) stage("solid_mask");
+  tallBuildingWeight.clear();
+  if (parameterizations.tallBuildingsFlag != 0) {
+    qes::log::info() << "[QES-WINDS]\t Applying tall-building zone...\n";
+    applyTallBuildings(inflow_u, inflow_v);
+    if (stage) stage("tall_buildings");
+  }
 
   auto finish_param = std::chrono::high_resolution_clock::now();// Finish recording execution time
 
@@ -441,6 +457,8 @@ void WINDSGeneralData::applySpreadingWake(const std::function<void(const char *,
   // (4) the cavities with the sheltered roof speed, (5) the deficit applied to
   // every interior face that no cavity wrote. Steps 2 and 3 combine buildings
   // by maximum, so the result does not depend on their order or on threads.
+  // With the tall-building option step 3 combines the deficits by the root sum of
+  // squares, which is also independent of the order up to rounding.
   const auto faces = std::size_t(domain.numFaceCentered());
   wakeDeficitU.assign(faces, 0.0f);
   wakeDeficitV.assign(faces, 0.0f);
@@ -470,7 +488,7 @@ void WINDSGeneralData::applySpreadingWake(const std::function<void(const char *,
   }
   for (std::size_t n = 0; n < count; n++) {
     const double u = roof_u[n] * shelter[n], v = roof_v[n] * shelter[n];
-    wakes[n].accumulate(u * u + v * v, wakeDeficitU, wakeDeficitV, wakeRoofSpeed2U);
+    wakes[n].accumulate(u * u + v * v, wakeDeficitU, wakeDeficitV, wakeRoofSpeed2U, parameterizations.tallBuildingsFlag != 0);
   }
   for (std::size_t n = 0; n < count; n++) {
     PolyBuilding::WakePreamble preamble;

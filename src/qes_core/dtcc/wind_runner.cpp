@@ -40,6 +40,25 @@ WakeFields wake_fields(const WINDSGeneralData &data)
   return out;
 }
 
+// Tall-building option: the turbulent share of the zone, k = W (1 - g^2) / (2 g^2) |U|^2 with the solved mean
+// flow U, the zone weight W and the mean-flow share g. Added to the wake turbulence, so that the scalar
+// speed sqrt(|U|^2 + 2k) carries the full target while the mean flow carries the share g.
+void add_tall_building_turbulence(const WINDSGeneralData &data, const std::vector<float> &velocity, WakeFields &wake)
+{
+  const double g = TallBuildingModel::mean_share, share = (1.0 - g * g) / (2.0 * g * g);
+  const auto &d = data.domain;
+  const int nx = d.nx() - 1, ny = d.ny() - 1, nz = d.nz() - 2;
+  for (int k = 1; k <= nz; ++k)
+    for (int j = 0; j < ny; ++j)
+      for (int i = 0; i < nx; ++i) {
+        const double w = 0.5 * (data.tallBuildingWeight[d.face(i, j, k)] + data.tallBuildingWeight[d.face(i + 1, j, k)]);
+        if (w <= 0) continue;
+        const auto c = (std::size_t(k - 1) * ny + j) * nx + i;
+        const float *v = &velocity[3 * c];
+        wake.tke[c] += float(w * share * (double(v[0]) * v[0] + double(v[1]) * v[1] + double(v[2]) * v[2]));
+      }
+}
+
 double progress_now() {
   return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
@@ -420,6 +439,7 @@ WindData WindRunner::solve(const WindCondition &condition, const SolverOptions &
       progress_phase("finalization");
       workspace.finalize(solver::FaceDestination(data),
                          solver::CenteredDestination{result.velocity,result.cell_flags},&mass);
+      if (result.wake && !data.tallBuildingWeight.empty()) add_tall_building_turbulence(data, result.velocity, *result.wake);
       if (const auto report = workspace.estimate_report())
         result.stop_estimate = stop_estimate_data(*report,options.stop_rule,workspace.termination());
       stage_progress("projection");

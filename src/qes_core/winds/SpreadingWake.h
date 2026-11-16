@@ -66,7 +66,7 @@ public:
    * independent; the loop is parallel over rows and needs no ordering.
    */
   void accumulate(double roof_speed2, std::vector<float> &deficit_u, std::vector<float> &deficit_v,
-                  std::vector<float> &roof_speed2_u) const;
+                  std::vector<float> &roof_speed2_u, bool root_sum_squares = false) const;
 
   double reach() const { return reach_; } /**< x_r, downstream end in the wind frame */
   double taperFrom() const { return taper_from_; } /**< x_s; negative when the deficit ends without a taper */

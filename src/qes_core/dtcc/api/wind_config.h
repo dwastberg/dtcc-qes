@@ -28,6 +28,8 @@ struct ModelSettings {
   double wall_roughness = 0.001;
   int rooftop_flag = 1, upwind_cavity_flag = 2, street_canyon_flag = 1;
   int street_intersection_flag = 0, wake_flag = 2, high_rise_flag = 0, sidewall_flag = 1;
+  int tall_buildings_flag = 0; // 1: root-sum-of-squares shelter and the tall-building zone; needs wake_flag 3
+  double angle_fade = 0.0; // degrees; 0 keeps the 10 degree switch of the sidewall and upwind cavity
 };
 
 struct WindCondition {

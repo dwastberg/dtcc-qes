@@ -275,3 +275,38 @@ Under the plan D does not pass. What S+D delivers is a correct scalar speed near
 - The sign errors at the Case D vector points stay at 10 of 29 in every variant.
 
 **M + S + D together** (2 m): identical to S + D to three decimals in every measure of the table. The second-grid and Case C runs of the combination were still running when this was written.
+
+## 9. Port to the package (2026-11-16)
+
+Steps 2 to 4 of [ACCURACY_MAIN_INTEGRATION_PLAN.md](../ACCURACY_MAIN_INTEGRATION_PLAN.md), on the branch `feat/accuracy-options`. Version 0.1.0b6, native identity `e130c2fb…`.
+
+**Options.** `wind.Parameterizations(angle_fade=2.5)` and `wind.Parameterizations(wake=3, tall_buildings=1)`; both default to off. Documentation: [docs/angle-fade.md](../docs/angle-fade.md), [docs/tall-buildings.md](../docs/tall-buildings.md). Only the accepted variant of the zone is ported; its constants are in `TallBuildingModel` (`wake_model.h`). The zone is a named stage (`tall_buildings`) at the end of `applyParametrizations`.
+
+**Gate 1, defaults unchanged.** 184 default runs (`wake=2` and `wake=3`; A, B, C, D, E; both grids) on the final build against the runs of the 0.1.0b5 build: probe velocities and 2 m planes are bit-identical in all 184. The audited turbulence fixtures were regenerated for the serial and the OpenMP build: all 16 arrays are bit-identical; only their recorded source hashes and native identity change.
+
+**Gate 2, options reproduce the prototype.**
+
+| Check | Prototype | Ported |
+|---|---|---|
+| `tall_buildings=1`, 37 runs of A, B, D, E | | Bit-identical to the prototype |
+| `angle_fade=2.5`, same runs | | Within 1.2e-5 m/s (the half-width is converted to radians in single precision) |
+| Sweep, 2 m: largest / median plane RMS ΔK per degree | 0.0154 / 0.0061 | 0.0154 / 0.0061 |
+| Sweep, building turned 30° | 0.0108 | 0.0108 |
+| Sweep, 1 m | 0.0138 | 0.0138 |
+| Case E change within 30 m, 2 m / 1 m | +0.227 / +0.230 | +0.227 / +0.230 |
+| Case E before, error within 30 m, 2 m / 1 m | +0.093 / +0.095 | +0.093 / +0.095 |
+| Case E after, R, 2 m / 1 m | 0.666 / 0.662 | 0.666 / 0.662 |
+| Case D bias / MAE, 2 m / 1 m | −0.033 / 0.131; −0.037 / 0.133 | the same |
+| Case C, both options against `wake=3`, 1 m and 2 m | 0H better, 1H and 2H no resolved change | the same |
+
+Tables: [accuracy_evidence/final_campaign_working_grid.md](accuracy_evidence/final_campaign_working_grid.md), [final_campaign_second_grid_and_c.md](accuracy_evidence/final_campaign_second_grid_and_c.md), [step2_port_gate.md](accuracy_evidence/step2_port_gate.md).
+
+**Tests.** `tests/test_angle_fade.py` (16) and `tests/test_tall_buildings.py` (9) are new. The Python suites pass on the final build: 2,299 passed, 39 skipped.
+
+**Not done.**
+
+- The native CTest suites and the sanitizer builds were not run.
+- `tools/check_policy_compatibility.py` was not run; the build is not qualified for `pedestrian-v1`, as 0.1.0b5.
+- Case C alone with `tall_buildings=1` or with `angle_fade=2.5` on the final build; the combination was run, and the fade leaves Case C identical.
+- `run_full_validation.py` covers defaults only, as before; the options have named campaigns instead (`angle_fade`, `tall_buildings`, `accuracy_options`, `ab_accuracy_options`, `c_accuracy_options`).
+- The run cache of `validation/accuracy/common.py` still stores a variant under its parent's key in a directory of its own (`ACC_TAG`, `ACC_PARAMS`).

@@ -318,6 +318,8 @@ NB_MODULE(_qes, m)
     .def_rw("wake_flag", &ModelSettings::wake_flag)
     .def_rw("high_rise_flag", &ModelSettings::high_rise_flag)
     .def_rw("sidewall_flag", &ModelSettings::sidewall_flag)
+    .def_rw("tall_buildings_flag", &ModelSettings::tall_buildings_flag)
+    .def_rw("angle_fade", &ModelSettings::angle_fade)
     .def_rw("exposed_faces", &ModelSettings::exposed_faces);
   nb::enum_<ProfileKind>(m, "ProfileKind")
     .value("log", ProfileKind::Log).value("layer_table", ProfileKind::LayerTable);

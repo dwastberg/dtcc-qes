@@ -192,6 +192,9 @@ public:
   std::vector<std::uint8_t> wakeCavity; /**< faces a cavity wrote: bit 0 u, bit 1 v */
   /** Wake code 3: shelter, spreading far wake and cavities, then the deficit on non-cavity faces. */
   void applySpreadingWake(const std::function<void(const char *,int)> &building_observer);
+  /** Tall-building zone (Parameterizations.tall_buildings), written after every other zone. */
+  void applyTallBuildings(const std::vector<float> &inflow_u, const std::vector<float> &inflow_v);
+  std::vector<float> tallBuildingWeight; /**< largest weight of the tall-building zone on u faces; empty when the option is off */
 
 protected:
 

@@ -97,6 +97,8 @@ Measured on the AIJ cases at the pedestrian probes
 
 ## Limits
 
+- Two further opt-in settings build on this model: [`tall_buildings`](tall-buildings.md) (root-sum-of-squares shelter and a tall-building zone) and [`angle_fade`](angle-fade.md). Both leave `wake=3` unchanged when off.
+
 - It is an empirical shadow model. Its constants come from Cases A and B; the
   district cases (D and E) were not used to tune it.
 - Adaptive solver runs report `unqualified_model_settings`, as for any

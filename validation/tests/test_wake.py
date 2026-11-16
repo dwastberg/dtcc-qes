@@ -129,3 +129,20 @@ def test_cavity_overlap_joins_probe_id_and_direction():
     masks['probe_ids'] = [8, 3]
     with pytest.raises(ValueError, match='probe order'):
         overlap(masks, measured)
+
+
+def test_accuracy_option_campaigns():
+    """The opt-in settings of 0.1.0b6 on the wake=3 matrices; each variant has its own run keys."""
+    wake3 = campaigns.campaign("wake3")
+    for name, settings in (("angle_fade", {"wake": 3, "angle_fade": 2.5}),
+                           ("tall_buildings", {"wake": 3, "tall_buildings": 1}),
+                           ("accuracy_options", {"wake": 3, "angle_fade": 2.5, "tall_buildings": 1})):
+        specs = campaigns.campaign(name)
+        assert len(specs) == len(wake3) == 35
+        assert all(dict(s.parameterizations) == settings for s in specs)
+        assert not {s.key for s in specs} & {s.key for s in wake3}
+    ab = campaigns.campaign("ab_accuracy_options")
+    assert sorted((s.case, s.resolution) for s in ab) == [("A", 1.0), ("A", 2.0), ("B", 1.0), ("B", 2.0)]
+    c = campaigns.campaign("c_accuracy_options")
+    assert len(c) == 9 and all(dict(s.parameterizations) == campaigns.ACCURACY_OPTIONS for s in c)
+    assert campaigns.ACCURACY_OPTIONS == {"wake": 3, "angle_fade": 2.5, "tall_buildings": 1}

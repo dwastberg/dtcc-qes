@@ -217,6 +217,7 @@ ModelInputs::ModelInputs(const GridConfig &grid, const ModelSettings &model, con
   flag(model.wake_flag, 3, "wake flag");
   flag(model.high_rise_flag, 1, "high rise flag");
   flag(model.sidewall_flag, 1, "sidewall flag");
+  flag(model.tall_buildings_flag, 1, "tall buildings flag");
   // street_intersection_flag is validated but, as in QES, has no model.
   parameterizations.rooftopFlag = model.rooftop_flag;
   parameterizations.upwindCavityFlag = model.upwind_cavity_flag;
@@ -224,6 +225,10 @@ ModelInputs::ModelInputs(const GridConfig &grid, const ModelSettings &model, con
   parameterizations.wakeFlag = model.wake_flag;
   parameterizations.highRiseFlag = model.high_rise_flag;
   parameterizations.sidewallFlag = model.sidewall_flag;
+  parameterizations.tallBuildingsFlag = model.tall_buildings_flag;
+  if (!(model.angle_fade >= 0.0 && model.angle_fade <= 10.0))
+    throw std::invalid_argument("Angle fade must be between 0 and 10 degrees");
+  parameterizations.angleFade = float(model.angle_fade);
   parameterizations.exposedFaces = model.exposed_faces;
   parameterizations.canonicalFaces = !arrays.ring_offsets.empty();
 

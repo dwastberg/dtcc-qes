@@ -23,7 +23,7 @@ add_library(qeswindscore STATIC
   winds/TURBGeneralData.cpp winds/TURBWall.cpp winds/TURBWallBuilding.cpp winds/TURBWallTerrain.cpp
   winds/LogProfile.cpp winds/LayerProfile.cpp
   winds/WINDSGeneralData.cpp winds/Wall.cpp winds/UpwindCavity.cpp winds/NonLocalMixing.cpp
-  winds/PolygonWake.cpp winds/SpreadingWake.cpp winds/StreetCanyon.cpp winds/StreetCanyonModified.cpp winds/Sidewall.cpp
+  winds/PolygonWake.cpp winds/SpreadingWake.cpp winds/TallBuildingZone.cpp winds/StreetCanyon.cpp winds/StreetCanyonModified.cpp winds/Sidewall.cpp
   winds/Rooftop.cpp)
 target_link_libraries(qeswindscore PUBLIC qesutil)
 target_include_directories(qeswindscore PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/winds")

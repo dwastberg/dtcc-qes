@@ -21,7 +21,8 @@ def slender_city():
 def test_defaults_are_the_native_and_qualified_settings():
     assert wind.Parameterizations._from_model(_qes.ModelSettings()) == wind.Parameterizations()
     assert wind.Parameterizations().to_dict() == dict(schema_version=1, rooftop=1, upwind_cavity=2, street_canyon=1,
-                                                      wake=2, high_rise=0, sidewall=1, wall_roughness=0.001)
+                                                      wake=2, high_rise=0, sidewall=1, wall_roughness=0.001,
+                                                      angle_fade=0.0, tall_buildings=0)
 
 
 @pytest.mark.parametrize("changes,match", [

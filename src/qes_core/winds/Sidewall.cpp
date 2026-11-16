@@ -31,6 +31,8 @@
 /** Sidewall.cpp */
 
 #include "PolyBuilding.h"
+#include "AngleFade.h"
+#include <unordered_map>
 
 // These take care of the circular reference
 #include "WINDSGeneralData.h"
@@ -58,6 +60,21 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
   int side_wall_flag = 0;// If 1, indicates that there are faces that are nominally parallel with the wind
   std::vector<float> face_rel_dir; /**< Face relative angle to the perpendicular direction of the local wind */
   face_rel_dir.resize(polygonVertices.size(), 0.0);
+  // Weights that fade with angle (Parameterizations.angle_fade); 1 or 0 at the +/-10 degree switch when it is off.
+  auto parallelWeight = [&](size_t f) {
+    const float a = abs(face_rel_dir[f]);
+    return angleFadeWeight(WGD->parameterizations.angleFade, abs(a - float(0.5 * M_PI)), tol, a >= 0.5 * M_PI - tol && a <= 0.5 * M_PI + tol);
+  };
+  auto facingWeight = [&](size_t f) {
+    const float a = abs(face_rel_dir[f]);
+    return angleFadeWeight(WGD->parameterizations.angleFade, float(M_PI) - a, tol, a >= M_PI - tol);
+  };
+  std::unordered_map<long, float> base_u, base_v;// values before this building's sidewall zone, per face
+  auto faded = [](std::vector<float> &field, std::unordered_map<long, float> &base, long face, float value, float weight) {
+    if (weight >= 1.0f) { field[face] = value; return; }
+    const float before = base.emplace(face, field[face]).first->second;
+    field[face] = before + weight * (value - before);
+  };
   float R_scale_side; /**< Vortex size scaling factor */
   float R_cx_side; /**< Downwind length of the half-ellipse that defines the vortex recirculation region */
   float vd; /**< Half of lateral width of the elliptical recirculation region */
@@ -103,7 +120,7 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
     if (face_rel_dir[id] > M_PI) {
       face_rel_dir[id] -= 2 * M_PI;
     }
-    if (abs(face_rel_dir[id]) >= 0.5 * M_PI - tol && abs(face_rel_dir[id]) <= 0.5 * M_PI + tol) {
+    if (parallelWeight(id) > 0.0f) {
       side_wall_flag = 1;// Indicates that there are faces that are nominally parallel with the wind
     }
   }
@@ -122,13 +139,18 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
     for (size_t id = 0; id < polygonVertices.size() - 1; id++) {
     if (!isFace(id)) continue;
       // +/-10 degree perpendicular to the local wind
-      if (abs(face_rel_dir[id]) >= 0.5 * M_PI - tol && abs(face_rel_dir[id]) <= 0.5 * M_PI + tol) {
+      if (parallelWeight(id) > 0.0f) {
+        float fade_weight = parallelWeight(id);
+        const bool released_face = abs(face_rel_dir[id]) >= 0.5 * M_PI - tol && abs(face_rel_dir[id]) <= 0.5 * M_PI + tol;
+        bool released_neighbour = true;
         right_flag = 0;
         left_flag = 0;
         if (face_rel_dir[id] > 0.0) {
           index_previous = previousFace(id);
           // Finding the left face eligible for the parameterization
-          if (abs(face_rel_dir[index_previous]) >= M_PI - tol) {
+          if (facingWeight(index_previous) > 0.0f) {
+            fade_weight *= facingWeight(index_previous);
+            released_neighbour = abs(face_rel_dir[index_previous]) >= M_PI - tol;
             left_flag = 1;
             x_start_left = polygonVertices[id].x_poly;
             y_start_left = polygonVertices[id].y_poly;
@@ -140,7 +162,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
         } else {
           index_next = nextFace(id);
           // Finding the right face eligible for the parameterization
-          if (abs(face_rel_dir[index_next]) >= M_PI - tol) {
+          if (facingWeight(index_next) > 0.0f) {
+            fade_weight *= facingWeight(index_next);
+            released_neighbour = abs(face_rel_dir[index_next]) >= M_PI - tol;
             right_flag = 1;
             x_start_right = polygonVertices[id + 1].x_poly;
             y_start_right = polygonVertices[id + 1].y_poly;
@@ -220,9 +244,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                     }
                     internal_BL_width = y_pref * sqrt(xp_u);
                     if (abs(yp_u) <= shell_width) {
-                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) WGD->u0[icell_face] = -u0_right * abs((shell_width - abs(yp_u)) / vd);
+                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) faded(WGD->u0, base_u, icell_face, -u0_right * abs((shell_width - abs(yp_u)) / vd), fade_weight);
                     } else if (abs(yp_u) <= internal_BL_width) {
-                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) WGD->u0[icell_face] = u0_right * log((abs(yp_u) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
+                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) faded(WGD->u0, base_u, icell_face, u0_right * log((abs(yp_u) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0), fade_weight);
                     }
 
                     x_v = (i + 0.5) * dx;// x location of v component
@@ -240,9 +264,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                     }
                     internal_BL_width = y_pref * sqrt(xp_v);
                     if (abs(yp_v) <= shell_width) {
-                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) WGD->v0[icell_face] = -v0_right * abs((shell_width - abs(yp_v)) / vd);
+                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) faded(WGD->v0, base_v, icell_face, -v0_right * abs((shell_width - abs(yp_v)) / vd), fade_weight);
                     } else if (abs(yp_v) <= internal_BL_width) {
-                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) WGD->v0[icell_face] = v0_right * log((abs(yp_v) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
+                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) faded(WGD->v0, base_v, icell_face, v0_right * log((abs(yp_v) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0), fade_weight);
                     }
                     // x location of cell center in local coordinates
                     xp_c = (x_v - x_start_right) * cos(face_dir) + (y_u - y_start_right) * sin(face_dir);
@@ -252,7 +276,7 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                     shell_width_calc = 1 - pow((0.5 * R_cx_side - xp_c) / (0.5 * R_cx_side), 2.0);
                     internal_BL_width = y_pref * sqrt(xp_c);
                     if ((abs(yp_c) <= shell_width || abs(yp_c) <= internal_BL_width) && (WGD->icellflag[icell_cent] != 7) && (WGD->icellflag[icell_cent] != 8)) {
-                      WGD->icellflag[icell_cent] = 9;// Cell marked as sidewall cell
+                      if (released_face && released_neighbour) WGD->icellflag[icell_cent] = 9;// Cell marked as sidewall cell
                     }
                   }
                 }
@@ -319,9 +343,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                     }
                     internal_BL_width = y_pref * sqrt(xp_u);
                     if (abs(yp_u) <= shell_width) {
-                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) WGD->u0[icell_face] = -u0_left * abs((shell_width - abs(yp_u)) / vd);
+                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) faded(WGD->u0, base_u, icell_face, -u0_left * abs((shell_width - abs(yp_u)) / vd), fade_weight);
                     } else if (abs(yp_u) <= internal_BL_width) {
-                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) WGD->u0[icell_face] = u0_left * log((abs(yp_u) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
+                      if (faceExposed(WGD,id,i*dx,(j+.5)*dy,k)) faded(WGD->u0, base_u, icell_face, u0_left * log((abs(yp_u) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0), fade_weight);
                     }
 
                     x_v = (i + 0.5) * dx;// x location of v component
@@ -339,9 +363,9 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                     }
                     internal_BL_width = y_pref * sqrt(xp_v);
                     if (abs(yp_v) <= shell_width) {
-                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) WGD->v0[icell_face] = -v0_left * abs((shell_width - abs(yp_v)) / vd);
+                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) faded(WGD->v0, base_v, icell_face, -v0_left * abs((shell_width - abs(yp_v)) / vd), fade_weight);
                     } else if (abs(yp_v) <= internal_BL_width) {
-                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) WGD->v0[icell_face] = v0_left * log((abs(yp_v) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0);
+                      if (faceExposed(WGD,id,(i+.5)*dx,j*dy,k)) faded(WGD->v0, base_v, icell_face, v0_left * log((abs(yp_v) + WGD->z0) / WGD->z0) / log((internal_BL_width + WGD->z0) / WGD->z0), fade_weight);
                     }
                     // x location of cell center in local coordinates
                     xp_c = (x_v - x_start_left) * cos(face_dir) + (y_u - y_start_left) * sin(face_dir);
@@ -351,7 +375,7 @@ void PolyBuilding::sideWall(WINDSGeneralData *WGD)
                     shell_width_calc = 1 - pow((0.5 * R_cx_side - xp_c) / (0.5 * R_cx_side), 2.0);
                     internal_BL_width = y_pref * sqrt(xp_c);
                     if ((abs(yp_c) <= shell_width || abs(yp_c) <= internal_BL_width) && (WGD->icellflag[icell_cent] != 7) && (WGD->icellflag[icell_cent] != 8)) {
-                      WGD->icellflag[icell_cent] = 9;// Cell marked as sidewall cell
+                      if (released_face && released_neighbour) WGD->icellflag[icell_cent] = 9;// Cell marked as sidewall cell
                     }
                   }
                 }

@@ -31,6 +31,7 @@
 /** @file UpwindCavity.cpp */
 
 #include "PolyBuilding.h"
+#include "AngleFade.h"
 #include "CavityFrame.h"
 
 // These take care of the circular reference
@@ -108,7 +109,9 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
       upwind_rel_dir[id] -= 2 * M_PI;
     }
 
-    if (abs(upwind_rel_dir[id]) > M_PI - tol) {
+    const float fade_weight = angleFadeWeight(WGD->parameterizations.angleFade, float(M_PI) - abs(upwind_rel_dir[id]), tol,
+                                                        abs(upwind_rel_dir[id]) > M_PI - tol);
+    if (fade_weight > 0.0f) {
       perpendicular_dir[id] = atan2(polygonVertices[id + 1].y_poly - polygonVertices[id].y_poly,
                                     polygonVertices[id + 1].x_poly - polygonVertices[id].x_poly)
                               + 0.5 * M_PI;
@@ -171,6 +174,7 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
               rz_end = length_factor * x_ellipse_u;
               icell_cent = WGD->domain.cell(i, j, k);
               icell_face = WGD->domain.face(i, j, k);
+              const float before_u = WGD->u0[icell_face];
               if (WGD->parameterizations.upwindCavityFlag == 1)// Rockle parameterization
               {
                 if ((x_u - x_intersect_u >= x_ellipse_u) && (x_u - x_intersect_u <= 0.1 * dxy)
@@ -202,6 +206,7 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
                   WGD->u0[icell_face] = u_rotation * cos(-effective_gamma[id]) + v_rotation * sin(-effective_gamma[id]);
                 }
               }
+              if (fade_weight < 1.0f) WGD->u0[icell_face] = before_u + fade_weight * (WGD->u0[icell_face] - before_u);
             }
             // v velocity
             if (faceExposed(WGD,id,(i + 0.5) * dx,j * dy,k) && (abs(y_v) <= abs(yf2[id])) && (height_factor * vortex_height > z_front)) {
@@ -211,6 +216,7 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
               rz_end = length_factor * x_ellipse_v;
               icell_cent = WGD->domain.cell(i, j, k);
               icell_face = WGD->domain.face(i, j, k);
+              const float before_v = WGD->v0[icell_face];
               if (WGD->parameterizations.upwindCavityFlag == 1)// Rockle parameterization
               {
                 if ((x_v - x_intersect_v >= x_ellipse_v) && (x_v - x_intersect_v <= 0.1 * dxy)
@@ -242,6 +248,7 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
                   WGD->v0[icell_face] = -u_rotation * sin(-effective_gamma[id]) + v_rotation * cos(-effective_gamma[id]);
                 }
               }
+              if (fade_weight < 1.0f) WGD->v0[icell_face] = before_v + fade_weight * (WGD->v0[icell_face] - before_v);
             }
 
             // w velocity
@@ -250,6 +257,8 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
               x_ellipse_w = -Lf_face[counter] * sqrt((1 - pow(y_w / abs(yf2[id]), 2.0)) * (1 - pow(z_front / (height_factor * vortex_height), 2.0)));
               icell_cent = WGD->domain.cell(i, j, k);
               icell_face = WGD->domain.face(i, j, k);
+              const float before_w = WGD->w0[icell_face];
+              const auto before_flag = WGD->icellflag[icell_cent];
               if (WGD->parameterizations.upwindCavityFlag == 1)// Rockle parameterization
               {
                 if ((x_w - x_intersect_w >= x_ellipse_w) && (x_w - x_intersect_w <= 0.1 * dxy)
@@ -278,6 +287,11 @@ void PolyBuilding::upwindCavity(WINDSGeneralData *WGD)
                     WGD->icellflag[icell_cent] = 3;
                   }
                 }
+              }
+              if (fade_weight < 1.0f) {
+                WGD->w0[icell_face] = before_w + fade_weight * (WGD->w0[icell_face] - before_w);
+                // the flag keeps the released threshold, so later zones see the same cells
+                if (!(abs(upwind_rel_dir[id]) > M_PI - tol)) WGD->icellflag[icell_cent] = before_flag;
               }
             }
           }

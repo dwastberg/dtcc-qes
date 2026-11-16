@@ -36,6 +36,8 @@ struct BuildingParameterizations
   int wakeFlag = 2; /**< 0 none, 1 Rockle, 2 modified Rockle, 3 modified Rockle cavity with the spreading far wake */
   int highRiseFlag = 0; /**< 0 off, 1 on */
   int sidewallFlag = 1; /**< 0 off, 1 on */
+  int tallBuildingsFlag = 0; /**< 0 off, 1 root-sum-of-squares shelter and the tall-building zone (needs wakeFlag 3) */
+  float angleFade = 0; /**< half-width (degrees) of the ramp replacing the 10 degree switch of the sidewall and upwind cavity; 0 keeps the switch */
 
   void validateWakeDependencies() const
   {
@@ -43,6 +45,8 @@ struct BuildingParameterizations
     // cavity is independent and remains available with wake disabled.
     if (wakeFlag == 0 && (rooftopFlag != 0 || streetCanyonFlag != 0 || sidewallFlag != 0))
       throw std::invalid_argument("wake_flag must be nonzero when rooftop_flag, street_canyon_flag or sidewall_flag is enabled");
+    if (tallBuildingsFlag != 0 && wakeFlag != 3)
+      throw std::invalid_argument("tall_buildings_flag requires wake_flag 3");
   }
 };
 
