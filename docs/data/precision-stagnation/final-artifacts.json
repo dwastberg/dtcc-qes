@@ -1,0 +1,12 @@
+{
+  "artifacts": {
+    "build/precision-stagnation/dist-final/dtcc_qes-0.1.0b6-cp313-cp313-macosx_15_0_arm64.whl": "91228ac730a860f0ea045f97e914d9ddf399ed1ad8a981193db5e8930e3d1e1d",
+    "build/precision-stagnation/dist-final/dtcc_qes-0.1.0b6.tar.gz": "12765c89ca288f4634cda009687653218638f2a142bf462f0cdb7c9ea857d991"
+  },
+  "candidate_native_identity": "df09ee9d8b82471171868fe441bc082c3a17094ce6e03f84295909e51bba329b",
+  "adaptive_qualification_promoted": false,
+  "artifact_audit_passed": true,
+  "installed_wheel_runtime_smoke_passed": true,
+  "installed_wheel_stagnation_smoke_passed": true,
+  "local_editable_stagnation_smoke_passed": true
+}

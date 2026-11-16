@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <optional>
+#include <limits>
 #include <vector>
 #include <atomic>
 #include "dtcc/api/resource_usage.h"
@@ -50,11 +51,26 @@ inline constexpr double estimate_safety_factor = 2;
 inline constexpr double estimate_floor_factor = 6;
 inline constexpr int estimate_required_passes = 2, estimate_first_counted_check = 4;
 inline constexpr std::size_t estimate_history_limit = 2000;
+inline constexpr int estimate_stagnation_checks = 8;
+inline constexpr double estimate_stagnation_floor_factor = 2;
+// Requires a sustained plateau near the arithmetic floor, not merely a dip.
+struct PrecisionStagnation {
+  double minimum = std::numeric_limits<double>::infinity();
+  int without_improvement = 0, near_floor = 0;
+  bool update(double change, double floor, bool counted) {
+    if (change < minimum) { minimum = change; without_improvement = 0; }
+    else without_improvement = std::min(without_improvement+1, estimate_stagnation_checks);
+    near_floor = counted && change <= estimate_stagnation_floor_factor*floor
+      ? std::min(near_floor+1, estimate_stagnation_checks) : 0;
+    return without_improvement >= estimate_stagnation_checks && near_floor >= estimate_stagnation_checks;
+  }
+};
 struct EstimateReport {
   EstimateOptions options;
   std::vector<EstimateCheck> history; // the first estimate_history_limit checks
   bool history_truncated = false;
   int checks = 0;
+  bool stagnation_floor = false;
 };
 // One check from the latest relative change and the changes one and two checks earlier.
 EstimateCheck estimate_step(int iteration, double change, std::optional<double> previous,
@@ -256,6 +272,8 @@ private:
   bool history_truncated_ = false;
   int checks_ = 0, passes_ = 0, floor_passes_ = 0;
   double recent_[2] = {0, 0}, minimum_spacing_ = 0;
+  PrecisionStagnation stagnation_;
+  bool stagnation_floor_ = false;
   Termination estimate_stop_ = Termination::None;
   void check_estimate();
   struct TrendTotals {

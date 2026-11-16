@@ -1,0 +1,213 @@
+{
+  "passed": true,
+  "checked": [
+    {
+      "key": "e0628ef07a49bc82",
+      "actual": 1650,
+      "expected": [
+        1650,
+        1875
+      ],
+      "passed": true
+    },
+    {
+      "key": "2efdea08f74794be",
+      "actual": 1975,
+      "expected": [
+        1975
+      ],
+      "passed": true
+    },
+    {
+      "key": "de4934882abd2490",
+      "actual": 1750,
+      "expected": [
+        1750,
+        1900,
+        2000,
+        2125
+      ],
+      "passed": true
+    },
+    {
+      "key": "2833fc135dda2a68",
+      "actual": 1750,
+      "expected": [
+        1750,
+        1800,
+        2025,
+        2100,
+        2200
+      ],
+      "passed": true
+    },
+    {
+      "key": "3d15c8ac821e3f6d",
+      "actual": 1925,
+      "expected": [
+        1925,
+        1950,
+        1975,
+        2000,
+        2125
+      ],
+      "passed": true
+    },
+    {
+      "key": "bc13998b1d7269da",
+      "actual": 2100,
+      "expected": [
+        2100,
+        2225
+      ],
+      "passed": true
+    },
+    {
+      "key": "f450b777e584c7f3",
+      "actual": 1925,
+      "expected": [
+        1925,
+        2075
+      ],
+      "passed": true
+    },
+    {
+      "key": "18c64576e81c736f",
+      "actual": 2150,
+      "expected": [
+        2000,
+        2150
+      ],
+      "passed": true
+    },
+    {
+      "key": "20b3498fec9539b2",
+      "actual": 1825,
+      "expected": [
+        1825,
+        1950
+      ],
+      "passed": true
+    },
+    {
+      "key": "65551e2ee634ea22",
+      "actual": 1875,
+      "expected": [
+        1875
+      ],
+      "passed": true
+    },
+    {
+      "key": "60743247c8323e40",
+      "actual": 1975,
+      "expected": [
+        1975
+      ],
+      "passed": true
+    },
+    {
+      "key": "7bf379fad96718cf",
+      "actual": 2225,
+      "expected": [
+        2225
+      ],
+      "passed": true
+    },
+    {
+      "key": "808975afcae80e57",
+      "actual": 2075,
+      "expected": [
+        2075
+      ],
+      "passed": true
+    },
+    {
+      "key": "f90e65daae2c1d32",
+      "actual": 2000,
+      "expected": [
+        2000
+      ],
+      "passed": true
+    },
+    {
+      "key": "3618f02d169cb6e9",
+      "actual": 1950,
+      "expected": [
+        1950
+      ],
+      "passed": true
+    },
+    {
+      "key": "0ce598887061ef27",
+      "actual": 1875,
+      "expected": [
+        1875
+      ],
+      "passed": true
+    },
+    {
+      "key": "1cb9369aa5a52ff4",
+      "actual": 1975,
+      "expected": [
+        1975
+      ],
+      "passed": true
+    },
+    {
+      "key": "69bdacfb711e76b0",
+      "actual": 2125,
+      "expected": [
+        2125
+      ],
+      "passed": true
+    },
+    {
+      "key": "c4d835a207e7931a",
+      "actual": 2200,
+      "expected": [
+        2200
+      ],
+      "passed": true
+    },
+    {
+      "key": "3a87eb4656b60abf",
+      "actual": 2125,
+      "expected": [
+        2125
+      ],
+      "passed": true
+    },
+    {
+      "key": "16a8e8bff95a24a8",
+      "actual": 2225,
+      "expected": [
+        2225
+      ],
+      "passed": true
+    },
+    {
+      "key": "4fbf9dcb2d08bd52",
+      "actual": 2075,
+      "expected": [
+        2075
+      ],
+      "passed": true
+    },
+    {
+      "key": "1e4c74783f723103",
+      "actual": 2000,
+      "expected": [
+        2000
+      ],
+      "passed": true
+    },
+    {
+      "key": "d3e26becd95c3ea5",
+      "actual": 1950,
+      "expected": [
+        1950
+      ],
+      "passed": true
+    }
+  ]
+}

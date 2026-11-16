@@ -1,0 +1,82 @@
+[
+  {
+    "direction": 0.0,
+    "baseline_iterations": 325,
+    "candidate_iterations": 325
+  },
+  {
+    "direction": 22.5,
+    "baseline_iterations": 350,
+    "candidate_iterations": 350
+  },
+  {
+    "direction": 45.0,
+    "baseline_iterations": 350,
+    "candidate_iterations": 350
+  },
+  {
+    "direction": 67.5,
+    "baseline_iterations": 350,
+    "candidate_iterations": 350
+  },
+  {
+    "direction": 90.0,
+    "baseline_iterations": 350,
+    "candidate_iterations": 350
+  },
+  {
+    "direction": 112.5,
+    "baseline_iterations": 350,
+    "candidate_iterations": 350
+  },
+  {
+    "direction": 135.0,
+    "baseline_iterations": 350,
+    "candidate_iterations": 350
+  },
+  {
+    "direction": 157.5,
+    "baseline_iterations": 350,
+    "candidate_iterations": 350
+  },
+  {
+    "direction": 180.0,
+    "baseline_iterations": 325,
+    "candidate_iterations": 325
+  },
+  {
+    "direction": 202.5,
+    "baseline_iterations": 325,
+    "candidate_iterations": 325
+  },
+  {
+    "direction": 225.0,
+    "baseline_iterations": 300,
+    "candidate_iterations": 300
+  },
+  {
+    "direction": 247.5,
+    "baseline_iterations": 325,
+    "candidate_iterations": 325
+  },
+  {
+    "direction": 270.0,
+    "baseline_iterations": 325,
+    "candidate_iterations": 325
+  },
+  {
+    "direction": 292.5,
+    "baseline_iterations": 350,
+    "candidate_iterations": 350
+  },
+  {
+    "direction": 315.0,
+    "baseline_iterations": 350,
+    "candidate_iterations": 350
+  },
+  {
+    "direction": 337.5,
+    "baseline_iterations": 350,
+    "candidate_iterations": 350
+  }
+]

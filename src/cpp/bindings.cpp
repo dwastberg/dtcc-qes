@@ -136,6 +136,9 @@ nb::dict python_result(const WindData &data)
     out["safety_factor"] = s.safety_factor; out["contraction_limit"] = s.contraction_limit;
     out["floor_factor"] = s.floor_factor; out["first_counted_check"] = s.first_counted_check;
     out["interval"] = s.interval; out["checks"] = s.checks; out["history_truncated"] = s.history_truncated;
+    out["stagnation_checks"] = s.stagnation_checks;
+    out["stagnation_floor_factor"] = s.stagnation_floor_factor;
+    out["floor_trigger"] = s.floor_trigger.empty() ? nb::none() : nb::cast(s.floor_trigger);
     out["iterations"] = nb::cast(s.iterations);
     out["change"] = values(s.change); out["contraction"] = values(s.contraction);
     out["estimate"] = values(s.estimate); out["floor"] = values(s.floor);

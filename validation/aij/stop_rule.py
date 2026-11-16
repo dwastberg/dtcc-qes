@@ -102,16 +102,29 @@ def replay(estimate, tolerance, *, floor_factor=None, first_counted_check=None, 
     minimum = 3 if first_counted_check is None and recorded_first is None else first
     scale = 1.0 if floor_factor is None else floor_factor / estimate.get("floor_factor", 4)
     passes = floor_passes = 0
+    best, stale, near = float("inf"), 0, 0
+    window = estimate.get("stagnation_checks", 0)
+    factor = estimate.get("stagnation_floor_factor", 2)
     for n, (iteration, value, change, floor) in enumerate(
             zip(estimate["iterations"], estimate["estimate"], estimate["change"], estimate["floor"]), 1):
         counted = n >= first
         passes = passes + 1 if counted and value is not None and value <= tolerance else 0
         floor_passes = (floor_passes + 1 if counted and change is not None and floor is not None
                         and change <= scale * floor else 0)
+        if change is not None and floor is not None:
+            if change < best:
+                best, stale = change, 0
+            else:
+                stale += 1
+            near = near + 1 if counted and change <= factor * scale * floor else 0
+        else:
+            near = 0
         if n >= minimum:
             if passes >= required:
                 return iteration, "velocity_estimate"
             if floor_passes >= required:
+                return iteration, "precision_floor"
+            if window and stale >= window and near >= window:
                 return iteration, "precision_floor"
     return None, None
 

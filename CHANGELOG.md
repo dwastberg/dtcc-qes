@@ -11,6 +11,12 @@ Every version below changes default results. Each one states what changes, how i
   `max_cells`. The documentation now states what the code does when a
   direction does not converge: it warns, keeps the available field and sets
   `health.solver_converged` to false.
+- Velocity solves stop at the arithmetic floor after eight checks without a
+  new minimum change, provided all eight changes remain within twice the floor.
+  This avoids float32 iteration-limit stalls. Results retain the raw estimate
+  and report `precision_floor` with `floor_trigger="stagnation"`. Fixed work
+  and adaptive numerical decisions are unchanged. Validation and qualification
+  status: [precision stagnation](docs/PRECISION_STAGNATION_RESULTS.md).
 
 ## 0.1.0b6 (2026-11-16)
 

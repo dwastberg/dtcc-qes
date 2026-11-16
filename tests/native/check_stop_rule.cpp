@@ -253,7 +253,27 @@ static void invalid_inputs() {
   require(state.advance(10).completed_sweeps == 10, "Valid estimate after rejected inputs");
 }
 
+static void precision_stagnation() {
+  PrecisionStagnation tracker;
+  require(!tracker.update(1.1, 1, true), "First check cannot establish stagnation");
+  for (int n=0;n<7;++n) require(!tracker.update(1.2, 1, true), "Plateau needs eight checks");
+  require(tracker.update(1.2, 1, true), "Sustained rounding plateau must stop");
+  require(!tracker.update(1.05, 1, true), "New minimum resets stagnation");
+  tracker = {};
+  for (int n=0;n<100;++n) require(!tracker.update(3, 1, true), "Stagnation above floor must continue");
+  require(!tracker.update(1.5, 1, true), "Single near-floor dip must continue");
+  for (int n=0;n<20;++n) {
+    require(!tracker.update(3, 1, true), "Excursion resets near-floor window");
+    require(!tracker.update(1.6, 1, true), "Separated dips cannot accumulate");
+  }
+  tracker = {};
+  for (int n=0;n<100;++n) require(!tracker.update(1.8-.001*n, 1, true), "Continuing decay must continue");
+  tracker = {};
+  for (int n=0;n<100;++n) require(!tracker.update(1.1, 1, false), "Uncounted checks cannot stop");
+}
+
 int main() {
+  precision_stagnation();
   pure_step();
   storage_and_identity<float>();
   storage_and_identity<double>();

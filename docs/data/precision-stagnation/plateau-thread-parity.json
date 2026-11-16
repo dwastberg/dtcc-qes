@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "backends": [
+    "serial/1",
+    "openmp/1",
+    "openmp/2",
+    "openmp/4",
+    "openmp/8"
+  ],
+  "iterations": 12675,
+  "field_hash": "26edb67821a795ea7e6c12761e03d5a42e454ed6f11670600c2728227e2734ca"
+}

@@ -240,3 +240,16 @@ An intentional numerical change of the default solver (`docs/solver-control-requ
 - The defaults are switched with G6 passed, or the reason for not switching is recorded.
 - P7's before-and-after timing is in the results file.
 - `AIJ_VALIDATION.md` R14 and `CLAUDE_WIND_EXPERIMENTS.md` F02 point to the results.
+
+## Precision stagnation follow-up (2026-11-16)
+
+The velocity rule also stops at `precision_floor` after eight checks without a
+new minimum block change and eight consecutive counted checks within twice the
+arithmetic floor. Existing estimate and two-check floor stops have precedence.
+The state resets on each condition; fixed work never stops early.
+`stop_estimate` records `stagnation_checks=8`, `stagnation_floor_factor=2`, and
+`floor_trigger` (`stagnation`, `consecutive_checks`, or null). The raw estimate
+is unchanged; a precision-floor outcome does not certify the requested error
+tolerance. Historical records lacking the new constants replay the old rule.
+
+See `docs/PRECISION_STAGNATION_RESULTS.md` for validation and requalification status.

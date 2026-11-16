@@ -1,0 +1,104 @@
+{
+  "passed": true,
+  "workers": [
+    {
+      "id": "release-online-00",
+      "differences": []
+    },
+    {
+      "id": "release-online-01",
+      "differences": []
+    },
+    {
+      "id": "release-online-02",
+      "differences": []
+    },
+    {
+      "id": "release-online-03",
+      "differences": []
+    },
+    {
+      "id": "release-online-04",
+      "differences": []
+    },
+    {
+      "id": "release-online-05",
+      "differences": []
+    },
+    {
+      "id": "release-online-06",
+      "differences": []
+    },
+    {
+      "id": "release-online-07",
+      "differences": []
+    },
+    {
+      "id": "release-online-08",
+      "differences": []
+    },
+    {
+      "id": "release-online-09",
+      "differences": []
+    },
+    {
+      "id": "release-online-10",
+      "differences": []
+    },
+    {
+      "id": "release-online-11",
+      "differences": []
+    },
+    {
+      "id": "release-online-12",
+      "differences": []
+    },
+    {
+      "id": "release-online-13",
+      "differences": []
+    },
+    {
+      "id": "release-online-14",
+      "differences": []
+    },
+    {
+      "id": "release-online-15",
+      "differences": []
+    },
+    {
+      "id": "release-online-16",
+      "differences": []
+    },
+    {
+      "id": "release-online-17",
+      "differences": []
+    },
+    {
+      "id": "release-online-18",
+      "differences": []
+    },
+    {
+      "id": "release-online-19",
+      "differences": []
+    },
+    {
+      "id": "release-online-20",
+      "differences": []
+    },
+    {
+      "id": "release-online-21",
+      "differences": []
+    },
+    {
+      "id": "release-online-22",
+      "differences": []
+    },
+    {
+      "id": "release-online-23",
+      "differences": []
+    }
+  ],
+  "baseline_frozen_mismatches": 3,
+  "candidate_frozen_mismatches": 3,
+  "timings": "Excluded using the existing benchmark_prepared_wind.comparable function"
+}

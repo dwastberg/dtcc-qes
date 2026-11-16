@@ -1,0 +1,29 @@
+{
+  "schema": "aij-runspec-v1",
+  "case": "C",
+  "label": "22.5 deg.",
+  "direction": 292.5,
+  "state": "0H",
+  "city": "exact",
+  "resolution": 1.0,
+  "layer": null,
+  "vertical": "stretched",
+  "inflow": "measured",
+  "interpolation": "log_height",
+  "min_detail": null,
+  "padding": 120.0,
+  "clearance": 160.0,
+  "tolerance": 0.0001,
+  "max_iterations": 20000,
+  "precision": "float32",
+  "monitor": false,
+  "checkpoint_interval": 25,
+  "turbulence": true,
+  "max_cells": 20000000,
+  "parameterizations": {
+    "tall_buildings": 1,
+    "wake": 3
+  },
+  "relaxation": "grid",
+  "stop": "velocity"
+}

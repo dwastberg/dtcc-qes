@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "case": "aij/0097f86639327982",
+  "comparison": "All output fields exactly equal using the documented probe builder",
+  "result": {
+    "iterations": 250,
+    "stagnation": false,
+    "direction": 247.5,
+    "resolution": 2,
+    "reference_iterations": 1500,
+    "reference_estimate": 1.3321798267697982e-09,
+    "reference_stability": 6.665848684159843e-10,
+    "max_face_error": 0.00021218113311179758,
+    "pedestrian_face_error": 0.00021044969423324728,
+    "pass": true
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "measurements": {
+    "wind-only": {
+      "median_seconds": {
+        "baseline": 0.009917750023305416,
+        "candidate": 0.01019883411936462
+      },
+      "delta_seconds": 0.00028108409605920315,
+      "review_threshold_exceeded": false
+    },
+    "combined": {
+      "median_seconds": {
+        "baseline": 0.019818375119939446,
+        "candidate": 0.020509167108684778
+      },
+      "delta_seconds": 0.0006907919887453318,
+      "review_threshold_exceeded": false
+    },
+    "export": {
+      "median_seconds": {
+        "baseline": 0.03468000004068017,
+        "candidate": 0.03472533309832215
+      },
+      "delta_seconds": 4.533305764198303e-05,
+      "review_threshold_exceeded": false
+    }
+  },
+  "background": "AIJ reference validation active; repetitions alternate baseline/candidate order"
+}

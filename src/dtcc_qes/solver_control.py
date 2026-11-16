@@ -136,6 +136,10 @@ class Solver:
     ``"grid"``: 2 - 16/N for N cells across the shorter horizontal side of the
     domain, clipped to [1.78, 1.98]; the value used is
     ``result.solver["relaxation"]``. ``max_iterations`` caps every rule.
+    The velocity rule also stops at the arithmetic floor, including eight checks
+    without a new minimum change while all eight remain within twice the floor.
+    This reports ``precision_floor`` with ``floor_trigger="stagnation"``; the
+    raw error estimate is retained even when it exceeds the requested tolerance.
 
     Settings left out depend on the rule: ``"velocity"`` uses ``"grid"`` and
     20,000 sweeps; the other rules and the pedestrian-v1 policy use 1.78 and

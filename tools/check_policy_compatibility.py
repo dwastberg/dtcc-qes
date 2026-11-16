@@ -30,7 +30,7 @@ def monitor_compatible(current, frozen, allow_disabled_turbulence=False):
     return comparable(current) == comparable(frozen)
 
 
-def check(output, serial, openmp, allow_disabled_turbulence=False):
+def check(output, serial, openmp, allow_disabled_turbulence=False, keep_going=False):
     output.mkdir(parents=True, exist_ok=False)
     evidence = ROOT / "docs/data/solver-control-s7"
     protocol = json.loads((evidence / "release-online-protocol.json").read_text())
@@ -74,20 +74,22 @@ def check(output, serial, openmp, allow_disabled_turbulence=False):
                 differences.append("control/policy_revision")
         report["workers"].append(dict(request=req, differences=differences))
         (output / "summary.json").write_text(json.dumps(report, indent=2) + "\n")
-        if differences:
+        if differences and not keep_going:
             raise ValueError(f"Frozen policy regression in {req['id']}: {differences}")
-    report["passed"] = True
+    report["passed"] = not any(row["differences"] for row in report["workers"])
     (output / "summary.json").write_text(json.dumps(report, indent=2) + "\n")
-    print(f"All {len(expected)} frozen workers match; declared identity and disabled-monitor metadata exceptions only.")
+    print(f"Checked {len(expected)} frozen workers; passed={report['passed']}.")
+    return report["passed"]
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--keep-going", action="store_true", help="Collect every worker mismatch before failing")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--serial", type=Path, required=True)
     parser.add_argument("--openmp", type=Path, required=True)
     parser.add_argument("--allow-disabled-turbulence-monitor", action="store_true",
                         help="Allow only the new monitor turbulence=False metadata field")
     args = parser.parse_args()
-    check(args.output.resolve(), args.serial.resolve(), args.openmp.resolve(),
-          args.allow_disabled_turbulence_monitor)
+    raise SystemExit(0 if check(args.output.resolve(), args.serial.resolve(), args.openmp.resolve(),
+          args.allow_disabled_turbulence_monitor, args.keep_going) else 1)

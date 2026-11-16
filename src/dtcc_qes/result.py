@@ -138,7 +138,9 @@ class SolveDiagnostics:
     With ``Solver(stop="velocity")``, ``converged`` instead means the estimated
     remaining velocity error reached its tolerance or the rounding floor
     (``result.solver["stop_estimate"]``); ``qualification["solver"]
-    ["legacy_converged"]`` keeps the multiplier-change meaning.
+    ["legacy_converged"]`` keeps the multiplier-change meaning. Precision-floor
+    stops include sustained stagnation near that floor; ``floor_trigger`` names
+    the trigger. They do not certify that the requested velocity tolerance was met.
     Divergence excludes prescribed lateral cells and the highest physical layer.
     The last solved band has an uncorrected upper face and is reported separately.
     Metrics are None when no fluid cells were assessed in the respective region.

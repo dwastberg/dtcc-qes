@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "fixtures": [
+    "openmp/building_wall.npz",
+    "openmp/building_thin_wall.npz",
+    "openmp/flat_oblique.npz",
+    "openmp/flat.npz",
+    "openmp/one_building.npz",
+    "openmp/building_nonuniform.npz",
+    "openmp/building_oblique.npz",
+    "openmp/building_nonuniform_wall.npz",
+    "serial/building_wall.npz",
+    "serial/building_thin_wall.npz",
+    "serial/flat_oblique.npz",
+    "serial/flat.npz",
+    "serial/one_building.npz",
+    "serial/building_nonuniform.npz",
+    "serial/building_oblique.npz",
+    "serial/building_nonuniform_wall.npz"
+  ]
+}

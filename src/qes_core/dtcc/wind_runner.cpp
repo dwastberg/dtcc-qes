@@ -81,6 +81,10 @@ StopEstimateData stop_estimate_data(const solver::EstimateReport &report, const 
   out.safety_factor = solver::estimate_safety_factor;
   out.contraction_limit = solver::estimate_contraction_limit;
   out.floor_factor = solver::estimate_floor_factor;
+  out.stagnation_checks = solver::estimate_stagnation_checks;
+  out.stagnation_floor_factor = solver::estimate_stagnation_floor_factor;
+  if (termination == solver::Termination::PrecisionFloor)
+    out.floor_trigger = report.stagnation_floor ? "stagnation" : "consecutive_checks";
   out.first_counted_check = solver::estimate_first_counted_check;
   out.interval = report.options.interval; out.checks = report.checks;
   out.history_truncated = report.history_truncated;

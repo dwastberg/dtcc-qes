@@ -1,0 +1,11 @@
+{
+  "files": {
+    "tools/precision_stagnation_probe.cpp": "bf6a016d861e1c73b93374b1a942fc3e8857131173818340b51a52ec1740a31e",
+    "tools/validate_precision_stagnation.py": "e9f5095c104ee208d7a9d837eb70e97a41932ef2cc401996f30fbdaf160e0f09",
+    "tools/replay_precision_stagnation.py": "f438ee663a55b0ad8d120b4bb2a5f6a32c1815c55dc7b059cdc4e727f40075bd",
+    "uv.lock": "066712e19f57aeaf44f8fa1f1611cac8817ec2b8bb6ebf397ca226192f624cb7",
+    "build/precision-stagnation/openmp/precision_probe": "5718d1b357e6799d4cd9fd336b040d5de006bce60a488de85e435b39fa3ac5a8"
+  },
+  "candidate_native_identity": "df09ee9d8b82471171868fe441bc082c3a17094ce6e03f84295909e51bba329b",
+  "baseline_native_identity": "e130c2fbf47179923862c037a9a370ec17b91788a01f6719cd282506ba43471a"
+}

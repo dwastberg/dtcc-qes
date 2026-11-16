@@ -184,6 +184,8 @@ def test_velocity_rule_stops_on_its_estimate(precision):
     assert estimate["contraction"][0] is None and estimate["estimate"][0] is None
     assert estimate["safety_factor"] == 2 and estimate["contraction_limit"] == 0.99 and estimate["floor_factor"] == 6
     assert estimate["first_counted_check"] == 4 and estimate["checks"] >= 5
+    assert estimate["stagnation_checks"] == 8 and estimate["stagnation_floor_factor"] == 2
+    assert estimate["floor_trigger"] in (None, "consecutive_checks", "stagnation")
     json.dumps(estimate, allow_nan=False)
 
 
@@ -434,3 +436,37 @@ def test_replace_resolves_left_out_settings_for_the_new_mode():
     solver = wind.Solver()
     assert type(json.loads(json.dumps(solver.to_dict()))["max_iterations"]) is int
     assert repr(solver).count("'velocity'") == 1 and solver.max_iterations + 0 == 20000
+
+
+@pytest.mark.parametrize('bounded', [False, True])
+def test_rounding_stagnation_terminates_and_resets_between_conditions(bounded):
+    if _qes.compiler_id != 'AppleClang' or _qes.fp_contract != 'on':
+        pytest.skip('This recorded float32 plateau uses AppleClang with contraction on')
+    runner = prepare(configuration())
+    condition = _qes.WindCondition()
+    condition.direction = 67.5
+    options = _stop_options(20000, 'velocity', tolerance=1e-9)
+    options.relaxation = 1.999
+    kwargs = {}
+    if bounded:
+        kwargs['control'] = wind.Solver(max_solve_seconds=120,
+            monitor=wind.MonitorSpec((0, 100, 0, 80), history_limit=4))._native((0, 0, 0), None)
+    first = runner.solve(condition, options, **kwargs)
+    history = first['stop_estimate']
+    assert first['diagnostics']['converged']
+    assert history['termination'] == 'precision_floor'
+    assert history['floor_trigger'] == 'stagnation'
+    assert history['estimate'][-1] > options.velocity_tolerance
+    assert all(c <= 2*f for c, f in zip(history['change'][-8:], history['floor'][-8:]))
+    if bounded:
+        assert first['control']['termination_reason'] == 'precision_floor'
+    # Fixed work must continue past that plateau, and its report must not retain the trigger.
+    fixed = _stop_options(first['diagnostics']['iterations'] + 25, 'fixed', tolerance=1e-9)
+    fixed.relaxation = options.relaxation
+    result = runner.solve(condition, fixed, **kwargs)
+    assert result['diagnostics']['iterations'] == fixed.max_iterations
+    assert result['stop_estimate']['floor_trigger'] is None
+    again = runner.solve(condition, options, **kwargs)
+    assert again['stop_estimate'] == history
+    np.testing.assert_array_equal(again['velocity'], first['velocity'])
+    json.dumps(history, allow_nan=False)

@@ -150,6 +150,7 @@ template<class Real> void SolverState<Real>::begin(ConditionInputs input, int sw
   history_.clear(); history_truncated_ = false;
   checks_ = passes_ = floor_passes_ = 0; recent_[0] = recent_[1] = 0;
   estimate_stop_ = Termination::None;
+  stagnation_ = {}; stagnation_floor_ = false;
   minimum_spacing_ = std::min(double(domain.dx()),double(domain.dy()));
   for (int k = 1; k < domain.nz()-2; ++k) minimum_spacing_ = std::min(minimum_spacing_,double(domain.dz_array[k]));
   resources_.set_bytes(workspace_bytes());
@@ -176,7 +177,7 @@ template<class Real> Termination SolverState<Real>::termination() const {
 }
 template<class Real> std::optional<EstimateReport> SolverState<Real>::estimate_report() const {
   if (!estimate_.enabled) return std::nullopt;
-  return EstimateReport{estimate_,history_,history_truncated_,checks_};
+  return EstimateReport{estimate_,history_,history_truncated_,checks_,stagnation_floor_};
 }
 // The faces and expressions of corrected_face, applied to the block change of
 // the multipliers. Max reductions are exact, so teams cannot change the result.
@@ -210,11 +211,16 @@ template<class Real> void SolverState<Real>::check_estimate() {
   const bool counted = checks_ >= estimate_first_counted_check;
   passes_ = counted && check.estimate <= estimate_.tolerance ? passes_+1 : 0;
   floor_passes_ = counted && relative <= floor ? floor_passes_+1 : 0;
+  const bool stagnated = stagnation_.update(relative, floor, counted);
   if (history_.size() < estimate_history_limit) history_.push_back(check);
   else history_truncated_ = true;
   if (stop_rule_ == StopRule::VelocityEstimate) {
     if (passes_ >= estimate_required_passes) estimate_stop_ = Termination::VelocityEstimate;
     else if (floor_passes_ >= estimate_required_passes) estimate_stop_ = Termination::PrecisionFloor;
+    else if (stagnated) {
+      estimate_stop_ = Termination::PrecisionFloor;
+      stagnation_floor_ = true;
+    }
   }
   std::copy(lambda.begin(),lambda.end(),snapshot_.begin());
 }

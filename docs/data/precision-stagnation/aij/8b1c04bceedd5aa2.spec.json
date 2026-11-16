@@ -1,0 +1,23 @@
+{
+  "schema": "aij-runspec-v1",
+  "case": "E",
+  "label": "N",
+  "direction": 0.0,
+  "state": "after",
+  "city": "exact",
+  "resolution": 1.0,
+  "layer": null,
+  "vertical": "stretched",
+  "inflow": "measured",
+  "interpolation": "log_height",
+  "min_detail": 0.1,
+  "padding": 20.0,
+  "clearance": 20.0,
+  "tolerance": 0.0001,
+  "max_iterations": 1000,
+  "precision": "float32",
+  "monitor": false,
+  "checkpoint_interval": 25,
+  "turbulence": false,
+  "max_cells": 20000000
+}

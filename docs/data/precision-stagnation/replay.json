@@ -1,0 +1,3510 @@
+{
+  "histories": 1391,
+  "changed": 87,
+  "changes": [
+    {
+      "tag": "runs-all",
+      "name": "C-1H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1875,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-all",
+      "name": "C-1H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1975,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-all",
+      "name": "C-2H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2125,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-all",
+      "name": "C-2H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2200,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-all",
+      "name": "C-2H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2125,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-all",
+      "name": "C-0H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2225,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-all",
+      "name": "C-1H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2075,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-all",
+      "name": "C-0H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2000,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-all",
+      "name": "C-0H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1950,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-fade2.5",
+      "name": "C-1H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1650,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-fade2.5",
+      "name": "C-1H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1975,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-fade2.5",
+      "name": "C-2H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1750,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-fade2.5",
+      "name": "C-2H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1750,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-fade2.5",
+      "name": "C-2H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1925,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-fade2.5",
+      "name": "C-0H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2100,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-fade2.5",
+      "name": "C-1H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1925,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-fade2.5",
+      "name": "C-0H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        14525,
+        "velocity_estimate"
+      ],
+      "new": [
+        2150,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-fade2.5",
+      "name": "C-0H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1825,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-rss",
+      "name": "C-1H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1875,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-rss",
+      "name": "C-1H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1975,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-rss",
+      "name": "C-2H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2000,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-rss",
+      "name": "C-2H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2100,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-rss",
+      "name": "C-2H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1950,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-rss",
+      "name": "C-0H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2225,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-rss",
+      "name": "C-1H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2075,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-rss",
+      "name": "C-0H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2000,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-rss",
+      "name": "C-0H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1950,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-tall",
+      "name": "C-1H-0deg-r1-measured-float32-it20000-pad120-top160-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1875,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-tall",
+      "name": "C-1H-45deg-r1-measured-float32-it20000-pad120-top160-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1975,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-tall",
+      "name": "C-0H-45deg-r1-measured-float32-it20000-pad120-top160-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2225,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-tall",
+      "name": "C-1H-22.5deg-r1-measured-float32-it20000-pad120-top160-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2075,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-tall",
+      "name": "C-0H-0deg-r1-measured-float32-it20000-pad120-top160-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2000,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-tall",
+      "name": "C-0H-22.5deg-r1-measured-float32-it20000-pad120-top160-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1950,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-default",
+      "name": "C-1H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1650,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-default",
+      "name": "C-1H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1975,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-default",
+      "name": "C-2H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1750,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-default",
+      "name": "C-2H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1750,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-default",
+      "name": "C-2H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1925,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-default",
+      "name": "C-0H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2100,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-default",
+      "name": "C-1H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1925,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-default",
+      "name": "C-0H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        14525,
+        "velocity_estimate"
+      ],
+      "new": [
+        2150,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-default",
+      "name": "C-0H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1825,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d2",
+      "name": "C-1H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1875,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d2",
+      "name": "C-1H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1975,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d2",
+      "name": "C-2H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1900,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d2",
+      "name": "C-2H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2025,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d2",
+      "name": "C-2H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1975,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d2",
+      "name": "C-0H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2225,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d2",
+      "name": "C-1H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2075,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d2",
+      "name": "C-0H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2000,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d2",
+      "name": "C-0H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1950,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-both",
+      "name": "C-1H-0deg-r1-measured-float32-it20000-pad120-top160-angle_fade2.5-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1875,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "angle_fade": 2.5,
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-both",
+      "name": "C-1H-45deg-r1-measured-float32-it20000-pad120-top160-angle_fade2.5-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1975,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "angle_fade": 2.5,
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-both",
+      "name": "C-2H-22.5deg-r1-measured-float32-it20000-pad120-top160-angle_fade2.5-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2125,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "angle_fade": 2.5,
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-both",
+      "name": "C-2H-0deg-r1-measured-float32-it20000-pad120-top160-angle_fade2.5-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2200,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "angle_fade": 2.5,
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-both",
+      "name": "C-2H-45deg-r1-measured-float32-it20000-pad120-top160-angle_fade2.5-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2125,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "angle_fade": 2.5,
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-both",
+      "name": "C-0H-45deg-r1-measured-float32-it20000-pad120-top160-angle_fade2.5-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2225,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "angle_fade": 2.5,
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-both",
+      "name": "C-1H-22.5deg-r1-measured-float32-it20000-pad120-top160-angle_fade2.5-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2075,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "angle_fade": 2.5,
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-both",
+      "name": "C-0H-0deg-r1-measured-float32-it20000-pad120-top160-angle_fade2.5-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2000,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "angle_fade": 2.5,
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-final-both",
+      "name": "C-0H-22.5deg-r1-measured-float32-it20000-pad120-top160-angle_fade2.5-tall_buildings1-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1950,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "angle_fade": 2.5,
+          "tall_buildings": 1,
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d3",
+      "name": "C-1H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1875,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d3",
+      "name": "C-1H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1975,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d3",
+      "name": "C-2H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2125,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d3",
+      "name": "C-2H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2200,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d3",
+      "name": "C-2H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2125,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d3",
+      "name": "C-0H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2225,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d3",
+      "name": "C-1H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2075,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d3",
+      "name": "C-0H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2000,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d3",
+      "name": "C-0H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1950,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d",
+      "name": "C-1H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1875,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d",
+      "name": "C-1H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1975,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d",
+      "name": "C-2H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2000,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d",
+      "name": "C-2H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1800,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d",
+      "name": "C-2H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2000,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d",
+      "name": "C-0H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2225,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d",
+      "name": "C-1H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2075,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d",
+      "name": "C-0H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2000,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs-s-d",
+      "name": "C-0H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1950,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs",
+      "name": "C-1H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1650,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs",
+      "name": "C-1H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1975,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs",
+      "name": "C-2H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1750,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs",
+      "name": "C-2H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1750,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs",
+      "name": "C-2H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1925,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "2H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs",
+      "name": "C-0H-45deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        2100,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "45 deg.",
+        "direction": 315.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs",
+      "name": "C-1H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1925,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "1H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs",
+      "name": "C-0H-0deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        14525,
+        "velocity_estimate"
+      ],
+      "new": [
+        2150,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "0 deg.",
+        "direction": 270.0,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    },
+    {
+      "tag": "runs",
+      "name": "C-0H-22.5deg-r1-measured-float32-it20000-pad120-top160-wake3-wgrid-velocity1e-03",
+      "old": [
+        null,
+        null
+      ],
+      "new": [
+        1825,
+        "precision_floor"
+      ],
+      "spec": {
+        "schema": "aij-runspec-v1",
+        "case": "C",
+        "label": "22.5 deg.",
+        "direction": 292.5,
+        "state": "0H",
+        "city": "exact",
+        "resolution": 1.0,
+        "layer": null,
+        "vertical": "stretched",
+        "inflow": "measured",
+        "interpolation": "log_height",
+        "min_detail": null,
+        "padding": 120.0,
+        "clearance": 160.0,
+        "tolerance": 0.0001,
+        "max_iterations": 20000,
+        "precision": "float32",
+        "monitor": false,
+        "checkpoint_interval": 25,
+        "turbulence": true,
+        "max_cells": 20000000,
+        "parameterizations": {
+          "wake": 3
+        },
+        "relaxation": "grid",
+        "stop": "velocity"
+      }
+    }
+  ]
+}

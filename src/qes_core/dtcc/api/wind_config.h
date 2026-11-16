@@ -61,7 +61,9 @@ struct SolverOptions {
 // Remaining-velocity-error estimate of a "velocity" or "fixed" solve. Values
 // are relative to reference_speed; non-finite entries mean "not yet available".
 struct StopEstimateData {
-  std::string rule, termination;
+  std::string rule, termination, floor_trigger;
+  int stagnation_checks = 0;
+  double stagnation_floor_factor = 0;
   double tolerance = 0, reference_speed = 0;
   double safety_factor = 0, contraction_limit = 0, floor_factor = 0;
   int interval = 0, checks = 0, first_counted_check = 0;

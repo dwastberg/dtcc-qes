@@ -1,0 +1,114 @@
+{
+  "baseline_revision": "7008159d34a55be2f23d7531660f4083dd3584c1",
+  "candidate": "worktree",
+  "allow_added_contraction": false,
+  "ordering_migration": false,
+  "comparisons": [
+    {
+      "kind": "revision",
+      "backend": "openmp",
+      "threads": 1,
+      "cases": 509,
+      "records": 5503,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "revision",
+      "backend": "openmp",
+      "threads": 2,
+      "cases": 509,
+      "records": 5503,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "revision",
+      "backend": "openmp",
+      "threads": 4,
+      "cases": 509,
+      "records": 5503,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "revision",
+      "backend": "openmp",
+      "threads": 8,
+      "cases": 509,
+      "records": 5503,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "team",
+      "threads": [
+        1,
+        2
+      ],
+      "records": 5503,
+      "differences": []
+    },
+    {
+      "kind": "team",
+      "threads": [
+        1,
+        4
+      ],
+      "records": 5503,
+      "differences": []
+    },
+    {
+      "kind": "team",
+      "threads": [
+        1,
+        8
+      ],
+      "records": 5503,
+      "differences": []
+    },
+    {
+      "kind": "revision",
+      "backend": "serial",
+      "threads": 1,
+      "cases": 509,
+      "records": 5503,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "backend",
+      "threads": 1,
+      "records": 5503,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "backend",
+      "threads": 2,
+      "records": 5503,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "backend",
+      "threads": 4,
+      "records": 5503,
+      "differences": [],
+      "required": true
+    },
+    {
+      "kind": "backend",
+      "threads": 8,
+      "records": 5503,
+      "differences": [],
+      "required": true
+    }
+  ],
+  "native_consolidation": true,
+  "identity_pair": [
+    "e130c2fbf47179923862c037a9a370ec17b91788a01f6719cd282506ba43471a",
+    "df09ee9d8b82471171868fe441bc082c3a17094ce6e03f84295909e51bba329b"
+  ],
+  "passed": true
+}

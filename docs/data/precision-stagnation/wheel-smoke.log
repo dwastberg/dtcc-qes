@@ -1,0 +1,30 @@
+[14:55:03] [dtcc-qes] [warning] Wind result excluded from pedestrian-v1 before 
+preparation: unqualified_build; remaining checks run during the solve
+[14:55:03] [dtcc-qes] [info] Wind grid 80 x 80 x 32, 4 buildings: 600 
+iterations, converged=False, max_divergence=1.1444091796875e-05 s^-1
+[14:55:03] [dtcc-core] [info] Footprint cleaning started: inputs=2 
+resolution=0.01
+[14:55:03] [dtcc-core] [info] Footprint cleaning complete: outcome=conforming 
+outputs=1 seconds=0.003
+[14:55:03] [dtcc-core] [info] Cleaned 2 building footprints at 0.01 m: 1 
+buildings, 1 merged (unison, outcome=conforming, walls: 1 strict, 0 warning, 0 
+fallback)
+[14:55:03] [dtcc-qes] [info] Wind grid 24 x 24 x 32, 2 buildings: 2 iterations, 
+converged=False, max_divergence=12.999729871749878 s^-1
+[14:55:03] [dtcc-qes] [warning] Wind solve did not converge after 2 iterations: 
+remaining-velocity estimate unavailable > tolerance 0.001 of the reference speed
+[14:55:03] [dtcc-qes] [info] Wind grid 12 x 12 x 16, 0 buildings: 2 iterations, 
+converged=False, max_divergence=0.0 s^-1
+[14:55:03] [dtcc-qes] [warning] Wind solve did not converge after 2 iterations: 
+remaining-velocity estimate unavailable > tolerance 0.001 of the reference speed
+[14:55:03] [dtcc-qes] [info] Wind grid 12 x 12 x 16, 0 buildings: 2 iterations, 
+converged=False, max_divergence=0.0 s^-1
+[14:55:03] [dtcc-qes] [warning] Wind solve did not converge after 2 iterations: 
+remaining-velocity estimate unavailable > tolerance 0.001 of the reference 
+speed; requested turbulence is screening output based on this mean wind
+[14:55:03] [dtcc-qes] [info] Wind grid 12 x 12 x 16, 0 buildings: 2 iterations, 
+converged=False, max_divergence=0.0 s^-1
+[14:55:03] [dtcc-qes] [warning] Wind solve did not converge after 2 iterations: 
+remaining-velocity estimate unavailable > tolerance 0.001 of the reference 
+speed; requested turbulence is screening output based on this mean wind
+{"passed": true, "package": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/precision-stagnation/wheel-final-install/dtcc_qes", "module": "/Users/dagwastberg/repos/dtcc/dtcc-qes/build/precision-stagnation/wheel-final-install/dtcc_qes/_qes.cpython-313-darwin.so", "policy_revision": "df09ee9d8b82471171868fe441bc082c3a17094ce6e03f84295909e51bba329b", "adaptive_accepted": false, "actual_threads": 4, "checks": ["owned_output", "sampling", "adaptive_vs_legacy_status", "derived_qualification", "nested_timings", "history_bounds", "float64", "two_turbulence_methods", "zero_work_error", "canonical_footprints_with_partition_hole"]}
