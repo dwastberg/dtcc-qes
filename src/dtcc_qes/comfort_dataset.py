@@ -23,7 +23,7 @@ from .turbulence import NUMERICS_VERSION
 POLICY_VERSION = "comfort-screening-v1"
 DIRECTIONS = tuple(np.arange(0., 360., 22.5))
 REFERENCE_SPEED = 5.0
-CRITERIA = {"nen8100": comfort.NEN8100, "city_of_london": comfort.CITY_OF_LONDON}
+CRITERIA = {"nen8100": comfort.NEN8100, "city_of_london": comfort.CITY_OF_LONDON, "lawson_2019": comfort.CITY_OF_LONDON}
 
 
 class QESWindComfortArgs(DatasetBaseArgs):
@@ -34,7 +34,7 @@ class QESWindComfortArgs(DatasetBaseArgs):
     resolution: float = Argument(2.0, gt=0)
     max_cells: int = Argument(50_000_000, ge=1,
         description="Memory-capacity guard for the full buffered simulation domain; not an accuracy setting.")
-    criterion: Literal["nen8100", "city_of_london"] = "nen8100"
+    criterion: Literal["nen8100", "city_of_london", "lawson_2019"] = "nen8100"
     start: str | None = Argument(None, description="Inclusive UTC start; defaults to 12 calendar months before end.")
     end: str | None = Argument(None, description="Exclusive UTC end; defaults to first of the previous month.")
     years: tuple[int, int] | None = Argument(None, description="Alternative inclusive calendar-year pair; conflicts with start/end.")

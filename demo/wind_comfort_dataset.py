@@ -8,9 +8,9 @@ from time import time
 
 
 BOUNDS =  (319845, 6397785, 320095, 6398035)
-RESOLUTION = 1.0  # Horizontal cell spacing in metres.
+RESOLUTION =2.0  # Horizontal cell spacing in metres.
 MAX_CELLS = 50_000_000  # Cell limit for the full buffered simulation domain.
-CRITERION = "city_of_london"  # Also "city_of_london".
+CRITERION = "lawson_2019"  # Also "NEN8100"
 SOURCE = "LM"  # Also "OSM".
 WEATHER_SOURCE = "open_meteo"  # Also "SMHI"
 START = None  # Default: twelve calendar months before END.

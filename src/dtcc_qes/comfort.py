@@ -25,7 +25,7 @@ import numpy as np
 from ._log import shifted_log
 from ._validation import real as _number
 
-__all__ = ["Rule", "Rating", "Criterion", "ComfortResult", "NEN8100", "CITY_OF_LONDON", "SCREENING_PEAK_FACTOR",
+__all__ = ["Rule", "Rating", "Criterion", "ComfortResult", "NEN8100", "CITY_OF_LONDON", "LAWSON_2019", "SCREENING_PEAK_FACTOR",
            "assess", "assess_results", "exceedance", "speed_at_exceedance", "log_law_transfer", "gust_equivalent_mean"]
 
 SEASONS = {"winter": (12, 1, 2), "spring": (3, 4, 5), "summer": (6, 7, 8), "autumn": (9, 10, 11)}
@@ -120,6 +120,7 @@ CITY_OF_LONDON = Criterion(
     gust_equivalent=True, seasonal_comfort=True,
 )
 
+LAWSON_2019 = CITY_OF_LONDON
 
 @dataclass(frozen=True)
 class ComfortResult:
